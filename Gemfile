@@ -48,5 +48,5 @@ gem 'omniauth-github', '~> 1.1.1'
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
 
-# Use debugger
-# gem 'debugger', group: [:development, :test]
+# Use pry
+gem 'pry', group: [:development, :test]

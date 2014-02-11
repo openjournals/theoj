@@ -28,6 +28,7 @@ GEM
     arel (4.0.2)
     atomic (1.1.14)
     builder (3.1.4)
+    coderay (1.1.0)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0, < 5.0)
@@ -57,6 +58,7 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.8.2)
     mime-types (1.25.1)
     minitest (4.7.5)
     multi_json (1.8.4)
@@ -81,6 +83,10 @@ GEM
       oauth2 (~> 0.9.3)
       omniauth (~> 1.2)
     polyglot (0.3.3)
+    pry (0.9.12.4)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -108,6 +114,7 @@ GEM
     sdoc (0.4.0)
       json (~> 1.8)
       rdoc (~> 4.0, < 5.0)
+    slop (3.4.7)
     sprockets (2.10.1)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -142,6 +149,7 @@ DEPENDENCIES
   mysql2
   omniauth (~> 1.2)
   omniauth-github (~> 1.1.1)
+  pry
   rails (= 4.0.2)
   sass-rails (~> 4.0.0)
   sdoc

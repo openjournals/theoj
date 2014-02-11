@@ -1,0 +1,6 @@
+<%- if current_user -%>
+  <p>Signed in as <%= current_user.name %> &middot; <%= image_tag current_user.picture %> <%= link_to "Sign out", signout_path %></p>
+
+<%- else -%>
+  <p><%= link_to "Sign in with GitHub", "/auth/github" %></p>
+<%- end -%>

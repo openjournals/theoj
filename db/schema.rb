@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140211220942) do
+ActiveRecord::Schema.define(version: 20140211223942) do
 
   create_table "commontator_comments", force: true do |t|
     t.string   "creator_type"
@@ -64,6 +64,10 @@ ActiveRecord::Schema.define(version: 20140211220942) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "oauth_token"
+    t.datetime "oauth_expires_at"
+    t.text     "extra"
+    t.string   "picture"
   end
 
 end
