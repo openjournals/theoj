@@ -32,6 +32,13 @@ group :doc do
   gem 'sdoc', require: false
 end
 
+# Comments engine
+gem 'commontator', '~> 4.2.2'
+
+# Auth/Users
+gem 'omniauth', '~> 1.2'
+gem 'omniauth-github', '~> 1.1.1'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.1.2'
 
