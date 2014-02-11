@@ -1,0 +1,24 @@
+development:
+  adapter: mysql2
+  database: theoj_development
+  pool: 5
+  username: root
+  password:
+  socket: <%= ENV['GH_MYSQL_SOCKET'] %>
+
+test:
+  adapter: mysql2
+  database: theoj_test
+  pool: 5
+  username: root
+  password:
+  socket: <%= ENV['GH_MYSQL_SOCKET'] %>
+
+production:
+  adapter: sqlite3
+  database: theoj_development
+  pool: 5
+  username: root
+  password:
+  socket: <%= ENV['GH_MYSQL_SOCKET'] %>
+  
