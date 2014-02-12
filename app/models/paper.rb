@@ -1,4 +1,4 @@
-class Paper < ActiveRecord::Base
+class Paper < ActiveRecord::Base  
   state_machine :initial => :submitted do 
     state :submitted
     state :under_review

@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
-  before_filter :require_user, :except => :show
+  before_filter :require_user
   
   def index
     

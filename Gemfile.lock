@@ -36,9 +36,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.7.0)
-    commontator (4.2.2)
-      jquery-rails
-      rails (>= 3.1)
     erubis (2.7.0)
     execjs (2.0.2)
     faraday (0.9.0)
@@ -144,7 +141,6 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-rails (~> 4.0.0)
-  commontator (~> 4.2.2)
   jbuilder (~> 1.2)
   jquery-rails
   mysql2
