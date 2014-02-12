@@ -18,4 +18,12 @@ class Paper < ActiveRecord::Base
   def resolve_all_issues
     # Do something awesome
   end
+  
+  def pretty_status
+    state.humanize
+  end
+
+  def pretty_submission_date
+    submitted_at.strftime("%-d %B %Y")
+  end
 end
