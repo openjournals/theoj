@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140211223942) do
+ActiveRecord::Schema.define(version: 20140212012504) do
 
   create_table "commontator_comments", force: true do |t|
     t.string   "creator_type"
@@ -57,6 +57,17 @@ ActiveRecord::Schema.define(version: 20140211223942) do
   end
 
   add_index "commontator_threads", ["commontable_id", "commontable_type"], name: "index_c_t_on_c_id_and_c_type", unique: true, using: :btree
+
+  create_table "papers", force: true do |t|
+    t.integer  "user_id"
+    t.string   "location"
+    t.string   "state"
+    t.datetime "submitted_at"
+    t.string   "title"
+    t.integer  "version",      default: 1
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", force: true do |t|
     t.string   "provider"
