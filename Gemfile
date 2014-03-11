@@ -37,6 +37,7 @@ gem 'omniauth', '~> 1.2'
 gem 'omniauth-github', '~> 1.1.1'
 
 gem 'state_machine', '~> 1.2.0'
+gem 'cancan', '~> 1.6.10'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.1.2'

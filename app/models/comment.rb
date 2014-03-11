@@ -5,4 +5,8 @@ class Comment < ActiveRecord::Base
     state :challenged
     
   end
+  
+  def has_responses?
+    false
+  end
 end

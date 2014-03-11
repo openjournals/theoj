@@ -16,4 +16,20 @@ class User < ActiveRecord::Base
       user.extra = auth
     end
   end
+  
+  def reviewer_of?(paper)
+    true
+  end
+  
+  def author_of?(paper)
+    true
+  end
+  
+  def admin?
+    
+  end
+  
+  def editor?
+    
+  end
 end
