@@ -7,5 +7,9 @@ class CreateUsers < ActiveRecord::Migration
 
       t.timestamps
     end
+
+    add_index "users", ["provider"], :name => "index_user_providers"
+    add_index "users", ["uid"], :name => "index_user_uid"
+    add_index "users", ["name"], :name => "index_user_name"
   end
 end
