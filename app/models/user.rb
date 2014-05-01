@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+  has_many :comments
+  has_many :assignments
+  
   serialize :extra
     
   def self.from_omniauth(auth)
@@ -15,5 +18,16 @@ class User < ActiveRecord::Base
       user.oauth_expires_at = Time.at(auth["credentials"]["expires_at"]) if auth["provider"] == "facebook"
       user.extra = auth
     end
+  end
+  
+  def reviewer_of?(paper)
+    # FIXME - would like this to be cleaner
+    self.assignments.where(:paper_id => paper.id).any?
+  end
+  
+  def author_of?(paper)
+    # binding.pry
+    # FIXME - this needs to model more than just the single user
+    paper.user == self
   end
 end

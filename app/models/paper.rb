@@ -1,11 +1,13 @@
-class Paper < ActiveRecord::Base  
-  state_machine :initial => :submitted do 
+class Paper < ActiveRecord::Base
+  belongs_to :user
+  has_many :comments
+  
+  state_machine :initial => :pending do 
     state :submitted
     state :under_review
     state :accepted
 
     after_transition :on => :accept, :do => :resolve_all_issues
-
 
     event :accept do
       transition all => :accepted
@@ -25,5 +27,9 @@ class Paper < ActiveRecord::Base
 
   def pretty_submission_date
     submitted_at.strftime("%-d %B %Y")
+  end
+  
+  def draft?
+    state == "pending"
   end
 end
