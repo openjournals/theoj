@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+  has_many :comments
+  has_many :assignments
+  
   serialize :extra
     
   def self.from_omniauth(auth)
@@ -18,18 +21,13 @@ class User < ActiveRecord::Base
   end
   
   def reviewer_of?(paper)
-    true
+    # FIXME - would like this to be cleaner
+    self.assignments.where(:paper_id => paper.id).any?
   end
   
   def author_of?(paper)
-    true
-  end
-  
-  def admin?
-    
-  end
-  
-  def editor?
-    
+    # binding.pry
+    # FIXME - this needs to model more than just the single user
+    paper.user == self
   end
 end

@@ -1,5 +1,6 @@
 class Paper < ActiveRecord::Base
   belongs_to :user
+  has_many :comments
   
   state_machine :initial => :pending do 
     state :submitted

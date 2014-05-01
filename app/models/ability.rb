@@ -40,10 +40,12 @@ class Ability
     # = Reviewer permissions =
     # ========================
     
-    can :create, Comment if user.reviewer_of?(paper)
-  
-    # If they are a reviewer of the paper
-    can :read, Paper if user.reviewer_of?(paper)
+    if paper
+      can :create, Comment if user.reviewer_of?(paper)
+    
+      # If they are a reviewer of the paper
+      can :read, Paper if user.reviewer_of?(paper)
+    end
     
     # They can change their comments unless there are responses to it
     # FIXME This seems weird to be checking if the comment exists
