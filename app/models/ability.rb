@@ -28,7 +28,9 @@ class Ability
       can :read, Paper if user.author_of?(paper)
 
       can :destroy, Paper, :user_id => user.id
-    
+      
+      can :update, Paper, :user_id => user.id if paper.draft?
+
       # Don't let the user delete a paper once submitted.
       cannot :destroy, Paper unless paper.draft?
     

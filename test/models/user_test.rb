@@ -21,6 +21,20 @@ class UserTest < ActiveSupport::TestCase
     assert ability.can?(:read, owned_paper)
   end
   
+  test "user CAN update their own paper if it's not submitted" do
+    user = User.create!
+    owned_paper = Paper.new(:user => user) 
+    ability = Ability.new(user, owned_paper)
+    assert ability.can?(:update, owned_paper)
+  end
+  
+  test "user CAN update their own paper if it's submitted" do
+    user = User.create!
+    owned_paper = Paper.new(:user => user, :state => :submitted) 
+    ability = Ability.new(user, owned_paper)
+    assert ability.cannot?(:update, owned_paper)
+  end
+  
   test "user CAN only destroy paper they own" do
     user = User.create!
     owned_paper = Paper.new(:user => user) 
