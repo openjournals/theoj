@@ -1,7 +1,10 @@
 class User < ActiveRecord::Base
   has_many :comments
-  has_many :assignments
-  
+  has_many :assignments  
+  has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
+  has_many :papers_as_editor, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :paper
+  has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
+
   serialize :extra
     
   def self.from_omniauth(auth)
