@@ -29,7 +29,6 @@ class User < ActiveRecord::Base
   end
   
   def author_of?(paper)
-    # binding.pry
     # FIXME - this needs to model more than just the single user
     paper.user == self
   end
