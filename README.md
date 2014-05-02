@@ -4,8 +4,16 @@ What is this? In short, it's an open review engine for digital media. The goal i
 
 Simple eh?
 
-## Does it work? Is it green?
+## Does it work?
 
-Hopefully/probably? 
+### Current status
+
+Right now there is only a Ruby logic layer under development. This is the core permission layer we think is important for defining differences between *Authors*, *Editors* and *Reviewers*.
+
+Once this is finished up we'll be adding in a lightweight presentation layer that will make this a more fully-fledged web application.
+
+### Is it green?
+
+Hopefully/probably? You can keep an eye on Travis stuff here:
 
 [![Build Status](https://secure.travis-ci.org/arfon/theoj.png?branch=master)](http://travis-ci.org/arfon/theoj)
