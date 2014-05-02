@@ -2,20 +2,6 @@ class Ability
   include CanCan::Ability
 
   def initialize(user, paper=nil, comment=nil)
-    # ======================
-    # = Admins and editors =
-    # ======================
-
-    # Admins can do anything
-    if user.admin?
-      can :manage, :all
-    
-    # Editors can manage papers
-    elsif user.editor?
-      can :manage, Paper
-      can :manage, Comment
-    end
-        
     # ============================
     # = Basic author permissions =
     # ============================
@@ -36,6 +22,15 @@ class Ability
     
       # Can respond to comments from reviewers
       can :create, Comment if user.author_of?(paper) 
+      
+      # Can read their own comments
+      can :read, Comment, :user_id => user.id if user.author_of?(paper) 
+      
+      # Can read someone else's comments
+      can :read, Comment if user.author_of?(paper)
+      
+      # Cannot read comments on paper that isn't their own
+      cannot :read, Comment if !user.author_of?(paper)
     end
     
     # ========================
@@ -47,15 +42,32 @@ class Ability
     
       # If they are a reviewer of the paper
       can :read, Paper if user.reviewer_of?(paper)
+      
+      can :read, Comment if user.reviewer_of?(paper)
     end
     
-    # They can change their comments unless there are responses to it
     # FIXME This seems weird to be checking if the comment exists
     if comment
-      can :update, Comment unless comment.has_responses?
+      # They can change their comments unless there are responses to it
+      can :update, Comment, :user_id => user.id unless comment.has_responses?
+      
+      # Authors can't destroy comments
+      cannot :destroy, Comment
     end
     
-    # Can only update their own comments
-    can :update, Comment, :user_id => user.id
+    
+    # ======================
+    # = Admins and editors =
+    # ======================
+
+    # Admins can do anything
+    if user.admin?
+      can :manage, :all
+    
+    # Editors can manage papers
+    elsif user.editor?
+      can :manage, Paper
+      can :manage, Comment
+    end
   end
 end
