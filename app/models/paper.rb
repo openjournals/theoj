@@ -2,9 +2,10 @@ class Paper < ActiveRecord::Base
   belongs_to :user
   has_many :comments
   has_many :assignments
-  has_many :reviewers, :through => :assignments, :source => :user, :conditions => ['assignments.role = ?', 'reviewer']
-  has_many :editors, :through => :assignments, :source => :user, :conditions => ['assignments.role = ?', 'editor']
-  has_many :collaborators, :through => :assignments, :source => :user, :conditions => ['assignments.role = ?', 'collaborator']
+  
+  has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
+  has_many :editors, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :user
+  has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
   state_machine :initial => :pending do 
     state :submitted
