@@ -68,13 +68,15 @@
 
 <p>That's all you actually need to start your own publishing revolution. To give you an idea of how this might work, imagine building a new journal. Let's call it the Open Journal of Astrophysics.</p>
 
+<h2>&raquo; An open journal built on top of the arXiv</h2>
+
 <p>Around the time we were first seriously thinking about this stuff, <a href="http://telescoper.wordpress.com/" rel="noreferrer">Peter Coles</a> - astronomer, blogger and agent provocateur of the UK academic scene - blogged about his desire to do away with traditional publishing<sup>2</sup> and produce a lightweight journal. Peter's argument - which we have a lot of sympathy for - boils down to the fact that in the astronomical world paper sharing happens via the arXiv<sup>3</sup> which contains essentially all professional astronomers have produced in the last twenty years or so. In large swathes of the subject - cosmology, in particular - it's common practice to post on arXiv even before submitting to a journal. What if, <a href="http://telescoper.wordpress.com/2012/07/17/a-modest-proposal-the-open-journal-of-astrophysics/" rel="noreferrer">Peter mused</a>, we could add peer review to the process of putting a paper on arXiv? What would be lost?</p>
 
 <p>Copyediting, certainly. Traditional journals place great stress on the quality control they provide beyond peer review - academics in a hurry to get to the next paper or to generally avoid the nitty gritty of publishing rely on journal editorial staff to edit copy, correct references and so on, it's true. But decent copyediting costs a fraction of the fees most journals charge (either directly to author or in the form of expensive library subscriptions), and in any case a large fraction of what's on arXiv and happily being shared are proofs from before that process happens, simply because that's what the author has to hand.</p>
 
 <p>We thought Peter's notion was worth a go. Commendably, he'd offered to put his money where his mouth was and pay for the setting up of an Open Journal of Astrophysics. We offered to build it for free and got on with building a suitable interface so that the OJA (or OJoA, I suppose) could exist. The idea is that the author would submit to arXiv, then declare to the OJA that they wished their paper reviewed. OJA ingests the paper, creating along the way a GitHub repository<sup>4</sup> and alerts editors who could assign a reviewer the task of looking at the paper. It's important to note this <em>is</em> traditional peer review - the goal for OJA was to dramatically reduce the cost of running a journal, not to experiment with new models. The reviewer makes comments via a web interface which are relayed to the author, who can respond and update the paper, perhaps by submitting a new version to arXiv which would automatically be read by the OJA. Once everything is resolved, the editor can review the discussion and accept or reject the paper. At this point, we'd register the paper via a DOI<sup>5</sup> and it could be included in all the normal places you expect peer reviewed articles to appear, such as Web of Science or NASA's ADS service.</p>
 
-<iframe src="//player.vimeo.com/video/69860472" width="800" height="450" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<center><iframe src="//player.vimeo.com/video/69860472" width="800" height="450" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></center>
 
 <p>And that's it. A journal with a nice web interface, an archive of the back and forth between reviewer and author, and a working peer review system. Simple. Beyond the lack of copyediting, everything you could want from a journal.<sup>6</sup></p>
 
@@ -82,13 +84,13 @@
 
 <h2>&raquo; Current status</h2>
 
-<p>We're releasing all the code that you'd need to implement our plan. There's currently two codebases to take a look at:</p>
+<p>We're releasing all the code that you'd need to implement our plan. There are currently two codebases to take a look at:</p>
 
 <ul>
 <li>
 <a href="https://github.com/arfon/oja" rel="noreferrer">The first</a> is the software running in the screencast which implements the downloading from the arXiv, GitHub import and some basis user interfaces.</li>
 <li>
-<a href="https://github.com/arfon/theoj" rel="noreferrer">The second</a> is our latest work which is far more focussed on getting the permission model really hammered out (and properly tested) so while it's far less impressive to review (there's no UI) we're spending most of our time work on this codebase and will be porting in functionality from the old application as we progress.</li>
+<a href="https://github.com/arfon/theoj" rel="noreferrer">The second</a> is our latest work which is far more focussed on getting the permission model really hammered out (and properly tested) so while it's far less impressive to review (there's no UI current in the master branch) we're spending most of our time work on this codebase and will be porting in functionality from the old application as we progress.</li>
 </ul>
 
 <p>We hope people will build on this work (frankly, we hope someone will help Peter and maybe ourselves finish the OJA) and use it for their own purposes. Once peer review is abstracted from the journals themselves, it makes it much easier to imagine looking beyond the paper - referees could look at a figure and caption, at a short note on a topic of urgent interest<sup>7</sup> or code or some combination and give it a stamp of approval at least as easily as they can read a paper. There's no reason you shouldn't ask people to submit their Authorea papers, or data on FigShare or whatever post-publishing service you enjoy. Peer review can continue to be the imperfect but essential gatekeeper to scholarly discourse it is today, and evolve into new forms; extending what we've done to include public peer review, or review by committee, or formal author responses, or post-publication peer review or whatever shouldn't be hard. Nothing we've done is especially clever but once you start thinking of peer review as an external service, it's hard to stop. The plan is to make this an extremely simple hosted service that anyone could use - all suggestions, comments and code very welcome - head on over to <a href="https://github.com/arfon/theoj" rel="noreferrer">TheOJ repository and open an issue</a> - we'd love to talk.</p>
