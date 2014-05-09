@@ -4,39 +4,28 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>The Open Journal by arfon</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
   </head>
   <body>
     <div class="wrapper">
-      <header>
-        <h1>The Open Journal</h1>
-        <p></p>
-
-        <p class="view"><a href="https://github.com/arfon/theoj">View the Project on GitHub <small>arfon/theoj</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/arfon/theoj/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/arfon/theoj/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/arfon/theoj">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
       <section>
         <h1>
-<a name="the-open-journal" class="anchor" href="#the-open-journal"><span class="octicon octicon-link"></span></a>The Open Journal</h1>
+<a name="the-open-journal" class="anchor" href="#the-open-journal"><span class="octicon octicon-link"></span></a>Peer Review as a Service: It's not about the journal</h1>
 
-<p>What is this? In short, it's an open review engine for digital media. The goal is to provide a way for a bunch of people to get together (think editorial board) and make comments on a <em>thing</em> (think academic paper). This <em>thing</em> only needs to have a URL (that's open) to be reviewable.</p>
+<p>This post sets out what we think is the future of peer review and publishing.</p>
 
-<p>Simple eh?</p>
+<p>There are lots of posts like it on the internet. You've probably read lots of them. Many of them talk about the desire for greater openness, riffing on what might happen when the gates of academic publishing are thrown open to the masses. Many talk about the flaws and foibles inherent in the most common models of peer review, in which the stamp of Scientific Approval is conveyed via a mysterious process which involves careful or not-so-careful scrutiny by other experts in the field. Still more propose new models (perhaps peer review should be public), new tweaks (maybe we should stop pretending journals are mostly consumed on paper) or new ideas (what if code was attached to a paper and made open at the time of publication?).</p>
+
+<p>We've read those blog posts, been to conferences where these things are discussed and argued about them in pubs on at least two continents. Eventually, we decided to try and do something - hence this post. It needs to cover a lot of ground - what we think we're trying to do, how far we've got and what comes next, as well as a bit of context and history - but stick with us.</p>
 
 <h2>
-<a name="does-it-work" class="anchor" href="#does-it-work"><span class="octicon octicon-link"></span></a>Does it work?</h2>
+<a name="does-it-work" class="anchor" href="#solve"><span class="octicon octicon-link"></span></a>Solve the simplest possible important problem</h2>
+
+<p>Start with trying to solve the simplest possible important problem. When we worked together at the Zooniverse _'Do the simplest thing that works'_ became something of a mantra. For scholarly publishing, the secret sauce - the essential thing - is a mechanism for review. Even open archives like [arXiv.org](http://arxiv.org) have review in the sense of only letting people who are endorsed by an existing community post, but here we'll assume that we're doing something more like traditional academic publishing - reviewing something called a paper (it could actually be code, or a figure, or a paragraph but let's stick to papers as that's easier to think about). Peer review at present is something that belongs to a journal; it's a set of rules and procedures, written and enforced by an editorial board and supported by a lot of email and some fairly wonky software. (There's a reason that I end up emailing co-authors with files called `Draft17_review_comments_CJL_final.tex`) If you want to set up a journal, you'll spend a lot of time arguing about how to write these rules, and building (or, more likely, buying from an existing publisher) the infrastructure to support them.</p>
+
+<p>What's needed is to make this process as simple and as easy as possible. This will reduce the start up cost for new and experimental publishing formats, and divorce the *process* of peer review from the *practice* of sharing, publishing and, heck, even printing the results. Along with a few friends, we've written code to support peer review as a service. It assumes that some group of people (think editors or academic community) want to make comments on a thing (think paper). All you need is a URL for the thing - we think that GitHub repositories offer lots of nice advantages but it could be a dropbox link, or an arXiv paper or anything. Comments are just a list of issues on the paper or on specific parts of it; they are opened by a reviewer and then resolved by the reviewer after dialogue with the author, authors or editors. Once (enough) issues are resolved, your paper is 'accepted' and the service will proclaim the news to anything listening.<sup>1</sup></p>
+
+<p>That's all you actually need to start your own publishing revolution. To give you an idea of how this might work, imagine building a new journal. Let's call it the Open Journal of Astrophysics.</p>
+
 
 <h3>
 <a name="current-status" class="anchor" href="#current-status"><span class="octicon octicon-link"></span></a>Current status</h3>
@@ -57,8 +46,7 @@
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
