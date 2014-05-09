@@ -4,10 +4,42 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>The Open Journal by arfon</title>
+    <style>
+    h1{
+    	font-family:Georgia, serif;
+    	font-weight:lighter;
+    }
+
+    h2{
+    	font-family:Georgia, serif;
+    	font-weight:lighter;
+    	font-size:1.3em;
+      padding-top: 10px;
+      margin: 0px;
+    }
+    
+    p, ul, ul li, ol, ol li, blockquote{
+    	font-family:helvetica, arial, sans-serif;
+    	font-size:1em;
+    	line-height:1.3em;
+    }
+
+    sup, sub{
+      vertical-align: baseline;
+      position: relative;
+      top: -0.4em;
+    }
+
+    sub { top: 0.4em; }
+    
+    .footnote{
+    	font-size:0.8em;
+	
+    }
+    </style>
   </head>
   <body>
     <div class="wrapper">
-      <section>
         <h1>
 <a name="the-open-journal" class="anchor" href="#the-open-journal"><span class="octicon octicon-link"></span></a>Peer Review as a Service: It's not about the journal</h1>
 
@@ -20,31 +52,44 @@
 <h2>
 <a name="does-it-work" class="anchor" href="#solve"><span class="octicon octicon-link"></span></a>Solve the simplest possible important problem</h2>
 
-<p>Start with trying to solve the simplest possible important problem. When we worked together at the Zooniverse _'Do the simplest thing that works'_ became something of a mantra. For scholarly publishing, the secret sauce - the essential thing - is a mechanism for review. Even open archives like [arXiv.org](http://arxiv.org) have review in the sense of only letting people who are endorsed by an existing community post, but here we'll assume that we're doing something more like traditional academic publishing - reviewing something called a paper (it could actually be code, or a figure, or a paragraph but let's stick to papers as that's easier to think about). Peer review at present is something that belongs to a journal; it's a set of rules and procedures, written and enforced by an editorial board and supported by a lot of email and some fairly wonky software. (There's a reason that I end up emailing co-authors with files called `Draft17_review_comments_CJL_final.tex`) If you want to set up a journal, you'll spend a lot of time arguing about how to write these rules, and building (or, more likely, buying from an existing publisher) the infrastructure to support them.</p>
+<p>Start with trying to solve the simplest possible important problem. When we worked together at the Zooniverse <em>'Do the simplest thing that works'</em> became something of a mantra. For scholarly publishing, the secret sauce - the essential thing - is a mechanism for review. Even open archives like <a href="http://arxiv.org" rel="noreferrer">arXiv.org</a> have review in the sense of only letting people who are endorsed by an existing community post, but here we'll assume that we're doing something more like traditional academic publishing - reviewing something called a paper (it could actually be code, or a figure, or a paragraph but let's stick to papers as that's easier to think about). Peer review at present is something that belongs to a journal; it's a set of rules and procedures, written and enforced by an editorial board and supported by a lot of email and some fairly wonky software. (There's a reason that I end up emailing co-authors with files called <code>Draft17_review_comments_CJL_final.tex</code>) If you want to set up a journal, you'll spend a lot of time arguing about how to write these rules, and building (or, more likely, buying from an existing publisher) the infrastructure to support them.</p>
 
-<p>What's needed is to make this process as simple and as easy as possible. This will reduce the start up cost for new and experimental publishing formats, and divorce the *process* of peer review from the *practice* of sharing, publishing and, heck, even printing the results. Along with a few friends, we've written code to support peer review as a service. It assumes that some group of people (think editors or academic community) want to make comments on a thing (think paper). All you need is a URL for the thing - we think that GitHub repositories offer lots of nice advantages but it could be a dropbox link, or an arXiv paper or anything. Comments are just a list of issues on the paper or on specific parts of it; they are opened by a reviewer and then resolved by the reviewer after dialogue with the author, authors or editors. Once (enough) issues are resolved, your paper is 'accepted' and the service will proclaim the news to anything listening.<sup>1</sup></p>
+<p>What's needed is to make this process as simple and as easy as possible. This will reduce the start up cost for new and experimental publishing formats, and divorce the <em>process</em> of peer review from the <em>practice</em> of sharing, publishing and, heck, even printing the results. Along with a few friends, we've written code to support peer review as a service. It assumes that some group of people (think editors or academic community) want to make comments on a thing (think paper). All you need is a URL for the thing - we think that GitHub repositories offer lots of nice advantages but it could be a dropbox link, or an arXiv paper or anything. Comments are just a list of issues on the paper or on specific parts of it; they are opened by a reviewer and then resolved by the reviewer after dialogue with the author, authors or editors. Once (enough) issues are resolved, your paper is 'accepted' and the service will proclaim the news to anything listening.<sup>1</sup></p>
 
 <p>That's all you actually need to start your own publishing revolution. To give you an idea of how this might work, imagine building a new journal. Let's call it the Open Journal of Astrophysics.</p>
 
+<p>Around the time we were first seriously thinking about this stuff, <a href="http://telescoper.wordpress.com/" rel="noreferrer">Peter Coles</a> - astronomer, blogger and agent provocateur of the UK academic scene - blogged about his desire to do away with traditional publishing<sup>2</sup> and produce a lightweight journal. Peter's argument - which we have a lot of sympathy for - boils down to the fact that in the astronomical world paper sharing happens via the arXiv<sup>3</sup> which contains essentially all professional astronomers have produced in the last twenty years or so. In large swathes of the subject - cosmology, in particular - it's common practice to post on arXiv even before submitting to a journal. What if, <a href="http://telescoper.wordpress.com/2012/07/17/a-modest-proposal-the-open-journal-of-astrophysics/" rel="noreferrer">Peter mused</a>, we could add peer review to the process of putting a paper on arXiv? What would be lost?</p>
 
-<h3>
-<a name="current-status" class="anchor" href="#current-status"><span class="octicon octicon-link"></span></a>Current status</h3>
+<p>Copyediting, certainly. Traditional journals place great stress on the quality control they provide beyond peer review - academics in a hurry to get to the next paper or to generally avoid the nitty gritty of publishing rely on journal editorial staff to edit copy, correct references and so on, it's true. But decent copyediting costs a fraction of the fees most journals charge (either directly to author or in the form of expensive library subscriptions), and in any case a large fraction of what's on arXiv and happily being shared are proofs from before that process happens, simply because that's what the author has to hand.</p>
 
-<p>Right now there is only a Ruby logic layer under development. This is the core permission layer we think is important for defining differences between <em>Authors</em>, <em>Editors</em> and <em>Reviewers</em>.</p>
+<p>We thought Peter's notion was worth a go. Commendably, he'd offered to put his money where his mouth was and pay for the setting up of an Open Journal of Astrophysics. We offered to build it for free and got on with building a suitable interface so that the OJA (or OJoA, I suppose) could exist. The idea is that the author would submit to arXiv, then declare to the OJA that they wished their paper reviewed. OJA ingests the paper, creating along the way a GitHub repository<sup>4</sup> and alerts editors who could assign a reviewer the task of looking at the paper. It's important to note this <em>is</em> traditional peer review - the goal for OJA was to dramatically reduce the cost of running a journal, not to experiment with new models. The reviewer makes comments via a web interface which are relayed to the author, who can respond and update the paper, perhaps by submitting a new version to arXiv which would automatically be read by the OJA. Once everything is resolved, the editor can review the discussion and accept or reject the paper. At this point, we'd register the paper via a DOI<sup>5</sup> and it could be included in all the normal places you expect peer reviewed articles to appear, such as Web of Science or NASA's ADS service.</p>
 
-<p>Once this is finished up we'll be adding in a lightweight presentation layer that will make this a more fully-fledged web application.</p>
+<p><a href="http://vimeo.com/69860472" rel="noreferrer">OJA</a> from <a href="http://vimeo.com/user5104555" rel="noreferrer">Arfon Smith</a> on <a href="https://vimeo.com" rel="noreferrer">Vimeo</a>.</p>
 
-<h3>
-<a name="is-it-green" class="anchor" href="#is-it-green"><span class="octicon octicon-link"></span></a>Is it green?</h3>
+<p>And that's it. A journal with a nice web interface, an archive of the back and forth between reviewer and author, and a working peer review system. Simple. Beyond the lack of copyediting, everything you could want from a journal.<sup>6</sup></p>
 
-<p>Hopefully/probably? You can keep an eye on Travis stuff here:</p>
+<p>It won't surprise anyone who has worked on software that we quickly got about 80% of the job done which is what you can see in the embedded video. Life then intervened - one of us got a new job, Peter ascended to Head of the School of Mathematics and Physical Sciences at the University of Sussex - and the idea foundered. In some ways, this is vindication for those who said that we'd missed out many of the costs. We're not sure, but if our editorial board had been paid for their work (as many are) then I suspect the journal would have got off the ground. But I'm also certain that our distraction didn't have much to do with the specific model we were promoting, which we still think is worth sharing.</p>
 
-<p><a href="http://travis-ci.org/arfon/theoj"><img src="https://secure.travis-ci.org/arfon/theoj.png?branch=master" alt="Build Status"></a></p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/arfon">arfon</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+<p>We're releasing all the code that you'd need to implement our plan. There's currently two codebases to take a look at:</p>
+
+<ul>
+<li>
+<a href="https://github.com/arfon/oja" rel="noreferrer">The first</a> is the software running in the screencast which implements the downloading from the arXiv, GitHub import and some basis user interfaces.</li>
+<li>
+<a href="https://github.com/arfon/theoj" rel="noreferrer">The second</a> is our latest work which is far more focussed on getting the permission model really hammered out (and properly tested) so while it's far less impressive to review (there's no UI) we're spending most of our time work on this codebase and will be porting in functionality from the old application as we progress.</li>
+</ul>
+
+<p>We hope people will build on this work (frankly, we hope someone will help Peter and maybe ourselves finish the OJA) and use it for their own purposes. Once peer review is abstracted from the journals themselves, it makes it much easier to imagine looking beyond the paper - referees could look at a figure and caption, at a short note on a topic of urgent interest<sup>7</sup> or code or some combination and give it a stamp of approval at least as easily as they can read a paper. There's no reason you shouldn't ask people to submit their Authorea papers, or data on FigShare or whatever post-publishing service you enjoy. Peer review can continue to be the imperfect but essential gatekeeper to scholarly discourse it is today, and evolve into new forms; extending what we've done to include public peer review, or review by committee, or formal author responses, or post-publication peer review or whatever shouldn't be hard. Nothing we've done is especially clever but once you start thinking of peer review as an external service, it's hard to stop. The plan is to make this an extremely simple hosted service that anyone could use - all suggestions, comments and code very welcome - head on over to <a href="https://github.com/arfon/theoj" rel="noreferrer">TheOJ repository and open an issue</a> - we'd love to talk.</p>
+
+<ol class="footnote">
+<li><p>For a model, think about the way Travis keeps an eye on code (<a href="https://travis-ci.org/arfon/theoj" rel="noreferrer">https://travis-ci.org/arfon/theoj</a>) and provides an image showing the status of the review : <a href="https://api.travis-ci.org/arfon/theoj.png?branch=master" rel="noreferrer">https://api.travis-ci.org/arfon/theoj.png?branch=master</a></p></li>
+<li><p>There are lots of arguments about how such a move would change things, who would benefit, what the real costs would be. Before you get into those arguments, remember that here we're just trying to build TSTTW as an experiment...</p></li>
+<li><p>There's similarly a lot of argument about whether the arXiv is sustainable. It's stuck around for thirty or so years now - it predates the web! - and is archivable by scholarly libraries, so by my lights it's at least as good as a commercial publisher by that standard. The question of permanent archiving of scholarly work doesn't belong to the publishers anyway - it's an issue for librarians and archivists, who could do a lot more if their budgets weren't spent on journal subscriptions...</p></li>
+<li><p>Authors who didn't want to submit to arXiv and make their paper public could just create the repo directly; we mused about - in the long term - charging for this service as making users pay for privacy seems like a nice model to fund things and also encourage open, sharing behaviour.</p></li>
+<li><p>A digital object identifier or DOI is the index that refers permanently to an academic article, issued by the publisher. We worked out it would have cost us a few hundred dollars to become a DOI issuing publisher, and about $1 per article. There are some carefully worded requirements about the format for references but nothing that's a show stopper.</p></li>
+<li><p>There remains of course the question of how to get people to submit to this new journal when promotion and so on is tied tightly to impact factor. Leaving aside the fact that that’s an argument about any new journal (and one eventually solved by having senior people like Peter commit to publishing in it), we thought that a decent web interface would be a strong incentive to switch. Editing in the browser! No more sharing of text files with collaborators! Roll up, roll up!</p></li>
+<li><p>The recent possible detection of primordial gravitational waves by the BICEP team is a nice case in point - this was released in a preprint on the arXiv and effectively peer reviewed on social media and in more than fifty notes posted to arXiv in the month or two since. All of this activity will eventually hit journals - but long after the conversation has moved on.</p></li>
+</ol>
     </div>
             <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
