@@ -5,6 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>The Open Journal by arfon</title>
     <style>
+    .wrapper{
+    	width:900px;
+      margin:40px auto;
+    	background: 150px 0px url('arfon.png') no-repeat;
+    	min-height:600px;
+    }
+    
     h1{
     	font-family:Georgia, serif;
     	font-weight:lighter;
@@ -36,6 +43,10 @@
     	font-size:0.8em;
 	
     }
+    
+    .signed{
+      font-style: italic;
+    }
     </style>
   </head>
   <body>
@@ -49,8 +60,7 @@
 
 <p>We've read those blog posts, been to conferences where these things are discussed and argued about them in pubs on at least two continents. Eventually, we decided to try and do something - hence this post. It needs to cover a lot of ground - what we think we're trying to do, how far we've got and what comes next, as well as a bit of context and history - but stick with us.</p>
 
-<h2>
-<a name="does-it-work" class="anchor" href="#solve"><span class="octicon octicon-link"></span></a>Solve the simplest possible important problem</h2>
+<h2>&raquo; Solve the simplest possible important problem</h2>
 
 <p>Start with trying to solve the simplest possible important problem. When we worked together at the Zooniverse <em>'Do the simplest thing that works'</em> became something of a mantra. For scholarly publishing, the secret sauce - the essential thing - is a mechanism for review. Even open archives like <a href="http://arxiv.org" rel="noreferrer">arXiv.org</a> have review in the sense of only letting people who are endorsed by an existing community post, but here we'll assume that we're doing something more like traditional academic publishing - reviewing something called a paper (it could actually be code, or a figure, or a paragraph but let's stick to papers as that's easier to think about). Peer review at present is something that belongs to a journal; it's a set of rules and procedures, written and enforced by an editorial board and supported by a lot of email and some fairly wonky software. (There's a reason that I end up emailing co-authors with files called <code>Draft17_review_comments_CJL_final.tex</code>) If you want to set up a journal, you'll spend a lot of time arguing about how to write these rules, and building (or, more likely, buying from an existing publisher) the infrastructure to support them.</p>
 
@@ -70,6 +80,8 @@
 
 <p>It won't surprise anyone who has worked on software that we quickly got about 80% of the job done which is what you can see in the embedded video. Life then intervened - one of us got a new job, Peter ascended to Head of the School of Mathematics and Physical Sciences at the University of Sussex - and the idea foundered. In some ways, this is vindication for those who said that we'd missed out many of the costs. We're not sure, but if our editorial board had been paid for their work (as many are) then I suspect the journal would have got off the ground. But I'm also certain that our distraction didn't have much to do with the specific model we were promoting, which we still think is worth sharing.</p>
 
+<h2>&raquo; Current status</h2>
+
 <p>We're releasing all the code that you'd need to implement our plan. There's currently two codebases to take a look at:</p>
 
 <ul>
@@ -81,6 +93,8 @@
 
 <p>We hope people will build on this work (frankly, we hope someone will help Peter and maybe ourselves finish the OJA) and use it for their own purposes. Once peer review is abstracted from the journals themselves, it makes it much easier to imagine looking beyond the paper - referees could look at a figure and caption, at a short note on a topic of urgent interest<sup>7</sup> or code or some combination and give it a stamp of approval at least as easily as they can read a paper. There's no reason you shouldn't ask people to submit their Authorea papers, or data on FigShare or whatever post-publishing service you enjoy. Peer review can continue to be the imperfect but essential gatekeeper to scholarly discourse it is today, and evolve into new forms; extending what we've done to include public peer review, or review by committee, or formal author responses, or post-publication peer review or whatever shouldn't be hard. Nothing we've done is especially clever but once you start thinking of peer review as an external service, it's hard to stop. The plan is to make this an extremely simple hosted service that anyone could use - all suggestions, comments and code very welcome - head on over to <a href="https://github.com/arfon/theoj" rel="noreferrer">TheOJ repository and open an issue</a> - we'd love to talk.</p>
 
+<p class="signed">Chris Lintott (Zooniverse), Stuart Lynn (Zooniverse), Arfon Smith (GitHub)</p>
+
 <ol class="footnote">
 <li><p>For a model, think about the way Travis keeps an eye on code (<a href="https://travis-ci.org/arfon/theoj" rel="noreferrer">https://travis-ci.org/arfon/theoj</a>) and provides an image showing the status of the review : <a href="https://api.travis-ci.org/arfon/theoj.png?branch=master" rel="noreferrer">https://api.travis-ci.org/arfon/theoj.png?branch=master</a></p></li>
 <li><p>There are lots of arguments about how such a move would change things, who would benefit, what the real costs would be. Before you get into those arguments, remember that here we're just trying to build TSTTW as an experiment...</p></li>
@@ -91,16 +105,16 @@
 <li><p>The recent possible detection of primordial gravitational waves by the BICEP team is a nice case in point - this was released in a preprint on the arXiv and effectively peer reviewed on social media and in more than fifty notes posted to arXiv in the month or two since. All of this activity will eventually hit journals - but long after the conversation has moved on.</p></li>
 </ol>
     </div>
-            <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-47852178-2");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+        var pageTracker = _gat._getTracker("UA-47852178-2");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
 
   </body>
 </html>
