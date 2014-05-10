@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class AssignmentTest < ActiveSupport::TestCase
+  # Abilities
+
   # CREATE (as author)
   test "user CANNOT assign papers" do
     user = User.create!
@@ -27,5 +29,32 @@ class AssignmentTest < ActiveSupport::TestCase
     assignment = Assignment.create!(:paper => submitted_paper, :user => user)
     ability = Ability.new(editor)
     assert ability.can?(:destroy, assignment)
+  end
+
+  # Assignment behaviours
+  # papers_as_reviewer
+  test "user author assignments" do
+    paper = Paper.create!(:state => :submitted)
+    reviewer = User.create!
+    Assignment.create!(:user => reviewer, :paper => paper, :role => "reviewer")
+    assert_includes reviewer.papers_as_reviewer, paper
+    assert reviewer.papers_as_collaborator.empty?
+  end
+
+  # papers_as_collaborator
+  test "user collaborator assignments" do
+    paper = Paper.create!(:state => :submitted)
+    collaborator = User.create!
+    Assignment.create!(:user => collaborator, :paper => paper, :role => "collaborator")
+    assert_includes collaborator.papers_as_collaborator, paper
+    assert collaborator.papers_as_reviewer.empty?
+  end
+
+  # papers_as_editor
+  test "user editor assignments" do
+    paper = Paper.create!(:state => :submitted)
+    editor = User.create!(:editor => true)
+    Assignment.create!(:user => editor, :paper => paper, :role => "editor")
+    assert_includes editor.papers_as_editor, paper
   end
 end
