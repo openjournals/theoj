@@ -2,6 +2,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user, paper=nil, comment=nil)
+    # HEADS UP - ordering matters here because of how CanCan defines abilities
     initialize_commenting(user, comment)
     initialize_author(user, paper)
     initialize_reviewer(user, paper)
@@ -57,6 +58,7 @@ class Ability
     elsif user.editor?
       can :manage, Paper
       can :manage, Comment
+      can :manage, Assignment
     end
   end
 
