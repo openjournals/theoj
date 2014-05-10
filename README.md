@@ -4,6 +4,8 @@ What is this? In short, it's an open review engine for digital media. The goal i
 
 Simple eh?
 
+You can read more about our motivations for working on this [here](http://theoj.org).
+
 ## Does it work?
 
 ### Current status
