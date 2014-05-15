@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  has_many :comments
+  has_many :annotations
   has_many :assignments  
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
   has_many :papers_as_editor, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :paper

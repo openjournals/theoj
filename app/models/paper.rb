@@ -1,6 +1,6 @@
 class Paper < ActiveRecord::Base
   belongs_to :user
-  has_many :comments
+  has_many :annotations
   has_many :assignments
   
   has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
@@ -36,5 +36,9 @@ class Paper < ActiveRecord::Base
   
   def draft?
     state == "pending"
+  end
+
+  def self.for_user(user)
+    # TODO Return papers for a user in a given role
   end
 end
