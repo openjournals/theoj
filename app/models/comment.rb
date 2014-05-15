@@ -4,6 +4,8 @@ class Comment < ActiveRecord::Base
 
   has_many :responses, :class_name => "Comment", :foreign_key => "parent_id"
   belongs_to :parent, class_name: "Comment", :foreign_key => "parent_id"
+  
+  validates_presence_of :body, :paper_id
 
   state_machine :initial => :new do 
     state :new

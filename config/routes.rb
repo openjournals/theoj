@@ -1,5 +1,7 @@
 Theoj::Application.routes.draw do
-  resources :papers
+  resources :papers, defaults: { format: 'json' } do
+    resources :comments, defaults: { format: 'json' }
+  end  
   
   get '/sessions/new', to: 'sessions#new', as: 'new_session'
   get '/auth/:provider/callback', to: 'sessions#create'
