@@ -1,6 +1,6 @@
 Theoj::Application.routes.draw do
   resources :papers, defaults: { format: 'json' } do
-    resources :comments, defaults: { format: 'json' }
+    resources :annotations, defaults: { format: 'json' }
   end  
   
   get '/sessions/new', to: 'sessions#new', as: 'new_session'

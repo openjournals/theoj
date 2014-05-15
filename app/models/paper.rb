@@ -1,6 +1,6 @@
 class Paper < ActiveRecord::Base
   belongs_to :user
-  has_many :comments
+  has_many :annotations
   has_many :assignments
   
   has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
