@@ -1,0 +1,12 @@
+language: ruby
+rvm:
+  - "2.0.0"
+before_script:
+  - mysql -e 'create database theoj_test;'
+  - bundle install
+  - bundle exec rake db:schema:load
+branches:
+  only:
+    - master
+
+script: bundle exec rake

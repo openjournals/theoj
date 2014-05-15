@@ -4,5 +4,7 @@ class AddOauthTokensToUsers < ActiveRecord::Migration
     add_column :users, :oauth_expires_at, :datetime
     add_column :users, :extra, :text
     add_column :users, :picture, :string
+    
+    add_index :users, ["oauth_token"]
   end
 end

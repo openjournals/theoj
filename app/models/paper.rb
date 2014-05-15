@@ -1,11 +1,18 @@
-class Paper < ActiveRecord::Base  
-  state_machine :initial => :submitted do 
+class Paper < ActiveRecord::Base
+  belongs_to :user
+  has_many :annotations
+  has_many :assignments
+  
+  has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
+  has_many :editors, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :user
+  has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
+
+  state_machine :initial => :pending do 
     state :submitted
     state :under_review
     state :accepted
 
     after_transition :on => :accept, :do => :resolve_all_issues
-
 
     event :accept do
       transition all => :accepted
@@ -25,5 +32,13 @@ class Paper < ActiveRecord::Base
 
   def pretty_submission_date
     submitted_at.strftime("%-d %B %Y")
+  end
+  
+  def draft?
+    state == "pending"
+  end
+
+  def self.for_user(user)
+    # TODO Return papers for a user in a given role
   end
 end

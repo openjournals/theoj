@@ -11,10 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140212023345) do
+ActiveRecord::Schema.define(version: 20140515135144) do
 
-  create_table "comments", force: true do |t|
+  create_table "annotations", force: true do |t|
     t.integer  "user_id"
+    t.integer  "paper_id"
     t.string   "state"
     t.integer  "parent_id"
     t.string   "category"
@@ -22,6 +23,25 @@ ActiveRecord::Schema.define(version: 20140212023345) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "annotations", ["paper_id"], name: "index_annotation_paper_id", using: :btree
+  add_index "annotations", ["parent_id"], name: "index_annotation_parent_id", using: :btree
+  add_index "annotations", ["state"], name: "index_annotation_state", using: :btree
+  add_index "annotations", ["user_id"], name: "index_annotation_user_id", using: :btree
+
+  create_table "assignments", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "paper_id"
+    t.string   "role"
+    t.integer  "assignee_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "assignments", ["assignee_id"], name: "index_assignment_assignee_id", using: :btree
+  add_index "assignments", ["paper_id"], name: "index_assignment_paper_id", using: :btree
+  add_index "assignments", ["role"], name: "index_assignment_role", using: :btree
+  add_index "assignments", ["user_id"], name: "index_assignment_user_id", using: :btree
 
   create_table "papers", force: true do |t|
     t.integer  "user_id"
@@ -34,10 +54,16 @@ ActiveRecord::Schema.define(version: 20140212023345) do
     t.datetime "updated_at"
   end
 
+  add_index "papers", ["state"], name: "index_paper_state", using: :btree
+  add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
+  add_index "papers", ["user_id"], name: "index_paper_user_id", using: :btree
+
   create_table "users", force: true do |t|
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
+    t.boolean  "admin"
+    t.boolean  "editor"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "oauth_token"
@@ -45,5 +71,12 @@ ActiveRecord::Schema.define(version: 20140212023345) do
     t.text     "extra"
     t.string   "picture"
   end
+
+  add_index "users", ["admin"], name: "index_user_admin", using: :btree
+  add_index "users", ["editor"], name: "index_user_editor", using: :btree
+  add_index "users", ["name"], name: "index_user_name", using: :btree
+  add_index "users", ["oauth_token"], name: "index_users_on_oauth_token", using: :btree
+  add_index "users", ["provider"], name: "index_user_providers", using: :btree
+  add_index "users", ["uid"], name: "index_user_uid", using: :btree
 
 end
