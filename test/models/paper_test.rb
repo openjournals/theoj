@@ -1,6 +1,21 @@
 require 'test_helper'
 
 class PaperTest < ActiveSupport::TestCase
+  # States
+  test "paper should be draft when first created" do
+    user = User.create!
+    paper = Paper.create!
+    assert_equal paper.state, "pending"
+  end
+
+  test "resolve_all_issues" do
+    paper = Paper.create!
+    paper.annotations << Annotation.create(:body => "Blah")
+    assert_equal paper.outstanding_issues.count, 1
+    paper.resolve_all_issues
+    assert_empty paper.outstanding_issues
+  end
+
   # CREATE (as author)
 
   test "user CAN create a paper" do
