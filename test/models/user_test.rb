@@ -20,7 +20,7 @@ class UserTest < ActiveSupport::TestCase
     assert !collaborator.author_of?(paper)
   end
 
-  test "reviewer_of?" do
+  test "author_of?" do
     user = User.create!
     submitted_paper = Paper.new(:state => :submitted, :user => user)
     assert user.author_of?(submitted_paper)
