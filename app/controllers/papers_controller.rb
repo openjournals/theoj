@@ -1,6 +1,7 @@
-class PapersController < ApplicationController
+class PapersController < ApplicationController  
   def index
-    papers = Papers.for_user(current_user)
+    papers = Paper.for_user(current_user)
+    render :json => papers
   end
 
   def show

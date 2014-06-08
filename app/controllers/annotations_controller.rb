@@ -26,10 +26,6 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  def method_name
-
-  end
-
   private
 
   def find_paper
