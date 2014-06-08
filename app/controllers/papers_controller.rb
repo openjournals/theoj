@@ -4,7 +4,7 @@ class PapersController < ApplicationController
   end
 
   def show
-    paper = Paper.find(params[:id])
+    paper = Paper.find(:sha => params[:id])
     render :json => paper, :include => paper.annotations
   end
 

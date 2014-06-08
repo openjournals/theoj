@@ -7,6 +7,8 @@ class Paper < ActiveRecord::Base
   has_many :editors, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :user
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
+  before_create :set_sha
+  
   state_machine :initial => :pending do
     state :submitted
     state :under_review
@@ -45,5 +47,15 @@ class Paper < ActiveRecord::Base
 
   def self.for_user(user)
     # TODO Return papers for a user in a given role
+  end
+
+  def to_param
+    sha
+  end
+
+  private
+
+  def set_sha
+    self.sha = SecureRandom.hex
   end
 end

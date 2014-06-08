@@ -1,12 +1,6 @@
 require 'test_helper'
 
 class PaperTest < ActiveSupport::TestCase
-  # States
-  test "paper should be draft when first created" do
-    user = User.create!
-    paper = Paper.create!
-    assert_equal paper.state, "pending"
-  end
 
   test "resolve_all_issues" do
     paper = Paper.create!
@@ -63,5 +57,19 @@ class PaperTest < ActiveSupport::TestCase
     owned_submitted_paper = Paper.new(:user => user, :state => :submitted)
     ability = Ability.new(user, owned_submitted_paper)
     assert ability.cannot?(:destroy, owned_submitted_paper)
+  end
+
+  # Initialisation
+
+  test "a new paper should be assigned a SecureRandom.hex sha" do
+    paper = Paper.create!
+    assert !paper.sha.nil?
+    assert_equal paper.sha.length, 32
+  end
+
+  test "paper should be draft when first created" do
+    user = User.create!
+    paper = Paper.create!
+    assert_equal paper.state, "pending"
   end
 end
