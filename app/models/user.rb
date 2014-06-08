@@ -27,12 +27,18 @@ class User < ActiveRecord::Base
   end
 
   def reviewer_of?(paper)
-    # FIXME - would like this to be cleaner
-    self.assignments.where(:paper_id => paper.id).any?
+    papers_as_reviewer.include?(paper)
+  end
+
+  def editor_of?(paper)
+    papers_as_editor.include?(paper)
+  end
+
+  def collaborator_on?(paper)
+    papers_as_collaborator.include?(paper)
   end
 
   def author_of?(paper)
-    # FIXME - this needs to model more than just the single user
     paper.user == self
   end
 end

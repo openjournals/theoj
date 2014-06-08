@@ -26,7 +26,7 @@ class AnnotationTest < ActiveSupport::TestCase
     user = User.create!
     owning_user = User.create!
     paper = Paper.new(:user => owning_user)
-    Assignment.create(:user => user, :paper => paper)
+    Assignment.create(:user => user, :paper => paper, :role => "reviewer")
     ability = Ability.new(user, paper)
     assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
   end
