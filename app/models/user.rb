@@ -1,16 +1,21 @@
 class User < ActiveRecord::Base
-  has_many :comments
-  has_many :assignments  
+  has_many :annotations
+  has_many :assignments
+
+  # Submitting author relationship with paper
+  has_many :papers
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
   has_many :papers_as_editor, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :paper
   has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
 
   serialize :extra
-    
+
+  before_create :set_sha
+
   def self.from_omniauth(auth)
     where(auth.slice("provider", "uid")).first || create_from_omniauth(auth)
   end
-  
+
   def self.create_from_omniauth(auth)
     create! do |user|
       user.provider = auth["provider"]
@@ -22,14 +27,30 @@ class User < ActiveRecord::Base
       user.extra = auth
     end
   end
-  
+
   def reviewer_of?(paper)
-    # FIXME - would like this to be cleaner
-    self.assignments.where(:paper_id => paper.id).any?
+    papers_as_reviewer.include?(paper)
   end
-  
+
+  def editor_of?(paper)
+    papers_as_editor.include?(paper)
+  end
+
+  def collaborator_on?(paper)
+    papers_as_collaborator.include?(paper)
+  end
+
   def author_of?(paper)
-    # FIXME - this needs to model more than just the single user
     paper.user == self
+  end
+
+  def to_param
+    sha
+  end
+
+  private
+
+  def set_sha
+    self.sha = SecureRandom.hex
   end
 end

@@ -11,7 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140430233202) do
+ActiveRecord::Schema.define(version: 20140609021717) do
+
+  create_table "annotations", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "paper_id"
+    t.string   "state"
+    t.integer  "parent_id"
+    t.string   "category"
+    t.text     "body"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "annotations", ["paper_id"], name: "index_annotation_paper_id", using: :btree
+  add_index "annotations", ["parent_id"], name: "index_annotation_parent_id", using: :btree
+  add_index "annotations", ["state"], name: "index_annotation_state", using: :btree
+  add_index "annotations", ["user_id"], name: "index_annotation_user_id", using: :btree
 
   create_table "assignments", force: true do |t|
     t.integer  "user_id"
@@ -27,22 +43,6 @@ ActiveRecord::Schema.define(version: 20140430233202) do
   add_index "assignments", ["role"], name: "index_assignment_role", using: :btree
   add_index "assignments", ["user_id"], name: "index_assignment_user_id", using: :btree
 
-  create_table "comments", force: true do |t|
-    t.integer  "user_id"
-    t.integer  "paper_id"
-    t.string   "state"
-    t.integer  "parent_id"
-    t.string   "category"
-    t.text     "body"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "comments", ["paper_id"], name: "index_comment_paper_id", using: :btree
-  add_index "comments", ["parent_id"], name: "index_comment_parent_id", using: :btree
-  add_index "comments", ["state"], name: "index_comment_state", using: :btree
-  add_index "comments", ["user_id"], name: "index_comment_user_id", using: :btree
-
   create_table "papers", force: true do |t|
     t.integer  "user_id"
     t.string   "location"
@@ -52,8 +52,10 @@ ActiveRecord::Schema.define(version: 20140430233202) do
     t.integer  "version",      default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "sha"
   end
 
+  add_index "papers", ["sha"], name: "index_papers_on_sha", using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
   add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
   add_index "papers", ["user_id"], name: "index_paper_user_id", using: :btree
@@ -70,6 +72,7 @@ ActiveRecord::Schema.define(version: 20140430233202) do
     t.datetime "oauth_expires_at"
     t.text     "extra"
     t.string   "picture"
+    t.string   "sha"
   end
 
   add_index "users", ["admin"], name: "index_user_admin", using: :btree
@@ -77,6 +80,7 @@ ActiveRecord::Schema.define(version: 20140430233202) do
   add_index "users", ["name"], name: "index_user_name", using: :btree
   add_index "users", ["oauth_token"], name: "index_users_on_oauth_token", using: :btree
   add_index "users", ["provider"], name: "index_user_providers", using: :btree
+  add_index "users", ["sha"], name: "index_users_on_sha", using: :btree
   add_index "users", ["uid"], name: "index_user_uid", using: :btree
 
 end
