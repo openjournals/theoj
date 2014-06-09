@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
 
   serialize :extra
 
+  before_create :set_sha
+
   def self.from_omniauth(auth)
     where(auth.slice("provider", "uid")).first || create_from_omniauth(auth)
   end
@@ -40,5 +42,15 @@ class User < ActiveRecord::Base
 
   def author_of?(paper)
     paper.user == self
+  end
+
+  def to_param
+    sha
+  end
+
+  private
+
+  def set_sha
+    self.sha = SecureRandom.hex
   end
 end
