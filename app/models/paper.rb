@@ -8,7 +8,7 @@ class Paper < ActiveRecord::Base
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
   before_create :set_sha
-  
+
   state_machine :initial => :pending do
     state :submitted
     state :under_review

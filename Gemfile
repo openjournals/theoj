@@ -43,7 +43,7 @@ end
 
 # Auth/Users
 gem 'omniauth', '~> 1.2'
-gem 'omniauth-github', '~> 1.1.1'
+gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
 gem 'state_machine', '~> 1.2.0'
 gem 'cancan', '~> 1.6.10'
