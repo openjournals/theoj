@@ -1,7 +1,7 @@
 # http://emberjs.com/guides/models/#toc_store
 # http://emberjs.com/guides/models/pushing-records-into-the-store/
 
-Theoj.Store = DS.Store.extend({
+Theoj.ApplicationStore = DS.Store.extend({
 
 })
 
