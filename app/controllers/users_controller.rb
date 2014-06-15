@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   respond_to :json
   def show
-    user = User.find(params[:id])
+    user = User.find_by_sha(params[:id])
     render :json => user
   end
 

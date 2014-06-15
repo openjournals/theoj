@@ -27,4 +27,12 @@ class UserTest < ActiveSupport::TestCase
     assert !user.reviewer_of?(submitted_paper)
     assert !user.collaborator_on?(submitted_paper)
   end
+
+  # Initialisation
+
+  test "a new user should be assigned a SecureRandom.hex sha" do
+    user = User.create!
+    assert !user.sha.nil?
+    assert_equal user.sha.length, 32
+  end
 end

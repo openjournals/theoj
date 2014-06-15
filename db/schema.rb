@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140608024335) do
+ActiveRecord::Schema.define(version: 20140609021717) do
 
   create_table "annotations", force: true do |t|
     t.integer  "user_id"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 20140608024335) do
     t.datetime "oauth_expires_at"
     t.text     "extra"
     t.string   "picture"
+    t.string   "sha"
   end
 
   add_index "users", ["admin"], name: "index_user_admin", using: :btree
@@ -79,6 +80,7 @@ ActiveRecord::Schema.define(version: 20140608024335) do
   add_index "users", ["name"], name: "index_user_name", using: :btree
   add_index "users", ["oauth_token"], name: "index_users_on_oauth_token", using: :btree
   add_index "users", ["provider"], name: "index_user_providers", using: :btree
+  add_index "users", ["sha"], name: "index_users_on_sha", using: :btree
   add_index "users", ["uid"], name: "index_user_uid", using: :btree
 
 end

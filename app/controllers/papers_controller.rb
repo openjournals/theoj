@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 class PapersController < ApplicationController
   respond_to :json
 
