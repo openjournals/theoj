@@ -1,11 +1,14 @@
 class PapersController < ApplicationController
+  respond_to :json
+
   def index
-    papers = Papers.for_user(current_user)
+    papers = Paper.for_user(current_user)
+    respond_with papers
   end
 
   def show
     paper = Paper.find(:sha => params[:id])
-    render :json => paper, :include => paper.annotations
+    respond_with paper
   end
 
   def create
