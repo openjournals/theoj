@@ -8,7 +8,7 @@ class Paper < ActiveRecord::Base
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
   before_create :set_sha
-  
+
   state_machine :initial => :pending do
     state :submitted
     state :under_review
@@ -51,6 +51,10 @@ class Paper < ActiveRecord::Base
 
   def to_param
     sha
+  end
+
+  def permisions_for_user(user)
+    assignments.where(user_id: user.id).collect{|assignment| assignment.role}
   end
 
   private
