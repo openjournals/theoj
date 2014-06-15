@@ -53,6 +53,10 @@ class Paper < ActiveRecord::Base
     sha
   end
 
+  def permisions_for_user(user)
+    assignments.where(user_id: user.id).collect{|assignment| assignment.role}
+  end
+
   private
 
   def set_sha

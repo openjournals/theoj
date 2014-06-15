@@ -72,4 +72,15 @@ class PaperTest < ActiveSupport::TestCase
     paper = Paper.create!
     assert_equal paper.state, "pending"
   end
+
+  test "paper should report correct roles for user" do
+    user  = User.create!
+    paper = Paper.create!
+    Assignment.create(user_id: user.id, paper_id: paper.id, role:"editor")
+    Assignment.create(user_id: user.id, paper_id: paper.id, role:"submitor")
+    Assignment.create(user_id: user.id, paper_id: paper.id, role:"collaborator")
+    binding.pry
+    assert_equal (paper.permisions_for_user(user) - ["editor", "submitor", "collaborator"]).length, 0
+  end
+
 end
