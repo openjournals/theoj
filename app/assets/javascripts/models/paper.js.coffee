@@ -1,4 +1,9 @@
-Theoj.Paper = Ember.Object.extend()
+Theoj.Paper = Ember.Object.extend
+  submit: ->
+    $.post '/papers', {paper: @serialize()}
+
+  serialize:->
+    {title : @title, location: @location}
 
 Theoj.Paper.reopenClass
   asReviwer : (user)=>
