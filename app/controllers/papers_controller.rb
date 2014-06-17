@@ -13,7 +13,7 @@ class PapersController < ApplicationController
   end
 
   def create
-    paper = Paper.new(params[:paper])
+    paper = Paper.new(paper_params)
 
     if paper.save
       render :json => paper, :status => :created, :location => url_for(paper)
@@ -41,4 +41,12 @@ class PapersController < ApplicationController
     papers = current_user.papers_as_collaborator
     render :json => papers
   end
+
+  private
+
+  private
+
+    def paper_params
+      params.require(:paper).permit(:title, :location)
+    end
 end
