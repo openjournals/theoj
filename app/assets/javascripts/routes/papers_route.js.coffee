@@ -7,9 +7,18 @@ Theoj.PapersReviewRoute = Ember.Route.extend
     Thoj.Paper.asReviewer()
 
 Theoj.PapersSubmittedRoute = Ember.Route.extend
-  model : ->
+  controllerName: "paper_list"
+
+  model:->
     Theoj.Paper.asAuthor()
 
-Theoj.PapersIndexRoute   = Ember.Route.extend
-  model : (params) ->
+  setupController:(controller)->
+    controller.set("paperType", "Submitted")
+
+  renderTemplate: ->
+    @render('papers/papers_list')
+
+
+Theoj.PaperRoute = Ember.Route.extend
+  model :(params)->
     Theoj.Paper.get(params.id)
