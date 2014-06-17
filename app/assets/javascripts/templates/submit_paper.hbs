@@ -1,0 +1,36 @@
+<h1>{{title}}</h1>
+
+<div class='errors'>
+  {{#each error in errors}}
+    <p> {{error}}</p>
+  {{/each}}
+</div>
+
+<form role="form">
+  <div class="form-group">
+    <label for="url">Url</label>
+
+    {{input type="text" value=location  size="50" class='form-control' placeholder= "http://arxiv.org/pdf/1406.3634v1.pdf" }}
+  </div>
+  <div class="form-group">
+    <label for="paper_name">Name</label>
+
+    {{input type="text" value=title  size="50" class='form-control' }}
+
+  </div>
+  <div class="form-group">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" value="">
+          I promise I am an author on this paper
+      </label>
+    </div>
+  </div>
+  <button {{action 'submit'}} type="submit" class="btn btn-default">Submit</button>
+</form>
+
+
+<div class='content'>
+  <h1> Preview</h1>
+  {{simple_pdf_view  location}}
+</div>
