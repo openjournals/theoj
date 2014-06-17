@@ -1,6 +1,6 @@
 class PaperSerializer < ActiveModel::Serializer
   attributes :id, :user_permisions, :location, :state, :submitted_at, :title, :version, :created_at, :pending_issues_count
-  belongs_to :user
+  has_one :user
 
   def user_permisions
     if current_user
