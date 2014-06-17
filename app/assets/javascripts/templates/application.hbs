@@ -25,12 +25,14 @@
       <ul class="nav nav-sidebar">
         <li class="active"><a href="#">Overview</a></li>
         <li><a href="#">Featured Papers</a></li>
-        <li><a href="#">Submit a paper</a></li>
+        <li>{{#link-to 'submit_paper'}}Submit a paper{{/link-to}}</li>
       </ul>
 
+      {{partial "links_for_author"}}
 
+      {{#if editor}}
         {{partial "links_for_editor"}}
-
+      {{/if}}
 
 
       {{#if reviewer}}
@@ -38,7 +40,6 @@
       {{/if}}
 
       {{#if author}}
-        {{partial "links_for_author"}}
       {{/if}}
 
     </div>
