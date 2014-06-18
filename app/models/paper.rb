@@ -54,7 +54,7 @@ class Paper < ActiveRecord::Base
   end
 
   def permisions_for_user(user)
-    assignments.where(user_id: user.id).collect{|assignment| assignment.role}
+    assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
   end
 
   private
