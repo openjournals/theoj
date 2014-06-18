@@ -9,8 +9,7 @@ Theoj::Application.routes.draw do
     end
   end
 
-  get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}
-
+  get '/current_user', to:'users#get_current_user', defaults: { format: 'json' }
 
   resources :users, defaults: { format: 'json' }, only: [:show] do
     resources :papers, defaults: { format: 'json' } do
