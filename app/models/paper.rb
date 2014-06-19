@@ -53,7 +53,8 @@ class Paper < ActiveRecord::Base
     sha
   end
 
-  def permisions_for_user(user)
+  # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
+  def permissions_for_user(user)
     assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
   end
 

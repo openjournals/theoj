@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe User do
-  it "orders by last name" do
+  it "should initialize properly" do
     user = create(:user)
 
     assert !user.sha.nil?
@@ -9,7 +9,7 @@ describe User do
   end
 end
 
-describe User, '.reviewer_of?' do
+describe User, ".reviewer_of?" do
   it "should return correct reviewer assignments" do
     user = create(:user)
     paper = create(:submitted_paper)
@@ -22,7 +22,7 @@ describe User, '.reviewer_of?' do
   end
 end
 
-describe User, '.collaborator_on?' do
+describe User, ".collaborator_on?" do
   it "should return correct collaborator assignments" do
     user = create(:user)
     paper = create(:submitted_paper)
@@ -35,8 +35,8 @@ describe User, '.collaborator_on?' do
   end
 end
 
-describe User, 'author_of?' do
-  it 'should know who the author is' do
+describe User, "author_of?" do
+  it "should know who the author is" do
     user = create(:user)
     paper = create(:paper, :user => user)
 
