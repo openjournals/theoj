@@ -44,7 +44,11 @@ gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 gem 'state_machine', '~> 1.2.0'
 gem 'cancan', '~> 1.6.10'
 
-
+group :test do
+  gem 'rspec-rails', '~> 3.0.1'
+  gem 'shoulda-matchers', '~> 2.6.1'
+  gem 'factory_girl_rails', '~> 4.4.1'
+end
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.1.2'
