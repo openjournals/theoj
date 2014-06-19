@@ -53,6 +53,11 @@ class Paper < ActiveRecord::Base
     sha
   end
 
+  # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
+  def permissions_for_user(user)
+    assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
+  end
+
   private
 
   def set_sha

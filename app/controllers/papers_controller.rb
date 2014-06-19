@@ -1,16 +1,19 @@
-class PapersController < ApplicationController  
+
+class PapersController < ApplicationController
+  respond_to :json
+
   def index
     papers = Paper.for_user(current_user)
-    render :json => papers
+    respond_with papers
   end
 
   def show
     paper = Paper.find_by_sha(params[:id])
-    render :json => paper, :include => paper.annotations
+    respond_with paper
   end
 
   def create
-    paper = Paper.new(params[:paper])
+    paper = Paper.new(paper_params)
 
     if paper.save
       render :json => paper, :status => :created, :location => url_for(paper)
@@ -37,5 +40,11 @@ class PapersController < ApplicationController
   def as_collaborator
     papers = current_user.papers_as_collaborator
     render :json => papers
+  end
+
+  private
+
+  def paper_params
+    params.require(:paper).permit(:title, :location)
   end
 end

@@ -25,7 +25,12 @@ gem 'jquery-rails'
 gem 'turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 1.2'
+gem 'active_model_serializers'
+#
+gem 'ember-rails'
+gem 'ember-source', '1.5.0'
+
+gem 'bootstrap-sass'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
@@ -38,6 +43,12 @@ gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
 gem 'state_machine', '~> 1.2.0'
 gem 'cancan', '~> 1.6.10'
+
+group :test do
+  gem 'rspec-rails', '~> 3.0.1'
+  gem 'shoulda-matchers', '~> 2.6.1'
+  gem 'factory_girl_rails', '~> 4.4.1'
+end
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.1.2'

@@ -6,4 +6,4 @@ before_script:
   - bundle install
   - bundle exec rake db:schema:load
 
-script: bundle exec rake
+script: bundle exec rspec
