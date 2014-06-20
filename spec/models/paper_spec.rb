@@ -89,14 +89,12 @@ end
 describe Paper, ".permisions_for_user" do
   it "should return correct permissions for paper for user" do
     user = create(:user)
-    paper = create(:paper)
+    paper = create(:paper, :user => user)
 
     create(:assignment_as_reviewer, :user => user, :paper => paper)
     # FIXME - "editor" is a role on User. Not sure there should ever be editoral assignments
     create(:assignment_as_editor, :user => user, :paper => paper)
     create(:assignment_as_collaborator, :user => user, :paper => paper)
-    # FIXME - "submittor" is just the owner.
-    create(:assignment, :user => user, :paper => paper, :role => "submittor")
 
     ["editor", "submittor", "collaborator", "reviewer"].each do |role|
       assert paper.permissions_for_user(user).include?(role), "Missing #{role}"
