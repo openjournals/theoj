@@ -55,7 +55,12 @@ class Paper < ActiveRecord::Base
 
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
   def permissions_for_user(user)
-    assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
+    assigned = assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
+    if user.author_of?(self)
+      assigned << "submittor"
+    end
+
+    return assigned
   end
 
   private
