@@ -6,24 +6,19 @@ Theoj.Paper = Ember.Object.extend
     {title : @title, location: @location}
 
 Theoj.Paper.reopenClass
-  asReviwer : (user)=>
-    $.getJSON "/papers/as_reviewer", (papers)->
-      results = (@create(paper) for paper in papers)
 
-  asEditor : (user) =>
-    $.getJSON "/papers/as_editor", (papers)->
-      results = (@create(paper) for paper in papers)
-
-  asAuthor : (user)=>
-    $.getJSON "/papers/as_author", (papers)->
+  get_type: (type)=>
+    ajax.request("/papers/#{type}").then (papers)->
       results = (Theoj.Paper.create(paper) for paper in papers.papers)
       Em.A(results)
 
-  accepted: (user)=>
-    $.getJSON "/papers/accepted", (papers)->
-      results = (@create(paper) for paper in papers)
+  recent: =>
+    ajax.request("/papers").then (papers)->
+      results = (Theoj.Paper.create(paper) for paper in papers.papers)
+      Em.A(results)
 
   get :(paper_id)=>
-    $.getJSON "/papers/#{paper_id}", (result)->
-      window.raw_res = result
-      Theoj.Paper.create(result.paper.paper)
+    ajax.request("/papers/#{paper_id}").then (result)->
+      Theoj.Paper.create(result.paper)
+
+  assignReviewer: (username) =>
