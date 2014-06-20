@@ -1,3 +1,9 @@
-<h1>{{paper.title}}</h1>
+<h1>{{title}}</h1>
 
-<p>{{paper.description}}</p>
+<p>{{description}}</p>
+<p>{{user.name}}</p>
+
+{{paper-controls paper=content user=user}}
+
+
+{{simple_pdf_view location}}
