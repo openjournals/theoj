@@ -46,11 +46,28 @@ class Paper < ActiveRecord::Base
   end
 
   def self.for_user(user)
-    # TODO Return papers for a user in a given role
+    user.papers
   end
 
   def to_param
     sha
+  end
+
+  def assign_reviwer(user_name)
+    # Change this to actually be username later on. Also this is a mess tidy up later
+    assigned = false
+    if user = User.find_by_sha(user_name)
+
+      if assignments.create(user: user, role:"reviewer")
+        assigned = true
+      else
+        @errors = ["Something bad went wrong"]
+      end
+
+    else
+      @errors = ["Could not find user"]
+    end
+    assigned
   end
 
   def permisions_for_user(user)

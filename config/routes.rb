@@ -7,10 +7,12 @@ Theoj::Application.routes.draw do
       get :as_author, defaults: { format: 'json' }
       get :as_collaborator, defaults: { format: 'json' }
     end
+    member do
+      post :assign_reviewer
+    end
   end
 
   get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}
-
 
   resources :users, defaults: { format: 'json' }, only: [:show] do
     resources :papers, defaults: { format: 'json' } do
