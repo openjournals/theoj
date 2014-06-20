@@ -3,7 +3,12 @@ class PapersController < ApplicationController
   respond_to :json
 
   def index
-    papers = Paper.for_user(current_user)
+    if current_user
+      papers = Paper.for_user(current_user)
+    else
+      papers = {papers: [] }
+    end
+
     respond_with papers
   end
 
@@ -13,9 +18,20 @@ class PapersController < ApplicationController
   end
 
   def create
-    paper = Paper.new(paper_params)
 
+    paper = Paper.new(paper_params)
+    paper.user = current_user
     if paper.save
+      render :json => paper, :status => :created, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+
+  def assign_reviewer
+    paper = Paper.find_by_sha(params[:id])
+
+    if paper.assign_reviewer(params[:user_name])
       render :json => paper, :status => :created, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
