@@ -3,20 +3,9 @@
 Theoj.Router.map ()->
 
 
-  @resource 'papers', ->
-    @route 'submitted'
-    @route 'in_review'
-    @route 'accepted'
-    @route 'waiting_assignment'
-    @route 'reviewed'
-    @route 'requires_review'
-    @route 'waiting_on_author'
-
+  @route    'papers'      , {path:'/papers/:type'}
   @route    'submit_paper', {path:'/submit'}
-
-  @resource 'paper', { path: '/paper/:id' }
-
-
+  @resource 'paper'       , {path:'/paper/:id'}
 
   @resource 'index', {path: '/'} , ->
     @route 'about'

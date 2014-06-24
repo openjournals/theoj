@@ -46,11 +46,32 @@ class Paper < ActiveRecord::Base
   end
 
   def self.for_user(user)
-    # TODO Return papers for a user in a given role
+    user.papers
   end
 
   def to_param
     sha
+  end
+
+  def assign_reviewer(user)
+    # Change this to actually be username later on. Also this is a mess tidy up later
+    assigned = false
+
+    if user.reviewer_of? self
+       return true
+    end
+
+    if assignments.create(user: user, role:"reviewer")
+      assigned = true
+    else
+      @errors = ["Something bad went wrong"]
+    end
+
+    assigned
+  end
+
+  def remove_reviewer(user)
+    assignments.where(user_id: user.id).where(role: "reviewer").first.destroy
   end
 
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
