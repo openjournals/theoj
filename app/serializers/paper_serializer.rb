@@ -5,13 +5,12 @@ class PaperSerializer < ActiveModel::Serializer
 
   def user_permissions
     if scope
-      object.permisions_for_user(scope)
+      object.permissions_for_user(scope)
     else
       []
     end
   end
 
-  
 
   def pending_issues_count
     object.outstanding_issues.count
