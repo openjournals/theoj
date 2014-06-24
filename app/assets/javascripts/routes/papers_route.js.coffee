@@ -10,7 +10,7 @@ Theoj.PapersRoute = Ember.Route.extend
       @transitionTo('/')
 
   model:(params)->
-    papers = Theoj.Paper.get_type(params.type)
+    papers = Theoj.Paper.getType(params.type)
     @set "type", params.type
     papers
 
