@@ -9,6 +9,7 @@ Theoj::Application.routes.draw do
     end
     member do
       post :assign_reviewer
+      post :remove_reviewer
     end
   end
 
@@ -22,6 +23,10 @@ Theoj::Application.routes.draw do
         get :as_author, defaults: { format: 'json' }
         get :as_collaborator, defaults: { format: 'json' }
       end
+    end
+
+    collection do
+      get :name_lookup, defaults: { format: 'json' }
     end
   end
 

@@ -28,14 +28,23 @@ class PapersController < ApplicationController
     end
   end
 
+
   def assign_reviewer
     paper = Paper.find_by_sha(params[:id])
 
-    if paper.assign_reviewer(params[:user_name])
+    user  = User.find_by_sha(params[:user_name])
+
+    if user && paper.assign_reviewer(params["user_name"])
       render :json => paper, :status => :created, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end
+  end
+
+  def remove_reviewer
+    paper = Paper.find_by_sha(params[:id])
+    user  = User.find_by_sha(params[:user_name])
+    paper.remove_reviewer user
   end
 
   def as_reviewer
