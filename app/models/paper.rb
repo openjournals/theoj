@@ -61,7 +61,6 @@ class Paper < ActiveRecord::Base
        return true
     end
 
-
     if assignments.create(user: user, role:"reviewer")
       assigned = true
     else
@@ -75,8 +74,9 @@ class Paper < ActiveRecord::Base
     assignments.where(user_id: user.id).where(role: "reviewer").first.destroy
   end
 
-  def permisions_for_user(user)
-    assignments.where(user_id: user.id).collect{|assignment| assignment.role}
+  # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
+  def permissions_for_user(user)
+    assignments.where(:user_id => user.id).collect { |assignment| assignment.role }
   end
 
   private

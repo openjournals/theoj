@@ -69,9 +69,7 @@ class PapersController < ApplicationController
 
   private
 
-  private
-
-    def paper_params
-      params.require(:paper).permit(:title, :location)
-    end
+  def paper_params
+    params.require(:paper).permit(:title, :location)
+  end
 end
