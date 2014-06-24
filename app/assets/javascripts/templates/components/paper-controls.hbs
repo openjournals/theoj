@@ -5,16 +5,24 @@
   <p>Author {{paper.user.sha}}</p>
 
   {{#if user.editor}}
-    <div class=' panel panel-info editor_controls'>
+    <div class='span5 panel panel-info editor_controls'>
       <div class="panel-heading">Editor Controlls</div>
       <div class='panel-body'>
           {{#if paperIsPending}}
             <div class="form-group">
               <label for="reviewer_name">Name</label>
-              {{input type='text' size="20" class='form-control' placeholder='Username'}}
+              {{newReviewer}}
+              {{input type='text' size="20" class='form-control' placeholder='Username' value=newReviewer}}
               <button {{action assignReviewer}} type="submit" class="btn btn-default">Submit</button>
             </div>
           {{/if}}
+
+          <div class='reviewers'>
+            <span>Reviewers:</span>
+            {{#each reviewer in paper.reviewers}}
+              <span>{{reviewer.sha}} <a {{action removeReviewer reviewer}} href="#"><span class="glyphicon glyphicon-remove-sign"></span></a></span>
+            {{/each}}
+          </div>
       </div>
     </div>
   {{/if}}
@@ -32,7 +40,7 @@
       {{/if}}
 
       {{#if userIsReviewer}}
-        <p> You have been assigned as a reviewer on this paper <a href='#' class='button'>Review</a></p>
+        <p>You have been assigned as a reviewer on this paper <a href='#' class='button'>Review</a></p>
       {{/if}}
     </div>
   </div>
