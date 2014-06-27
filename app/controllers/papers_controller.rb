@@ -30,6 +30,16 @@ class PapersController < ApplicationController
     render :layout => false
   end
 
+  def accept
+    paper = Paper.find_by_sha(params[:id])
+    
+    if paper.accept!
+      render :json => paper, :status => :updated, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+
   def as_reviewer
     papers = current_user.papers_as_reviewer
     render :json => papers
