@@ -23,11 +23,11 @@ class PapersController < ApplicationController
   end
   
   def status
-    paper = Paper.find_by_sha(params[:id])
-    etag(params.inspect, paper.state)
+    @paper = Paper.find_by_sha(params[:id])
+    etag(params.inspect, @paper.state)
     
     #TODO replace this with some fancy badge thing.
-    render :text => paper.state
+    render :layout => false
   end
 
   def as_reviewer

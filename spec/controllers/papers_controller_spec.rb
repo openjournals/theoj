@@ -11,6 +11,8 @@ describe PapersController do
   end
   
   describe "GET #status" do
+    render_views
+    
     it "responds successfully with an HTTP 200 status code" do
       paper = create(:paper_under_review)
       get :status, :id => paper.sha, :format => :html
