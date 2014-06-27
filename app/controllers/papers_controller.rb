@@ -21,6 +21,14 @@ class PapersController < ApplicationController
       render :json => paper.errors, :status => :unprocessable_entity
     end
   end
+  
+  def status
+    paper = Paper.find_by_sha(params[:id])
+    etag(params.inspect, paper.state)
+    
+    #TODO replace this with some fancy badge thing.
+    render :text => paper.state
+  end
 
   def as_reviewer
     papers = current_user.papers_as_reviewer

@@ -5,6 +5,11 @@ class ApplicationController < ActionController::Base
   # before_filter :require_user
   
   private
+  
+  def etag(params, state)
+    etag = Digest::MD5.hexdigest(TheOJVersion + params.inspect + state)
+    headers['ETag'] = etag
+  end
 
   def require_user
     redirect_to new_session_path unless current_user
