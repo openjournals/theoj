@@ -42,7 +42,7 @@ gem 'omniauth', '~> 1.2'
 gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
 gem 'state_machine', '~> 1.2.0'
-gem 'cancan', '~> 1.6.10'
+gem 'cancancan', '~> 1.8'
 
 group :test do
   gem 'rspec-rails', '~> 3.0.1'

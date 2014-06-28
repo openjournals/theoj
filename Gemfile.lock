@@ -43,7 +43,7 @@ GEM
     bootstrap-sass (3.1.1.1)
       sass (~> 3.2)
     builder (3.1.4)
-    cancan (1.6.10)
+    cancancan (1.8.4)
     coderay (1.1.0)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
@@ -189,7 +189,7 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   bootstrap-sass
-  cancan (~> 1.6.10)
+  cancancan (~> 1.8)
   coffee-rails (~> 4.0.0)
   ember-rails
   ember-source (= 1.5.0)
