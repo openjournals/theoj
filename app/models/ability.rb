@@ -19,6 +19,8 @@ class Ability
 
       can :destroy, Paper, :user_id => user.id
 
+      cannot :update, Paper
+      
       can :update, Paper, :user_id => user.id if paper.draft?
 
       # Don't let the user delete a paper once submitted.
@@ -57,6 +59,7 @@ class Ability
     # Editors can manage papers
     elsif user.editor?
       can :manage, Paper
+      can :accept!, Paper
       can :manage, Annotation
       can :manage, Assignment
     end

@@ -1,40 +1,54 @@
-
 class PapersController < ApplicationController
   respond_to :json
-
+  
   def index
+    authorize! :index, Paper
     papers = Paper.for_user(current_user)
     respond_with papers
   end
 
   def show
     paper = Paper.find_by_sha(params[:id])
+    authorize! :show, paper
     respond_with paper
   end
 
   def create
     paper = Paper.new(paper_params)
-
+    authorize! :create, paper
+    
     if paper.save
       render :json => paper, :status => :created, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end
   end
-  
+
   def status
     @paper = Paper.find_by_sha(params[:id])
     etag(params.inspect, @paper.state)
-    
+
     #TODO replace this with some fancy badge thing.
     render :layout => false
   end
-
+  
   def accept
     paper = Paper.find_by_sha(params[:id])
-    
+    authorize! :accept, paper
+
     if paper.accept!
-      render :json => paper, :status => :updated, :location => url_for(paper)
+      render :json => paper, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+
+  def update
+    paper = Paper.find_by_sha(params[:id])
+    authorize! :update, paper
+
+    if paper.update_attributes(params[:paper])
+      render :json => paper, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end

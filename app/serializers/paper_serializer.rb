@@ -4,7 +4,7 @@ class PaperSerializer < ActiveModel::Serializer
 
   def user_permissions
     if scope
-      object.permisions_for_user(scope)
+      object.permissions_for_user(scope)
     else
       []
     end
