@@ -1,5 +1,9 @@
 Theoj::Application.routes.draw do
   resources :papers, defaults: { format: 'json' } do
+    member do
+      get :status, defaults: { format: 'html' }
+      put :accept, defaults: { format: 'json' }
+    end
     resources :annotations, defaults: { format: 'json' }
     collection do
       get :as_reviewer, defaults: { format: 'json' }

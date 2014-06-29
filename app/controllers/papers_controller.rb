@@ -1,26 +1,27 @@
-
 class PapersController < ApplicationController
   respond_to :json
-
+  
   def index
+    authorize! :index, Paper
     if current_user
       papers = Paper.for_user(current_user)
     else
-      papers = {papers: [] }
+      papers = { papers: [] }
     end
-
     respond_with papers
   end
 
   def show
     paper = Paper.find_by_sha(params[:id])
+    authorize! :show, paper
     respond_with paper
   end
 
   def create
-
     paper = Paper.new(paper_params)
     paper.user = current_user
+    authorize! :create, paper
+
     if paper.save
       render :json => paper, :status => :created, :location => url_for(paper)
     else
@@ -28,7 +29,25 @@ class PapersController < ApplicationController
     end
   end
 
+  def status
+    @paper = Paper.find_by_sha(params[:id])
+    etag(params.inspect, @paper.state)
 
+    #TODO replace this with some fancy badge thing.
+    render :layout => false
+  end
+  
+  def accept
+    paper = Paper.find_by_sha(params[:id])
+    authorize! :accept, paper
+
+    if paper.accept!
+      render :json => paper, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+  
   def assign_reviewer
     paper = Paper.find_by_sha(params[:id])
 
@@ -36,6 +55,17 @@ class PapersController < ApplicationController
 
     if user && paper.assign_reviewer(params["user_name"])
       render :json => paper, :status => :created, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+
+  def update
+    paper = Paper.find_by_sha(params[:id])
+    authorize! :update, paper
+
+    if paper.update_attributes(params[:paper])
+      render :json => paper, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end
