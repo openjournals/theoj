@@ -1,36 +1,30 @@
-Theoj.PapersAssignmentRoute = Ember.Route.extend
-  model : ->
-    Theoj.Paper.asEditor()
-
-Theoj.PapersReviewRoute = Ember.Route.extend
-  controllerName: "paper_list"
-
-  model:->
-    Theoj.Paper.asAuthor()
-
-  setupController:(controller)->
-    controller.set("paperType", "Review")
-
-  renderTemplate: ->
-    @render('papers/papers_list')
 
 
-Theoj.PapersSubmittedRoute = Ember.Route.extend
-  controllerName: "paper_list"
 
-  model:->
-    Theoj.Paper.asAuthor()
+Theoj.PapersRoute = Ember.Route.extend
+  allowed_types : ["submitted", "in_review", "accepted"]
+
+  beforeModel: (transition)->
+    console.log transition
+    if @get("allowed_types").indexOf(transition.params.papers.type) == -1
+      @transitionTo('/')
+
+  model:(params)->
+    papers = Theoj.Paper.getType(params.type)
+    @set "type", params.type
+    papers
+
+  active:->
+    @set "controller.paperType",params.type
 
   setupController:(controller)->
-    controller.set("paperType", "Submitted")
-
-  renderTemplate: ->
-    @render('papers/papers_list')
+    controller.set("paperType", @get("type"))
 
 
 Theoj.PaperRoute = Ember.Route.extend
   model :(params)->
     Theoj.Paper.get(params.id)
+
 
 Theoj.SubmitPaperRoute = Ember.Route.extend
   model:(params)->
