@@ -15,6 +15,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  
 # The settings below are suggested to provide a good initial experience
 # with RSpec, but feel free to customize to your heart's content.
 =begin
@@ -75,6 +76,17 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 =end
+end
+
+require 'webmock/rspec'
+WebMock.disable_net_connect!(allow_localhost: true)
+
+RSpec.configure do |config|
+  config.before(:each) do
+    stub_request(:get, "pub.orcid.org/v1.1/0000-0001-7857-2795/orcid-bio").
+      with(headers: {'Accept'=>'application/orcid+json'}).
+      to_return(status: 200, body: '{"message-version":"1.1","orcid-profile":{"orcid":null,"orcid-identifier":{"value":null,"uri":"http://sandbox-1.orcid.org/0000-0001-7857-2795","path":"0000-0001-7857-2795","host":"sandbox-1.orcid.org"},"orcid-preferences":{"locale":"EN"},"orcid-history":{"creation-method":"WEBSITE","submission-date":{"value":1359385939842},"last-modified-date":{"value":1386071959680},"claimed":{"value":true},"source":null,"visibility":null},"orcid-bio":{"personal-details":{"given-names":{"value":"Albert"},"family-name":{"value":"Einstein"}},"biography":{"value":"","visibility":null},"keywords":null,"delegation":null,"applications":null,"scope":null},"type":"USER","group-type":null,"client-type":null}}', headers: {})
+  end
 end
 
 def hash_from_json(json)
