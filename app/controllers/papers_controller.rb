@@ -13,7 +13,10 @@ class PapersController < ApplicationController
 
   def show
     paper = Paper.find_by_sha(params[:id])
-    authorize! :show, paper
+    ability = ability_with(current_user, paper)
+    
+    raise CanCan::AccessDenied if ability.cannot? :show, paper
+    
     respond_with paper
   end
 
@@ -62,7 +65,9 @@ class PapersController < ApplicationController
 
   def update
     paper = Paper.find_by_sha(params[:id])
-    authorize! :update, paper
+    ability = ability_with(current_user, paper)
+    
+    raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
     if paper.update_attributes(params[:paper])
       render :json => paper, :location => url_for(paper)

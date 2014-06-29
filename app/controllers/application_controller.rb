@@ -12,9 +12,12 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
-  
   private
-  
+
+  def ability_with(user, paper=nil, annotation=nil)
+    return ability = Ability.new(user, paper, annotation)
+  end
+
   def etag(params, state)
     etag = Digest::MD5.hexdigest(TheOJVersion + params.inspect + state)
     headers['ETag'] = etag
