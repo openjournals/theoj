@@ -48,6 +48,7 @@ group :test do
   gem 'rspec-rails', '~> 3.0.1'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
+  gem 'webmock', '~> 1.18.0'
 end
 
 # Use ActiveModel has_secure_password
