@@ -59,7 +59,6 @@ class Ability
     # Editors can manage papers
     elsif user.editor?
       can :manage, Paper
-      can :accept!, Paper
       can :manage, Annotation
       can :manage, Assignment
     end
