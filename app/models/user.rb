@@ -5,9 +5,6 @@ class User < ActiveRecord::Base
   # Submitting author relationship with paper
   has_many :papers
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
-
-  # TODO - need to decide whether to make separate assignments for editors
-  has_many :papers_as_editor, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :paper
   has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
 
   serialize :extra
@@ -35,7 +32,15 @@ class User < ActiveRecord::Base
   end
 
   def editor_of?(paper)
-    papers_as_editor.include?(paper)
+    return true if self.editor?
+  end
+
+  def papers_as_editor
+    if self.editor?
+      return Paper.active
+    else
+      return []
+    end
   end
 
   def collaborator_on?(paper)

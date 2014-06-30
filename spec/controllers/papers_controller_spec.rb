@@ -160,4 +160,54 @@ describe PapersController do
       expect(response.status).to eq(403)
     end
   end
+
+  describe "GET #as_reviewer" do
+    it "AS REVIEWER should return correct papers" do
+      user = create(:user)
+      paper = create(:paper_under_review)
+      create(:assignment_as_reviewer, :user => user, :paper => paper)
+      
+      allow(controller).to receive_message_chain(:current_user).and_return(user)
+
+      get :as_reviewer, :format => :json
+
+      expect(response).to be_success
+      assert_equal 1, hash_from_json(response.body)["papers"].size
+    end
+  end
+  
+  describe "GET #as_author" do
+    it "AS REVIEWER should return correct papers" do
+      user = create(:user)
+      paper = create(:paper_under_review)
+      create(:assignment_as_reviewer, :user => user, :paper => paper)
+
+      # This is the one that should be returned
+      user = create(:user)
+      paper = create(:paper, :user => user)
+
+      allow(controller).to receive_message_chain(:current_user).and_return(user)
+
+      get :as_author, :format => :json
+
+      expect(response).to be_success
+      assert_equal 1, hash_from_json(response.body)["papers"].size
+    end
+  end
+  
+  describe "GET #as_editor" do
+    it "AS EDITOR should return correct papers" do
+      user = create(:editor)
+      create(:paper_under_review) # should be returned
+      create(:submitted_paper) # should be returned
+      create(:paper) # pending (should not be returned)
+
+      allow(controller).to receive_message_chain(:current_user).and_return(user)
+
+      get :as_editor, :format => :json
+
+      expect(response).to be_success
+      assert_equal 2, hash_from_json(response.body)["papers"].size
+    end
+  end
 end

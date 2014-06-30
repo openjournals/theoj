@@ -87,6 +87,7 @@ class PapersController < ApplicationController
     render :json => papers
   end
 
+  # ATTENTION: This behaviour has now changed - editor is a global entity
   def as_editor
     papers = current_user.papers_as_editor
     render :json => papers
