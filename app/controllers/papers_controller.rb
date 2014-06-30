@@ -1,6 +1,6 @@
 class PapersController < ApplicationController
   respond_to :json
-  
+  before_filter :require_user, :except => [ :status ]
   def index
     authorize! :index, Paper
     if current_user
@@ -14,9 +14,9 @@ class PapersController < ApplicationController
   def show
     paper = Paper.find_by_sha(params[:id])
     ability = ability_with(current_user, paper)
-    
+
     raise CanCan::AccessDenied if ability.cannot? :show, paper
-    
+
     respond_with paper
   end
 
@@ -39,7 +39,7 @@ class PapersController < ApplicationController
     #TODO replace this with some fancy badge thing.
     render :layout => false
   end
-  
+
   def accept
     paper = Paper.find_by_sha(params[:id])
     authorize! :accept, paper
@@ -50,7 +50,7 @@ class PapersController < ApplicationController
       render :json => paper.errors, :status => :unprocessable_entity
     end
   end
-  
+
   def assign_reviewer
     paper = Paper.find_by_sha(params[:id])
 
@@ -66,7 +66,7 @@ class PapersController < ApplicationController
   def update
     paper = Paper.find_by_sha(params[:id])
     ability = ability_with(current_user, paper)
-    
+
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
     if paper.update_attributes(paper_params)

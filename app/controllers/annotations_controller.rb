@@ -1,5 +1,6 @@
 class AnnotationsController < ApplicationController
   before_filter :find_paper
+  before_filter :require_user
 
   def index
     render :json => @paper.annotations
