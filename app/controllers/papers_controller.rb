@@ -1,6 +1,8 @@
 class PapersController < ApplicationController
   respond_to :json
   before_filter :require_user, :except => [ :status ]
+  before_filter :require_editor, :only => [ :accept, :assign_reviewer, :remove_reviewer]
+
   def index
     authorize! :index, Paper
     if current_user
@@ -32,6 +34,19 @@ class PapersController < ApplicationController
     end
   end
 
+  def update
+    paper = Paper.find_by_sha(params[:id])
+    ability = ability_with(current_user, paper)
+
+    raise CanCan::AccessDenied if ability.cannot?(:update, paper)
+
+    if paper.update_attributes(paper_params)
+      render :json => paper, :location => url_for(paper)
+    else
+      render :json => paper.errors, :status => :unprocessable_entity
+    end
+  end
+
   def status
     @paper = Paper.find_by_sha(params[:id])
     etag(params.inspect, @paper.state)
@@ -53,24 +68,10 @@ class PapersController < ApplicationController
 
   def assign_reviewer
     paper = Paper.find_by_sha(params[:id])
-
     user  = User.find_by_sha(params[:user_name])
 
     if user && paper.assign_reviewer(params["user_name"])
       render :json => paper, :status => :created, :location => url_for(paper)
-    else
-      render :json => paper.errors, :status => :unprocessable_entity
-    end
-  end
-
-  def update
-    paper = Paper.find_by_sha(params[:id])
-    ability = ability_with(current_user, paper)
-
-    raise CanCan::AccessDenied if ability.cannot?(:update, paper)
-
-    if paper.update_attributes(paper_params)
-      render :json => paper, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end

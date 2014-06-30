@@ -24,7 +24,7 @@ describe PapersController do
       expect(response.status).to eq(403)
     end
   end
-  
+
   describe "GET #show" do
     it "AS REVIEWER (with permissions)" do
       user = create(:user)
@@ -40,7 +40,7 @@ describe PapersController do
       expect(response.content_type).to eq("application/json")
     end
   end
-  
+
   describe "GET #show" do
     it "AS COLLABORATOR (with permissions)" do
       user = create(:user)
@@ -56,7 +56,7 @@ describe PapersController do
       expect(response.content_type).to eq("application/json")
     end
   end
-  
+
   describe "GET #show" do
     it "AS AUTHOR (with permissions)" do
       user = create(:user)
@@ -71,7 +71,7 @@ describe PapersController do
       expect(response.content_type).to eq("application/json")
     end
   end
-  
+
   describe "GET #status" do
     render_views
 
@@ -96,7 +96,7 @@ describe PapersController do
       expect(response.body).to eq("accepted")
     end
   end
-  
+
   describe "PUT #update" do
     it "AS AUTHOR on pending paper should change title" do
       user = create(:user)
@@ -144,20 +144,21 @@ describe PapersController do
 
       put :accept, :id => paper.sha, :format => :json
 
-      expect(response.status).to eq(403)
+      # Should be redirected
+      expect(response.status).to eq(302)
     end
   end
-  
+
   describe "PUT #accept" do
     it "AS AUTHOR responds successfully with a correct status (403) and NOT accept paper" do
       user = create(:user)
       paper = create(:paper_under_review, :user => user)
-      
+
       allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       put :accept, :id => paper.sha, :format => :json
 
-      expect(response.status).to eq(403)
+      expect(response.status).to eq(302)
     end
   end
 
@@ -166,7 +167,7 @@ describe PapersController do
       user = create(:user)
       paper = create(:paper_under_review)
       create(:assignment_as_reviewer, :user => user, :paper => paper)
-      
+
       allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       get :as_reviewer, :format => :json
@@ -175,7 +176,7 @@ describe PapersController do
       assert_equal 1, hash_from_json(response.body)["papers"].size
     end
   end
-  
+
   describe "GET #as_author" do
     it "AS REVIEWER should return correct papers" do
       user = create(:user)
@@ -194,7 +195,7 @@ describe PapersController do
       assert_equal 1, hash_from_json(response.body)["papers"].size
     end
   end
-  
+
   describe "GET #as_editor" do
     it "AS EDITOR should return correct papers" do
       user = create(:editor)
