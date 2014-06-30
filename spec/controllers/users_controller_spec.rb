@@ -15,7 +15,6 @@ describe UsersController do
   end
 end
 
-
 describe UsersController, '.get_current_user' do
   describe "GET #get_current_user" do
     it "responds successfully with an HTTP 200 status code" do
