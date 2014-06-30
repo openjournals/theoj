@@ -69,7 +69,7 @@ class PapersController < ApplicationController
     
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
-    if paper.update_attributes(params[:paper])
+    if paper.update_attributes(paper_params)
       render :json => paper, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity

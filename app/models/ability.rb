@@ -5,8 +5,18 @@ class Ability
     # HEADS UP - ordering matters here because of how CanCan defines abilities
     initialize_annotation(user, annotation)
     initialize_author(user, paper)
+    initialize_collaborator(user, paper)
     initialize_reviewer(user, paper)
     initialize_privileged(user)
+  end
+  
+  def initialize_collaborator(user, paper)
+    if paper
+      can :read, Paper if user.collaborator_on?(paper)
+      
+      # Can read someone else's annotations
+      can :read, Annotation if user.collaborator_on?(paper)
+    end
   end
 
   def initialize_author(user, paper)
@@ -27,6 +37,7 @@ class Ability
       cannot :destroy, Paper unless paper.draft?
 
       # Can respond to annotations from reviewers
+      # TODO this isn't actually defining a response to something
       can :create, Annotation if user.author_of?(paper)
 
       # Can read their own annotations
