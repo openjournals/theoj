@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   respond_to :json
-  before_filter :require_user
+  before_filter :require_user, :except => [ :get_current_user ]
 
   def show
     user = User.find_by_sha(params[:id])
@@ -8,7 +8,11 @@ class UsersController < ApplicationController
   end
 
   def get_current_user
-    respond_with current_user
+    if current_user
+      respond_with current_user
+    else
+      render :json => {}
+    end
   end
 
   def name_lookup

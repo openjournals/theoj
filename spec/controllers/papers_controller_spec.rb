@@ -159,6 +159,7 @@ describe PapersController do
       put :accept, :id => paper.sha, :format => :json
 
       expect(response.status).to eq(403)
+      assert hash_from_json(response.body).empty?
     end
   end
 
