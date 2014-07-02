@@ -1,5 +1,16 @@
 require "rails_helper"
 
+describe Annotation, '.responses' do
+  it "should return responses" do
+    paper = create(:submitted_paper)
+    first_annotation = create(:annotation, :paper => paper)
+    second_annotation = create(:annotation, :parent_id => first_annotation.id)
+
+    assert first_annotation.has_responses?
+    assert_equal second_annotation.parent, first_annotation
+  end
+end
+
 describe Annotation do
   it "AS AUTHOR: should be able to create an annotation on own paper" do
     user = create(:user)
