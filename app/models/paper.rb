@@ -4,9 +4,8 @@ class Paper < ActiveRecord::Base
   has_many :assignments
 
   has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
-  has_many :editors, -> { where('assignments.role = ?', 'editor') }, :through => :assignments, :source => :user
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
-  
+
   scope :active, -> { where('state != ?', 'pending') }
 
   before_create :set_sha
@@ -37,6 +36,10 @@ class Paper < ActiveRecord::Base
 
   def pretty_status
     state.humanize
+  end
+
+  def editors
+    User.editors
   end
 
   def pretty_submission_date
