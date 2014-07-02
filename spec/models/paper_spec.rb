@@ -10,6 +10,16 @@ describe Paper do
   end
 end
 
+describe Paper, "#with_scope" do
+  it "should return properly scoped records" do
+    paper = create(:submitted_paper)
+    create(:paper)
+
+    assert_equal Paper.count, 2
+    assert_includes Paper.with_state('submitted'), paper
+  end
+end
+
 describe Paper, ".resolve_all_issues" do
   it "should resolve any outstanding issues" do
     paper = create(:paper)
