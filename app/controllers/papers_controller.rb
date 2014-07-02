@@ -83,23 +83,23 @@ class PapersController < ApplicationController
   end
 
   def as_reviewer
-    papers = current_user.papers_as_reviewer
+    papers = current_user.papers_as_reviewer.with_state(params[:state])
     render :json => papers
   end
 
   # ATTENTION: This behaviour has now changed - editor is a global entity
   def as_editor
-    papers = current_user.papers_as_editor
+    papers = current_user.papers_as_editor.with_state(params[:state])
     render :json => papers
   end
 
   def as_author
-    papers = current_user.papers
+    papers = current_user.papers.with_state(params[:state])
     render :json => papers
   end
 
   def as_collaborator
-    papers = current_user.papers_as_collaborator
+    papers = current_user.papers_as_collaborator.with_state(params[:state])
     render :json => papers
   end
 

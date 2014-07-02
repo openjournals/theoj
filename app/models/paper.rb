@@ -6,7 +6,6 @@ class Paper < ActiveRecord::Base
   has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
-  scope :with_state, lambda { |state| where('state = ?', state) }
   scope :active, -> { where('state != ?', 'pending') }
 
   before_create :set_sha
@@ -23,6 +22,14 @@ class Paper < ActiveRecord::Base
     end
     event :assigned do
       transition :submitted => :under_review
+    end
+  end
+
+  def self.with_state(state = nil)
+    if state
+      where('state = ?', state)
+    else
+      all
     end
   end
 
