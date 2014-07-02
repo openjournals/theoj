@@ -7,6 +7,8 @@ class User < ActiveRecord::Base
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
   has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
 
+  scope :editors, -> { where(:editor => true) }
+  
   serialize :extra
 
   before_create :set_sha
