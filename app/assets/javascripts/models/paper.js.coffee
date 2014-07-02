@@ -25,7 +25,7 @@ Theoj.Paper.reopenClass
   getType: (type)=>
     request = ajax.request("/papers/#{type}")
     request.then (papers)->
-      results = (Theoj.Paper.create(paper) for paper in papers.papers)
+      results = (Theoj.Paper.create(paper) for paper in papers)
       Em.A(results)
     request.catch (error)->
       Em.A([])
@@ -33,7 +33,7 @@ Theoj.Paper.reopenClass
   recent: =>
     request = ajax.request("/papers")
     request.then (papers)->
-      results = (Theoj.Paper.create(paper) for paper in papers.papers)
+      results = (Theoj.Paper.create(paper) for paper in papers)
       Em.A(results)
     request.catch (error)->
       Em.A([])
