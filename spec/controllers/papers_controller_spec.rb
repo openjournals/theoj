@@ -145,7 +145,7 @@ describe PapersController do
       put :accept, :id => paper.sha, :format => :json
 
       # Should be redirected
-      expect(response.status).to eq(302)
+      expect(response.status).to eq(403)
     end
   end
 
@@ -158,7 +158,7 @@ describe PapersController do
 
       put :accept, :id => paper.sha, :format => :json
 
-      expect(response.status).to eq(302)
+      expect(response.status).to eq(403)
     end
   end
 

@@ -24,11 +24,11 @@ class ApplicationController < ActionController::Base
   end
 
   def require_user
-    redirect_to new_session_path unless current_user
+    render :json => {}, :status => :forbidden unless current_user
   end
 
   def require_editor
-    redirect_to new_session_path unless (current_user && current_user.editor?)
+    render :json => {}, :status => :forbidden unless (current_user && current_user.editor?)
   end
 
   def current_user
