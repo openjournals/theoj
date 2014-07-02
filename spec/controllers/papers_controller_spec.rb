@@ -13,6 +13,17 @@ describe PapersController do
     end
   end
 
+  describe "GET #index" do
+    it "AS NO USER responds successfully with an HTTP 200 status code but an empty body" do
+      create(:paper)
+
+      get :index, :format => :json
+      expect(response).to be_success
+      expect(response.status).to eq(200)
+      expect(response.content_type).to eq("application/json")
+    end
+  end
+
   describe "GET #show" do
     it "AS USER without permissions" do
       user = create(:user)

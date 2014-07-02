@@ -1,10 +1,9 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user, :except => [ :status ]
+  before_filter :require_user, :except => [ :status, :index ]
   before_filter :require_editor, :only => [ :accept, :assign_reviewer, :remove_reviewer]
 
   def index
-    authorize! :index, Paper
     if current_user
       papers = Paper.for_user(current_user)
     else
