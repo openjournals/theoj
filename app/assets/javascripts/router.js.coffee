@@ -1,7 +1,7 @@
 # For more information see: http://emberjs.com/guides/routing/
 
 Theoj.Router.map ()->
-  
+
   @route    'papers'      , {path:'/papers/:type'}
   @route    'submit_paper', {path:'/submit'}
   @resource 'paper'       , {path:'/paper/:id'}
@@ -13,5 +13,4 @@ Theoj.Router.map ()->
 
   @route 'about', path :'/about'
   @route 'people', path :'/people'
-  @resource('papers')
   @route 'about', path: '/about'
