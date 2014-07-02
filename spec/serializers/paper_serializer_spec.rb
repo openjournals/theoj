@@ -9,7 +9,7 @@ describe PaperSerializer do
     hash = hash_from_json(serializer.to_json)
 
     ["user_permissions", "location", "state", "submitted_at", "title", "version", "created_at", "pending_issues_count", "sha"].each do |key|
-      assert hash["paper"].has_key?(key), "Missing key #{key}"
+      assert hash.has_key?(key), "Missing key #{key}"
     end
   end
 end

@@ -117,7 +117,7 @@ describe PapersController do
       put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
 
       expect(response).to be_success
-      assert_equal hash_from_json(response.body)["paper"]["title"], "Boo ya!"
+      assert_equal hash_from_json(response.body)["title"], "Boo ya!"
     end
   end
 
@@ -143,7 +143,7 @@ describe PapersController do
       put :accept, :id => paper.sha, :format => :json
 
       expect(response).to be_success
-      assert_equal hash_from_json(response.body)["paper"]["state"], "accepted"
+      assert_equal hash_from_json(response.body)["state"], "accepted"
     end
   end
 
@@ -185,7 +185,7 @@ describe PapersController do
       get :as_reviewer, :format => :json
 
       expect(response).to be_success
-      assert_equal 1, hash_from_json(response.body)["papers"].size
+      assert_equal 1, hash_from_json(response.body).size
     end
   end
 
@@ -204,7 +204,7 @@ describe PapersController do
       get :as_author, :format => :json
 
       expect(response).to be_success
-      assert_equal 1, hash_from_json(response.body)["papers"].size
+      assert_equal 1, hash_from_json(response.body).size
     end
   end
 
@@ -220,7 +220,7 @@ describe PapersController do
       get :as_editor, :format => :json
 
       expect(response).to be_success
-      assert_equal 2, hash_from_json(response.body)["papers"].size
+      assert_equal 2, hash_from_json(response.body).size
     end
   end
 end
