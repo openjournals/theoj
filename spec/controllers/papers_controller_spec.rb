@@ -189,6 +189,21 @@ describe PapersController do
     end
   end
 
+  describe "GET #as_reviewer with a state" do
+    it "AS REVIEWER should return correct papers" do
+      user = create(:user)
+      paper = create(:paper_under_review)
+      create(:assignment_as_reviewer, :user => user, :paper => paper)
+
+      allow(controller).to receive_message_chain(:current_user).and_return(user)
+
+      get :as_reviewer, :format => :json, :state => 'pending'
+
+      expect(response).to be_success
+      assert_equal 0, hash_from_json(response.body).size
+    end
+  end
+
   describe "GET #as_author" do
     it "AS REVIEWER should return correct papers" do
       user = create(:user)
