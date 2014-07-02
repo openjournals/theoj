@@ -9,6 +9,15 @@ describe User do
   end
 end
 
+describe User, "#editors" do
+  it "should return editors" do
+    user = create(:editor)
+    create(:user)
+
+    expect(User.editors).to eq([user])
+  end
+end
+
 describe User, ".reviewer_of?" do
   it "should return correct reviewer assignments" do
     user = create(:user)
