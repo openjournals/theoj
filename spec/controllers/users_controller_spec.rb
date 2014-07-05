@@ -40,7 +40,7 @@ describe UsersController, '.name_lookup' do
       expect(response).to be_success
       expect(response.status).to eq(200)
       # FIXME - this hash structure is kinda silly
-      assert_equal hash_from_json(response.body).first["id"], user.id
+      assert_equal hash_from_json(response.body).first["sha"], user.sha
     end
   end
 

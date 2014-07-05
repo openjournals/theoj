@@ -11,7 +11,6 @@ class PaperSerializer < ActiveModel::Serializer
     end
   end
 
-
   def pending_issues_count
     object.outstanding_issues.count
   end
