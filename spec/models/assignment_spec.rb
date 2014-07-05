@@ -49,10 +49,9 @@ describe Assignment do
     assert collaborator.papers_as_reviewer.empty?
   end
 
-  it "AS EDITOR: should return correct assignments" do
+  it "AS EDITOR: should be editor for all papers" do
     paper = create(:submitted_paper)
     editor = create(:editor)
-    create(:assignment_as_editor, :paper => paper, :user => editor)
 
     assert_includes editor.papers_as_editor, paper
   end

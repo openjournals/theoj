@@ -9,10 +9,6 @@ FactoryGirl.define do
       role "reviewer"
     end
 
-    factory :assignment_as_editor do
-      role "editor"
-    end
-
     factory :assignment_as_collaborator do
       role "collaborator"
     end

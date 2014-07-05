@@ -94,6 +94,10 @@ class Paper < ActiveRecord::Base
       assigned << "submittor"
     end
 
+    if user.editor?
+      assigned << "editor"
+    end
+
     return assigned
   end
 

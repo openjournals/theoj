@@ -43,7 +43,6 @@ describe Annotation do
     editor = create(:editor)
     user = create(:user)
     paper = create(:submitted_paper, :user => user)
-    create(:assignment_as_editor, :user => editor, :paper => paper)
 
     annotation_1 = create(:annotation, :user => user, :paper => paper)
     annotation_2 = create(:annotation, :user => editor, :paper => paper, :parent_id => annotation_1.id)
@@ -91,8 +90,6 @@ describe Annotation do
     user = create(:editor)
     paper = create(:paper)
 
-    # TODO - paper permissions don't currently come from the User not the assignments. Is this OK?
-    create(:assignment_as_editor, :user => user, :paper => paper)
     ability = Ability.new(user, paper)
 
     assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
