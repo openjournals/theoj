@@ -48,7 +48,11 @@ class PapersController < ApplicationController
 
   def status
     @paper = Paper.find_by_sha(params[:id])
-    etag(params.inspect, @paper.state)
+    if @paper
+      etag(params.inspect, @paper.state)
+    else
+      etag(params.inspect, "unknown")
+    end
 
     #TODO replace this with some fancy badge thing.
     render :layout => false

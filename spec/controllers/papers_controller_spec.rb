@@ -95,7 +95,7 @@ describe PapersController do
       expect(response).to be_success
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("text/html")
-      expect(response.body).to eq("under_review")
+      assert response.body.include?('review.svg')
 
       paper.accept!
 
@@ -104,7 +104,7 @@ describe PapersController do
       etag2 = response.header['ETag']
 
       assert etag1 != etag2
-      expect(response.body).to eq("accepted")
+      assert response.body.include?('accepted.svg')
     end
   end
 

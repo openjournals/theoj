@@ -14,6 +14,7 @@ class Paper < ActiveRecord::Base
     state :submitted
     state :under_review
     state :accepted
+    state :rejected
 
     after_transition :on => :accept, :do => :resolve_all_issues
 
