@@ -121,3 +121,13 @@ describe Paper, ".permisions_for_user" do
     end
   end
 end
+
+describe Paper, ".fao" do
+  it "should know which user this paper is for the attention of" do
+    user = create(:user)
+    paper = create(:paper, :fao_id => user.id)
+
+    expect(paper.fao).to eq(user)
+    expect(user.papers_for_attention).to eq([paper])
+  end
+end

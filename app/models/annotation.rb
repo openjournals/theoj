@@ -3,7 +3,7 @@ class Annotation < ActiveRecord::Base
   belongs_to :user
 
   has_many :responses, :class_name => "Annotation", :foreign_key => "parent_id"
-  belongs_to :parent, class_name: "Annotation", :foreign_key => "parent_id"
+  belongs_to :parent, :class_name => "Annotation", :foreign_key => "parent_id"
 
   validates_presence_of :body, :paper_id
 
