@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   has_many :papers
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
   has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
+  has_many :papers_for_attention, :foreign_key => 'fao_id', :class_name => "Paper"
 
   scope :editors, -> { where(:editor => true) }
 

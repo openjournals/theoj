@@ -6,6 +6,9 @@ class Paper < ActiveRecord::Base
   has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
   has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
 
+  # Which User is this currently for the attention of?
+  belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
+
   scope :active, -> { where('state != ?', 'pending') }
 
   before_create :set_sha
