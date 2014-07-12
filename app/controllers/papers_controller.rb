@@ -54,7 +54,6 @@ class PapersController < ApplicationController
       etag(params.inspect, "unknown")
     end
 
-    #TODO replace this with some fancy badge thing.
     render :layout => false
   end
 
