@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140609021717) do
+ActiveRecord::Schema.define(version: 20140712015520) do
 
   create_table "annotations", force: true do |t|
     t.integer  "user_id"
@@ -53,8 +53,10 @@ ActiveRecord::Schema.define(version: 20140609021717) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "sha"
+    t.integer  "fao_id"
   end
 
+  add_index "papers", ["fao_id"], name: "index_papers_on_fao_id", using: :btree
   add_index "papers", ["sha"], name: "index_papers_on_sha", using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
   add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
