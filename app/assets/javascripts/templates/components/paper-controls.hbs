@@ -4,6 +4,8 @@
   <p>Paper currently has {{paper.pending_issues_count}} pending issues</p>
   <p>Author {{paper.user.sha}}</p>
 
+  {{user-lookup action='assignReviewer'}}
+
   {{#if user.editor}}
     <div class='span5 panel panel-info editor_controls'>
       <div class="panel-heading">Editor Controlls</div>
