@@ -7,7 +7,7 @@ class PapersController < ApplicationController
     if current_user
       papers = Paper.for_user(current_user)
     else
-      papers = { papers: [] }
+      papers = []
     end
     respond_with papers
   end
@@ -67,9 +67,9 @@ class PapersController < ApplicationController
 
   def assign_reviewer
     paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_sha(params[:user_name])
+    user  = User.find_by_name(params[:user_name])
 
-    if user && paper.assign_reviewer(params["user_name"])
+    if user && paper.assign_reviewer(user)
       render :json => paper, :status => :created, :location => url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
@@ -78,29 +78,29 @@ class PapersController < ApplicationController
 
   def remove_reviewer
     paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_sha(params[:user_name])
+    user  = User.find_by_name(params[:user_name])
     paper.remove_reviewer user
   end
 
   def as_reviewer
     papers = current_user.papers_as_reviewer.with_state(params[:state])
-    render :json => papers
+    respond_with papers
   end
 
   # ATTENTION: This behaviour has now changed - editor is a global entity
   def as_editor
     papers = current_user.papers_as_editor.with_state(params[:state])
-    render :json => papers
+    respond_with papers
   end
 
   def as_author
     papers = current_user.papers.with_state(params[:state])
-    render :json => papers
+    respond_with papers
   end
 
   def as_collaborator
     papers = current_user.papers_as_collaborator.with_state(params[:state])
-    render :json => papers
+    respond_with papers
   end
 
   private

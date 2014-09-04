@@ -20,6 +20,14 @@ Theoj.Paper = Ember.Object.extend
       data:
         user_name: username
 
+  fetchAnnotations:->
+    ajax.request("/papers/#{@sha}/annotations").then (annotations)->
+      result = for annotation in annotations
+        Theoj.annotaions.create(annotation)
+      Em.A result
+
+
+
 Theoj.Paper.reopenClass
 
   getType: (type)=>
@@ -40,7 +48,9 @@ Theoj.Paper.reopenClass
 
   get :(paper_id)=>
     request = ajax.request("/papers/#{paper_id}")
-    request.then (result)->
-      Theoj.Paper.create(result.paper)
+
     request.catch (error)->
       null
+
+    request.then (result)->
+      Theoj.Paper.create(result)
