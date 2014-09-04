@@ -1,0 +1,23 @@
+<div class='full_pdf_viewer'>
+  <div class='controlls'>
+    <div class='toolbar'>
+      <button class='button' {{action home}}>home</button>
+      <button class='button' {{action prevPage}}>prev</button>
+      <button class='button' {{action nextPage}}>next</button>
+      <span> {{controller.page}} of {{controller.totalPages}} </span>
+
+
+    </div>
+  </div>
+
+
+
+  <div class='view_area col-lg-6'>
+    {{#each page in pages}}
+      <div class='pageContainer'>
+        <canvas id='paper-page-{{page}}'></canvas>
+        <div class='textLayer' id='paper-text-layer-page-{{page}}'></div>
+      </div>
+    {{/each}}
+  </div>
+</div>
