@@ -1,0 +1,9 @@
+<div class='userlookup'>
+  {{input type="text" value=currentGuess  size="50" class='form-control' placeholder= "username"  }}
+
+  <ul class='dropdown'>
+    {{#each user in userList}}
+      <li><a {{action 'selectUser' user.name}}> {{user.name}}</a></li>
+    {{/each}}
+  </ul>
+</div>
