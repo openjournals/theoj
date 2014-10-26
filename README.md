@@ -18,4 +18,4 @@ Once this is finished up we'll be adding in a lightweight presentation layer tha
 
 Hopefully/probably? You can keep an eye on Travis stuff here:
 
-[![Build Status](https://secure.travis-ci.org/arfon/theoj.png?branch=master)](http://travis-ci.org/arfon/theoj)
+[![Build Status](https://travis-ci.org/openjournals/theoj.svg?branch=master)](https://travis-ci.org/openjournals/theoj)
