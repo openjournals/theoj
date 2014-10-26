@@ -55,10 +55,9 @@ end
 describe UsersController, '.name_lookup' do
   describe "GET #name_lookup" do
     it "responds successfully with an HTTP 200 status code and some users" do
-      user = create(:user)
-      guess_sha = user.sha
+      user = create(:user, :name => "Scooby doo")
       allow(controller).to receive_message_chain(:current_user).and_return(user)
-      get :name_lookup, :guess => guess_sha, :format => :json
+      get :name_lookup, :guess => "Scooby", :format => :json
 
       expect(response).to be_success
       expect(response.status).to eq(200)
