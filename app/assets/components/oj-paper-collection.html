@@ -1,0 +1,16 @@
+<polymer-element name='oj-paper-collection' attributes="papers src">
+
+  <template>
+    <div horizontal layout>
+      <template repeat="{{paper in papers}}">
+        <oj-paper-icon paper={{paper}}></oj-paper-icon>
+      </template>
+    </div>
+    <core-ajax auto url={{src}} handleAs="json" response={{papers}}></core-ajax>
+  </template>
+
+
+  <script>
+    Polymer({})
+  </script>
+</polymer-element

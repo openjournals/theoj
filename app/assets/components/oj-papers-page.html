@@ -1,0 +1,36 @@
+<polymer-element name='oj-papers-page' attributes='user'>
+  <template>
+
+    <paper-tabs class="bottom fit" selected="0">
+      <paper-tab>Editor</paper-tab>
+      <paper-tab>Submisions</paper-tab>
+      <paper-tab>As reviewer</paper-tab>
+    </paper-tabs>
+
+    <template if="{{user.editor}}">
+      <section>
+        <h2>Submissions</h2>
+        <oj-paper-collection src='/papers/as_editor'></oj-paper-collection>
+      </section>
+    </template>
+
+    <template if="{{user.papers_as_reviewer.length > 0 }}">
+      <h2>As reviwer</h2>
+      <oj-paper-collection src='/papers/as_reviwer'></oj-paper-collection>
+    </template>
+
+    <h2>Your submissions</h2>
+    <oj-paper-collection  src='/papers/'></oj-paper-collection>
+
+  <style>
+    paper-tabs{
+      background: #7986CB;
+      color: white;
+    }
+  </style>
+
+  </template>
+  <script>
+    Polymer({})
+  </script>
+</polymer-element>
