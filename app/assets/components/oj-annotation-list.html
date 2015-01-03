@@ -1,0 +1,12 @@
+<polymer-element name='oj-annotation-list' attributes="annotations scale">
+  <template>
+
+    <template repeat="{{annotation in annotations}}">
+      <oj-annotation annotation={{annotation}}></oj-annotation>
+    </template>
+
+  </template>
+  <script>
+    Polymer({})
+  </script>
+</polymer-element>
