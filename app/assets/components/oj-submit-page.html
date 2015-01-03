@@ -1,0 +1,69 @@
+<polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
+  <template>
+    <section vertical layout  center style="height:100%;min-height:400px" >
+      <h1>Submit Paper</h1>
+
+        <paper-shadow flex center-justified vertical layout center z="1">
+          <paper-input  label="title"          value="{{paper_title}}"></paper-input>
+          <paper-input  label="paper location" value="{{paper_location}}"></paper-input>
+          <paper-button raised on-tap={{submit}} role='button'>Submit</paper-button>
+        </paper-shadow>
+
+
+        <p>To have a paper submitted to the oj simply fill out the form bellow. This will alert one of our editors
+            who will assign your paper to an appropriate reviewer</p>
+
+        <core-ajax on-core-response="{{response}}"
+                   id='postRequest'
+                   url='/papers/'
+                   method='POST'
+                   contentType="application/json"
+                   handleAs="json" >
+        </core-ajax>
+
+        <template if="{{submitted}}">
+          <paper-shadow flex center-justified vertical layout center z="1">
+            <h2>Submitted</h2>
+            <oj-paper-icon paper={{paper}}></oj-paper-icon>
+          </paper-shadow>
+        </template>
+
+    </section>
+
+
+    <style>
+
+      paper-shadow{
+        min-width:70%;
+        background-color:white;
+      }
+      paper-input{
+        width: 90%;
+      }
+      paper-button{
+        background: #3e50b4;
+        color: white;
+      }
+    </style>
+
+
+  </template>
+
+  <script>
+    Polymer({
+      submitted: false,
+      paper: {},
+      submit:function(){
+        this.$.postRequest.body=this.params()
+        this.$.postRequest.go()
+      },
+      response:function(response){
+        this.submitted = true;
+        this.paper     = response.detail.response
+      },
+      params:function(params){
+        return JSON.stringify({paper:{title: this.paper_title, location: this.paper_location}})
+      }
+    })
+  </script>
+</polymer-element>
