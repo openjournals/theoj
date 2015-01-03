@@ -26,11 +26,13 @@ gem 'turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'active_model_serializers'
-#
-gem 'ember-rails'
-gem 'ember-source', '1.5.0'
 
 gem 'bootstrap-sass'
+
+gem 'bower-rails'
+gem 'emcee'
+gem 'rack-streaming-proxy'
+
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
