@@ -1,0 +1,53 @@
+<polymer-element name="stacked-pdf-page" attributes='page scale'>
+  <template>
+
+    <style>
+      :host {
+        background-color: white;
+
+        display: block;
+        margin-top: 20px;
+        width: 100%;
+        min-height: 400px;
+      }
+      canvas{
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <template if="{{loaded}}">
+      <paper-shadow z="1">
+        <canvas id='can'></canvas>
+      </paper-shadow>
+    </template>
+
+    <template if="{{!loaded}}">
+      <paper-spinner class="yellow" role="progressbar" aria-label="loading" active=""></paper-spinner>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+      scale: 1,
+      loaded: false,
+      domReady: function(){
+        this.page.then(function(pageContent){
+          this.loaded = true;
+          this.pageContent = pageContent;
+          setTimeout(this.render.bind(this), 600)
+        }.bind(this))
+      },
+      render: function(){
+        var canvas    = this.shadowRoot.getElementById("can")
+        var context   = canvas.getContext('2d');
+        var viewport  = this.pageContent.getViewport(2)
+
+        canvas.width  = viewport.width
+        canvas.height = viewport.height
+        this.pageContent.render({canvasContext: context, viewport: viewport})
+      }
+    })
+  </script>
+</polymer-element>

@@ -1,0 +1,33 @@
+<polymer-element name="oj-review-page" attributes='paper_id user' >
+  <template>
+    <core-toolbar fixed layout class='sub'>
+      <p>{{paper.title}}</p>
+      <div flex></div>
+      <p>Username: {{user.name}} </p>
+    </core-toolbar>
+
+    <section layout vertical>
+
+      <template if="{{paper}}">
+        <div layout horizontal>
+          <stacked-pdf-reader src={{"/proxy?url="+paper.location}}></stacked-pdf-reader>
+          <oj-annotation-list annotations={{annotations}}></oj-annotation-list>
+        </div>
+      </template>
+
+      <template if="{{!paper}}">
+        <paper-spinner class="yellow" role="progressbar" aria-label="loading" active=""></paper-spinner>
+      </template>
+
+      <core-ajax auto url={{'/papers/'+paper_id}} handleAs="json" response={{paper}}></core-ajax>
+      <core-ajax auto url={{'/papers/'+paper_id+'/annotations'}} handleAs="json" response={{annotations}}></core-ajax>
+    </section>
+  </template>
+  <script>
+    Polymer({
+      domReady:function(){
+        console.log("user ", this.user)
+      }
+    })
+  </script>
+</polymer-element>
