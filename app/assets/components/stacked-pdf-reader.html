@@ -1,4 +1,4 @@
-<polymer-element name="stacked-pdf-reader" attributes='src noPages'>
+<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress pageHeight pageOffset'>
   <template>
 
     <style>
@@ -16,7 +16,7 @@
 
     <div id='pages'>
       <template repeat="{{ pageNo in  pageIndexArray }}">
-        <stacked-pdf-page page={{getPage(pageNo)}} scale={{scale}></stacked-pdf-page>
+        <stacked-pdf-page  page={{getPage(pageNo)}} scale=2></stacked-pdf-page>
       </template>
     </div>
 
@@ -24,9 +24,10 @@
 
   <script>
     Polymer({
-      scale:1,
+      scale:2,
       pdfReady: false,
       noPages: null,
+      loadProgress: 0,
       pageIndexArray: [],
       domReady:function(){
         this.getPDF()
@@ -36,11 +37,23 @@
         this.page     = 1;
         this.pdfReady = false;
         PDFJS.workerSrc = "/pdf.worker.js";
-        PDFJS.getDocument(this.src).then(function(PDF){
+        PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
           this.pdf = PDF;
           this.pdfReady = true;
+          this.setDimensions();
         }.bind(this))
 
+      },
+      setDimensions: function(){
+
+        this.getPage(0).then(function(page){
+          var viewport  = this.pageContent.getViewport(this.scale)
+          this.pageHeight = viewport.height;
+          this.pageOffset = 20;
+        })
+      },
+      updateProgress: function(prog){
+        this.loadProgress = 100.0*prog.loaded/(1.0*prog.total)
       },
       pdfReadyChanged: function(){
         if(this.pdfReady){
