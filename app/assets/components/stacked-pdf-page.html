@@ -4,7 +4,6 @@
     <style>
       :host {
         background-color: white;
-
         display: block;
         margin-top: 20px;
         width: 100%;
@@ -18,31 +17,40 @@
 
     <template if="{{loaded}}">
       <paper-shadow z="1">
-        <canvas id='can'></canvas>
+        <canvas on-click={{fire_click}} id='can'></canvas>
       </paper-shadow>
-    </template>
-
-    <template if="{{!loaded}}">
-      <paper-spinner class="yellow" role="progressbar" aria-label="loading" active=""></paper-spinner>
     </template>
 
   </template>
 
   <script>
     Polymer({
-      scale: 1,
+      scale: 2,
       loaded: false,
+      pageOffset: 20,
       domReady: function(){
+        //
+        // window.onResize.listen(function(e) {
+        //   console.log("resize event")
+        //   this.pageHeight = this.can.height;
+        // }.bind(this));
+
+        this.style.marginTop = this.pageOffset
         this.page.then(function(pageContent){
           this.loaded = true;
           this.pageContent = pageContent;
           setTimeout(this.render.bind(this), 600)
         }.bind(this))
       },
+      fire_click:function(e){
+
+        this.fire("page-clicked",{x:e.offsetX, y: e.offsetY, page: this.pageContent.pageIndex})
+      },
       render: function(){
         var canvas    = this.shadowRoot.getElementById("can")
         var context   = canvas.getContext('2d');
-        var viewport  = this.pageContent.getViewport(2)
+
+        var viewport  = this.pageContent.getViewport(this.scale)
 
         canvas.width  = viewport.width
         canvas.height = viewport.height
