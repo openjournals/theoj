@@ -1,12 +1,40 @@
-<polymer-element name='oj-annotation-list' attributes="annotations scale">
+<polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation">
   <template>
+    <div layout vertical flex>
+      <template repeat="{{annotation in annotations}}">
+        <oj-annotation style="top:{{annotation | locationForAnnotation}}px"  top="{{annotation | locationForAnnotation}}" color="{{annotation | colorForAnnotation}}" annotation={{annotation}} ></oj-annotation>
+      </template>
 
-    <template repeat="{{annotation in annotations}}">
-      <oj-annotation annotation={{annotation}}></oj-annotation>
-    </template>
+      <template if={{showNewAnnotation}}>
+        <oj-new-annotation style="top:{{newAnnotationLocation | locationForAnnotation}}px" location={{newAnnotationLocation}}> </oj-new-annotation>
+      </template>
+    </div>
+
+    <style>
+      :host{
+        position: relative;
+        box-model: border-box;
+        padding-top: 20px;
+      }
+    </style>
+
 
   </template>
   <script>
-    Polymer({})
+    Polymer({
+      scale: 2,
+      locationForAnnotation: function(annotation){
+        console.log("ANNOTATION")
+        console.log(annotation)
+        page_no = annotation.location.page
+        y       = annotation.location.y //* this.scale
+
+        return (y + (this.pageHeight + this.pageOffset)*page_no)
+      },
+      colorForAnnotation: function(annotation){
+        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"}
+        return roles[annotation.user.role]
+      }
+    })
   </script>
 </polymer-element>
