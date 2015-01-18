@@ -5,6 +5,8 @@ class Annotation < ActiveRecord::Base
   has_many :responses, :class_name => "Annotation", :foreign_key => "parent_id"
   belongs_to :parent, :class_name => "Annotation", :foreign_key => "parent_id"
 
+  scope :root_annotations , -> {where(:parent_id => nil)}
+
   validates_presence_of :body, :paper_id
 
   state_machine :initial => :new do
