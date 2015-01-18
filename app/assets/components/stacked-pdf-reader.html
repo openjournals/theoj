@@ -1,0 +1,88 @@
+<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress pageHeight pageOffset'>
+  <template>
+
+    <style>
+      :host {
+        padding: 2px;
+        height: 100%;
+        width: 60%;
+        overflow-y: scroll;
+      }
+      #pages{
+        width:100%;
+        height: 100%;
+      }
+    </style>
+
+    <div id='pages'>
+      <template repeat="{{ pageNo in  pageIndexArray }}">
+        <stacked-pdf-page  page={{getPage(pageNo)}} scale=2></stacked-pdf-page>
+      </template>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      scale:2,
+      pdfReady: false,
+      noPages: null,
+      loadProgress: 0,
+      pageIndexArray: [],
+      domReady:function(){
+        this.getPDF()
+      },
+      getPDF:function(){
+        this.pdf      = null;
+        this.page     = 1;
+        this.pdfReady = false;
+        PDFJS.workerSrc = "/pdf.worker.js";
+        PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
+          this.pdf = PDF;
+          this.pdfReady = true;
+          this.setDimensions();
+        }.bind(this))
+
+      },
+      setDimensions: function(){
+
+        this.getPage(0).then(function(page){
+          var viewport  = this.pageContent.getViewport(this.scale)
+          this.pageHeight = viewport.height;
+          this.pageOffset = 20;
+        })
+      },
+      updateProgress: function(prog){
+        this.loadProgress = 100.0*prog.loaded/(1.0*prog.total)
+      },
+      pdfReadyChanged: function(){
+        if(this.pdfReady){
+          this.numPages       = this.pdf.numPages
+          this.pageIndexArray = new Array(this.pdf.numPages)
+
+          for(var i=0; i < this.pdf.numPages; i++ ){
+            this.pageIndexArray[i] = i
+          }
+        }
+      },
+      // scaleChanged:    function(){
+      //   this.renderPage(1);
+      // },
+      srcChanged:      function(){
+        this.getPDF();
+      },
+      getPage:function(pageNo){
+        return this.pdf.getPage(pageNo+1);
+      },
+      pageIsVisible:function(pageNo){
+        var docViewTop = $(window).scrollTop();
+        var docViewBottom = docViewTop + $(window).height();
+
+        var elemTop = $(elem).offset().top;
+        var elemBottom = elemTop + $(elem).height();
+        return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+      }
+    })
+  </script>
+
+</polymer-element>

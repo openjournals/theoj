@@ -30,6 +30,6 @@ class AnnotationsController < ApplicationController
   private
 
   def find_paper
-    @paper = Paper.find(params[:paper_id])
+    @paper =  Paper.find_by_sha(params[:paper_id])
   end
 end
