@@ -1,32 +1,76 @@
-<polymer-element name="oj-review-page" attributes='paper_id user' >
+<polymer-element name="oj-review-page" attributes='paper_id'  >
   <template>
     <core-toolbar fixed layout class='sub'>
-      <p>{{paper.title}}</p>
+
+      <p class='title'>{{paper.title}}</p>
       <div flex></div>
-      <p>Username: {{user.name}} </p>
+      <span> <core-icon id='closedIcon' icon='check'></core-icon> 3 closed issues </span>
+      <span> <core-icon id='openIcon'   icon='error'></core-icon> 5 open issues </span>
+      <span><core-icon icon='list'></core-icon></span>
+
+      <paper-progress  class='bottom fit' value="{{loadProgress}}"></paper-progress>
     </core-toolbar>
 
     <section layout vertical>
 
       <template if="{{paper}}">
         <div layout horizontal>
-          <stacked-pdf-reader src={{"/proxy?url="+paper.location}}></stacked-pdf-reader>
-          <oj-annotation-list annotations={{annotations}}></oj-annotation-list>
+          <stacked-pdf-reader on-page-clicked={{createTempAnnotation}} annotations={{annotations}}  loadProgress={{loadProgress}}  pageHeight={{pageHeight}} pageOffset={{pageOffset}} src={{"/proxy?url="+paper.location}}></stacked-pdf-reader>
+          <oj-annotation-list
+            id='annotation_list'
+            flex
+            annotations={{annotations}}
+            pageHeight={{1584}}
+            pageOffset={{20}}
+            scale={{scale}}
+            showNewAnnotation={{newAnnotationVisible}}
+            newAnnotationLocation={{newAnnotationLocation}}
+            on-new-annotation-box-dismissed={{hideAnnotationBox}}
+            on-annotation-added={{addAnnotation}}
+            >
+          </oj-annotation-list>
         </div>
       </template>
 
-      <template if="{{!paper}}">
-        <paper-spinner class="yellow" role="progressbar" aria-label="loading" active=""></paper-spinner>
-      </template>
-
       <core-ajax auto url={{'/papers/'+paper_id}} handleAs="json" response={{paper}}></core-ajax>
-      <core-ajax auto url={{'/papers/'+paper_id+'/annotations'}} handleAs="json" response={{annotations}}></core-ajax>
+      <core-ajax auto url='/current_user' handleAs="json" response={{user}}></core-ajax>
+
     </section>
+
+    <style>
+      .title{
+        max-width: 50%;
+      }
+    </style>
+
   </template>
   <script>
     Polymer({
-      domReady:function(){
-        console.log("user ", this.user)
+      newAnnotationVisible: false,
+      annotations: [
+        {
+          location:{page: 1, x:0.5, y:0.5},
+          body: "This is a comment",
+          state: "open",
+          parent: "null",
+          user: {
+            id: 1233,
+            role: "reviewer"
+          }
+        }
+      ],
+      addAnnotation:function(annotation){
+        this.annotations.push( {location : annotation.detail.location.location, body: annotation.detail.text, user:{role:"reviewer"}})
+      },
+      hideAnnotationBox: function(){
+        alert('dismiss');
+        this.newAnnotationVisible= false;
+      },
+      createTempAnnotation:function(click_location){
+        this.newAnnDetails= {location: click_location.detail};
+        this.newAnnotationLocation= {location: click_location.detail};
+
+        this.newAnnotationVisible = true;
       }
     })
   </script>
