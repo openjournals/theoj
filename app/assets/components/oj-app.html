@@ -3,7 +3,7 @@
   <template>
     <core-scaffold id='scaffold'>
       <nav >
-        <core-toolbar>
+        <core-toolbar >
           <span>The open journal</span>
         </core-toolbar>
 
@@ -42,6 +42,20 @@
 
 
     </core-scaffold>
+
+    <style>
+      :host /deep/ core-toolbar {
+        background-color: #5C6BC0 ;
+        color: #fff;
+      }
+      :host /deep/ #mainContainer{
+        background-color:white;
+      }
+      :host core-menu /deep/ #drawer{
+        background-color:  #7986CB;
+      }
+
+    </style>
   </template>
 
   <script>

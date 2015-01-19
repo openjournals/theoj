@@ -1,6 +1,6 @@
 <polymer-element name="oj-review-page" attributes='paper_id'  >
   <template>
-    <core-toolbar fixed layout class='sub'>
+    <core-toolbar fixed layout >
 
       <p class='title'>{{paper.title}}</p>
       <div flex></div>
@@ -34,7 +34,12 @@
 
       <core-ajax auto url={{'/papers/'+paper_id}} handleAs="json" response={{paper}}></core-ajax>
       <core-ajax auto url='/current_user' handleAs="json" response={{user}}></core-ajax>
-
+      <style>
+        core-toolbar{
+          background-color: #7986CB;
+        }
+        
+      </style>
     </section>
 
     <style>
