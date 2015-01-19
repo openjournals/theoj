@@ -1,11 +1,10 @@
 require 'omniauth-orcid'
 
 Rails.application.config.middleware.use OmniAuth::Builder do
-
   environment = defined?(Rails) ? Rails.env : ENV["RACK_ENV"]
   path = File.join(Rails.root, "config", "orcid.yml")
   settings = YAML.load(ERB.new(File.new(path).read).result)[environment]
-  
+
   # Make parameters available elsewhere in the app
   Rails.configuration.orcid = settings
 
