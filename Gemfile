@@ -33,6 +33,7 @@ gem 'bower-rails'
 gem 'emcee'
 gem 'rack-streaming-proxy'
 
+gem 'rails_12factor'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
