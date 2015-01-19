@@ -1,0 +1,53 @@
+<polymer-element name="oj-new-annotation" attributes='location'>
+<template>
+  <div layout vertical center-center>
+    <textarea value="{{text}}" placeholder="Type something..."> </textarea>
+
+    <div layout horizontal end-justified class='controls'>
+      <paper-icon-button on-click={{submit}}  icon="add"></paper-icon-button>
+      <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
+    </div>
+  </div>
+  <style>
+    :host{
+      z-index:1;
+      height:200px;
+      background-color:#607D8B;
+      padding: 20px;
+      min-height:100px;
+      position:absolute;
+      box-sizing:border-box;
+      width:100%;
+      left:0px;
+    }
+    textarea{
+      resize: none;
+      height: 100%;
+      min-height:130px;
+      border:none;
+      width: 100%;
+    }
+    paper-autogrow-textarea{
+
+    }
+    .controls{
+      width: 100%;
+    }
+    paper-icon-button{
+      color:white;
+    }
+  </style>
+</template>
+
+<script>
+  Polymer({
+    submit: function(){
+      this.fire("annotation-added", {location: this.location, text: this.text})
+      this.dismiss()
+    },
+    dismiss: function(){
+      this.fire("new-annotation-box-dismissed",{})
+    }
+  })
+</script>
+</polymer-element>
