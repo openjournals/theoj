@@ -1,6 +1,5 @@
 <polymer-element name="oj-user-login" attributes='user'>
   <template>
-
     <template if="{{user.name != undefined}}">
       <a class='link' href='/auth/orcid'>{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
     </template>
@@ -12,9 +11,9 @@
     <core-ajax auto url='/current_user' handleAs="json" response={{user}}></core-ajax>
 
     <style>
-      a{
+      a {
         color: #fff;
-        font-size: 1.3em;
+        font-size: 0.9em;
         font-family: "Helvetica Neue";
         font-weight: 100;
         text-decoration: none;
