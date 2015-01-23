@@ -1,23 +1,22 @@
-
 <polymer-element name="oj-app">
   <template>
     <core-scaffold id='scaffold'>
       <nav >
         <core-toolbar >
-          <span>The open journal</span>
+          <span>The Open Journal</span>
         </core-toolbar>
 
         <core-menu selected='0'>
-          <core-item icon="home"         label="Home" horizontal center layout>
+          <core-item icon="home" label="Home" horizontal center layout>
             <a is='push' href="/#" target="_self"></a>
           </core-item>
           <core-item icon="info-outline" label="About" horizontal center layout>
             <a href="/#/about" target="_self"></a>
           </core-item>
-          <core-item icon="receipt"      label="Your papers" horizontal center layout>
+          <core-item icon="receipt" label="Your Papers" horizontal center layout>
             <a href="/#/papers" target="_self"></a>
           </core-item>
-          <core-item icon="send"         label="Submit" horizontal center layout>
+          <core-item icon="send" label="Submit" horizontal center layout>
             <a href="/#/submit" target="_self"></a>
           </core-item>
         </core-menu>
@@ -29,15 +28,15 @@
       </core-toolbar>
 
       <app-router>
-        <app-route path='/'                 element='oj-home-page'></app-route>
+        <app-route path='/' element='oj-home-page'></app-route>
         <app-route path="/review/:paper_id">
           <template>
             <oj-review-page paper_id={{paper_id}}></oj-review-page>
           </template>
         </app-route>
-        <app-route path='/about'            element='oj-about-page'></app-route>
-        <app-route path='/submit'           element='oj-submit-page'></app-route>
-        <app-route path='/papers'           element='oj-papers-page'></app-route>
+        <app-route path='/about' element='oj-about-page'></app-route>
+        <app-route path='/submit' element='oj-submit-page'></app-route>
+        <app-route path='/papers' element='oj-papers-page'></app-route>
       </app-router>
 
 
