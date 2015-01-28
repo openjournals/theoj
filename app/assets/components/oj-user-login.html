@@ -2,6 +2,7 @@
   <template>
     <template if="{{user.name != undefined}}">
       <a class='link' href='/auth/orcid'>{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
+      <a class='link' href='/signout'>Sign Out</a>
     </template>
 
     <template if="{{user.name == undefined}}">
