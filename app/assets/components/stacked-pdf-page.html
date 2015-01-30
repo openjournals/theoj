@@ -8,16 +8,67 @@
         margin-top: 20px;
         width: 100%;
         min-height: 400px;
+        position:relative;
+        top:0px;
+        left:0px;
       }
       canvas{
+        /*position:absolute;*/
+        /*top:0px;*/
+        /*left:0px;*/
         width: 100%;
         height: 100%;
       }
+
+
+      #textLayer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        color: #000;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      #textLayer > div {
+        color: transparent;
+        position: absolute;
+        line-height: 1;
+        white-space: pre;
+        cursor: text;
+      }
+
+      #textLayer .highlight {
+        margin: -1px;
+        padding: 1px;
+        background-color: rgba(180, 0, 170, 0.2);
+        border-radius: 4px;
+      }
+
+      #textLayer .highlight.begin {
+        border-radius: 4px 0px 0px 4px;
+      }
+
+      #textLayer .highlight.end {
+        border-radius: 0px 4px 4px 0px;
+      }
+
+      #textLayer .highlight.middle {
+        border-radius: 0px;
+      }
+
+      #textLayer .highlight.selected {
+        background-color: rgba(0, 100, 0, 0.2);
+      }
+
     </style>
 
     <template if="{{loaded}}">
       <paper-shadow z="1">
         <canvas on-click={{fire_click}} id='can'></canvas>
+        <div id='textLayer'></div>
       </paper-shadow>
     </template>
 
@@ -39,23 +90,35 @@
         this.page.then(function(pageContent){
           this.loaded = true;
           this.pageContent = pageContent;
-          setTimeout(this.render.bind(this), 600)
+          setTimeout(function(){
+            this.render()
+          }.bind(this), 600)
         }.bind(this))
       },
       fire_click:function(e){
-
         this.fire("page-clicked",{x:e.offsetX, y: e.offsetY, page: this.pageContent.pageIndex})
       },
       render: function(){
-        var canvas    = this.shadowRoot.getElementById("can")
-        var context   = canvas.getContext('2d');
+        var canvas                    = this.shadowRoot.getElementById("can")
+        this.context                  = canvas.getContext('2d');
 
-        var viewport  = this.pageContent.getViewport(this.scale)
+        this.viewport                 = this.pageContent.getViewport(this.scale)
+        this.textLayerDiv             = this.shadowRoot.getElementById("textLayer")
 
-        canvas.width  = viewport.width
-        canvas.height = viewport.height
-        this.pageContent.render({canvasContext: context, viewport: viewport})
+        this.textLayerDiv.width       = this.viewport.width
+        this.textLayerDiv.height      = this.viewport.height
+        canvas.width                  = this.viewport.width
+        canvas.height                 = this.viewport.height
+
+        this.pageContent.getTextContent().then(function(textContent) {
+          this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
+          this.textLayer.setTextContent(textContent)
+
+          this.pageContent.render({canvasContext: this.context, viewport: this.viewport,textLayer: this.textLayer})
+        }.bind(this));
       }
+
+
     })
   </script>
 </polymer-element>
