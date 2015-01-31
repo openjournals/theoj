@@ -1,17 +1,28 @@
+
 <polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
   <template>
     <section vertical layout center style="height:100%;min-height:400px" >
       <h1>Submit Paper</h1>
 
         <paper-shadow flex center-justified vertical layout center z="1">
-          <paper-input  label="title"          value="{{paper_title}}"></paper-input>
-          <paper-input  label="paper location" value="{{paper_location}}"></paper-input>
+          <paper-input  label="arXiv paper"      value="{{paperIdentifier}}"></paper-input>
           <paper-button raised on-tap={{submit}} role='button'>Submit</paper-button>
+
+          <template if="{{ paperValid }}">
+            <p><span>Paper Id: {{paperId}}</span> <span>PaperUrl: {{paperURL}}</span></p>
+          </template>
+
+          <template if="{{ !paperValid }}">
+            <p>Please enter the id of a paper, or it's url on the arXiv.</p>
+          </template>
+
+          <paper-url-resolver       text={{paperIdentifier}}
+                                    paperId={{paperId}}
+                                    paperVersion={{paperVersion}}
+                                    paperURL={{paperURL}}
+                                    resolved={{paperValid}}></paper-url-resolver>
+
         </paper-shadow>
-
-
-        <p>To have a paper submitted to the oj simply fill out the form bellow. This will alert one of our editors
-            who will assign your paper to an appropriate reviewer</p>
 
         <core-ajax on-core-response="{{response}}"
                    id='postRequest'
@@ -53,6 +64,8 @@
     Polymer({
       submitted: false,
       paper: {},
+      paperURL:"inital",
+
       submit:function(){
         this.$.postRequest.body=this.params()
         this.$.postRequest.go()
@@ -62,7 +75,7 @@
         this.paper     = response.detail.response
       },
       params:function(params){
-        return JSON.stringify({paper:{title: this.paper_title, location: this.paper_location}})
+        return JSON.stringify({paper:{location: this.paperURL}})
       }
     })
   </script>
