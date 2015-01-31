@@ -47,7 +47,7 @@
       setDimensions: function(){
 
         this.getPage(0).then(function(page){
-          var viewport  = this.pageContent.getViewport(this.scale)
+          var viewport  = page.getViewport(this.scale)
           this.pageHeight = viewport.height;
           this.pageOffset = 20;
         })
