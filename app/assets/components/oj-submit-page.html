@@ -6,13 +6,14 @@
 
         <paper-shadow flex center-justified vertical layout center z="1">
           <paper-input  label="arXiv paper"      value="{{paperIdentifier}}"></paper-input>
-          <paper-button raised on-tap={{submit}} role='button'>Submit</paper-button>
 
           <template if="{{ paperValid }}">
+            <paper-button  raised on-tap={{submit}} role='button'>Submit</paper-button>
             <p><span>Paper Id: {{paperId}}</span> <span>PaperUrl: {{paperURL}}</span></p>
           </template>
 
           <template if="{{ !paperValid }}">
+            <paper-button  disabled role='button'>Submit</paper-button>
             <p>Please enter the id of a paper, or it's url on the arXiv.</p>
           </template>
 
