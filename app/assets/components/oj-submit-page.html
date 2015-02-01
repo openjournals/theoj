@@ -14,8 +14,13 @@
 
           <template if="{{ !paperValid }}">
             <paper-button  disabled role='button'>Submit</paper-button>
-            <p>Please enter the id of a paper, or it's url on the arXiv.</p>
+
           </template>
+
+          <p>Please enter the id, abstract url or pdf url of a paper from the arXiv.</p>
+          <p class='example'>1401.0003</p>
+          <p class='example'>http://arxiv.org/abs/1401.0003</p>
+          <p class='example'>http://arxiv.org/pdf/1401.0003.pdf</p>
 
           <paper-url-resolver       text={{paperIdentifier}}
                                     paperId={{paperId}}
@@ -55,6 +60,12 @@
       paper-button{
         background: #3e50b4;
         color: white;
+      }
+      p.example{
+        margin     : 0px 0px 0px 10px;
+        color      : grey;
+        opacity    : 0.7;
+        text-align : left;
       }
     </style>
 
