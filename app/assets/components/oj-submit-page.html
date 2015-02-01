@@ -1,17 +1,34 @@
+
 <polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
   <template>
     <section vertical layout center style="height:100%;min-height:400px" >
       <h1>Submit Paper</h1>
 
         <paper-shadow flex center-justified vertical layout center z="1">
-          <paper-input  label="title"          value="{{paper_title}}"></paper-input>
-          <paper-input  label="paper location" value="{{paper_location}}"></paper-input>
-          <paper-button raised on-tap={{submit}} role='button'>Submit</paper-button>
+          <paper-input  label="arXiv paper"      value="{{paperIdentifier}}"></paper-input>
+
+          <template if="{{ paperValid }}">
+            <paper-button  raised on-tap={{submit}} role='button'>Submit</paper-button>
+            <p><span>Paper Id: {{paperId}}</span> <span>PaperUrl: {{paperURL}}</span></p>
+          </template>
+
+          <template if="{{ !paperValid }}">
+            <paper-button  disabled role='button'>Submit</paper-button>
+
+          </template>
+
+          <p>Please enter the id, abstract url or pdf url of a paper from the arXiv.</p>
+          <p class='example'>1401.0003</p>
+          <p class='example'>http://arxiv.org/abs/1401.0003</p>
+          <p class='example'>http://arxiv.org/pdf/1401.0003.pdf</p>
+
+          <paper-url-resolver       text={{paperIdentifier}}
+                                    paperId={{paperId}}
+                                    paperVersion={{paperVersion}}
+                                    paperURL={{paperURL}}
+                                    resolved={{paperValid}}></paper-url-resolver>
+
         </paper-shadow>
-
-
-        <p>To have a paper submitted to the oj simply fill out the form bellow. This will alert one of our editors
-            who will assign your paper to an appropriate reviewer</p>
 
         <core-ajax on-core-response="{{response}}"
                    id='postRequest'
@@ -44,6 +61,12 @@
         background: #3e50b4;
         color: white;
       }
+      p.example{
+        margin     : 0px 0px 0px 10px;
+        color      : grey;
+        opacity    : 0.7;
+        text-align : left;
+      }
     </style>
 
 
@@ -53,6 +76,8 @@
     Polymer({
       submitted: false,
       paper: {},
+      paperURL:"inital",
+
       submit:function(){
         this.$.postRequest.body=this.params()
         this.$.postRequest.go()
@@ -62,7 +87,7 @@
         this.paper     = response.detail.response
       },
       params:function(params){
-        return JSON.stringify({paper:{title: this.paper_title, location: this.paper_location}})
+        return JSON.stringify({paper:{location: this.paperURL}})
       }
     })
   </script>
