@@ -12,8 +12,8 @@
 
       textChanged:function(){
 
-        paper_page_pattern    = /^\s*https?:\/\/arxiv\.org\/abs\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?\.(pdf)?\s*/
-        paper_pdf_pattern     = /^\s*https?:\/\/arxiv\.org\/pdf\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?\.(pdf)?\s*/
+        paper_page_pattern    = /^\s*https?:\/\/arxiv\.org\/abs\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/
+        paper_pdf_pattern     = /^\s*https?:\/\/arxiv\.org\/pdf\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/
         paper_id_pattern      = /^\s*([0-9]{4}\.[0-9]{4})(v[0-9]+)?\s*/
 
         if(match = this.text.match(paper_page_pattern)){
