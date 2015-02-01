@@ -1,7 +1,7 @@
 <polymer-element name="oj-app">
   <template>
     <core-scaffold id='scaffold'>
-      <nav >
+      <nav>
         <core-toolbar >
           <span>The Open Journal</span>
         </core-toolbar>
@@ -13,13 +13,16 @@
           <core-item icon="info-outline" label="About" horizontal center layout>
             <a href="/#/about" target="_self"></a>
           </core-item>
-          <core-item icon="receipt" label="Your Papers" horizontal center layout>
-            <a href="/#/papers" target="_self"></a>
-          </core-item>
-          <core-item icon="send" label="Submit" horizontal center layout>
-            <a href="/#/submit" target="_self"></a>
-          </core-item>
+          <template if={{user}}>
+            <core-item icon="receipt" label="Your Papers" horizontal center layout>
+              <a href="/#/papers" target="_self"></a>
+            </core-item>
+            <core-item icon="send" label="Submit" horizontal center layout>
+              <a href="/#/submit" target="_self"></a>
+            </core-item>
+          </template>
         </core-menu>
+
       </nav>
 
       <core-toolbar tool flex>
@@ -27,7 +30,7 @@
         <oj-user-login user={{user}}></oj-user-login>
       </core-toolbar>
 
-      <app-router>
+      <app-router id="router" on-state-change="{{validateOrRedirectUser}}">
         <app-route path='/' element='oj-home-page'></app-route>
         <app-route path="/review/:paper_id">
           <template>
@@ -40,6 +43,7 @@
       </app-router>
     </core-scaffold>
 
+      <paper-toast id="loginError" class="capsule core-transition core-transition-bottom" text="Please Login" style="padding-right: 60px; position: fixed; outline: none; z-index: 24; box-sizing: border-box; display: none;" role="status" touch-action="none" tabindex="-1"></paper-toast>
     <style>
       :host /deep/ core-toolbar {
         background-color: #5C6BC0 ;
@@ -55,7 +59,18 @@
   </template>
 
   <script>
-    Polymer({});
+    Polymer({
+      validateOrRedirectUser:function(event){
+        validLoggedOutRoutes = ["/","/about"]
+        path = event.detail.path
+        if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
+          event.preventDefault()
+          this.$.loginError.show()
+          this.$.router.go('/');
+        }
+
+      }
+    });
   </script>
 
 </polymer-element>
