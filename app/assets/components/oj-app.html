@@ -7,44 +7,50 @@
         </core-toolbar>
 
         <core-menu selected='0'>
+
           <core-item icon="home" label="Home" horizontal center layout>
             <a is='push' href="/#" target="_self"></a>
           </core-item>
+
           <core-item icon="info-outline" label="About" horizontal center layout>
             <a href="/#/about" target="_self"></a>
           </core-item>
+
           <template if={{user}}>
             <core-item icon="receipt" label="Your Papers" horizontal center layout>
               <a href="/#/papers" target="_self"></a>
             </core-item>
+
             <core-item icon="send" label="Submit" horizontal center layout>
               <a href="/#/submit" target="_self"></a>
             </core-item>
           </template>
+
         </core-menu>
 
       </nav>
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login user={{user}}></oj-user-login>
+        <oj-user-login user={{user}} userReady={{userReady}}></oj-user-login>
       </core-toolbar>
 
-      <app-router id="router" on-state-change="{{validateOrRedirectUser}}">
+      <app-router id="router" on-state-change="{{validateOrRedirectUser}}" on-notification={{notify}}>
         <app-route path='/' element='oj-home-page'></app-route>
         <app-route path="/review/:paper_id">
           <template>
             <oj-review-page paper_id={{paper_id}}></oj-review-page>
           </template>
         </app-route>
-        <app-route path='/about' element='oj-about-page'></app-route>
-        <app-route path='/submit' element='oj-submit-page'></app-route>
-        <app-route path='/papers' element='oj-papers-page'></app-route>
-        <app-route path='/papers/:paper_id/preview' element='oj-preview-page'></app-route>
+        <app-route path='/about' element='oj-about-page' ></app-route>
+        <app-route path='/submit' element='oj-submit-page' on-before-data-binding={{bindExtraStuff}}></app-route>
+        <app-route path='/papers' element='oj-papers-page' on-before-data-binding={{bindExtraStuff}}></app-route>
+        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview' on-before-data-binding={{bindExtraStuff}}></app-route>
       </app-router>
     </core-scaffold>
 
-      <paper-toast id="loginError" class="capsule core-transition core-transition-bottom" text="Please Login" style="padding-right: 60px; position: fixed; outline: none; z-index: 24; box-sizing: border-box; display: none;" role="status" touch-action="none" tabindex="-1"></paper-toast>
+    <paper-toast id="loginError" class="capsule core-transition core-transition-bottom" text="Please Login" style="border-radius:0px;padding-right: 60px; position: fixed; outline: none; z-index: 24; box-sizing: border-box; display: none;" role="status" touch-action="none" tabindex="-1"></paper-toast>
+
     <style>
       :host /deep/ core-toolbar {
         background-color: #5C6BC0 ;
@@ -63,13 +69,33 @@
     Polymer({
       validateOrRedirectUser:function(event){
         validLoggedOutRoutes = ["/","/about"]
-        path = event.detail.path
-        if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
-          event.preventDefault()
-          this.$.loginError.show()
-          this.$.router.go('/');
-        }
 
+        if(this.userReady){
+
+          path = event.detail.path
+
+          if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
+            event.preventDefault()
+            this.showNotification("Please log in")
+            this.$.router.go('/');
+          }
+
+        }
+        else{
+          setTimeout(function(){
+            this.validateOrRedirectUser(event)
+          }.bind(this), 200)
+        }
+      },
+      bindExtraStuff:function(event){
+        event.detail.model.user = this.user
+      },
+      notify:function(event){
+        this.showNotification(event.detail)
+      },
+      showNotification:function(text){
+        this.$.loginError.text = text
+        this.$.loginError.show()
       }
     });
   </script>
