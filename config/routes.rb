@@ -3,6 +3,7 @@ Theoj::Application.routes.draw do
     member do
       get :status, defaults: { format: 'html' }
       put :accept, defaults: { format: 'json' }
+      get :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
     end
     resources :annotations, defaults: { format: 'json' }
     collection do
