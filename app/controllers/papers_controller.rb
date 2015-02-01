@@ -21,6 +21,10 @@ class PapersController < ApplicationController
     respond_with paper
   end
 
+  def arXiv_details
+    respond_with Arxiv.get(params["id"])
+  end
+
   def create
     paper = Paper.new(paper_params)
     paper.user = current_user
