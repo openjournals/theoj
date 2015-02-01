@@ -1,0 +1,94 @@
+<polymer-element name='oj-paper-preview' attributes='user paper_id'>
+  <template>
+    <template if={{paper_details}}>
+      <div layout horizontal flex>
+        <template if={{hidePDF}}>
+          <div flex id='preview'>
+            <iframe id='pfd_preview' style="height:600px" src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
+          </div>
+        </template>
+
+        <div id="details">
+
+          <h2>Preview of {{paper_details.title}} </h2>
+
+          <ul id='authors'>
+            <template repeat="{{author in paper_details.authors}}">
+              <li>{{author.name}}</li>
+            </template>
+          </ul>
+
+          <p id='summary'>{{paper_details.summary}}</p>
+          <paper-button raised role='button'  on-tap={{submitForReview}}>Submit for review</paper-button>
+
+        </div>
+      </div>
+    </template>
+
+    <template if={{!paper_details}}>
+      <paper-spinner active></paper-spinner>
+    </template>
+
+    <core-ajax on-core-response="{{response}}"
+               id='postRequest'
+               url='/papers/'
+               method='POST'
+               contentType="application/json"
+               handleAs="json" >
+    </core-ajax>
+
+    <core-ajax auto url="{{paper_id | arxiv_lookup_url}}" handleAs="json" response={{paper_details}}></core-ajax>
+    <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
+
+    <style>
+      #preview{
+        width: 50%;
+        min-height: 600px
+      }
+      #preview iframe{
+        width:100%;
+        height: 100%;
+      }
+      #details{
+        width: 50%;
+        box-sizing: border-box;
+        padding: 0px 20px
+      }
+      paper-button{
+        background: #3e50b4;
+        color: white;
+      }
+      #authors{
+        list-style: none;
+      }
+      #authors li{
+        display: inline;
+      }
+
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      preview_url:function(paper){
+        return "http://docs.google.com/gview?url="+paper.links[1].url+"&embedded=true"
+      },
+      arxiv_lookup_url:function(paper_id){
+        return "/papers/"+paper_id+"/arXiv_details"
+      },
+      params:function(){
+        return JSON.stringify({paper:{location: this.paper_details.links[1].url}})
+      },
+      submitForReview:function(event){
+        console.log(this.params())
+        this.$.postRequest.body = this.params()
+        this.$.postRequest.go()
+      },
+      response:function(response){
+        this.fire("notification", "Paper "+this.paper_details.title+" submitted");
+        window.location="/#/papers"
+      }
+    })
+  </script>
+</polymer-element>
