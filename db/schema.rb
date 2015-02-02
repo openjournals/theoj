@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 20150201224917) do
     t.string   "sha"
     t.integer  "fao_id"
     t.string   "arxiv_id"
-    t.string   "summary"
+    t.text     "summary"
     t.string   "author_list"
   end
 
