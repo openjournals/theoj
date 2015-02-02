@@ -1,24 +1,19 @@
-development:
+defaults: &defaults
   adapter: mysql2
-  database: theoj_development
   pool: 5
-  username: root
-  password:
+  username: <%= ENV["DATABASE_USERNAME"] || 'root' %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
   socket: <%= ENV['GH_MYSQL_SOCKET'] %>
+
+development:
+  <<: *defaults
+  database: theoj_development
 
 test:
-  adapter: mysql2
+  <<: *defaults
   database: theoj_test
-  pool: 5
-  username: root
-  password:
-  socket: <%= ENV['GH_MYSQL_SOCKET'] %>
 
 production:
-  adapter: sqlite3
-  database: theoj_development
-  pool: 5
-  username: root
-  password:
-  socket: <%= ENV['GH_MYSQL_SOCKET'] %>
-  
+  <<: *defaults
+  database: theoj_production
+
