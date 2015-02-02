@@ -66,8 +66,8 @@ ActiveRecord::Schema.define(version: 20140712015520) do
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
-    t.boolean  "admin"
-    t.boolean  "editor"
+    t.boolean  "admin",            default: false
+    t.boolean  "editor",           default: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "oauth_token"
