@@ -1,5 +1,5 @@
 
-<polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
+<polymer-element name="oj-submit-page" attributes='paper_title paper_location router'>
   <template>
     <section vertical layout center style="height:100%;min-height:400px" >
       <h1>Submit Paper</h1>
@@ -63,7 +63,8 @@
       paperURL:"inital",
 
       submit:function(){
-        window.location="/#/papers/"+this.paperId+"/preview"
+        this.router.go("/papers/"+this.paperId+"/preview")
+
       }
     })
   </script>
