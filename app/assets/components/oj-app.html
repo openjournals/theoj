@@ -36,16 +36,12 @@
       </core-toolbar>
 
       <app-router id="router" on-state-change="{{validateOrRedirectUser}}" on-notification={{notify}}>
-        <app-route path='/' element='oj-home-page'></app-route>
-        <app-route path="/review/:paper_id">
-          <template>
-            <oj-review-page paper_id={{paper_id}}></oj-review-page>
-          </template>
-        </app-route>
-        <app-route path='/about' element='oj-about-page' ></app-route>
-        <app-route path='/submit' element='oj-submit-page' on-before-data-binding={{bindExtraStuff}}></app-route>
-        <app-route path='/papers' element='oj-papers-page' on-before-data-binding={{bindExtraStuff}}></app-route>
-        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview' on-before-data-binding={{bindExtraStuff}}></app-route>
+        <app-route path='/' element='oj-home-page' bindRouter></app-route>
+        <app-route path="/review/:paper_id" element='oj-review-page' bindRouter></app-route>
+        <app-route path='/about'  element='oj-about-page'  bindRouter></app-route>
+        <app-route path='/submit' element='oj-submit-page' on-before-data-binding={{bindExtrAttributes}} bindRouter></app-route>
+        <app-route path='/papers' element='oj-papers-page' on-before-data-binding={{bindExtrAttributes}} bindRouter></app-route>
+        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview' on-before-data-binding={{bindExtraAttributes}} bindRouter></app-route>
       </app-router>
     </core-scaffold>
 
@@ -87,7 +83,7 @@
           }.bind(this), 200)
         }
       },
-      bindExtraStuff:function(event){
+      bindExtraAttributes:function(event){
         event.detail.model.user = this.user
       },
       notify:function(event){
