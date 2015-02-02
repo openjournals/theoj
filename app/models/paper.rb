@@ -113,9 +113,11 @@ class Paper < ActiveRecord::Base
 
   def get_arxiv_details
     begin
-      details          = Arxiv.get(this.arxiv_id)
-      this.summary     = details.summary
-      this.author_list = details.authors.collect{|a| a.name}.join(", ")
+      details          = Arxiv.get(self.arxiv_id)
+      self.title       = details.title
+      self.location    = details.links[1].url
+      self.summary     = details.summary
+      self.author_list = details.authors.collect{|a| a.name}.join(", ")
     rescue
       logger.debug "couldn't find paper on arxiv"
     end
