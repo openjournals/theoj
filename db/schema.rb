@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140712015520) do
+ActiveRecord::Schema.define(version: 20150201224917) do
 
   create_table "annotations", force: true do |t|
     t.integer  "user_id"
@@ -54,8 +54,12 @@ ActiveRecord::Schema.define(version: 20140712015520) do
     t.datetime "updated_at"
     t.string   "sha"
     t.integer  "fao_id"
+    t.string   "arxiv_id"
+    t.string   "summary"
+    t.string   "author_list"
   end
 
+  add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", using: :btree
   add_index "papers", ["fao_id"], name: "index_papers_on_fao_id", using: :btree
   add_index "papers", ["sha"], name: "index_papers_on_sha", using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
@@ -66,8 +70,8 @@ ActiveRecord::Schema.define(version: 20140712015520) do
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
-    t.boolean  "admin"
-    t.boolean  "editor"
+    t.boolean  "admin",            default: false
+    t.boolean  "editor",           default: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "oauth_token"
