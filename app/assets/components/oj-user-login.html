@@ -9,7 +9,7 @@
       <a class='link' href='/auth/orcid'>Sign In</a>
     </template>
 
-    <core-ajax auto url='/current_user' handleAs="json" response={{user}} on-core-response={{isReady}}></core-ajax>
+    <core-ajax auto url='/current_user' handleAs="json"  on-core-response={{isReady}}></core-ajax>
 
     <style>
       a {
@@ -25,7 +25,13 @@
   <script>
     Polymer({
       userReady: false,
-      isReady:function(){
+      isReady:function(event){
+        if(event.detail.response.name){
+          this.user = event.detail.response
+        }
+        else{
+          this.user =null
+        }
         this.userReady=true
       }
     })
