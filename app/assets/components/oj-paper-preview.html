@@ -78,7 +78,7 @@
         return "/papers/"+paper_id+"/arXiv_details"
       },
       params:function(){
-        return JSON.stringify({paper:{location: this.paper_details.links[1].url}})
+        return JSON.stringify({paper:{location: this.paper_details.links[1].url, arxiv_id : this.paper_id}})
       },
       submitForReview:function(event){
         console.log(this.params())
