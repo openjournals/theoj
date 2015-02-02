@@ -11,7 +11,7 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where('state != ?', 'pending') }
 
-  before_create :set_sha
+  before_create :set_sha, :get_arxiv_details
 
   state_machine :initial => :pending do
     state :submitted
@@ -109,5 +109,15 @@ class Paper < ActiveRecord::Base
 
   def set_sha
     self.sha = SecureRandom.hex
+  end
+
+  def get_arxiv_details
+    begin
+      details          = Arxiv.get(this.arxiv_id)
+      this.summary     = details.summary
+      this.author_list = details.authors.collect{|a| a.name}.join(", ")
+    rescue
+      logger.debug "couldn't find paper on arxiv"
+    end
   end
 end
