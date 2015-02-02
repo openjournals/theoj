@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(version: 20150201224917) do
     t.integer  "fao_id"
     t.string   "arxiv_id"
     t.text     "summary"
-    t.string   "author_list"
+    t.text     "author_list"
   end
 
   add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", using: :btree
