@@ -1,4 +1,4 @@
-<polymer-element name='oj-paper-preview' attributes='user paper_id'>
+<polymer-element name='oj-paper-preview' attributes='user paper_id router'>
   <template>
     <template if={{paper_details}}>
       <div layout horizontal flex>
@@ -87,7 +87,7 @@
       },
       response:function(response){
         this.fire("notification", "Paper "+this.paper_details.title+" submitted");
-        window.location="/#/papers"
+        this.router.go("/papers")
       }
     })
   </script>
