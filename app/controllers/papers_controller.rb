@@ -113,6 +113,6 @@ class PapersController < ApplicationController
   private
 
   def paper_params
-    params.require(:paper).permit(:arxiv_id)
+    params.require(:paper).permit(:arxiv_id, :title, :location)
   end
 end
