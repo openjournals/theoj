@@ -30,7 +30,7 @@ gem 'active_model_serializers'
 gem 'bootstrap-sass'
 
 gem 'bower-rails'
-gem 'emcee'
+gem 'emcee', '~>1.0.10'
 gem 'rack-streaming-proxy'
 
 gem 'rails_12factor', group: :production
