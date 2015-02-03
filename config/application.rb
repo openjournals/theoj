@@ -22,7 +22,7 @@ module Theoj
     # config.i18n.default_locale = :de
 
     config.sass.preferred_syntax = :sass
-
+    Rails.application.config.assets.precompile << "webcomponentsjs/webcomponents.js"
     config.i18n.enforce_available_locales = true
   end
 end
