@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140712015520) do
+ActiveRecord::Schema.define(version: 20150202233833) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -22,6 +22,11 @@ ActiveRecord::Schema.define(version: 20140712015520) do
     t.text     "body",       limit: 65535
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "page",       limit: 4
+    t.float    "xStart",     limit: 24
+    t.float    "yStart",     limit: 24
+    t.float    "xEnd",       limit: 24
+    t.float    "yEnd",       limit: 24
   end
 
   add_index "annotations", ["paper_id"], name: "index_annotation_paper_id", using: :btree
@@ -49,13 +54,17 @@ ActiveRecord::Schema.define(version: 20140712015520) do
     t.string   "state",        limit: 255
     t.datetime "submitted_at"
     t.string   "title",        limit: 255
-    t.integer  "version",      limit: 4,   default: 1
+    t.integer  "version",      limit: 4,     default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "sha",          limit: 255
     t.integer  "fao_id",       limit: 4
+    t.string   "arxiv_id",     limit: 255
+    t.text     "summary",      limit: 65535
+    t.text     "author_list",  limit: 65535
   end
 
+  add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", using: :btree
   add_index "papers", ["fao_id"], name: "index_papers_on_fao_id", using: :btree
   add_index "papers", ["sha"], name: "index_papers_on_sha", using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
