@@ -20,6 +20,14 @@ may be reused with a new model at any time.  Particularly, any state that
 may change as the result of a user interaction with the list item must be
 bound to the model to avoid view state inconsistency.
 
+IMPORTANT: `core-list` must ether be explicitly sized, or delegate scrolling to
+an explicitly sized parent.  By "explicitly sized", we mean it either has an
+explicit CSS `height` property set via a class or inline style, or else is sized
+by other layout means (e.g. `flex` or `fit`).  Alternatively, `core-list` can
+delegate scrolling to a scrollable element that contains the list by setting the
+`scrollTarget` property, and the same explicit sizing requiremets will apply
+to that element.
+
 ### Template model
 
 List item templates should bind to template models of the following structure:
@@ -162,6 +170,7 @@ the following abstract API:
 
 @group Polymer Core Elements
 @element core-list
+@mixins Polymer.CoreResizable https://github.com/polymer/core-resizable
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../core-selection/core-selection.html">

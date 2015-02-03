@@ -2,9 +2,9 @@
   "name": "core-list",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.0",
-    "core-selection": "Polymer/core-selection#^0.5.0",
-    "core-resizable": "Polymer/core-resizable#^0.5.0"
+    "polymer": "Polymer/polymer#^0.5",
+    "core-selection": "Polymer/core-selection#^0.5",
+    "core-resizable": "Polymer/core-resizable#^0.5"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#master",
@@ -36,15 +36,15 @@
     "paper-spinner": "Polymer/paper-spinner#master",
     "paper-tabs": "Polymer/paper-tabs#master"
   },
-  "version": "0.5.2",
+  "version": "0.5.4",
   "homepage": "https://github.com/Polymer/core-list",
-  "_release": "0.5.2",
+  "_release": "0.5.4",
   "_resolution": {
     "type": "version",
-    "tag": "0.5.2",
-    "commit": "f12064547f08e5e14a8084d7a8bdc8a8b975f5ad"
+    "tag": "0.5.4",
+    "commit": "e0f0d17d29cd85e155b5ef02e121fa37b0574dea"
   },
   "_source": "git://github.com/Polymer/core-list.git",
-  "_target": "^0.5.0",
+  "_target": "^0.5",
   "_originalSource": "Polymer/core-list"
 }

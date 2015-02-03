@@ -2,9 +2,9 @@
   "name": "core-list",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.0",
-    "core-selection": "Polymer/core-selection#^0.5.0",
-    "core-resizable": "Polymer/core-resizable#^0.5.0"
+    "polymer": "Polymer/polymer#^0.5",
+    "core-selection": "Polymer/core-selection#^0.5",
+    "core-resizable": "Polymer/core-resizable#^0.5"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#master",
@@ -36,5 +36,5 @@
     "paper-spinner": "Polymer/paper-spinner#master",
     "paper-tabs": "Polymer/paper-tabs#master"
   },
-  "version": "0.5.2"
+  "version": "0.5.4"
 }
