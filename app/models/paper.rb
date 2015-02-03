@@ -1,4 +1,6 @@
 class Paper < ActiveRecord::Base
+  include AASM
+
   belongs_to :user
   has_many :annotations
   has_many :assignments
@@ -9,28 +11,27 @@ class Paper < ActiveRecord::Base
   # Which User is this currently for the attention of?
   belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
 
-  scope :active, -> { where('state != ?', 'pending') }
+  scope :active, -> { where.not(state:'pending') }
 
 
-
-  before_validation :set_initial_state # Because state_machine does not do this for Rails 4.2.0
   before_create :set_sha, :get_arxiv_details
 
 
-  state_machine :initial => :pending do
+  aasm column: :state do
+    state :pending,          initial:true
     state :submitted
     state :under_review
     state :accepted
     state :rejected
 
-    after_transition :on => :accept, :do => :resolve_all_issues
+    event :accept, after: :resolve_all_issues do
+      transitions to: :accepted
+    end
 
-    event :accept do
-      transition all => :accepted
-    end
     event :assigned do
-      transition :submitted => :under_review
+      transitions from: :submitted, to: :under_review
     end
+
   end
 
   def self.with_state(state = nil)
@@ -41,13 +42,12 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  # FIXME should be a scope
   def outstanding_issues
-    annotations.where('state != ?', 'resolved')
+    annotations.where.not(state:'resolved')
   end
 
   def resolve_all_issues
-    annotations.each(&:resolve)
+    annotations.each(&:resolve!)
   end
 
   def pretty_status
@@ -128,10 +128,5 @@ class Paper < ActiveRecord::Base
       logger.debug "couldn't find paper on arxiv"
     end
   end
-
-  def set_initial_state
-    self.state||= :pending
-  end
-
 
 end

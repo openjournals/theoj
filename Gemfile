@@ -46,7 +46,7 @@ end
 gem 'omniauth', '~> 1.2'
 gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
-gem 'state_machine'
+gem 'aasm'
 gem 'cancancan', '~> 1.8'
 
 group :test do

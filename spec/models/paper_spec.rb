@@ -29,7 +29,7 @@ describe Paper, ".resolve_all_issues" do
 
     paper.resolve_all_issues
 
-    assert_empty paper.outstanding_issues
+    expect( paper.outstanding_issues ).to be_empty
   end
 end
 
