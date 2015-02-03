@@ -11,7 +11,11 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where('state != ?', 'pending') }
 
+
+
+  before_validation :set_initial_state # Because state_machine does not do this for Rails 4.2.0
   before_create :set_sha, :get_arxiv_details
+
 
   state_machine :initial => :pending do
     state :submitted
@@ -111,6 +115,7 @@ class Paper < ActiveRecord::Base
     self.sha = SecureRandom.hex
   end
 
+
   def get_arxiv_details
     begin
       details          = Arxiv.get(self.arxiv_id.to_s)
@@ -123,4 +128,10 @@ class Paper < ActiveRecord::Base
       logger.debug "couldn't find paper on arxiv"
     end
   end
+
+  def set_initial_state
+    self.state||= :pending
+  end
+
+
 end

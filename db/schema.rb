@@ -11,17 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150201224917) do
+ActiveRecord::Schema.define(version: 20150202233833) do
 
-  create_table "annotations", force: true do |t|
-    t.integer  "user_id"
-    t.integer  "paper_id"
-    t.string   "state"
-    t.integer  "parent_id"
-    t.string   "category"
-    t.text     "body"
+  create_table "annotations", force: :cascade do |t|
+    t.integer  "user_id",    limit: 4
+    t.integer  "paper_id",   limit: 4
+    t.string   "state",      limit: 255
+    t.integer  "parent_id",  limit: 4
+    t.string   "category",   limit: 255
+    t.text     "body",       limit: 65535
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "page",       limit: 4
+    t.float    "xStart",     limit: 24
+    t.float    "yStart",     limit: 24
+    t.float    "xEnd",       limit: 24
+    t.float    "yEnd",       limit: 24
   end
 
   add_index "annotations", ["paper_id"], name: "index_annotation_paper_id", using: :btree
@@ -29,11 +34,11 @@ ActiveRecord::Schema.define(version: 20150201224917) do
   add_index "annotations", ["state"], name: "index_annotation_state", using: :btree
   add_index "annotations", ["user_id"], name: "index_annotation_user_id", using: :btree
 
-  create_table "assignments", force: true do |t|
-    t.integer  "user_id"
-    t.integer  "paper_id"
-    t.string   "role"
-    t.integer  "assignee_id"
+  create_table "assignments", force: :cascade do |t|
+    t.integer  "user_id",     limit: 4
+    t.integer  "paper_id",    limit: 4
+    t.string   "role",        limit: 255
+    t.integer  "assignee_id", limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -43,20 +48,20 @@ ActiveRecord::Schema.define(version: 20150201224917) do
   add_index "assignments", ["role"], name: "index_assignment_role", using: :btree
   add_index "assignments", ["user_id"], name: "index_assignment_user_id", using: :btree
 
-  create_table "papers", force: true do |t|
-    t.integer  "user_id"
-    t.string   "location"
-    t.string   "state"
+  create_table "papers", force: :cascade do |t|
+    t.integer  "user_id",      limit: 4
+    t.string   "location",     limit: 255
+    t.string   "state",        limit: 255
     t.datetime "submitted_at"
-    t.string   "title"
-    t.integer  "version",      default: 1
+    t.string   "title",        limit: 255
+    t.integer  "version",      limit: 4,     default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "sha"
-    t.integer  "fao_id"
-    t.string   "arxiv_id"
-    t.text     "summary"
-    t.text     "author_list"
+    t.string   "sha",          limit: 255
+    t.integer  "fao_id",       limit: 4
+    t.string   "arxiv_id",     limit: 255
+    t.text     "summary",      limit: 65535
+    t.text     "author_list",  limit: 65535
   end
 
   add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", using: :btree
@@ -66,19 +71,19 @@ ActiveRecord::Schema.define(version: 20150201224917) do
   add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
   add_index "papers", ["user_id"], name: "index_paper_user_id", using: :btree
 
-  create_table "users", force: true do |t|
-    t.string   "provider"
-    t.string   "uid"
-    t.string   "name"
-    t.boolean  "admin",            default: false
-    t.boolean  "editor",           default: false
+  create_table "users", force: :cascade do |t|
+    t.string   "provider",         limit: 255
+    t.string   "uid",              limit: 255
+    t.string   "name",             limit: 255
+    t.boolean  "admin",            limit: 1,     default: false
+    t.boolean  "editor",           limit: 1,     default: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "oauth_token"
+    t.string   "oauth_token",      limit: 255
     t.datetime "oauth_expires_at"
-    t.text     "extra"
-    t.string   "picture"
-    t.string   "sha"
+    t.text     "extra",            limit: 65535
+    t.string   "picture",          limit: 255
+    t.string   "sha",              limit: 255
   end
 
   add_index "users", ["admin"], name: "index_user_admin", using: :btree

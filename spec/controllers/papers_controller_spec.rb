@@ -7,7 +7,7 @@ describe PapersController do
       allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       get :index, :format => :json
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
@@ -18,7 +18,7 @@ describe PapersController do
       create(:paper)
 
       get :index, :format => :json
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
@@ -46,7 +46,7 @@ describe PapersController do
 
       get :show, :id => paper.sha, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
@@ -62,7 +62,7 @@ describe PapersController do
 
       get :show, :id => paper.sha, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
@@ -77,7 +77,7 @@ describe PapersController do
 
       get :show, :id => paper.sha, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
@@ -92,7 +92,7 @@ describe PapersController do
 
       etag1 = response.header['ETag']
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("text/html")
       assert response.body.include?('review.svg')
@@ -116,7 +116,7 @@ describe PapersController do
 
       put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal hash_from_json(response.body)["title"], "Boo ya!"
     end
   end
@@ -142,7 +142,7 @@ describe PapersController do
 
       put :accept, :id => paper.sha, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal hash_from_json(response.body)["state"], "accepted"
     end
   end
@@ -184,7 +184,7 @@ describe PapersController do
 
       get :as_reviewer, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal 1, hash_from_json(response.body).size
     end
   end
@@ -199,7 +199,7 @@ describe PapersController do
 
       get :as_reviewer, :format => :json, :state => 'pending'
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal 0, hash_from_json(response.body).size
     end
   end
@@ -218,7 +218,7 @@ describe PapersController do
 
       get :as_author, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal 1, hash_from_json(response.body).size
     end
   end
@@ -234,7 +234,7 @@ describe PapersController do
 
       get :as_editor, :format => :json
 
-      expect(response).to be_success
+      expect(response).to have_http_status(:success)
       assert_equal 2, hash_from_json(response.body).size
     end
   end
