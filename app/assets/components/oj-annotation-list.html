@@ -25,8 +25,7 @@
       scale: 2,
       locationForAnnotation: function(annotation){
         page_no = annotation.location.page
-        y       = annotation.location.y //* this.scale
-
+        y       = annotation.location.y
         return (y + (this.pageHeight + this.pageOffset)*page_no)
       },
       colorForAnnotation: function(annotation){
