@@ -219,6 +219,7 @@ Example:
 
 @element core-animated-pages
 @extends core-selector
+@mixins Polymer.CoreResizer https://github.com/polymer/core-resizable
 @status beta
 @homepage github.io
 -->
@@ -419,6 +420,7 @@ Fired when a page transition completes.
 
       if (!oldItem) {
         this.applySelection(this.selectedItem, true);
+        this.async(this.notifyResize);
         return;
       }
 

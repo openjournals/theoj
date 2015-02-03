@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <%= javascript_include_tag "webcomponentsjs/webcomponents" unless Rails.env.test? %>
+
     <title>The Open Journal</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.5.2/webcomponents.js"></script>
+
     <%= stylesheet_link_tag    "application", media: "all"%>
+    <%= html_import_tag "application" %>
+
     <%= javascript_include_tag "application" %>
+
     <script charset="utf-8" src='/pdf.js'></script>
     <script charset="utf-8" src="https://vivin.net/pub/pdfjs/textlayerbuilder.js"></script>
-    <%= html_import_tag "application" %>
     <%= csrf_meta_tags %>
   </head>
 <body unresolved fullbleed>
