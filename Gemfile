@@ -46,11 +46,11 @@ end
 gem 'omniauth', '~> 1.2'
 gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
-gem 'state_machine', '~> 1.2.0'
+gem 'state_machine'
 gem 'cancancan', '~> 1.8'
 
 group :test do
-  gem 'rspec-rails', '~> 3.0.1'
+  gem 'rspec-rails', '~> 3.1'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
   gem 'webmock', '~> 1.18.0'
