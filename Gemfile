@@ -27,10 +27,10 @@ gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'active_model_serializers'
 
-gem 'bootstrap-sass'
 
 gem 'bower-rails'
-gem 'emcee', '~>1.0.10'
+# gem 'emcee', git: "git://github.com/openjournals/emcee.git", :branch => 'fix_attempt'
+gem 'emcee', git: "git://github.com/openjournals/emcee.git"
 gem 'rack-streaming-proxy'
 
 gem 'rails_12factor', group: :production
