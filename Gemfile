@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.0.2'
+gem 'rails', '4.2.0'
 
 # Use mysql2 as the database for Active Record
 gem 'mysql2'
@@ -33,8 +33,9 @@ gem 'bower-rails'
 gem 'emcee'
 gem 'rack-streaming-proxy'
 
-gem 'rails_12factor'
+gem 'rails_12factor', group: :production
 gem 'arxiv'
+gem 'responders'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
@@ -45,11 +46,11 @@ end
 gem 'omniauth', '~> 1.2'
 gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 
-gem 'state_machine', '~> 1.2.0'
+gem 'state_machine'
 gem 'cancancan', '~> 1.8'
 
 group :test do
-  gem 'rspec-rails', '~> 3.0.1'
+  gem 'rspec-rails', '~> 3.1'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
   gem 'webmock', '~> 1.18.0'
