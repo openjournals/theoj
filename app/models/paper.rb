@@ -11,6 +11,7 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where('state != ?', 'pending') }
 
+  before_validation :set_initial_state # Because state_machine does not do this for Rails 4.2.0
   before_create :set_sha
 
   state_machine :initial => :pending do
@@ -110,4 +111,9 @@ class Paper < ActiveRecord::Base
   def set_sha
     self.sha = SecureRandom.hex
   end
+
+  def set_initial_state
+    self.state||= :pending
+  end
+
 end
