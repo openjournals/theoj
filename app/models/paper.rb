@@ -117,16 +117,18 @@ class Paper < ActiveRecord::Base
 
 
   def get_arxiv_details
-    begin
-      details          = Arxiv.get(self.arxiv_id.to_s)
-      self.title       = details.title
-      self.location    = details.links[1].url
-      self.summary     = details.summary
-      self.author_list = details.authors.collect{|a| a.name}.join(", ")
+    details          = Arxiv.get(self.arxiv_id.to_s)
+
+    location         = details.links.select{|link| link.content_type=="application/pdf"}.first.url
+    location = location + ".pdf" unless location.include? ".pdf"
+
+    self.title       = details.title
+    self.location    = location
+    self.summary     = details.summary
+    self.author_list = details.authors.collect{|a| a.name}.join(", ")
     rescue
-      self.location    = "http://arxiv.org/pdf/#{self.arxiv_id}.pdf"
+      self.location  = "http://arxiv.org/pdf/#{self.arxiv_id}.pdf"
       logger.debug "couldn't find paper on arxiv"
-    end
   end
 
 end
