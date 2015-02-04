@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
                 "You could not be logged in!"
               end
 
-   redirect_to root_url, :notice => message
+   redirect_to root_url, :alert => message
   end
 
   protected
