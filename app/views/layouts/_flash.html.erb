@@ -1,0 +1,10 @@
+<% if flash.present? %>
+    <div id="flash">
+      <% flash.each do |key, value| %>
+          <div class="alert alert-<%=key%>">
+            <a class="close" href='#' onclick="this.parentElement.style.display='none'; return false;">&times;</a>
+            <%=value%>
+          </div>
+      <% end %>
+    </div>
+<% end %>

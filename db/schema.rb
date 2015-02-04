@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150202233833) do
+ActiveRecord::Schema.define(version: 20150201224917) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -22,11 +22,6 @@ ActiveRecord::Schema.define(version: 20150202233833) do
     t.text     "body",       limit: 65535
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "page",       limit: 4
-    t.float    "xStart",     limit: 24
-    t.float    "yStart",     limit: 24
-    t.float    "xEnd",       limit: 24
-    t.float    "yEnd",       limit: 24
   end
 
   add_index "annotations", ["paper_id"], name: "index_annotation_paper_id", using: :btree
