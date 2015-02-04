@@ -39,6 +39,7 @@ Theoj::Application.routes.draw do
 
   get '/sessions/new', to: 'sessions#new', as: 'new_session'
   get '/auth/:provider/callback', to: 'sessions#create'
+  get '/auth/failure', to: 'sessions#failure'
   get "/signout" => "sessions#destroy", :as => :signout
 
   root :to => 'home#index'

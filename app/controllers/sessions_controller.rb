@@ -20,6 +20,16 @@ class SessionsController < ApplicationController
     redirect_to root_url, :notice => "Signed out!"
   end
 
+  def failure
+    message = if params[:message]
+                "You could not be logged in! (#{params[:message].humanize})"
+              else
+                "You could not be logged in!"
+              end
+
+   redirect_to root_url, :notice => message
+  end
+
   protected
 
   def auth_hash
@@ -31,6 +41,6 @@ class SessionsController < ApplicationController
     given_name = data['orcid-profile']['orcid-bio']['personal-details']['given-names']['value']
     surname = data['orcid-profile']['orcid-bio']['personal-details']['family-name']['value']
     
-    return "#{given_name} #{surname}"
+    "#{given_name} #{surname}"
   end
 end
