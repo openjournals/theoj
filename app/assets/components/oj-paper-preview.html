@@ -72,7 +72,7 @@
   <script>
     Polymer({
       preview_url:function(paper){
-        link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
+        var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
         if(link.indexOf(".pdf")==-1){
           link+=".pdf"
         }
