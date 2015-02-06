@@ -1,19 +1,18 @@
 require "rails_helper"
 
 describe PapersController do
+
   describe "GET #index" do
+
     it "AS ADMIN responds successfully with an HTTP 200 status code" do
-      user = create(:admin)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
+      authenticate(:admin)
 
       get :index, :format => :json
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
-  end
 
-  describe "GET #index" do
     it "AS NO USER responds successfully with an HTTP 200 status code but an empty body" do
       create(:paper)
 
@@ -22,68 +21,110 @@ describe PapersController do
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
+
   end
 
   describe "GET #show" do
+
     it "AS USER without permissions" do
-      user = create(:user)
+      authenticate
       paper = create(:paper)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       get :show, :id => paper.sha, :format => :json
 
       expect(response.status).to eq(403)
     end
-  end
 
-  describe "GET #show" do
     it "AS REVIEWER (with permissions)" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper_under_review)
       create(:assignment_as_reviewer, :paper => paper, :user => user)
 
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
-
       get :show, :id => paper.sha, :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
-  end
 
-  describe "GET #show" do
     it "AS COLLABORATOR (with permissions)" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper_under_review)
       create(:assignment_as_collaborator, :paper => paper, :user => user)
 
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
-
       get :show, :id => paper.sha, :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
-  end
 
-  describe "GET #show" do
     it "AS AUTHOR (with permissions)" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper_under_review, :user => user)
 
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
-
       get :show, :id => paper.sha, :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
     end
+
+  end
+
+  describe "GET #arXiv_details" do
+
+    let(:arxiv_response) do
+      {
+          "arxiv_url"        => "http://arxiv.org/abs/1111.1111v1",
+          "created_at"       => "2011-11-04T12:50:44.000+00:00",
+          "updated_at"       => "2011-11-04T12:50:44.000+00:00",
+          "title"            => "Electronic structure of nickelates: From two-dimensional heterostructures to three-dimensional bulk materials",
+          "summary"          => "Reduced dimensionality and strong electronic correlations, which are among the most important ...",
+          "comment"          => "8 pages, 9 figures",
+          "primary_category" => {"abbreviation" => "cond-mat.str-el"},
+          "categories"       => [ {"abbreviation" => "cond-mat.str-el"} ],
+          "authors"          => [ {"name" => "P. Hansmann", "affiliations" => []},
+                                  {"name" => "K. Held",     "affiliations" => []}  ],
+          "links"            => [ {"url"  => "http://dx.doi.org/10.1103/PhysRevB.82.235123", "content_type" => ""},
+                                  {"url"  => "http://arxiv.org/abs/1111.1111v1",             "content_type" => "text/html"},
+                                  {"url"  => "http://arxiv.org/pdf/1111.1111v1",             "content_type" => "application/pdf"} ]
+      }
+    end
+
+    it "should fail if no user is logged in" do
+      expect(Arxiv).not_to receive(:get)
+
+      get :arXiv_details, :id => '1234.5678', :format => :json
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response_json).to be_empty
+    end
+
+    it "should succeed if the user is logged in" do
+      authenticate
+      expect(Arxiv).to receive(:get).with('1234.5678').and_return(arxiv_response)
+
+      get :arXiv_details, :id => '1234.5678', :format => :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq("application/json")
+      expect(response_json).to eq(arxiv_response)
+    end
+
+    it "should return a 404 if the paper is not found on Arxiv" do
+      authenticate
+      expect(Arxiv).to receive(:get).and_raise(Arxiv::Error::ManuscriptNotFound)
+
+      get :arXiv_details, :id => '1234.5678', :format => :json
+
+      expect(response).to have_http_status(:not_found)
+    end
+
   end
 
   describe "GET #status" do
+
     render_views
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code" do
@@ -106,51 +147,47 @@ describe PapersController do
       assert etag1 != etag2
       assert response.body.include?('accepted.svg')
     end
+
   end
 
   describe "PUT #update" do
+
     it "AS AUTHOR on pending paper should change title" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper, :user => user)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
 
       expect(response).to have_http_status(:success)
-      assert_equal hash_from_json(response.body)["title"], "Boo ya!"
+      assert_equal response_json["title"], "Boo ya!"
     end
-  end
 
-  describe "PUT #update" do
     it "AS AUTHOR responds on submitted paper should not change title" do
-      user = create(:user)
+      user = authenticate
       paper = create(:submitted_paper, :user => user, :title => "Hello space")
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
 
       expect(response.status).to eq(403)
       assert_equal "Hello space", paper.title
     end
+
   end
 
   describe "PUT #accept" do
+
     it "AS EDITOR responds successfully with a correct status and accept paper" do
-      user = create(:editor)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
+      authenticate(:editor)
       paper = create(:paper_under_review)
 
       put :accept, :id => paper.sha, :format => :json
 
       expect(response).to have_http_status(:success)
-      assert_equal hash_from_json(response.body)["state"], "accepted"
+      assert_equal response_json["state"], "accepted"
     end
-  end
 
-  describe "PUT #accept" do
     it "AS USER responds successfully with a correct status (403) and NOT accept paper" do
-      user = create(:user)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
+      authenticate
       paper = create(:paper_under_review)
 
       put :accept, :id => paper.sha, :format => :json
@@ -158,84 +195,86 @@ describe PapersController do
       # Should be redirected
       expect(response.status).to eq(403)
     end
-  end
 
-  describe "PUT #accept" do
     it "AS AUTHOR responds successfully with a correct status (403) and NOT accept paper" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper_under_review, :user => user)
-
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       put :accept, :id => paper.sha, :format => :json
 
       expect(response.status).to eq(403)
-      assert hash_from_json(response.body).empty?
+      assert response_json.empty?
     end
+
   end
 
   describe "GET #as_reviewer" do
+
     it "AS REVIEWER should return correct papers" do
-      user = create(:user)
+      user = authenticate
       paper = create(:paper_under_review)
       create(:assignment_as_reviewer, :user => user, :paper => paper)
-
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       get :as_reviewer, :format => :json
 
       expect(response).to have_http_status(:success)
-      assert_equal 1, hash_from_json(response.body).size
+      assert_equal 1, response_json.size
     end
+
   end
 
-  describe "GET #as_reviewer with a state" do
-    it "AS REVIEWER should return correct papers" do
-      user = create(:user)
-      paper = create(:paper_under_review)
-      create(:assignment_as_reviewer, :user => user, :paper => paper)
+  describe "GET #as_reviewer" do
 
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
+    context "with a state" do
 
-      get :as_reviewer, :format => :json, :state => 'pending'
+      it "AS REVIEWER should return correct papers" do
+        user = authenticate
+        paper = create(:paper_under_review)
+        create(:assignment_as_reviewer, :user => user, :paper => paper)
 
-      expect(response).to have_http_status(:success)
-      assert_equal 0, hash_from_json(response.body).size
+        get :as_reviewer, :format => :json, :state => 'pending'
+
+        expect(response).to have_http_status(:success)
+        assert_equal 0, response_json.size
+      end
+
     end
+
   end
 
   describe "GET #as_author" do
+
     it "AS REVIEWER should return correct papers" do
       user = create(:user)
       paper = create(:paper_under_review)
       create(:assignment_as_reviewer, :user => user, :paper => paper)
 
       # This is the one that should be returned
-      user = create(:user)
+      user = authenticate
       paper = create(:paper, :user => user)
-
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
 
       get :as_author, :format => :json
 
       expect(response).to have_http_status(:success)
-      assert_equal 1, hash_from_json(response.body).size
+      assert_equal 1, response_json.size
     end
+
   end
 
   describe "GET #as_editor" do
+
     it "AS EDITOR should return correct papers" do
-      user = create(:editor)
+      user = authenticate(:editor)
       create(:paper_under_review) # should be returned
       create(:submitted_paper) # should be returned
       create(:paper) # pending (should not be returned)
 
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
-
       get :as_editor, :format => :json
 
       expect(response).to have_http_status(:success)
-      assert_equal 2, hash_from_json(response.body).size
+      assert_equal 2, response_json.size
     end
+
   end
+
 end

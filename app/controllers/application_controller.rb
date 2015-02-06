@@ -12,7 +12,14 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
+  rescue_from  Arxiv::Error::ManuscriptNotFound, with: :record_not_found
+
   private
+
+  def record_not_found
+    puts "--- record not found --------"
+    render plain: "404 Not Found", status: 404
+  end
 
   def ability_with(user, paper=nil, annotation=nil)
     Ability.new(user, paper, annotation)
