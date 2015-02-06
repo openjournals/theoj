@@ -24,5 +24,6 @@ module Theoj
     config.sass.preferred_syntax = :sass
     Rails.application.config.assets.precompile << "webcomponentsjs/webcomponents.js"
     config.i18n.enforce_available_locales = true
+
   end
 end

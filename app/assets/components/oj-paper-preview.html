@@ -1,5 +1,6 @@
 <polymer-element name='oj-paper-preview' attributes='user paper_id router'>
   <template>
+
     <template if={{paper_details}}>
       <div layout horizontal flex>
         <template if={{hidePDF}}>
@@ -25,19 +26,25 @@
       </div>
     </template>
 
-    <template if={{!paper_details}}>
+    <template if={{$.detailsRequest.loading}}>
       <paper-spinner active></paper-spinner>
     </template>
 
-    <core-ajax on-core-response="{{response}}"
-               id='postRequest'
+    <core-ajax id=postRequest
                url='/papers/'
-               method='POST'
+               method=POST
                contentType="application/json"
-               handleAs="json" >
+               handleAs=json
+               on-core-response={{response}} >
     </core-ajax>
 
-    <core-ajax auto url="{{paper_id | arxiv_lookup_url}}" handleAs="json" response={{paper_details}}></core-ajax>
+    <core-ajax id=detailsRequest
+               auto
+               url="{{paper_id | arxiv_lookup_url}}"
+               handleAs=json
+               response={{paper_details}}
+               on-core-error={{onError}}
+            ></core-ajax>
     <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
 
     <style>
@@ -52,7 +59,7 @@
       #details{
         width: 50%;
         box-sizing: border-box;
-        padding: 0px 20px
+        padding: 0 20px
       }
       paper-button{
         background: #3e50b4;
@@ -71,6 +78,17 @@
 
   <script>
     Polymer({
+      onError: function(event) {
+          var xhr = event.detail.xhr;
+
+          if (xhr.status == 404)
+            var message = 'The paper could not be found. Please try again.';
+          else
+            var message = 'There was an error retrieving the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+
+          this.fire("notification", message);
+          this.router.go("/submit");
+      },
       preview_url:function(paper){
         var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
         if(link.indexOf(".pdf")==-1){
@@ -85,8 +103,7 @@
         return JSON.stringify({paper:{location: this.paper_details.links[1].url, arxiv_id : this.paper_id}})
       },
       submitForReview:function(event){
-        console.log(this.params())
-        this.$.postRequest.body = this.params()
+        this.$.postRequest.body = this.params();
         this.$.postRequest.go()
       },
       response:function(response){
