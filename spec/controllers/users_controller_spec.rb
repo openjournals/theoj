@@ -5,8 +5,7 @@ describe UsersController do
   describe "GET #show" do
 
     it "responds successfully with an HTTP 200 status code" do
-      user = create(:user)
-      allow(controller).to receive_message_chain(:current_user).and_return(user)
+      user = authenticate
       get :show, :id => user.sha, :format => :json
 
       expect(response).to have_http_status(:success)
