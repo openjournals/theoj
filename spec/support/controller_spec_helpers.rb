@@ -1,4 +1,4 @@
-module SpecHelpers
+module ControllerSpecHelpers
 
   def authenticate(user=nil)
     if user.is_a?(Symbol)
@@ -8,6 +8,10 @@ module SpecHelpers
     end
     allow(controller).to receive(:current_user).and_return(user)
     user
+  end
+
+  def response_json
+    @response_json ||= JSON.parse( response.body )
   end
 
 end

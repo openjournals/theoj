@@ -11,7 +11,7 @@ describe UsersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
-      assert_equal hash_from_json(response.body)["name"], user.name
+      assert_equal response_json["name"], user.name
     end
 
   end
@@ -25,7 +25,7 @@ describe UsersController do
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
-      assert_equal hash_from_json(response.body)["name"], user.name
+      assert_equal response_json["name"], user.name
     end
 
     context "when user has papers and assignments" do
@@ -44,7 +44,7 @@ describe UsersController do
         expect(response).to have_http_status(:success)
         expect(response.status).to eq(200)
 
-        hash = hash_from_json(response.body)
+        hash = response_json
         assert_equal hash["name"], user.name
         assert_equal hash['papers'].length, 0
         assert_equal hash['papers_as_reviewer'].length, 1
@@ -65,7 +65,7 @@ describe UsersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       # FIXME - this hash structure is kinda silly
-      assert_equal hash_from_json(response.body).first["sha"], user.sha
+      assert_equal response_json.first["sha"], user.sha
     end
 
     it "responds successfully with an HTTP 200 status code and no users" do
@@ -75,7 +75,7 @@ describe UsersController do
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
-      assert hash_from_json(response.body).empty?
+      assert response_json.empty?
     end
 
   end
