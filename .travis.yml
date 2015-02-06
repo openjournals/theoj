@@ -6,4 +6,10 @@ before_script:
   - bundle install
   - bundle exec rake db:schema:load
 
+notifications:
+  email:
+    - arfon.smith@gmail.com
+    - marc@marcrohloff.com
+    - stuart.lynn@gmail.com
+
 script: bundle exec rspec
