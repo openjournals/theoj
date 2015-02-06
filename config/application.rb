@@ -24,5 +24,10 @@ module Theoj
     config.sass.preferred_syntax = :sass
     Rails.application.config.assets.precompile << "webcomponentsjs/webcomponents.js"
     config.i18n.enforce_available_locales = true
+
+    config.action_dispatch.rescue_responses.merge!(
+        'Arxiv::Error::ManuscriptNotFound' => :not_found
+    )
+
   end
 end
