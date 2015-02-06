@@ -4,7 +4,7 @@
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
-            <iframe id='pfd_preview' style="height:600px" src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
+            <iframe id='pfd_preview' style="height:800px" src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
           </div>
         </template>
 
@@ -72,7 +72,11 @@
   <script>
     Polymer({
       preview_url:function(paper){
-        return "http://docs.google.com/gview?url="+paper.links[1].url+"&embedded=true"
+        var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
+        if(link.indexOf(".pdf")==-1){
+          link+=".pdf"
+        }
+        return "http://docs.google.com/gview?url="+link+"&embedded=true"
       },
       arxiv_lookup_url:function(paper_id){
         return "/papers/"+paper_id+"/arXiv_details"
