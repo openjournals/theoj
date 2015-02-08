@@ -27,12 +27,12 @@
       userReady: false,
       isReady:function(event){
         if(event.detail.response.name){
-          this.user = event.detail.response
+          this.user = event.detail.response;
         }
         else{
-          this.user =null
+          this.user =null;
         }
-        this.userReady=true
+        this.userReady=true;
       }
     })
   </script>

@@ -12,42 +12,42 @@
 
       textChanged:function(){
 
-        paper_page_pattern    = /^\s*https?:\/\/arxiv\.org\/abs\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/
-        paper_pdf_pattern     = /^\s*https?:\/\/arxiv\.org\/pdf\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/
-        paper_id_pattern      = /^\s*([0-9]{4}\.[0-9]{4})(v[0-9]+)?\s*/
+        paper_page_pattern    = /^\s*https?:\/\/arxiv\.org\/abs\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/;
+        paper_pdf_pattern     = /^\s*https?:\/\/arxiv\.org\/pdf\/([0-9]{4}\.[0-9]{4})(v[0-9]+)?(\.pdf)?\s*/;
+        paper_id_pattern      = /^\s*([0-9]{4}\.[0-9]{4})(v[0-9]+)?\s*/;
 
         if(match = this.text.match(paper_page_pattern)){
-          this.paperId       = match[1]
-          this.paperVersion  = match[2]
-          this.paperURL      = this.constructURL()
-          this.resolved      = true
+          this.paperId       = match[1];
+          this.paperVersion  = match[2];
+          this.paperURL      = this.constructURL();
+          this.resolved      = true;
         }
         else if(match        = this.text.match(paper_pdf_pattern)){
-          this.paperId       = match[1]
-          this.paperVersion  = match[2]
-          this.paperURL      = this.text
-          this.resolved      = true
+          this.paperId       = match[1];
+          this.paperVersion  = match[2];
+          this.paperURL      = this.text;
+          this.resolved      = true;
         }
         else if(match        = this.text.match(paper_id_pattern)){
-          this.paperId       = match[1]
-          this.paperVersion  = match[2]
-          this.paperURL      = this.constructURL()
-          this.resolved      = true
+          this.paperId       = match[1];
+          this.paperVersion  = match[2];
+          this.paperURL      = this.constructURL();
+          this.resolved      = true;
         }
         else      {
-          this.paperId      = null
-          this.paperVersion = null
-          this.paperURL     = null
-          this.resolved     = false
+          this.paperId      = null;
+          this.paperVersion = null;
+          this.paperURL     = null;
+          this.resolved     = false;
         }
       },
       constructURL:function(){
-        url = "http://arxiv.org/pdf/"+this.paper_id
+        url = "http://arxiv.org/pdf/"+this.paper_id;
         if (this.paperVersion){
-          url += ("v"+this.paperVersion)
+          url += ("v"+this.paperVersion);
         }
-        url += ".pdf"
-        return url
+        url += ".pdf";
+        return url;
       }
     })
   </script>

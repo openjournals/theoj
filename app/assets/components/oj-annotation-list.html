@@ -6,14 +6,14 @@
       </template>
 
       <template if={{showNewAnnotation}}>
-        <oj-new-annotation style="top:{{newAnnotationLocation | locationForAnnotation}}px" location={{newAnnotationLocation}}> </oj-new-annotation>
+        <oj-new-annotation location={{newAnnotationLocation}}> </oj-new-annotation>
       </template>
     </div>
 
     <style>
       :host{
         position: relative;
-        box-model: border-box;
+        box-sizing: border-box;
         padding-top: 20px;
       }
     </style>
@@ -24,13 +24,13 @@
     Polymer({
       scale: 2,
       locationForAnnotation: function(annotation){
-        page_no = annotation.location.page
-        y       = annotation.location.y
-        return (y + (this.pageHeight + this.pageOffset)*page_no)
+        page_no = annotation.location.page;
+        y       = annotation.location.y;
+        return (y + (this.pageHeight + this.pageOffset)*page_no);
       },
       colorForAnnotation: function(annotation){
-        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"}
-        return roles[annotation.user.role]
+        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"};
+        return roles[annotation.user.role];
       }
     })
   </script>

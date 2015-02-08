@@ -45,11 +45,11 @@
       </app-router>
     </core-scaffold>
 
-    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" text="" style="border-radius:0px;padding-right: 60px; position: fixed; outline: none; z-index: 24; box-sizing: border-box; display: none;" role="status" touch-action="none" tabindex="-1"></paper-toast>
+    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" text=""role="status" touch-action="none" tabindex="-1"></paper-toast>
 
     <style>
       :host /deep/ core-toolbar {
-        background-color: #5C6BC0 ;
+        background-color: #5C6BC0;
         color: #fff;
       }
       :host /deep/ #mainContainer{
@@ -58,40 +58,49 @@
       :host core-menu /deep/ #drawer{
         background-color: #7986CB;
       }
+      #notification {
+          border-radius:0;
+          padding-right: 60px;
+          position: fixed;
+          outline: none;
+          z-index: 24;
+          box-sizing: border-box;
+      }
     </style>
   </template>
 
   <script>
     Polymer({
       validateOrRedirectUser:function(event){
-        validLoggedOutRoutes = ["/","/about"]
+        validLoggedOutRoutes = ["/","/about"];
 
         if(this.userReady){
 
-          path = event.detail.path
+          path = event.detail.path;
 
           if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
-            event.preventDefault()
-            this.showNotification("Please log in")
+            event.preventDefault();
+            this.showNotification("Please log in");
             this.$.router.go('/');
           }
 
         }
         else{
           setTimeout(function(){
-            this.validateOrRedirectUser(event)
+            this.validateOrRedirectUser(event);
           }.bind(this), 200)
         }
       },
       bindExtraAttributes:function(event){
-        event.detail.model.user = this.user
+        event.detail.model.user = this.user;
       },
       notify:function(event){
-        this.showNotification(event.detail)
+        this.showNotification(event.detail);
       },
       showNotification:function(text){
-        this.$.notification.text = text
-        this.$.notification.show()
+        console.log('Notification: ', text)
+        this.$.notification.text = text;
+        this.$.notification.show();
       }
     });
   </script>
