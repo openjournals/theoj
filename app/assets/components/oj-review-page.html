@@ -26,19 +26,23 @@
             showNewAnnotation={{newAnnotationVisible}}
             newAnnotationLocation={{newAnnotationLocation}}
             on-new-annotation-box-dismissed={{hideAnnotationBox}}
-            on-annotation-added={{addAnnotation}}
+            on-annotation-added={{onAddAnnotation}}
+            paper={{paper}}
             >
           </oj-annotation-list>
         </div>
       </template>
 
+
+
+      <core-ajax auto url={{'/papers/'+paper_id+'/issues'}} handleAs="json" response={{annotations}}></core-ajax>
       <core-ajax auto url={{'/papers/'+paper_id}} handleAs="json" response={{paper}}></core-ajax>
       <core-ajax auto url='/current_user' handleAs="json" response={{user}}></core-ajax>
       <style>
         core-toolbar{
           background-color: #7986CB;
         }
-        
+
       </style>
     </section>
 
@@ -52,28 +56,20 @@
   <script>
     Polymer({
       newAnnotationVisible: false,
-      annotations: [
-        {
-          location:{page: 1, x:0.5, y:0.5},
-          body: "This is a comment",
-          state: "open",
-          parent: "null",
-          user: {
-            id: 1233,
-            role: "reviewer"
-          }
-        }
-      ],
+      annotations: [],
+      onAddAnnotation:function(e){
+        console.log("event is ", e.detail)
+        this.addAnnotation(e.detail)
+      },
       addAnnotation:function(annotation){
-        this.annotations.push( {location : annotation.detail.location.location, body: annotation.detail.text, user:{role:"reviewer"}})
+        this.annotations.push(annotation)
       },
       hideAnnotationBox: function(){
-        alert('dismiss');
         this.newAnnotationVisible= false;
       },
       createTempAnnotation:function(click_location){
         this.newAnnDetails= {location: click_location.detail};
-        this.newAnnotationLocation= {location: click_location.detail};
+        this.newAnnotationLocation= click_location.detail;
 
         this.newAnnotationVisible = true;
       }
