@@ -35,7 +35,15 @@ class User < ActiveRecord::Base
   end
 
   def editor_of?(paper)
-    return true if self.editor?
+    self.editor?
+  end
+
+  def role_for(paper)
+   role ="editor"         if editor_of?(paper)
+   role ="reviewer"       if reviewer_of?(paper)
+   role ="author"         if author_of?(paper)
+   role ="collaborator"   if collaborator_on?(paper)
+   role 
   end
 
   def papers_as_editor
