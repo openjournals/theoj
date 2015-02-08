@@ -42,6 +42,10 @@ class Paper < ActiveRecord::Base
     end
   end
 
+  def issues
+    annotations.root_annotations
+  end
+
   def outstanding_issues
     annotations.where.not(state:'resolved')
   end
