@@ -5,7 +5,7 @@
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
-            <iframe id='pfd_preview' style="height:800px" src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
+            <iframe id='pfd_preview' src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
           </div>
         </template>
 
@@ -47,6 +47,7 @@
             ></core-ajax>
     <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
 
+    <link rel="stylesheet" href="../stylesheets/customized-components.css.scss" />
     <style>
       #preview{
         width: 50%;
@@ -54,16 +55,12 @@
       }
       #preview iframe{
         width:100%;
-        height: 100%;
+        height: 800px;
       }
       #details{
         width: 50%;
         box-sizing: border-box;
         padding: 0 20px
-      }
-      paper-button{
-        background: #3e50b4;
-        color: white;
       }
       #authors{
         list-style: none;

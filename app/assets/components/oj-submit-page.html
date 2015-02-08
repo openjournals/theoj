@@ -1,7 +1,7 @@
 
 <polymer-element name="oj-submit-page" attributes='paper_title paper_location router'>
   <template>
-    <section vertical layout center style="height:100%;min-height:400px" >
+    <section vertical layout center>
       <h1>Submit Paper</h1>
 
         <paper-shadow id=form flex center-justified vertical layout center z="1">
@@ -25,19 +25,18 @@
 
     </section>
 
-
+    <link rel="stylesheet" href="../stylesheets/customized-components.css.scss" />
     <style>
-
+      section {
+        height:100%;
+        min-height:400px;
+      }
       #form {
         min-width:70%;
         background-color:white;
       }
       paper-input {
         width: 90%;
-      }
-      paper-button {
-        background: #3e50b4;
-        color: white;
       }
       p.example {
         margin     : 0 0 0 10px;
@@ -54,11 +53,10 @@
     Polymer({
       submitted: false,
       paper: {},
-      paperURL:"inital",
+      paperURL:"initial",
 
       submit:function(){
-        this.router.go("/papers/"+this.paperId+"/preview")
-
+        this.router.go("/papers/"+this.paperId+"/preview");
       }
     })
   </script>
