@@ -9,8 +9,8 @@
         width: 100%;
         min-height: 400px;
         position:relative;
-        top:0px;
-        left:0px;
+        top:0;
+        left:0;
       }
       canvas{
         /*position:absolute;*/
@@ -48,15 +48,15 @@
       }
 
       #textLayer .highlight.begin {
-        border-radius: 4px 0px 0px 4px;
+        border-radius: 4px 0 0 4px;
       }
 
       #textLayer .highlight.end {
-        border-radius: 0px 4px 4px 0px;
+        border-radius: 0 4px 4px 0;
       }
 
       #textLayer .highlight.middle {
-        border-radius: 0px;
+        border-radius: 0;
       }
 
       #textLayer .highlight.selected {
@@ -86,37 +86,37 @@
         //   this.pageHeight = this.can.height;
         // }.bind(this));
 
-        this.style.marginTop = this.pageOffset
+        this.style.marginTop = this.pageOffset;
         this.page.then(function(pageContent){
           this.loaded = true;
           this.pageContent = pageContent;
           setTimeout(function(){
-            this.render()
+            this.render();
           }.bind(this), 600)
-        }.bind(this))
+        }.bind(this));
       },
 
       fire_click:function(e){
         this.fire("page-clicked",{xStart:e.offsetX, yStart: e.offsetY, page: this.pageContent.pageIndex})
       },
-      
+
       render: function(){
-        var canvas                    = this.shadowRoot.getElementById("can")
+        var canvas                    = this.shadowRoot.getElementById("can");
         this.context                  = canvas.getContext('2d');
 
-        this.viewport                 = this.pageContent.getViewport(this.scale)
-        this.textLayerDiv             = this.shadowRoot.getElementById("textLayer")
+        this.viewport                 = this.pageContent.getViewport(this.scale);
+        this.textLayerDiv             = this.shadowRoot.getElementById("textLayer");
 
-        this.textLayerDiv.width       = this.viewport.width
-        this.textLayerDiv.height      = this.viewport.height
-        canvas.width                  = this.viewport.width
-        canvas.height                 = this.viewport.height
+        this.textLayerDiv.width       = this.viewport.width;
+        this.textLayerDiv.height      = this.viewport.height;
+        canvas.width                  = this.viewport.width;
+        canvas.height                 = this.viewport.height;
 
         this.pageContent.getTextContent().then(function(textContent) {
           this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
-          this.textLayer.setTextContent(textContent)
+          this.textLayer.setTextContent(textContent);
 
-          this.pageContent.render({canvasContext: this.context, viewport: this.viewport,textLayer: this.textLayer})
+          this.pageContent.render({canvasContext: this.context, viewport: this.viewport,textLayer: this.textLayer});
         }.bind(this));
       }
 
