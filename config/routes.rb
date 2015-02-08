@@ -1,4 +1,7 @@
 Theoj::Application.routes.draw do
+
+  get '/papers/:paper_id/issues', to: "annotations#issues"
+
   resources :papers, defaults: { format: 'json' } do
     member do
       get :status, defaults: { format: 'html' }
