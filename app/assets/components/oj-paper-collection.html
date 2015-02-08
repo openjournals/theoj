@@ -17,7 +17,7 @@
 
     <style>
       paper-shadow{
-        width: 90%
+        width: 90%;
       }
       core-list{
         width: 100%
@@ -25,18 +25,18 @@
         min-height: 800px;
       }
       .item {
-        border-bottom: 1px grey solid ;
-        box-model: boder-box;
+        border-bottom: 1px grey solid;
+        box-sizing: border-box;
         padding: 20px
       }
-
     </style>
+
   </template>
 
   <script>
     Polymer({
       selectPaper: function(e){
-          window.location = '/#/review/'+ e.detail.data.sha
+          window.location = '/#/review/'+ e.detail.data.sha;
       }
     })
   </script>

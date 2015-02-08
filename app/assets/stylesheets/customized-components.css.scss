@@ -1,0 +1,22 @@
+@import 'variables';
+
+/* global styling for Polymer components - include in templates as required */
+
+/*todo This is a hack due to Firefox's lack of support for web components
+       and errrors when using the the shim-shadowdom attribute
+       This should really be included in the main css file as something like
+        body /deep/ {
+          paper-button {
+            background: #3e50b4;
+            color: white;
+          }
+        }
+*/
+
+paper-button {
+  background: #3e50b4;
+  color: white;
+}
+
+
+
