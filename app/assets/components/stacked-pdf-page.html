@@ -66,8 +66,8 @@
     </style>
 
     <template if="{{loaded}}">
-      <paper-shadow z="1">
-        <canvas on-click={{fire_click}} id='can'></canvas>
+      <paper-shadow on-click={{fire_click}} z="1">
+        <canvas id='can'></canvas>
         <div id='textLayer'></div>
       </paper-shadow>
     </template>
@@ -95,9 +95,11 @@
           }.bind(this), 600)
         }.bind(this));
       },
+
       fire_click:function(e){
-        this.fire("page-clicked",{x:e.offsetX, y: e.offsetY, page: this.pageContent.pageIndex});
+        this.fire("page-clicked",{xStart:e.offsetX, yStart: e.offsetY, page: this.pageContent.pageIndex})
       },
+
       render: function(){
         var canvas                    = this.shadowRoot.getElementById("can");
         this.context                  = canvas.getContext('2d');

@@ -1,4 +1,4 @@
-<polymer-element name="oj-new-annotation" attributes='location'>
+<polymer-element name="oj-new-annotation" attributes='location paper'>
 <template>
   <div layout vertical center-center>
     <textarea value="{{text}}" placeholder="Type something..."> </textarea>
@@ -8,6 +8,15 @@
       <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
     </div>
   </div>
+
+
+  <core-ajax id="saveRequest"
+            url="{{paper.sha | saveUrl}}"
+            method="POST"
+            contentType="application/json"
+            handleAs=json
+            on-core-response={{saved}}
+            on-core-error={{error}}></core-ajax>
 
   <style>
     :host{
@@ -43,11 +52,34 @@
 <script>
   Polymer({
     submit: function(){
-      this.fire("annotation-added", {location: this.location, text: this.text})
+      this.$.saveRequest.body = this.annotationData()
+      this.$.saveRequest.go()
+    },
+    dismiss:function(){
+      this.fire("new-annotation-box-dismissed",{})
+    },
+    saved:function(response){
+      this.fire("annotation-added", response.detail.response)
+      this.fire("notification", "Annotation saved.")
       this.dismiss()
     },
-    dismiss: function(){
-      this.fire("new-annotation-box-dismissed",{})
+    error:function(response){
+      this.fire("notification", "Could not save annotation.")
+    },
+    annotationData:function(){
+      var params = {
+        annotation:{
+          body: this.text,
+          page: this.location.page,
+          xStart: this.location.xStart,
+          yStart: this.location.yStart
+        }
+      }
+
+      return JSON.stringify(params)
+    },
+    saveUrl:function(paper_sha){
+      return '/papers/'+paper_sha+'/annotations'
     }
   })
 </script>

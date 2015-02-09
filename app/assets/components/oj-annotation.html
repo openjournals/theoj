@@ -1,13 +1,37 @@
-<polymer-element name='oj-annotation' attributes="annotation  color">
+<polymer-element name='oj-annotation' attributes="annotation color paper">
   <template>
     <div class='container' style=" background-color: {{color}}" >
       <div class='content'>
         <p>{{annotation.body}}</p>
       </div>
-      <div >
-        <core-icon icon='reply'></core-icon>
+
+      <div class='comments'>
+        <template repeat="{{response in annotation.responses}}">
+          <p>{{response.body}}</p>
+        </template>
+      </div>
+
+      <template if={{newCommentVisible}}>
+        <textarea value="{{text}}" placeholder="Type something..."> </textarea>
+        <div layout horizontal end-justified class='controls'>
+          <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
+          <paper-icon-button on-click={{dismissNewCommnet}} icon="close"></paper-icon-button>
+        </div>
+      </template>
+
+      <div>
+        <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
       </div>
     </div>
+
+
+    <core-ajax id="saveRequest"
+              url="{{paper.sha | saveUrl}}"
+              method="POST"
+              contentType="application/json"
+              handleAs=json
+              on-core-response={{saved}}
+              on-core-error={{error}}></core-ajax>
 
     <style>
       :host{
@@ -26,7 +50,40 @@
 
   <script>
     Polymer({
-      state: 'unsaved'
+      newCommentVisible: false,
+      dismissNewCommnet:function(){
+        this.newCommentVisible = false
+      },
+      showNewComment:function(){
+        this.newCommentVisible = true
+      },
+      submitComment:function(){
+        this.$.saveRequest.body = this.responseParams()
+        this.$.saveRequest.go()
+      },
+      saveUrl:function(paper_sha){
+        return '/papers/'+paper_sha+'/annotations'
+      },
+      saved:function(e){
+        this.fire("notification", "Reply saved")
+        console.log("responses ", this.annotation.responses)
+        this.annotation.responses.push(e.detail.response)
+        this.newCommentVisible = false
+      },
+      responseParams:function(){
+        var params = {
+          annotation:{
+            body: this.text,
+            page: this.annotation.page,
+            parent_id: this.annotation.id
+          }
+        }
+
+        return JSON.stringify(params)
+      },
+      error:function(){
+        this.fire("notification", "Error saving reply")
+      }
     })
   </script>
 </polymer-element>

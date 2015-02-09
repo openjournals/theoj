@@ -1,19 +1,19 @@
-<polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation">
+<polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation paper">
   <template>
     <div layout vertical flex>
       <template repeat="{{annotation in annotations}}">
-        <oj-annotation style="top:{{annotation | locationForAnnotation}}px"  top="{{annotation | locationForAnnotation}}" color="{{annotation | colorForAnnotation}}" annotation={{annotation}} ></oj-annotation>
+        <oj-annotation paper={{paper}} style="top:{{annotation | locationForAnnotation}}px"  top="{{annotation | locationForAnnotation}}" color="{{annotation | colorForAnnotation}}" annotation={{annotation}} ></oj-annotation>
       </template>
 
       <template if={{showNewAnnotation}}>
-        <oj-new-annotation location={{newAnnotationLocation}}> </oj-new-annotation>
+        <oj-new-annotation style="top:{{newAnnotationLocation | locationForAnnotation}}px" location={{newAnnotationLocation}} paper={{paper}}> </oj-new-annotation>
       </template>
     </div>
 
     <style>
       :host{
         position: relative;
-        box-sizing: border-box;
+        box-model: border-box;
         padding-top: 20px;
       }
     </style>
@@ -24,13 +24,15 @@
     Polymer({
       scale: 2,
       locationForAnnotation: function(annotation){
-        page_no = annotation.location.page;
-        y       = annotation.location.y;
-        return (y + (this.pageHeight + this.pageOffset)*page_no);
+        page_no = annotation.page
+        y       = annotation.yStart
+        console.log("Location for annotation is ",(y + (this.pageHeight + this.pageOffset)*page_no))
+        return (y + (this.pageHeight + this.pageOffset)*page_no)
       },
       colorForAnnotation: function(annotation){
-        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"};
-        return roles[annotation.user.role];
+        console.log("role is ", annotation.author.role, annotation)
+        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"}
+        return roles[annotation.author.role]
       }
     })
   </script>
