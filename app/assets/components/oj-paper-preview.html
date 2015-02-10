@@ -13,11 +13,17 @@
 
           <h2>Preview of {{paper_details.title}} </h2>
 
+          <template if="{{paper_details.authors | isArray}}">
           <ul id='authors'>
             <template repeat="{{author in paper_details.authors}}">
               <li>{{author.name}}</li>
             </template>
           </ul>
+          </template>
+
+          <template if="{{paper_details.authors | isNotArray}}">
+            <div id='authors'>{{paper_details.authors}}</div>
+          </template>
 
           <p id='summary'>{{paper_details.summary}}</p>
           <paper-button raised role='button'  on-tap={{submitForReview}}>Submit for review</paper-button>
@@ -64,6 +70,7 @@
       }
       #authors{
         list-style: none;
+        -webkit-padding-start: 40px;
       }
       #authors li{
         display: inline;
