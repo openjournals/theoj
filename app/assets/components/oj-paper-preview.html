@@ -1,7 +1,8 @@
 <polymer-element name='oj-paper-preview' attributes='user paper_id router'>
   <template>
 
-    <template if={{paper_details}}>
+    <template if="{{paper_details && !paper_details.source}}">
+
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
@@ -41,7 +42,7 @@
                method=POST
                contentType="application/json"
                handleAs=json
-               on-core-response={{response}} >
+               on-core-response={{onPostResponse}} >
     </core-ajax>
 
     <core-ajax id=detailsRequest
@@ -49,7 +50,8 @@
                url="{{paper_id | arxiv_lookup_url}}"
                handleAs=json
                response={{paper_details}}
-               on-core-error={{onError}}
+               on-core-response={{onDetailsResponse}}
+               on-core-error={{onDetailsError}}
             ></core-ajax>
     <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
 
@@ -82,7 +84,19 @@
 
   <script>
     Polymer({
-      onError: function(event) {
+      onDetailsResponse: function(event) {
+          console.log('paper', this.paper_details);
+          if (this.paper_details.source) {
+              event.preventDefault();
+              this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
+
+              if (this.paper_details.self_owned)
+                  this.router.go("/review/"+this.paper_details.sha);
+              else
+                  this.router.go("/submit");
+          }
+      },
+      onDetailsError: function(event) {
           var xhr = event.detail.xhr;
 
           if (xhr.status == 404)
@@ -110,10 +124,11 @@
         this.$.postRequest.body = this.params();
         this.$.postRequest.go()
       },
-      response:function(response){
+      onSubmitResponse:function(response){
         this.fire("notification", "Paper "+this.paper_details.title+" submitted");
         this.router.go("/papers")
       }
     })
   </script>
+
 </polymer-element>

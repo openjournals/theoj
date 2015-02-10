@@ -2,7 +2,7 @@
 
 class ArxivSerializer < ActiveModel::Serializer
 
-  attributes :arxiv_url, :title, :summary, :links, :authors
+  attributes :arxiv_url, :sha, :title, :summary, :links, :authors, :source, :self_owned
 
   def arxiv_url
     object.location.sub(/\.pdf$/,'')
@@ -19,6 +19,14 @@ class ArxivSerializer < ActiveModel::Serializer
 
   def authors
     object.author_list
+  end
+
+  def self_owned
+    scope && scope == object.user
+  end
+
+  def source
+    'theoj'
   end
 
 end
