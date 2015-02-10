@@ -17,7 +17,6 @@ class ApplicationController < ActionController::Base
   private
 
   def record_not_found
-    puts "--- record not found --------"
     render plain: "404 Not Found", status: 404
   end
 
