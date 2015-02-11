@@ -1,7 +1,7 @@
 <polymer-element name="oj-user-login" attributes='user userReady'>
   <template>
     <template if="{{user.name != undefined}}">
-      <a class='link' href='/auth/orcid'>{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
+      <a class='link' href='https://orcid.org/my-orcid' target='_blank' >{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
       <a class='link' href='/signout'>Sign Out</a>
     </template>
 
