@@ -2,7 +2,7 @@
   <template>
     <template if="{{user.name != undefined}}">
       <a class='link' href='https://orcid.org/my-orcid' target='_blank' >{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
-      <a class='link' href='/signout'>Sign Out</a>
+      <a class='link signout' href='/signout'>Sign Out</a>
     </template>
 
     <template if="{{user.name == undefined}}">
@@ -19,6 +19,14 @@
         font-weight: 100;
         text-decoration: none;
       }
+      a.signout {
+          background: #3849a3;
+          padding: 8px 12px;
+      }
+      a.signout:hover {
+          background: #4053ba;
+      }
+
     </style>
   </template>
 
