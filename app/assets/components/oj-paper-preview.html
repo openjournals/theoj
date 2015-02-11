@@ -6,7 +6,7 @@
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
-            <iframe id='pfd_preview' src="{{paper_details | preview_url}}"  frameborder="0"></iframe>
+            <iframe id='pfd_preview' src="{{preview_url()}}"  frameborder="0"></iframe>
           </div>
         </template>
 
@@ -42,8 +42,9 @@
                method=POST
                contentType="application/json"
                handleAs=json
-               on-core-response={{onPostResponse}} >
-    </core-ajax>
+               on-core-response={{onPostRepsonse}}
+               on-core-error={{onPostError}}
+    ></core-ajax>
 
     <core-ajax id=detailsRequest
                auto
@@ -52,7 +53,8 @@
                response={{paper_details}}
                on-core-response={{onDetailsResponse}}
                on-core-error={{onDetailsError}}
-            ></core-ajax>
+    ></core-ajax>
+
     <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
 
     <link rel="stylesheet" href="../stylesheets/customized-components.css.scss" />
@@ -84,8 +86,25 @@
 
   <script>
     Polymer({
+      pdf_url: function() {
+        var link = this.paper_details.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
+        if(link.indexOf(".pdf")==-1){
+            link+=".pdf"
+        }
+       return link;
+      },
+      preview_url: function(){
+        return "http://docs.google.com/gview?url=" + this.pdf_url() + "&embedded=true"
+      },
+      arxiv_lookup_url:function(paper_id){
+        return "/papers/"+paper_id+"/arXiv_details"
+      },
+      postParams:function(){
+        return JSON.stringify({
+             arxiv_id: this.paper_id
+        });
+      },
       onDetailsResponse: function(event) {
-          console.log('paper', this.paper_details);
           if (this.paper_details.source) {
               event.preventDefault();
               this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
@@ -100,34 +119,32 @@
           var xhr = event.detail.xhr;
 
           if (xhr.status == 404)
-            var message = 'The paper could not be found. Please try again.';
+              var message = 'The paper could not be found. Please try again.';
           else
-            var message = 'There was an error retrieving the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+              var message = 'There was an error retrieving the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
 
           this.fire("notification", message);
           this.router.go("/submit");
       },
-      preview_url:function(paper){
-        var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
-        if(link.indexOf(".pdf")==-1){
-          link+=".pdf"
-        }
-        return "http://docs.google.com/gview?url="+link+"&embedded=true"
-      },
-      arxiv_lookup_url:function(paper_id){
-        return "/papers/"+paper_id+"/arXiv_details"
-      },
-      params:function(){
-        return JSON.stringify({paper:{location: this.paper_details.links[1].url, arxiv_id : this.paper_id}})
-      },
       submitForReview:function(event){
-        this.$.postRequest.body = this.params();
-        this.$.postRequest.go()
+          this.$.postRequest.body = this.postParams();
+          this.$.postRequest.go()
       },
-      onSubmitResponse:function(response){
+      onPostRepsonse:function(response){
         this.fire("notification", "Paper "+this.paper_details.title+" submitted");
         this.router.go("/papers")
+      },
+      onPostError: function(event) {
+        var xhr = event.detail.xhr;
+
+        if (xhr.status == 409)
+            var message = 'The paper already exists in the database.';
+        else
+            var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+
+        this.fire("notification", message);
       }
+
     })
   </script>
 
