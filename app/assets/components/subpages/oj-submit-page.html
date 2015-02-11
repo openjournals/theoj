@@ -5,6 +5,7 @@
       <h1>Submit Paper</h1>
 
         <paper-shadow id=form flex center-justified vertical layout center z="1">
+          <core-a11y-keys keys="enter" on-keys-pressed="{{submit}}"></core-a11y-keys>
 
           <paper-input  label="arXiv paper" value="{{paperIdentifier}}"></paper-input>
           <paper-button  raised disabled?={{!paperValid}} on-tap={{submit}} role=button>Submit</paper-button>
@@ -56,7 +57,8 @@
       paperURL:"initial",
 
       submit:function(){
-        this.router.go("/papers/"+this.paperId+"/preview");
+        if (this.paperValid)
+            this.router.go("/papers/"+this.paperId+"/preview");
       }
     })
   </script>
