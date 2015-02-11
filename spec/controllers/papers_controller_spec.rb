@@ -101,19 +101,53 @@ describe PapersController do
       expect(response_json).to be_empty
     end
 
-    it "should succeed if the user is logged in" do
+    it "should attempt to fetch the response from the database" do
       authenticate
+      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( build(:paper) )
+      expect(Arxiv).not_to receive(:get)
+
+      get :arXiv_details, :id => '1234.5678', :format => :json
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq("application/json")
+      expect(response_json).to include("arxiv_url"   => "http://example.com/1234",
+                                       "authors"     => "John Smith, Paul Adams, Ella Fitzgerald",
+                                       "links"       => [{"url"=>"http://example.com/1234", "content_type"=>"application/pdf"}],
+                                       "sha"         => '1234abcd'*8,
+                                       "summary"     => "Summary of my awesome paper",
+                                       "title"       => "My awesome paper"
+                               )
+    end
+
+    it "should return a source field if the response is from the database" do
+      authenticate
+      paper = build(:paper)
+      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return(paper)
+
+      get :arXiv_details, :id => '1234.5678', :format => :json
+
+      expect(response_json).to include("source" => "theoj")
+    end
+
+    it "should fetch the paper from Arxiv if it is not in the database" do
+      authenticate
+      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
       expect(Arxiv).to receive(:get).with('1234.5678').and_return(arxiv_response)
 
       get :arXiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
+
       expect(response_json).to eq(arxiv_response)
+      expect(response_json).not_to include('source')
+      expect(response_json).not_to include('self_owned')
     end
 
-    it "should return a 404 if the paper is not found on Arxiv" do
+    it "should return a 404 if the paper is not found on Arxiv or the DB" do
       authenticate
+
+      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
       expect(Arxiv).to receive(:get).and_raise(Arxiv::Error::ManuscriptNotFound)
 
       get :arXiv_details, :id => '1234.5678', :format => :json
@@ -146,6 +180,70 @@ describe PapersController do
 
       assert etag1 != etag2
       assert response.body.include?('accepted.svg')
+    end
+
+  end
+
+  describe "POST #create" do
+
+    before do
+      @arxiv_request = stub_request(:get,  "http://export.arxiv.org/api/query?id_list=1401.0003").
+                                   to_return(body: fixture("arxiv.1401.0003.xml"))
+    end
+
+    it "should create the paper" do
+      authenticate
+
+      expect {
+        post :create, :format => :json, arxiv_id: '1401.0003'
+      }.to change{Paper.count}.by(1)
+
+      new = Paper.last
+      expect( new.arxiv_id ).to eq('1401.0003')
+    end
+
+    it "should retrieve the Arxiv data" do
+      authenticate
+
+      post :create, :format => :json, arxiv_id: '1401.0003'
+
+      expect(@arxiv_request).to have_been_made
+      new = Paper.last
+      expect( new.title    ).to start_with('Serendipitous')
+    end
+
+    it "should set the papers submitter" do
+      authenticate
+
+      post :create, :format => :json, arxiv_id: '1401.0003'
+
+      new = Paper.last
+      expect( new.user ).to eq(current_user)
+    end
+
+    it "should return a created status code" do
+      authenticate
+
+      post :create, :format => :json, arxiv_id: '1401.0003'
+
+      expect(response).to have_http_status(:created)
+    end
+
+    it "should return a created status code" do
+      authenticate
+
+      post :create, :format => :json, arxiv_id: '1401.0003'
+
+      expect(response_json).to include(
+                                   "location" => "http://arxiv.org/pdf/1401.0003v1.pdf",
+                                   "sha"       => Paper.last.sha
+                               )
+    end
+
+    it "should fail if the user is not authenticated" do
+      post :create, :format => :json, arxiv_id: '1401.0003'
+
+      expect(response).to have_http_status(:forbidden)
     end
 
   end

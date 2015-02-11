@@ -35,8 +35,7 @@ class PapersController < ApplicationController
   end
 
   def create
-    paper = Paper.new(paper_params)
-    paper.user = current_user
+    paper = Paper.new(arxiv_id:params[:arxiv_id], user:current_user)
     authorize! :create, paper
 
     if paper.save
@@ -124,4 +123,5 @@ class PapersController < ApplicationController
   def paper_params
     params.require(:paper).permit(:arxiv_id, :title, :location)
   end
+
 end
