@@ -14,11 +14,14 @@ class ApplicationController < ActionController::Base
 
   rescue_from  Arxiv::Error::ManuscriptNotFound, with: :record_not_found
 
+  rescue_from  ActiveRecord::RecordNotUnique do |exception|
+      render plain: "409 Conflict", status: :conflict
+  end
+
   private
 
   def record_not_found
-    puts "--- record not found --------"
-    render plain: "404 Not Found", status: 404
+    render plain: "404 Not Found", status: :not_found
   end
 
   def ability_with(user, paper=nil, annotation=nil)

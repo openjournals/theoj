@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="http://arxiv.org/api/query?search_query%3D%26id_list%3D1401.0003%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=&amp;id_list=1401.0003&amp;start=0&amp;max_results=10</title>
+  <id>http://arxiv.org/api/pu7mYyTupChNbirdO2ASXvzwj1M</id>
+  <updated>2015-02-10T00:00:00-05:00</updated>
+  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">1</opensearch:totalResults>
+  <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
+  <entry>
+    <id>http://arxiv.org/abs/1401.0003v1</id>
+    <updated>2013-12-30T21:00:01Z</updated>
+    <published>2013-12-30T21:00:01Z</published>
+    <title>Serendipitous ALMA detection of a distant CO-emitting galaxy with a
+      buried active galactic nucleus beyond the nearby merging galaxies VV114</title>
+    <summary> We report the detection of a distant star-forming galaxy, ALMA
+      J010748.3-173028, which is identified by a 13-sigma emission line at 99.75 GHz
+      (SdV = 3.1 Jy km/s), behind the nearby merging galaxies VV114 using the Atacama
+      Large Millimeter/submillimeter Array (ALMA) Band 3. We also find an 880-um
+      counterpart with ALMA Band 7 (S_880um = 11.2 mJy). A careful comparison of the
+      intensities of the line and the continuum suggests that the line is a
+      redshifted 12CO transition. A photometric redshift analysis using the infrared
+      to radio data favors a CO redshift of z = 2.467, although z = 3.622 is
+      acceptable. We also find a hard X-ray counterpart, suggesting the presence of a
+      luminous (L_X ~ 10^44 erg/s) active galactic nucleus obscured by a large
+      hydrogen column (N_H ~ 2 x 10^23 cm^-2 if z = 2.47). A cosmological simulation
+      shows that the chance detection rate of a CO-emitting galaxy at z &gt; 1 with \ge
+      1 Jy km/s is ~ 10^-3 per single ALMA field of view and 7.5-GHz bandwidth at
+      99.75 GHz. This demonstrates that ALMA has sufficient sensitivity to find an
+      emission-line galaxy such as ALMA J010748.3-173028 even by chance, although the
+      likelihood of stumbling across such a source is not high.
+    </summary>
+    <author>
+      <name>Yoichi Tamura</name>
+    </author>
+    <author>
+      <name>Toshiki Saito</name>
+    </author>
+    <author>
+      <name>Takeshi G. Tsuru</name>
+    </author>
+    <author>
+      <name>Hiroyuki Uchida</name>
+    </author>
+    <author>
+      <name>Daisuke Iono</name>
+    </author>
+    <author>
+      <name>Min S. Yun</name>
+    </author>
+    <author>
+      <name>Daniel Espada</name>
+    </author>
+    <author>
+      <name>Ryohei Kawabe</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">5 pages, 3 tables, 2 figures. Accepted for publication in ApJ Letters</arxiv:comment>
+    <link href="http://arxiv.org/abs/1401.0003v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1401.0003v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph.GA" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph.GA" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

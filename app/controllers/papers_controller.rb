@@ -22,12 +22,20 @@ class PapersController < ApplicationController
   end
 
   def arXiv_details
-    respond_with Arxiv.get(params["id"])
+    id = params[:id]
+    existing = Paper.find_by_arxiv_id(id)
+
+    if existing
+      respond_with existing, serializer:ArxivSerializer, current_user:current_user
+
+    else
+      data = Arxiv.get(id)
+      respond_with data
+    end
   end
 
   def create
-    paper = Paper.new(paper_params)
-    paper.user = current_user
+    paper = Paper.new(arxiv_id:params[:arxiv_id], user:current_user)
     authorize! :create, paper
 
     if paper.save
@@ -115,4 +123,5 @@ class PapersController < ApplicationController
   def paper_params
     params.require(:paper).permit(:arxiv_id, :title, :location)
   end
+
 end

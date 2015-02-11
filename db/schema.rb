@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150202233833) do
+ActiveRecord::Schema.define(version: 20150210150759) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -64,9 +64,9 @@ ActiveRecord::Schema.define(version: 20150202233833) do
     t.text     "author_list",  limit: 65535
   end
 
-  add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", using: :btree
+  add_index "papers", ["arxiv_id"], name: "index_papers_on_arxiv_id", unique: true, using: :btree
   add_index "papers", ["fao_id"], name: "index_papers_on_fao_id", using: :btree
-  add_index "papers", ["sha"], name: "index_papers_on_sha", using: :btree
+  add_index "papers", ["sha"], name: "index_papers_on_sha", unique: true, using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
   add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
   add_index "papers", ["user_id"], name: "index_paper_user_id", using: :btree

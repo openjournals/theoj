@@ -3,6 +3,9 @@ FactoryGirl.define do
     location       "http://example.com/1234"
     state          "pending"
     title          "My awesome paper"
+    summary        "Summary of my awesome paper"
+    sha            "1234abcd" * 8
+    author_list    "John Smith, Paul Adams, Ella Fitzgerald"
     user
 
     submitted_at   { Time.now }

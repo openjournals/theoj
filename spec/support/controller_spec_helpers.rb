@@ -1,5 +1,7 @@
 module ControllerSpecHelpers
 
+  attr_reader :current_user
+
   def authenticate(user=nil)
     if user.is_a?(Symbol)
       user = create(user)
@@ -7,7 +9,7 @@ module ControllerSpecHelpers
       user = create(:user)
     end
     allow(controller).to receive(:current_user).and_return(user)
-    user
+    @current_user = user
   end
 
   def response_json
