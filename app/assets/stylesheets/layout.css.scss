@@ -2,38 +2,3 @@
 
 // $navbarBackground: $light_blue;
 
-/* Flash notice styles */
-
-#flash {
-
-  position:    fixed;
-  width:       600px;
-  top:         10px;
-  left:        50%;
-  margin-left: -300px;
-  z-index:     100;
-
-  .alert {
-    padding:     8px;
-    color:       black;
-    font-weight: bold;
-    background:  #ffd6da;
-
-    &.alert-error, &.flash-alert {
-      background-color: #ffd6da;
-    }
-    &.alert-notice {
-      background-color: #ffffc8;
-    }
-    &.alert-success {
-      background-color: #e2fbdb;
-    }
-
-    a.close {
-      float:           right;
-      text-decoration: none;
-    }
-
-  }
-
-}
