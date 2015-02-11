@@ -1,4 +1,4 @@
-<polymer-element name="oj-app">
+<polymer-element name="oj-app" id="oj-app">
   <template>
     <core-scaffold id='scaffold'>
       <nav>
@@ -98,7 +98,7 @@
         this.showNotification(event.detail);
       },
       showNotification:function(text){
-        console.log('Notification: ', text)
+        console.log('Notification: ', text);
         this.$.notification.text = text;
         this.$.notification.show();
       }
