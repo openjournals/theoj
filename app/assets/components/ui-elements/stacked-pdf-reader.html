@@ -28,20 +28,25 @@
       pdfReady: false,
       noPages: null,
       loadProgress: 0,
+      loading: false,
       pageIndexArray: [],
       domReady:function(){
         this.getPDF()
       },
       getPDF:function(){
-        this.pdf      = null;
-        this.page     = 1;
-        this.pdfReady = false;
-        PDFJS.workerSrc = "/pdf.worker.js";
-        PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
-          this.pdf = PDF;
-          this.pdfReady = true;
-          this.setDimensions();
-        }.bind(this))
+        if(this.loading == false){
+          this.loading  = true;
+          this.pdf      = null;
+          this.page     = 1;
+          this.pdfReady = false;
+          PDFJS.workerSrc = "/pdf.worker.js";
+          PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
+            this.pdf = PDF;
+            this.pdfReady = true;
+            this.loading  = false;
+            this.setDimensions();
+          }.bind(this))
+        }
 
       },
       setDimensions: function(){
