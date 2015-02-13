@@ -22,16 +22,37 @@ paper-button {
 
 section.boiler-plate {
 
+  font-family: $default_font;
   padding: 10px 30px;
 
-  h1 + p { margin-top: 0}
+  h1 + p {
+    margin-top: 0;
+  }
 
-  .question { font-style: italic; }
+  .question {
+    font-style: italic;
+    padding-bottom: 20px;
+  }
 
   .answer {
     p:first-child { margin-top: 0; }
-  }
 
+    ul {
+      font-family: $default_font;
+
+      li {
+        font-size: 0.9em;
+        line-height: 1.3em;
+      }
+    }
+
+  }
 }
 
+/* menu */
 
+core-menu.main-menu {
+  core-item {
+    a { font-family: $default_font; }
+  }
+}

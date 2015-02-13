@@ -2,11 +2,11 @@
   <template>
     <core-scaffold id='scaffold'>
       <nav>
-        <core-toolbar >
-          <span>The Open Journal</span>
+        <core-toolbar>
+          <span class="title">The Open Journal</span>
         </core-toolbar>
 
-        <core-menu selected='0'>
+        <core-menu selected='0' class="main-menu">
 
           <core-item icon="home" label="Home" horizontal center layout>
             <a is='push' href="/#" target="_self"></a>
@@ -51,21 +51,31 @@
       :host /deep/ core-toolbar {
         background-color: #5C6BC0;
         color: #fff;
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
       }
+
+      .title {
+        font-size: 25px;
+      }
+
       :host /deep/ #mainContainer{
         background-color: white;
       }
+
       :host core-menu /deep/ #drawer{
         background-color: #7986CB;
       }
+
       #notification {
-          border-radius:0;
-          padding-right: 60px;
-          position: fixed;
-          outline: none;
-          z-index: 24;
-          box-sizing: border-box;
+        border-radius:0;
+        padding-right: 60px;
+        position: fixed;
+        outline: none;
+        z-index: 24;
+        box-sizing: border-box;
       }
+
+
     </style>
   </template>
 
