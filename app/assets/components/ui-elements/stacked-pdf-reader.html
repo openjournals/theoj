@@ -39,7 +39,7 @@
           this.pdf      = null;
           this.page     = 1;
           this.pdfReady = false;
-          PDFJS.workerSrc = "/pdf.worker.js";
+          PDFJS.workerSrc = "/pdfjs/build/pdf.worker.js";
           PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
             this.pdf = PDF;
             this.pdfReady = true;
@@ -52,7 +52,7 @@
       setDimensions: function(){
 
         this.getPage(0).then(function(page){
-          var viewport  = this.pageContent.getViewport(this.scale)
+          var viewport  = this.page.getViewport(this.scale)
           this.pageHeight = viewport.height;
           this.pageOffset = 20;
         })

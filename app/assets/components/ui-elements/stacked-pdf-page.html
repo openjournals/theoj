@@ -112,11 +112,15 @@
         canvas.width                  = this.viewport.width;
         canvas.height                 = this.viewport.height;
 
+
         this.pageContent.getTextContent().then(function(textContent) {
-          this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
+          this.textLayer = new TextLayerBuilder(
+            {textLayerDiv:this.textLayerDiv, pageIndex:this.pageIndex-1,
+              viewport:this.viewport});
           this.textLayer.setTextContent(textContent);
 
-          this.pageContent.render({canvasContext: this.context, viewport: this.viewport,textLayer: this.textLayer});
+          this.pageContent.render({canvasContext: this.context, viewport: this.viewport});
+
         }.bind(this));
       }
 
