@@ -18,5 +18,20 @@ paper-button {
   color: white;
 }
 
+/* boiler plate pages, home and about */
+
+section.boiler-plate {
+
+  padding: 10px 30px;
+
+  h1 + p { margin-top: 0}
+
+  .question { font-style: italic; }
+
+  .answer {
+    p:first-child { margin-top: 0; }
+  }
+
+}
 
 
