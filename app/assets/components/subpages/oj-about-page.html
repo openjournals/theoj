@@ -1,17 +1,59 @@
 <polymer-element name="oj-about-page">
   <template>
-    <section layout vertical >
-      <h1>What is this all about?</h1>
-      <p>Turducken frankfurter strip steak short ribs short loin, venison spare ribs ham hock beef ribs sirloin drumstick kielbasa jowl. Prosciutto pastrami capicola turducken jowl, flank salami. Doner pastrami capicola ham rump brisket. Fatback leberkas ham bacon frankfurter salami tri-tip.</p>
+      <section layout vertical class="boiler-plate">
+          <h1>About the Open Journal</h1>
 
-      <h1 class="headline">How do we differ from other journals</h1>
-      <p>Shankle doner corned beef, bresaola tri-tip capicola t-bone shoulder turkey jerky venison. Kielbasa corned beef pork chop flank short loin shoulder. Swine brisket bresaola, turkey ham pork loin beef ribs flank hamburger pig kielbasa turducken tongue. Sausage beef ribs ground round pork chop. Turkey shoulder capicola kielbasa boudin.</p>
+          <div class="question">What can I submit to the Open Journal?</div>
+          <div class="answer">
+              <p>
+                If your article is posted on the astro-ph section of the arXiv,
+                it's an appropriate submission for the Open Journal.
+              </p>
+          </div>
+
+
+          <div class="question">Who’s on your editorial board?</div>
+          <div class="answer">
+              <p style="font-family:monospace">
+                  &lt;linsert list here&gt;
+              </p>
+          </div>
+
+
+          <div class="question">What's the philosophy behind the Open Journal?</div>
+          <div class="answer">
+              <p>
+                  We don't need journals to disseminate our research anymore; in astrophysics and cosmology,
+                  we all post our research to the arXiv. We only need journals for peer review,
+                  and the prestige that comes along with that. But traditional journals still have all
+                  the trappings of publication, including an unnecessarily slow and expensive editorial process,
+                  along with a nasty habit of placing the articles they publish behind a paywall.
+              </p>
+              <p>
+                  The Open Journal does things differently, because we're not a publisher.
+                  Instead, we're a peer-review platform, piggybacking on the arXiv for all the "publishing."
+                  The Open Journal provides peer review for arXiv articles, making the process as fast and
+                  easy as we can. Once peer review for a particular article is successfully completed, we
+                  mark that article as accepted and send that information to the arXiv. Accepted articles
+                  receive a DOI and are listed in ADS, just like in any other journal — but in a fraction of the time,
+                  and at a fraction of the cost.
+              </p>
+          </div>
+
+          <div class="question">What’s “open” about the Open Journal? Is the peer review process itself open?</div>
+          <div class="answer">
+              <p>
+                  The articles are open, in that all articles accepted by the Open Journal are released under a
+                  Creative Commons Attribution license. The infrastructure is open too – the code running
+                  the Open Journal is available under an MIT license. The reviewer comments can be made open
+                  at the joint discretion of the authors and reviewers.
+              </p>
+          </div>
+
     </section>
 
+    <link rel="stylesheet" href="../../stylesheets/customized-components.css.scss" />
     <style>
-        section {
-            padding: 10px 30px;
-        }
     </style>
 
   </template>
