@@ -6,7 +6,7 @@
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
-            <iframe id='pfd_preview' src="{{preview_url()}}"  frameborder="0"></iframe>
+            <iframe id='pfd_preview' src="{{paper_details | google_preview_lookup}}"  frameborder="0"></iframe>
           </div>
         </template>
 
@@ -35,23 +35,20 @@
       <paper-spinner active></paper-spinner>
     </template>
 
-    <core-ajax id=postRequest
-               url='/papers/'
-               method=POST
-               contentType="application/json"
-               handleAs=json
-               on-core-response={{onPostRepsonse}}
-               on-core-error={{onPostError}}
-    ></core-ajax>
+    <json-post id=postRequest
+               data="{{ paper_id | postQueryParams }}"
+               url='/papers'
+               on-success={{onPostRepsonse}}
+               on-error={{onPostError}}>
+    </json-post>
 
-    <core-ajax id=detailsRequest
-               auto
+    <json-get  id=detailsRequest
+               auto=true
                url="{{paper_id | arxiv_lookup_url}}"
-               handleAs=json
-               response={{paper_details}}
-               on-core-response={{onDetailsResponse}}
-               on-core-error={{onDetailsError}}
-    ></core-ajax>
+               result={{paper_details}}
+               on-success={{onDetailsResponse}}
+               on-error={{onDetailsError}}
+    ></json-get>
 
     <core-media-query query="min-width: 930px" queryMatches="{{hidePDF}}"></core-media-query>
 
@@ -95,23 +92,9 @@
 
   <script>
     Polymer({
-      pdf_url: function() {
-        var link = this.paper_details.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
-        if(link.indexOf(".pdf")==-1){
-            link+=".pdf"
-        }
-       return link;
-      },
-      preview_url: function(){
-        return "http://docs.google.com/gview?url=" + this.pdf_url() + "&embedded=true"
-      },
-      arxiv_lookup_url:function(paper_id){
-        return "/papers/"+paper_id+"/arXiv_details"
-      },
-      postParams:function(){
-        return JSON.stringify({
-             arxiv_id: this.paper_id
-        });
+
+      postQueryParams:function(paper_id){
+        return {arxiv_id : paper_id}
       },
       onDetailsResponse: function(event) {
           if (this.paper_details.source) {
@@ -136,7 +119,6 @@
           this.router.go("/submit");
       },
       submitForReview:function(event){
-          this.$.postRequest.body = this.postParams();
           this.$.postRequest.go()
       },
       onPostRepsonse:function(response){

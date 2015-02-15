@@ -10,14 +10,10 @@
   </div>
 
 
-  <core-ajax id="saveRequest"
-            url="{{paper.sha | saveUrl}}"
-            method="POST"
-            contentType="application/json"
-            handleAs=json
-            on-core-response={{saved}}
-            on-core-error={{error}}></core-ajax>
-
+  <json-post id="saveRequest"
+            url="{{paper | paperAnnotationsPath}}"
+            on-success={{saved}}
+            on-error={{error}}></json-post>
   <style>
     :host{
       z-index:1;
@@ -52,7 +48,7 @@
 <script>
   Polymer({
     submit: function(){
-      this.$.saveRequest.body = this.annotationData()
+      this.$.saveRequest.data = this.annotationData()
       this.$.saveRequest.go()
     },
     dismiss:function(){
@@ -75,11 +71,7 @@
           yStart: this.location.yStart
         }
       }
-
-      return JSON.stringify(params)
-    },
-    saveUrl:function(paper_sha){
-      return '/papers/'+paper_sha+'/annotations'
+      return params
     }
   })
 </script>
