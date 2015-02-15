@@ -1,27 +1,40 @@
 <polymer-element name='oj-annotation' attributes="annotation color paper">
   <template>
     <div class='container' style=" background-color: {{color}}" >
-      <div class='content'>
-        <p>{{annotation.body}}</p>
-      </div>
 
-      <div class='comments'>
-        <template repeat="{{response in annotation.responses}}">
-          <p>{{response.body}}</p>
+      <div  on-tap="{{toggleCollapsed}}" class='content'>
+        <template if="{{collapsed}}">
+          <p layout horizontal>
+            <span> {{annotation.body | truncate}}</span>
+            <span flex></span>
+            <span>{{annotation.responses | count}} replies</span>
+          </p>
+        </template>
+        <template if="{{!collapsed}}">
+          <p>{{annotation.body}}</p>
         </template>
       </div>
 
-      <template if={{newCommentVisible}}>
-        <textarea value="{{text}}" placeholder="Type something..."> </textarea>
-        <div layout horizontal end-justified class='controls'>
-          <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
-          <paper-icon-button on-click={{dismissNewCommnet}} icon="close"></paper-icon-button>
+      <template if="{{!collapsed}}">
+
+        <div class='comments'>
+          <template repeat="{{response in annotation.responses}}">
+            <p>{{response.body}}</p>
+          </template>
+        </div>
+
+        <template if={{newCommentVisible}}>
+          <textarea value="{{text}}" placeholder="Type something..."> </textarea>
+          <div layout horizontal end-justified class='controls'>
+            <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
+            <paper-icon-button on-click={{dismissNewCommnet}} icon="close"></paper-icon-button>
+          </div>
+        </template>
+
+        <div>
+          <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
         </div>
       </template>
-
-      <div>
-        <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
-      </div>
     </div>
 
 
@@ -41,9 +54,13 @@
       }
       .content{
         box-sizing: border-box;
-        padding: 20px;
+        padding: 10px;
         width: 100%;
         height: 100%;
+      },
+      .container{
+        -webkit-transition: height 2s; /* For Safari 3.1 to 6.0 */
+        transition: height 2s;
       }
     </style>
   </template>
@@ -51,8 +68,12 @@
   <script>
     Polymer({
       newCommentVisible: false,
+      collapsed: true,
       dismissNewCommnet:function(){
         this.newCommentVisible = false
+      },
+      truncate:function(text){
+        return this.collapsed ? text.slice(0,50) + "..." : text
       },
       showNewComment:function(){
         this.newCommentVisible = true
@@ -63,6 +84,9 @@
       },
       saveUrl:function(paper_sha){
         return '/papers/'+paper_sha+'/annotations'
+      },
+      toggleCollapsed: function(){
+        this.collapsed = !this.collapsed
       },
       saved:function(e){
         this.fire("notification", "Reply saved")
