@@ -21,7 +21,7 @@
       auto: false,
       data: {},
       go:function(){
-        $.request.go()
+        this.$.request.go()
       },
       success:function(event,detail){
         this.fire("success",detail.response )
