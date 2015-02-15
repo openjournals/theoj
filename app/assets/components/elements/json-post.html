@@ -20,14 +20,13 @@
       auto: false,
       data: {},
       go:function(){
-        console.log("data is ", this.data)
         this.$.request.go()
       },
       success:function(event,detail){
-        this.fire("success", detail)
+        this.fire("success", detail.response)
       },
       error:function(event,detail){
-        this.fire("error", detail)
+        this.fire("error", detail.response)
       }
     })
   </script>
