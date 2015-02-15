@@ -13,7 +13,7 @@
       <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
     </core-toolbar>
 
-    <oj-editor-paper-controlls flex paper={{paper}}></oj-editor-paper-controlls>
+    <oj-editor-paper-controls flex paper={{paper}}></oj-editor-paper-controls>
 
 
     <section layout vertical>
@@ -38,13 +38,11 @@
         </div>
       </template>
 
-
       <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
 
       <template if="{{paper}}">
         <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></core-ajax>
       </template>
-
 
       <style>
         core-toolbar{
