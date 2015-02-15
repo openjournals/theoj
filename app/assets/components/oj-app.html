@@ -93,7 +93,6 @@
         if(this.userReady){
 
           path = event.detail.path;
-          console.log(path)
           this.$.mainMenu.selected = path.split("/")[1]
 
           if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
