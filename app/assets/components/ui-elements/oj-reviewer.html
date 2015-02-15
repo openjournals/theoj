@@ -1,22 +1,31 @@
-<polymer-element name='oj-reviewer' attributes='reviewer'>
+<polymer-element name='oj-reviewer' attributes='reviewer dismissable'>
 
   <template>
-    <p>{{reviewer.name}} <paper-icon-button  onClick={{remove}} icon='close'></paper-icon-button></p>
+    <div layout horizontal>
+      <p>{{reviewer.name}}  <template if={{dismissable}}> <a href='#' on-click={{remove}} >&times</a></template></p>
+    </div>
 
     <style>
-      :host{
-        display: inline;
-      }
-      p{
 
+      p{
+        background-color:#0f9d58;
+        color: white;
+        box-model: border-box;
+        padding: 5px 10px
+      }
+      a{
+        color:white;
+        text-decoration:none;
       }
     </style>
   </template>
 
   <script>
     Polymer({
-      remove: function(e){
-        this.fire("remove_reviewer", this.reviewer)
+      dismissable:true,
+      remove: function(event){
+        event.preventDefault()
+        this.fire("remove-reviewer", this.reviewer)
       }
     })
   </script>
