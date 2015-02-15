@@ -19,19 +19,20 @@
 
         <div class='comments'>
           <template repeat="{{response in annotation.responses}}">
-            <p>{{response.body}}</p>
+            <p class='comment'>{{response.body}}</p>
           </template>
         </div>
 
         <template if={{newCommentVisible}}>
-          <textarea value="{{text}}" placeholder="Type something..."> </textarea>
+          <textarea class='niceTextArea'  value="{{text}}" placeholder="Add a reply..."> </textarea>
           <div layout horizontal end-justified class='controls'>
             <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
             <paper-icon-button on-click={{dismissNewCommnet}} icon="close"></paper-icon-button>
           </div>
         </template>
 
-        <div>
+        <div layout horizontal>
+          <span flex></span>
           <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
         </div>
       </template>
@@ -52,16 +53,31 @@
         position:absolute;
         color: white;
       }
-      .content{
-        box-sizing: border-box;
+      .container{
         padding: 10px;
+        box-sizing: border-box;
+        -webkit-transition: height 3s; /* For Safari 3.1 to 6.0 */
+        transition: height 3s;
+      }
+      .content{
         width: 100%;
         height: 100%;
-      },
-      .container{
-        -webkit-transition: height 2s; /* For Safari 3.1 to 6.0 */
-        transition: height 2s;
       }
+      textarea{
+        width: 100%;
+        min-height: 50px;
+        padding: 8px;
+        border: 1px solid #cccccc;
+        line-height: 130%;
+        font-size: 13px;
+        box-sizing:border-box;
+      }
+      .comment{
+        background-color: #1976D2;
+        box-sizing:border-box;
+        padding: 10px 0px 10px 10px;
+      }
+
     </style>
   </template>
 
