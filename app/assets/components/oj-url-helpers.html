@@ -3,10 +3,20 @@
         return "/papers/"+paper_id
     };
     PolymerExpressions.prototype.addReviewerPath = function(paper) {
-        return "/papers/"+paper.sha+"/assign_reviwer"
+        if(paper){
+          return "/papers/"+paper.sha+"/assign_reviewer"
+        }
+        else{
+          return ""
+        }
     };
     PolymerExpressions.prototype.removeReviewerPath = function(paper) {
-        return "/papers/"+paper.sha+"/remove_reviwer"
+        if(paper){
+          return "/papers/"+paper.sha+"/remove_reviewer"
+        }
+        else{
+          return ""
+        }
     };
     PolymerExpressions.prototype.addIssuePath = function(paper) {
         return "/papers/"+paper.sha+"/annotations"
