@@ -3,20 +3,10 @@
         return "/papers/"+paper_id
     };
     PolymerExpressions.prototype.addReviewerPath = function(paper) {
-        if(paper){
-          return "/papers/"+paper.sha+"/assign_reviewer"
-        }
-        else{
-          return ""
-        }
+        return paper ? "/papers/"+paper.sha+"/assign_reviewer" :  ""
     };
     PolymerExpressions.prototype.removeReviewerPath = function(paper) {
-        if(paper){
-          return "/papers/"+paper.sha+"/remove_reviewer"
-        }
-        else{
-          return ""
-        }
+        return paper ? "/papers/"+paper.sha+"/remove_reviewer" :  ""
     };
     PolymerExpressions.prototype.addIssuePath = function(paper) {
         return "/papers/"+paper.sha+"/annotations"
@@ -36,5 +26,11 @@
     };
     PolymerExpressions.prototype.paperAnnotationsPath = function(paper){
       return "/papers/"+paper.sha+"/annotations"
+    };
+    PolymerExpressions.prototype.acceptPaperPath = function(paper){
+      return  paper ? "/papers/"+paper.sha+"/accept" :  ""
+    };
+    PolymerExpressions.prototype.acceptRejectPath = function(paper){
+      return paper ? "/papers/"+paper.sha+"/reject" : ""
     };
 </script>
