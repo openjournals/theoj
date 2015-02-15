@@ -1,0 +1,24 @@
+<polymer-element name='oj-reviewer' attributes='reviewer'>
+
+  <template>
+    <p>{{reviewer.name}} <icon-button onClick={{remove}} icon='remove'></icon-button></p>
+
+    <style>
+      :host{
+        display: inline;
+      }
+      p{
+        
+      }
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      remove: function(e){
+        this.fire("remove_reviewer", this.reviewer)
+      }
+    })
+  </script>
+
+</polymer-element>

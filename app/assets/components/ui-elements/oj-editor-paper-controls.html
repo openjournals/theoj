@@ -1,0 +1,55 @@
+<polymer-element name="oj-editor-paper-controls" attributes='paper'>
+  <template>
+
+    <section flex layout horizontal>
+
+      <div id='refList'>
+        <p>Reviewers: </p>
+        <template repeat="{{reviewer in paper.reviewers}}">
+          <oj-reviewer reviewer={{reviwer}} onRemoveReviewer={{removeReviwer}}></oj-reviewer> <paper-icon-button icon="accept"></paper-icon-button>
+        </template>
+        <oj-user-lookup on-add-reviewer="{{addReviewer}}"></oj-user-lookup>
+      </div>
+
+      <div id='controlls'>
+        <p>Status: {{paper.state}}
+          <paper-icon-button icon="accept"></paper-icon-button>
+          <paper-icon-button icon="reject"></paper-icon-button>
+        </p>
+      </div>
+
+      <template if="{{paper}}">
+        <json-post id='addReviewer'    url="{{paper | addReviewerPath}}">
+        <json-post id='removeReviewer' url="{{paper | removeReviewerPath}}">
+      </template>
+
+    </section>
+    <style>
+      :host{
+        border: 1px solid black;
+        box-model: border-box;
+        padding: 20px;
+        width : 100%;
+        display: block;
+      }
+      oj-user-lookup{
+        display: block;
+      }
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      removeReviwer:function(event,detail){
+        this.$.removeReviewer.data = {user_name: detail}
+        this.$.addReviewer.go()
+      },
+      addReviewer:function(event,detail){
+        console.log(this)
+        this.$.addReviewer.data ={user_name: detail}
+        this.$.addReviewer.go()
+      }
+    })
+  </script>
+</polymer-element>
