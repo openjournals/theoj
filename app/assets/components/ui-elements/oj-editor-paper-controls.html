@@ -18,10 +18,9 @@
         </p>
       </div>
 
-      <template if="{{paper}}">
-        <json-post id='addReviewer'    url="{{paper | addReviewerPath}}"> </json-post>
-        <json-post id='removeReviewer' url="{{paper | removeReviewerPath}}"></json-post>
-      </template>
+      <json-post id='addReviewer'    url="{{paper | addReviewerPath}}"> </json-post>
+      <json-post id='removeReviewer' url="{{paper | removeReviewerPath}}"></json-post>
+
 
     </section>
     <style>
@@ -46,8 +45,7 @@
         this.$.addReviewer.go()
       },
       addReviewer:function(event,detail){
-        console.log(this)
-        this.$.addReviewer.data ={user_name: detail}
+        this.$.addReviewer.data = {user_name: detail}
         this.$.addReviewer.go()
       }
     })
