@@ -1,0 +1,34 @@
+<polymer-element name="json-post" attributes='result url data auto'>
+
+  <template>
+    <core-ajax  id=request
+                auto={{auto}}
+                url={{url}}
+                handleAs="json"
+                contentType="application/json"
+                method="POST"
+                response={{result}}
+                body="{{data | json}}"
+                on-core-response={{success}}
+                on-core-error={{error}}
+                >
+    </core-ajax>
+  </template>
+
+  <script>
+    Polymer({
+      auto: false,
+      data: {},
+      go:function(){
+        console.log("data is ", this.data)
+        this.$.request.go()
+      },
+      success:function(event,detail){
+        this.fire("success", detail)
+      },
+      error:function(event,detail){
+        this.fire("error", detail)
+      }
+    })
+  </script>
+</polymer>

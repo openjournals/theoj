@@ -1,4 +1,4 @@
-<polymer-element name="oj-review-page" attributes='paper_id'  >
+<polymer-element name="oj-review-page" attributes='paper_id user'  >
   <template>
     <core-toolbar fixed layout >
 
@@ -35,17 +35,15 @@
         </div>
       </template>
 
+      <json-get  auto url="{{paper_id | getIssuesPath}}" result={{annotations}}></json-get>
+      <json-get  auto url="{{paper_id | paperPath}}"     result={{paper}}></json-get>
 
-
-      <core-ajax auto url={{'/papers/'+paper_id+'/issues'}} handleAs="json" response={{annotations}}></core-ajax>
-      <core-ajax auto url={{'/papers/'+paper_id}} handleAs="json" response={{paper}}></core-ajax>
-      <core-ajax auto url='/current_user' handleAs="json" response={{user}}></core-ajax>
       <style>
         core-toolbar{
           background-color: #7986CB;
         }
-
       </style>
+
     </section>
 
     <style>
