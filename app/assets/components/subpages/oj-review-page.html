@@ -1,4 +1,4 @@
-<polymer-element name="oj-review-page" attributes='paper_id user'  >
+<polymer-element name="oj-review-page" attributes='paper_id user'>
   <template>
     <core-toolbar fixed layout >
 
@@ -10,8 +10,11 @@
       </template>
       <span><core-icon icon='list'></core-icon></span>
 
-      <paper-progress  class='bottom fit' value="{{loadProgress}}"></paper-progress>
+      <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
     </core-toolbar>
+
+    <oj-editor-paper-controlls flex paper={{paper}}></oj-editor-paper-controlls>
+
 
     <section layout vertical>
 
@@ -35,15 +38,20 @@
         </div>
       </template>
 
-      <json-get  auto url="{{paper_id | getIssuesPath}}" result={{annotations}}></json-get>
-      <json-get  auto url="{{paper_id | paperPath}}"     result={{paper}}></json-get>
+
+      <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
+
+      <template if="{{paper}}">
+        <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></core-ajax>
+      </template>
+
 
       <style>
         core-toolbar{
           background-color: #7986CB;
         }
-      </style>
 
+      </style>
     </section>
 
     <style>

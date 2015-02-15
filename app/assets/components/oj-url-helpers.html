@@ -11,8 +11,8 @@
     PolymerExpressions.prototype.addIssuePath = function(paper) {
         return "/papers/"+paper.sha+"/annotations"
     };
-    PolymerExpressions.prototype.getIssuesPath = function(paper_id) {
-        return "/papers/"+paper_id+"/issues"
+    PolymerExpressions.prototype.getIssuesPath = function(paper) {
+        return "/papers/"+paper.sha+"/issues"
     };
     PolymerExpressions.prototype.arxiv_lookup_url = function(paper_id){
       return "/papers/"+paper_id+"/arXiv_details"
@@ -23,5 +23,8 @@
           link+=".pdf"
       }
       return "http://docs.google.com/gview?url=" + link + "&embedded=true"
+    };
+    PolymerExpressions.prototype.paperAnnotationsPath = function(paper){
+      return "/papers/"+paper.sha+"/annotations"
     };
 </script>
