@@ -10,7 +10,9 @@
     <json-get  id='lookUpSearch'
                url='/users/name_lookup'
                on-success={{response}}
-               ></core-ajax>
+               >
+    </json-get>
+
     <style>
 
 
@@ -21,7 +23,8 @@
     Polymer({
       suggestions:[],
       searchChanged:function(){
-        this.$.lookUpSearch.body = JSON.stringify({guess: this.search})
+        console.log("here", this.$.lookUpSearch)
+        this.$.lookUpSearch.data = {guess: this.search}
         this.$.lookUpSearch.go()
       },
       selectName:function(event, detail, sender){
