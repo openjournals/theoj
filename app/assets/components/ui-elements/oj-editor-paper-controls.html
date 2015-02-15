@@ -6,7 +6,7 @@
       <div id='refList'>
         <p>Reviewers: </p>
         <template repeat="{{reviewer in paper.reviewers}}">
-          <oj-reviewer reviewer={{reviwer}} onRemoveReviewer={{removeReviwer}}></oj-reviewer> <paper-icon-button icon="accept"></paper-icon-button>
+          <oj-reviewer reviewer={{reviewer}} onRemoveReviewer={{removeReviewer}}></oj-reviewer> <paper-icon-button icon="accept"></paper-icon-button>
         </template>
         <oj-user-lookup on-add-reviewer="{{addReviewer}}"></oj-user-lookup>
       </div>
@@ -19,8 +19,8 @@
       </div>
 
       <template if="{{paper}}">
-        <json-post id='addReviewer'    url="{{paper | addReviewerPath}}">
-        <json-post id='removeReviewer' url="{{paper | removeReviewerPath}}">
+        <json-post id='addReviewer'    url="{{paper | addReviewerPath}}"> </json-post>
+        <json-post id='removeReviewer' url="{{paper | removeReviewerPath}}"></json-post>
       </template>
 
     </section>
