@@ -6,22 +6,22 @@
           <span class="title">The Open Journal</span>
         </core-toolbar>
 
-        <core-menu selected='0' class="main-menu">
+        <core-menu id='mainMenu' selected='home' valueattr='id' class="main-menu">
 
-          <core-item icon="home" label="Home" horizontal center layout>
+          <core-item id='' icon="home" label="Home" horizontal center layout>
             <a is='push' href="/#" target="_self"></a>
           </core-item>
 
-          <core-item icon="info-outline" label="About" horizontal center layout>
+          <core-item id='about' icon="info-outline" label="About" horizontal center layout>
             <a href="/#/about" target="_self"></a>
           </core-item>
 
           <template if={{user}}>
-            <core-item icon="receipt" label="Your Papers" horizontal center layout>
+            <core-item id='papers' icon="receipt" label="Your Papers" horizontal center layout>
               <a href="/#/papers" target="_self"></a>
             </core-item>
 
-            <core-item icon="send" label="Submit" horizontal center layout>
+            <core-item id='submit' icon="send" label="Submit" horizontal center layout>
               <a href="/#/submit" target="_self"></a>
             </core-item>
           </template>
@@ -88,9 +88,12 @@
       validateOrRedirectUser:function(event){
         validLoggedOutRoutes = ["/","/about"];
 
+
+
         if(this.userReady){
 
           path = event.detail.path;
+          this.$.mainMenu.selected = path.split("/")[1]
 
           if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
             event.preventDefault();
