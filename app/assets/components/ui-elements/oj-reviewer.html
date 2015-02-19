@@ -1,0 +1,33 @@
+<polymer-element name='oj-reviewer' attributes='reviewer dismissable'>
+
+  <template>
+    <div layout horizontal>
+      <p>{{reviewer.name}}  <template if={{dismissable}}> <a href='#' on-click={{remove}} >&times</a></template></p>
+    </div>
+
+    <style>
+
+      p{
+        background-color:#0f9d58;
+        color: white;
+        box-model: border-box;
+        padding: 5px 10px
+      }
+      a{
+        color:white;
+        text-decoration:none;
+      }
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      dismissable:true,
+      remove: function(event){
+        event.preventDefault()
+        this.fire("remove-reviewer", this.reviewer)
+      }
+    })
+  </script>
+
+</polymer-element>

@@ -1,0 +1,110 @@
+<polymer-element name="oj-editor-paper-controls" attributes='paper'>
+  <template>
+
+    <div flex layout horizontal>
+      <div layout vertical>
+        <div layout horizontal>
+          <p>Reviewers: </p>
+          <template repeat="{{reviewer in paper.reviewers}}">
+            <oj-reviewer reviewer={{reviewer}} dismissable="{{paper.status=='pending'}}" on-remove-reviewer={{removeReviewer}}></oj-reviewer> <paper-icon-button icon="accept"></paper-icon-button>
+          </template>
+        </div>
+        <template if="{{paper.status=='pending'}}">
+          <oj-user-lookup placeholder="Add reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
+        </template>
+      </div>
+
+      <div flex></div>
+
+      <div id='status' layout vertical>
+        <p>Status:{{paper.state}}</p>
+        <template if="{{paper.status='pending'}}">
+          <div>
+            <paper-icon-button id='accept' on-tap="{{acceptClick}}" aria-label="accept" icon="thumb-up"></paper-icon-button>
+            <paper-icon-button id='reject' on-tap="{{rejectClick}}" aria-label="reject" icon="thumb-down"></paper-icon-button>
+          </div>
+        </template>
+      </div>
+
+
+      <json-post id='addReviewer'    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
+      <json-post id='removeReviewer' on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
+
+    </div>
+
+    <paper-action-dialog id='acceptDialog' backdrop autoCloseDisabled layered="false">
+      <p>Do you really want to accept this paper? This will close all open issues and mark the paper as accepted.</p>
+      <paper-button affirmative on-tap={{acceptPaper}} >Accept</paper-button>
+      <paper-button affirmative autofocus>Cancel</paper-button>
+    </paper-action-dialog>
+
+
+    <paper-action-dialog id='rejectDialog' backdrop autoCloseDisabled layered="false">
+      <p>Do you really want to reject this paper?</p>
+      <paper-button affirmative on-tap={{rejectPaper}}>Reject</paper-button>
+      <paper-button affirmative autofocus>Cancel</paper-button>
+    </paper-action-dialog>
+
+    <json-put id='paperAcceptPost' url="{{paper | acceptPaperPath}}" on-success="{{paperDone}}"></json-post>
+    <json-put id='paperRejectPost' url="{{paper | rejectPaperPath}}" on-success="{{paperDone}}"></json-post>
+
+
+
+    <style>
+      :host{
+        box-model: border-box;
+        padding: 10px 20px;
+        width : 100%;
+        display: block;
+        margin:0px
+      }
+      #status{
+        margin-right:60px
+      }
+      oj-reviewer{
+        margin-left: 10px
+      }
+      oj-user-lookup{
+        display: block;
+      }
+      #accept{
+        color: green;
+      }
+      #reject{
+        color: red;
+      }
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      removeReviewer:function(event,detail){
+        this.$.removeReviewer.data = {user_name: detail.name}
+        this.$.removeReviewer.go()
+      },
+      addReviewer:function(event,detail){
+        this.$.addReviewer.data = {user_name: detail}
+        this.$.addReviewer.go()
+      },
+      updateReviewers:function(event,detail){
+        this.paper.reviewers = detail.reviewers
+      },
+      acceptClick:function(){
+        this.$.acceptDialog.open()
+      },
+      rejectClick:function(){
+        this.$.rejectDialog.open()
+      },
+      acceptPaper:function(){
+        this.$.paperAcceptPost.go()
+      },
+      rejectPaper:function(){
+        this.$.paperRejectPost.go()
+      },
+      paperDone:function(){
+        this.fire("notification", "Thank your for your service")
+        this.router.go("/papers")
+      }
+    })
+  </script>
+</polymer-element>

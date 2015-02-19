@@ -1,0 +1,57 @@
+<polymer-element name='oj-user-lookup' attributes='placeholder'>
+  <template>
+    <input placeholder={{placeholder}} value={{search}}></input>
+    <ul class='suggestions'>
+      <template repeat="{{suggestion in suggestions}}">
+        <li on-tap="{{selectName}}" userid="{{suggestion.name}}">{{suggestion.name}}</li>
+      </template>
+    </ul>
+
+    <json-get  id='lookUpSearch'
+               url='/users/name_lookup'
+               on-success={{response}}
+               >
+    </json-get>
+
+    <style>
+      ul{
+        padding:0px;
+        margin:0px;
+      }
+
+      li{
+        box-model:border-box;
+        padding: 5px 10px;
+        background-color: grey;
+        color:white;
+        border-bottom: 1px solid black;
+        cursor: pointer;
+      }
+
+
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      suggestions:[],
+      searching: false,
+      searchChanged:function(){
+        if(this.searching==false && this.search!=""){
+          this.searching= true;
+          this.$.lookUpSearch.data = {guess: this.search}
+          this.$.lookUpSearch.go()
+        }
+      },
+      selectName:function(event, detail, sender){
+        this.fire("user-selected", sender.getAttribute("userid"))
+        this.search = ""
+        this.suggestions = []
+      },
+      response:function(event,detail){
+        this.searching= false;
+        this.suggestions=detail;
+      }
+    })
+  </script>
+</polymer-element>

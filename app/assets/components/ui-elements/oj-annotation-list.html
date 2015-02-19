@@ -26,11 +26,9 @@
       locationForAnnotation: function(annotation){
         page_no = annotation.page;
         y       = annotation.yStart;
-        console.log("Location for annotation is ",(y + (this.pageHeight + this.pageOffset)*page_no));
         return (y + (this.pageHeight + this.pageOffset)*page_no);
       },
       colorForAnnotation: function(annotation){
-        console.log("role is ", annotation.author.role, annotation);
         roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"};
         return roles[annotation.author.role];
       }
