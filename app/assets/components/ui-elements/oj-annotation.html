@@ -7,7 +7,7 @@
           <p layout horizontal>
             <span> {{annotation.body | truncate}}</span>
             <span flex></span>
-            <span>{{annotation.responses | count}} replies</span>
+            <span>{{annotation.responses.length}} replies</span>
           </p>
         </template>
         <template if="{{!collapsed}}">
