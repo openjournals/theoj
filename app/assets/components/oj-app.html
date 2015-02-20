@@ -6,7 +6,7 @@
           <span class="title">The Open Journal</span>
         </core-toolbar>
 
-        <core-menu id='mainMenu' selected='home' valueattr='id' class="main-menu">
+        <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
 
           <core-item id='' icon="home" label="Home" horizontal center layout>
             <a is='push' href="/#" target="_self"></a>
@@ -35,17 +35,19 @@
         <oj-user-login user={{user}} userReady={{userReady}}></oj-user-login>
       </core-toolbar>
 
-      <app-router id="router" on-state-change="{{validateOrRedirectUser}}" on-notification={{notify}}>
-        <app-route path='/' element='oj-home-page' bindRouter></app-route>
-        <app-route path="/review/:paper_id" element='oj-review-page' bindRouter></app-route>
-        <app-route path='/about'  element='oj-about-page'  bindRouter></app-route>
-        <app-route path='/submit' element='oj-submit-page' on-before-data-binding={{bindExtrAttributes}} bindRouter></app-route>
-        <app-route path='/papers' element='oj-papers-page' on-before-data-binding={{bindExtrAttributes}} bindRouter></app-route>
-        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview' on-before-data-binding={{bindExtraAttributes}} bindRouter></app-route>
+      <app-router id=router on-activate-route-start={{validateOrRedirectUser}}
+                            on-before-data-binding={{bindExtraAttributes}} bindRouter
+                            on-notification={{notify}}  >
+        <app-route path='/' element='oj-home-page' noAuth></app-route>
+        <app-route path='/about'  element='oj-about-page' noAuth></app-route>
+        <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
+        <app-route path='/submit' element='oj-submit-page'></app-route>
+        <app-route path='/papers' element='oj-papers-page'></app-route>
+        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
       </app-router>
     </core-scaffold>
 
-    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" text=""role="status" touch-action="none" tabindex="-1"></paper-toast>
+    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" text="" role="status" touch-action="none" tabindex="-1"></paper-toast>
 
     <style>
       :host /deep/ core-toolbar {
@@ -85,37 +87,51 @@
 
   <script>
     Polymer({
-      validateOrRedirectUser:function(event){
-        validLoggedOutRoutes = ["/","/about"];
 
+      validateOrRedirectUser: function(event) {
 
+        var path = event.detail.path;
+        this.configureMenuForPath(path);
 
-        if(this.userReady){
+        // Login not required
+        if (!this.loginRequired(event))
+            return;
 
-          path = event.detail.path;
-          this.$.mainMenu.selected = path.split("/")[1]
-
-          if(!this.user && validLoggedOutRoutes.indexOf(path) == -1){
+        // Waiting for current user
+        if (!this.userReady) {
             event.preventDefault();
-            this.showNotification("Please log in");
-            this.$.router.go('/');
-          }
+            setTimeout(function(){
+                this.$.router.go(path, {replace:true} );
+            }.bind(this), 20);
+            return false;
+        }
 
+        // User not logged in
+        if(!this.user){
+          event.preventDefault();
+          this.showNotification("Please log in");
+          this.$.router.go('/');
+          return false;
         }
-        else{
-          setTimeout(function(){
-            this.validateOrRedirectUser(event);
-          }.bind(this), 200)
-        }
+
+        // login successful
+        return true;
       },
-      bindExtraAttributes:function(event){
-        event.detail.model.user = this.user;
+      loginRequired: function(event) {
+          return ! event.detail.route.hasAttribute('noAuth');
       },
-      notify:function(event){
+      configureMenuForPath: function(path) {
+          var page = path.split("/")[1];
+          this.selectedMenuItem = page;
+      },
+      bindExtraAttributes: function(event) {
+          event.detail.model.user = this.user;
+      },
+      notify: function(event) {
         this.showNotification(event.detail);
       },
       showNotification:function(text){
-        console.log('Notification: ', text);
+        console.info('Notification: ', text);
         this.$.notification.text = text;
         this.$.notification.show();
       }
