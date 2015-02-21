@@ -1,7 +1,7 @@
 <polymer-element name="oj-new-annotation" attributes='location paper'>
 <template>
   <div layout vertical center-center>
-    <textarea value="{{text}}" placeholder="Type something..."> </textarea>
+    <textarea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
 
     <div layout horizontal end-justified class='controls'>
       <paper-icon-button on-click={{submit}}  icon="add"></paper-icon-button>
@@ -30,8 +30,11 @@
       resize: none;
       height: 100%;
       min-height:130px;
-      border:none;
       width: 100%;
+      padding: 8px;
+      border: 1px solid #cccccc;
+      line-height: 130%;
+      font-size: 13px;
     }
     paper-autogrow-textarea{
 
