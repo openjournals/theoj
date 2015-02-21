@@ -17,7 +17,7 @@
   <style>
     :host{
       z-index:1;
-      height:200px;
+      height:210px;
       background-color:#607D8B;
       padding: 20px;
       min-height:100px;
@@ -51,15 +51,15 @@
 <script>
   Polymer({
     submit: function(){
-      this.$.saveRequest.data = this.annotationData()
+      this.$.saveRequest.data = this.annotationData();
       this.$.saveRequest.go()
     },
     dismiss:function(){
       this.fire("new-annotation-box-dismissed",{})
     },
     saved:function(response){
-      this.fire("annotation-added", response.detail.response)
-      this.fire("notification", "Annotation saved.")
+      this.fire("annotation-added", response.detail.response);
+      this.fire("notification", "Annotation saved.");
       this.dismiss()
     },
     error:function(response){
@@ -73,7 +73,7 @@
           xStart: this.location.xStart,
           yStart: this.location.yStart
         }
-      }
+      };
       return params
     }
   })
