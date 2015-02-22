@@ -24,5 +24,15 @@ FactoryGirl.define do
     factory :accepted_paper do
       state "accepted"
     end
+
+    ignore do
+      reviewer nil
+    end
+    after(:create) do |paper, factory|
+      if factory.reviewer
+        create(:assignment_as_reviewer, user:factory.reviewer, paper:paper)
+      end
+    end
+
   end
 end
