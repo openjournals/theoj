@@ -32,14 +32,14 @@ describe Annotation do
   describe "State" do
 
     it "should initiallly be unresolved" do
-      annotation = build(:issue)
+      annotation = build(:issue, paper:build(:paper, :under_review) )
       annotation.unresolve!
       expect(annotation).to be_unresolved
     end
 
     context "an issue" do
 
-      let (:annotation) { build(:issue) }
+      let (:annotation) { build(:issue, paper:create(:paper, :under_review)) }
 
       it "should be possible to resolve the annotation" do
         expect(annotation.may_resolve?).to eq(true)
@@ -79,6 +79,68 @@ describe Annotation do
         expect {
           annotation.dispute!
         }.to raise_error(AASM::InvalidTransition)
+      end
+
+    end
+
+    context "if the paper is under review" do
+
+      it "should be possible to resolve the annotation" do
+        annotation = build(:issue, paper:create(:paper, :under_review))
+        expect(annotation.may_resolve?).to eq(true)
+        annotation.resolve!
+        expect(annotation).to be_resolved
+      end
+
+      it "should be possible to dispute the annotation" do
+        annotation = build(:issue, paper:create(:paper, :under_review))
+        expect(annotation.may_dispute?).to eq(true)
+        annotation.dispute!
+        expect(annotation).to be_disputed
+      end
+
+      it "should be possible to unresolve the annotation" do
+        annotation = build(:issue, :disputed, paper:create(:paper, :under_review))
+        expect(annotation.may_unresolve?).to eq(true)
+        annotation.unresolve!
+        expect(annotation).to be_unresolved
+      end
+
+    end
+
+    context "for any other paper state" do
+
+      Paper.aasm.states.each do |state|
+        next if state.name == :under_review
+
+        it "should not be possible to resolve the annotation when the paper is #{state.name}" do
+          annotation = build(:issue, paper:create(:paper, state:state.name))
+          expect(annotation.may_resolve?).to eq(false)
+          expect {
+            annotation.resolve!
+          }.to raise_error(AASM::InvalidTransition)
+          expect(annotation).not_to be_resolved
+        end
+
+        it "should not be possible to dispute the annotation when the paper is #{state.name}" do
+          annotation = build(:issue, paper:create(:paper, state:state.name))
+          expect(annotation.may_dispute?).to eq(false)
+          expect {
+            annotation.dispute!
+          }.to raise_error(AASM::InvalidTransition)
+          expect(annotation).not_to be_disputed
+        end
+
+        it "should not be possible to unresolve the annotation when the paper is #{state.name}" do
+          annotation = build(:issue, :disputed, paper:create(:paper, :under_review))
+          annotation.paper.state = state.name
+          expect(annotation.may_unresolve?).to eq(false)
+          expect {
+            annotation.unresolve!
+          }.to raise_error(AASM::InvalidTransition)
+          expect(annotation).not_to be_unresolved
+        end
+
       end
 
     end

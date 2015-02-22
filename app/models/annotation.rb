@@ -16,15 +16,15 @@ class Annotation < ActiveRecord::Base
     state :resolved
     state :disputed
 
-    event :unresolve, guard: :is_issue? do
+    event :unresolve, guard: :can_change_state? do
       transitions to: :unresolved
     end
 
-    event :resolve, guard: :is_issue? do
+    event :resolve, guard: :can_change_state? do
       transitions to: :resolved
     end
 
-    event :dispute, guard: :is_issue? do
+    event :dispute, guard: :can_change_state? do
       transitions to: :disputed
     end
 
@@ -36,6 +36,12 @@ class Annotation < ActiveRecord::Base
 
   def has_responses?
     responses.any?
+  end
+
+  private
+
+  def can_change_state?
+    is_issue? && paper && paper.under_review?
   end
 
 end

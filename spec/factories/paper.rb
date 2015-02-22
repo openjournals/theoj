@@ -13,16 +13,19 @@ FactoryGirl.define do
     created_at     { Time.now }
     updated_at     { Time.now }
 
+    trait :submitted do state 'submitted' end
     factory :submitted_paper do
-      state "submitted"
+      submitted
     end
 
+    trait :under_review do state 'under_review' end
     factory :paper_under_review do
-      state "under_review"
+      under_review
     end
 
+    trait :accepted do state 'accepted' end
     factory :accepted_paper do
-      state "accepted"
+      accepted
     end
 
     ignore do
