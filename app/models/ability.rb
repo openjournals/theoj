@@ -7,6 +7,7 @@ class Ability
     initialize_author(user, paper)
     initialize_collaborator(user, paper)
     initialize_reviewer(user, paper)
+    initialize_editor(user, paper)
     initialize_privileged(user)
   end
   
@@ -52,13 +53,34 @@ class Ability
   end
 
   def initialize_reviewer(user, paper)
-    if paper
-      can :create, Annotation if user.reviewer_of?(paper)
+    if paper && user.reviewer_of?(paper)
+      can :create, Annotation
 
       # If they are a reviewer of the paper
-      can :read, Paper if user.reviewer_of?(paper)
+      can :read, Paper
 
-      can :read, Annotation if user.reviewer_of?(paper)
+      can :read, Annotation
+
+      # State changes
+      can :unresolve, Annotation
+      can :dispute,   Annotation
+      can :resolve,   Annotation
+    end
+  end
+
+  def initialize_editor(user, paper)
+    if paper && user.editor_of?(paper)
+      can :create, Annotation
+
+      # If they are a reviewer of the paper
+      can :read, Paper
+
+      can :read, Annotation
+
+      # State changes
+      can :unresolve, Annotation
+      can :dispute,   Annotation
+      can :resolve,   Annotation
     end
   end
 
