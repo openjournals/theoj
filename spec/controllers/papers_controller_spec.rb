@@ -98,7 +98,7 @@ describe PapersController do
       get :arXiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:forbidden)
-      expect(response_json).to be_empty
+      expect(response_json).to eq(error_json(:forbidden))
     end
 
     it "should attempt to fetch the response from the database" do
@@ -300,8 +300,8 @@ describe PapersController do
 
       put :accept, :id => paper.sha, :format => :json
 
-      expect(response.status).to eq(403)
-      assert response_json.empty?
+      expect(response).to have_http_status(:forbidden)
+      expect(response_json).to eq(error_json(:forbidden))
     end
 
   end

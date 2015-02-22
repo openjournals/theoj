@@ -12,17 +12,11 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
-  rescue_from  Arxiv::Error::ManuscriptNotFound, with: :record_not_found
+  rescue_from  Arxiv::Error::ManuscriptNotFound do render_error(:not_found) end
 
-  rescue_from  ActiveRecord::RecordNotUnique do |exception|
-      render plain: "409 Conflict", status: :conflict
-  end
+  rescue_from  ActiveRecord::RecordNotUnique do render_error(:conflict) end
 
   private
-
-  def record_not_found
-    render plain: "404 Not Found", status: :not_found
-  end
 
   def ability_with(user, paper=nil, annotation=nil)
     Ability.new(user, paper, annotation)
@@ -34,15 +28,27 @@ class ApplicationController < ActionController::Base
   end
 
   def require_user
-    render :json => {}, :status => "403" unless current_user
+    render_error :forbidden unless current_user
   end
 
   def require_editor
-    render :json => {}, :status => "403" unless (current_user && current_user.editor?)
+    render_error :forbidden unless (current_user && current_user.editor?)
   end
 
   def current_user
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
   end
   helper_method :current_user
+
+  def render_error(status_code)
+    code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
+    message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
+
+    respond_to do |format|
+      format.html { render plain:message, status: status_code }
+      format.json { render json: {error:message}, status: status_code }
+    end
+
+  end
+
 end
