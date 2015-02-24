@@ -1,6 +1,6 @@
 <polymer-element name='oj-annotation' attributes="paper annotation">
   <template>
-    <div class='container {{annotation | classes}}' >
+    <div id=container class='container {{annotation | classes}}' >
 
       <div on-tap="{{toggleCollapsed}}" class='content'>
 
@@ -29,9 +29,11 @@
         </div>
 
         <template if={{newCommentVisible}}>
-          <textarea class='niceTextArea'  value="{{text}}" placeholder="Add a reply..."> </textarea>
+          <paper-autogrow-textarea rows=2>
+            <textarea id=replyTextArea class=niceTextArea value={{text}} placeholder="Add a reply..."> </textarea>
+          </paper-autogrow-textarea>
           <div layout horizontal end-justified class='controls'>
-            <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
+            <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
             <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
           </div>
         </template>
@@ -88,14 +90,17 @@
           top:      0;
           right:    6px;
       }
+      paper-autogrow-textarea {
+          box-sizing:border-box;
+          width: 100%;
+      }
       textarea{
+        box-sizing:border-box;
         width: 100%;
-        min-height: 50px;
         padding: 8px;
         border: 1px solid #cccccc;
         line-height: 130%;
         font-size: 13px;
-        box-sizing:border-box;
       }
       .comment {
         box-sizing:border-box;
@@ -139,22 +144,31 @@
         return 'state-' + annotation.state + ' role-'+annotation.author.role;
       },
       dismissNewComment:function(){
-        this.newCommentVisible = false
+        this.newCommentVisible = false;
       },
       showNewComment:function(){
-        this.newCommentVisible = true
+        this.newCommentVisible = true;
+        setTimeout(function(){
+            this.afterCommentVisible();
+        }.bind(this), 0);
+      },
+      afterCommentVisible: function() {
+          var edit = this.$.container.querySelector('#replyTextArea');
+          this.scrollIntoView();
+          this.focus();
       },
       submitComment:function(){
         this.$.newCommentRequest.body = this.responseParams();
         this.$.newCommentRequest.go()
       },
       toggleCollapsed: function(){
-        this.collapsed = !this.collapsed
+        this.collapsed = !this.collapsed;
       },
       saved:function(e){
         this.fire("notification", "Reply saved");
         this.annotation.responses.push(e.detail.response);
-        this.newCommentVisible = false
+        this.newCommentVisible = false;
+        this.text = '';
       },
       responseParams:function(){
         var params = {
