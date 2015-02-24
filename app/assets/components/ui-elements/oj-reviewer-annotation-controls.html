@@ -1,0 +1,60 @@
+<polymer-element name="oj-reviewer-annotation-controls" attributes='paper annotation'>
+  <template>
+
+      <div class =tools on-click={{changeState}}>
+          <paper-icon-button id=unresolve
+                             disabled?="{{annotation.state=='unresolved'}}"
+                             icon=thumb-down       title='Unresolved'></paper-icon-button>
+          <paper-icon-button id=resolve
+                             disabled?="{{annotation.state=='resolved'}}"
+                             icon=thumb-up         title='Resolved / Complete'></paper-icon-button>
+          <paper-icon-button id=dispute
+                             disabled?="{{annotation.state=='disputed'}}"
+                             icon=report-problem   title='In Dispute'></paper-icon-button>
+      </div>
+
+      <paper-action-dialog id=dialog backdrop layered="false">
+          <p>Do you really want to {{newState}} this annotation?</p>
+          <paper-button affirmative on-tap={{dialogAccepted}}>{{newState}}</paper-button>
+          <paper-button dismissive  autofocus>Cancel</paper-button>
+      </paper-action-dialog>
+
+      <link rel="stylesheet" href="../../stylesheets/customized-components.css.scss" />
+      <style>
+
+        :host{
+        }
+        paper-icon-button {
+          padding: 2px;
+        }
+        paper-icon-button::shadow #icon {
+          width: 16px;
+          height: 16px;
+        }
+
+      </style>
+
+
+      <json-put id='putStateChange' on-success={{putStateChangeSuccess}}></json-put>
+
+  </template>
+
+  <script>
+    Polymer({
+        changeState: function(event) {
+            event.preventDefault();
+            var target = event.path[0];
+            this.newState = target.id;
+            this.$.dialog.open();
+        },
+        dialogAccepted: function() {
+            this.$.putStateChange.url = PolymerExpressions.prototype.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState);
+            this.$.putStateChange.go();
+        },
+        putStateChangeSuccess: function(event, response) {
+            this.annotation = response;
+        }
+    })
+  </script>
+
+</polymer-element>

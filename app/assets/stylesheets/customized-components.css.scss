@@ -16,6 +16,11 @@
 paper-button {
   background: #3e50b4;
   color: white;
+
+  &[dismissive] {
+    background: grey;
+  }
+
 }
 
 /* boiler plate pages, home and about */

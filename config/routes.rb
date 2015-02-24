@@ -3,22 +3,32 @@ Theoj::Application.routes.draw do
   get '/papers/:paper_id/issues', to: "annotations#issues"
 
   resources :papers, defaults: { format: 'json' } do
-    member do
-      get :status, defaults: { format: 'html' }
-      put :accept, defaults: { format: 'json' }
-      get :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
-    end
-    resources :annotations, defaults: { format: 'json' }
+
     collection do
       get :as_reviewer, defaults: { format: 'json' }
       get :as_editor, defaults: { format: 'json' }
       get :as_author, defaults: { format: 'json' }
       get :as_collaborator, defaults: { format: 'json' }
     end
+
     member do
+      get  :status, defaults: { format: 'html' }
+      put  :accept, defaults: { format: 'json' }
+      get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
+
       post :assign_reviewer
       post :remove_reviewer
     end
+
+    resources :annotations, defaults: { format: 'json' } do
+      member do
+        # Change status
+        put :unresolve
+        put :dispute
+        put :resolve
+      end
+    end
+
   end
 
   get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}

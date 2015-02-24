@@ -26,7 +26,7 @@ describe Paper do
   describe "#resolve_all_issues" do
 
     it "should resolve any outstanding issues" do
-      paper = create(:paper)
+      paper = create(:paper, :under_review)
       3.times { create(:annotation, :paper => paper) }
 
       expect(paper.annotations.count).to eq(3)

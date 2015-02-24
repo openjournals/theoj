@@ -18,7 +18,7 @@
 
       <div id='status' layout vertical>
         <p>Status:{{paper.state}}</p>
-        <template if="{{paper.status='pending'}}">
+        <template if="{{paper.status=='pending'}}">
           <div>
             <paper-icon-button id='accept' on-tap="{{acceptClick}}" aria-label="accept" icon="thumb-up"></paper-icon-button>
             <paper-icon-button id='reject' on-tap="{{rejectClick}}" aria-label="reject" icon="thumb-down"></paper-icon-button>
@@ -32,31 +32,31 @@
 
     </div>
 
-    <paper-action-dialog id='acceptDialog' backdrop autoCloseDisabled layered="false">
+    <paper-action-dialog id='acceptDialog' backdrop layered="false">
       <p>Do you really want to accept this paper? This will close all open issues and mark the paper as accepted.</p>
       <paper-button affirmative on-tap={{acceptPaper}} >Accept</paper-button>
-      <paper-button affirmative autofocus>Cancel</paper-button>
+      <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
 
-    <paper-action-dialog id='rejectDialog' backdrop autoCloseDisabled layered="false">
+    <paper-action-dialog id='rejectDialog' backdrop layered="false">
       <p>Do you really want to reject this paper?</p>
       <paper-button affirmative on-tap={{rejectPaper}}>Reject</paper-button>
-      <paper-button affirmative autofocus>Cancel</paper-button>
+      <paper-button cdismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-    <json-put id='paperAcceptPost' url="{{paper | acceptPaperPath}}" on-success="{{paperDone}}"></json-post>
-    <json-put id='paperRejectPost' url="{{paper | rejectPaperPath}}" on-success="{{paperDone}}"></json-post>
+    <json-put id='paperAcceptPost' url="{{paper | acceptPaperPath}}" on-success="{{paperDone}}"></json-put>
+    <json-put id='paperRejectPost' url="{{paper | rejectPaperPath}}" on-success="{{paperDone}}"></json-put>
 
 
-
+    <link rel="stylesheet" href="../../stylesheets/customized-components.css.scss" />
     <style>
       :host{
-        box-model: border-box;
+        box-sizing: border-box;
         padding: 10px 20px;
         width : 100%;
         display: block;
-        margin:0px
+        margin:0;
       }
       #status{
         margin-right:60px
@@ -79,11 +79,11 @@
   <script>
     Polymer({
       removeReviewer:function(event,detail){
-        this.$.removeReviewer.data = {user_name: detail.name}
+        this.$.removeReviewer.data = {user_name: detail.name};
         this.$.removeReviewer.go()
       },
       addReviewer:function(event,detail){
-        this.$.addReviewer.data = {user_name: detail}
+        this.$.addReviewer.data = {user_name: detail};
         this.$.addReviewer.go()
       },
       updateReviewers:function(event,detail){
@@ -102,7 +102,7 @@
         this.$.paperRejectPost.go()
       },
       paperDone:function(){
-        this.fire("notification", "Thank your for your service")
+        this.fire("notification", "Thank your for your service");
         this.router.go("/papers")
       }
     })

@@ -39,11 +39,16 @@ class User < ActiveRecord::Base
   end
 
   def role_for(paper)
-   role ="editor"         if editor_of?(paper)
-   role ="reviewer"       if reviewer_of?(paper)
-   role ="author"         if author_of?(paper)
-   role ="collaborator"   if collaborator_on?(paper)
-   role 
+    case
+      when editor_of?(paper)
+        'editor'
+      when reviewer_of?(paper)
+        'reviewer'
+      when author_of?(paper)
+        'author'
+      when collaborator_on?(paper)
+        'collaborator'
+    end
   end
 
   def papers_as_editor
