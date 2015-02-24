@@ -36,10 +36,14 @@
           </div>
         </template>
 
-        <div layout horizontal>
-          <span flex></span>
-          <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
-        </div>
+
+        <template if={{!newCommentVisible}}>
+          <div layout horizontal>
+            <span flex></span>
+            <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
+          </div>
+        </template>
+
       </template>
     </div>
 
