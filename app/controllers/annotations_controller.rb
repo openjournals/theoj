@@ -54,7 +54,7 @@ class AnnotationsController < ApplicationController
     render :json => @annotation, serializer: IssuesSerializer
 
   rescue AASM::InvalidTransition
-    render :json => @annotation.errors, :status => :unprocessable_entity
+    render_error :unprocessable_entity
   end
 
   def annotation_params
