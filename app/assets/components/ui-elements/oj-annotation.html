@@ -1,17 +1,22 @@
-<polymer-element name='oj-annotation' attributes="annotation color paper">
+<polymer-element name='oj-annotation' attributes="paper annotation">
   <template>
-    <div class='container' style=" background-color: {{color}}" >
+    <div class='container {{annotation | classes}}' >
 
       <div on-tap="{{toggleCollapsed}}" class='content'>
+
+        <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+          <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
+        </template>
+
         <template if="{{collapsed}}">
-          <p layout horizontal>
+          <p layout horizontal class=collapsed>
             <span class=text>{{annotation.body}}</span>
             <span flex></span>
-            <span>{{annotation.responses.length}} replies</span>
+            <span class=count>{{annotation.responses.length}} replies</span>
           </p>
         </template>
         <template if="{{!collapsed}}">
-          <p>{{annotation.body}}</p>
+          <p><span class=text>{{annotation.body}}</span></p>
         </template>
       </div>
 
@@ -39,8 +44,8 @@
     </div>
 
 
-    <core-ajax id="saveRequest"
-              url="{{paper.sha | saveUrl}}"
+    <core-ajax id="newCommentRequest"
+              url="{{paper | addIssuePath}}"
               method="POST"
               contentType="application/json"
               handleAs=json
@@ -65,12 +70,19 @@
         cursor: pointer;
       }
       .content .text {
-        display: inline-block;
         font-weight: bold;
-        width: 300px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      }
+      .content .collapsed .text {
+          display: inline-block;
+          width: 300px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+      oj-reviewer-annotation-controls {
+          position: absolute;
+          top:      0;
+          right:    6px;
       }
       textarea{
         width: 100%;
@@ -81,10 +93,35 @@
         font-size: 13px;
         box-sizing:border-box;
       }
-      .comment{
-        background-color: #1976D2;
+      .comment {
         box-sizing:border-box;
         padding: 10px 0 10px 10px;
+      }
+
+      /* State Colors */
+      .container{
+          background-color: grey;
+      }
+      .comment {
+          background-color: #909090;
+      }
+      .container.state-unresolved {
+          background-color: #6b711c;
+      }
+      .state-unresolved .comment {
+          background-color: #767c1e;
+      }
+      .container.state-resolved {
+          background-color: #0D47A1;
+      }
+      .state-resolved .comment {
+          background-color: #1565b3;
+      }
+      .container.state-disputed {
+          background-color: #a42d25;
+      }
+      .state-disputed .comment {
+          background-color: #c3362b;
       }
 
     </style>
@@ -94,6 +131,9 @@
     Polymer({
       newCommentVisible: false,
       collapsed: true,
+      classes: function(annotation){
+        return 'state-' + annotation.state + ' role-'+annotation.author.role;
+      },
       dismissNewComment:function(){
         this.newCommentVisible = false
       },
@@ -101,11 +141,8 @@
         this.newCommentVisible = true
       },
       submitComment:function(){
-        this.$.saveRequest.body = this.responseParams();
-        this.$.saveRequest.go()
-      },
-      saveUrl:function(paper_sha){
-        return '/papers/'+paper_sha+'/annotations'
+        this.$.newCommentRequest.body = this.responseParams();
+        this.$.newCommentRequest.go()
       },
       toggleCollapsed: function(){
         this.collapsed = !this.collapsed

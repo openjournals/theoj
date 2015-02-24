@@ -27,6 +27,12 @@
     PolymerExpressions.prototype.paperAnnotationsPath = function(paper){
       return "/papers/"+paper.sha+"/annotations"
     };
+    PolymerExpressions.prototype.paperAnnotationPath = function(paper, annotation){
+        return "/papers/"+paper.sha+"/annotations/" + annotation.id;
+    };
+    PolymerExpressions.prototype.paperAnnotationStateChangePath = function(paper, annotation, state){
+        return "/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
+    };
     PolymerExpressions.prototype.acceptPaperPath = function(paper){
       return  paper ? "/papers/"+paper.sha+"/accept" :  ""
     };

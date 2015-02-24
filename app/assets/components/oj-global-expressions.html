@@ -1,11 +1,22 @@
 <script>
+
     PolymerExpressions.prototype.isArray = function(obj) {
         return Array.isArray(obj);
     };
+
     PolymerExpressions.prototype.isNotArray = function(obj) {
         return ! Array.isArray(obj);
     };
+
     PolymerExpressions.prototype.json = function(obj) {
         return JSON.stringify(obj);
     };
+
+    PolymerExpressions.prototype.log = function(value, args) {
+        args = Array.prototype.slice.call(arguments, 1);
+        args.splice(1, 0, value);
+        console.log.apply(console, args);
+        return value;
+    };
+
 </script>

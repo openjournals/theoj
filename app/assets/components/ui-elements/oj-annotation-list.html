@@ -2,11 +2,11 @@
   <template>
     <div layout vertical flex>
       <template repeat="{{annotation in annotations}}">
-        <oj-annotation paper={{paper}} style="top:{{annotation | locationForAnnotation}}px"  top="{{annotation | locationForAnnotation}}" color="{{annotation | colorForAnnotation}}" annotation={{annotation}} ></oj-annotation>
+        <oj-annotation paper={{paper}} style="top:{{annotation | topForAnnotation}}px"  top="{{annotation | topForAnnotation}}" annotation={{annotation}} ></oj-annotation>
       </template>
 
       <template if={{showNewAnnotation}}>
-        <oj-new-annotation style="top:{{newAnnotationLocation | locationForAnnotation}}px" location={{newAnnotationLocation}} paper={{paper}}> </oj-new-annotation>
+        <oj-new-annotation style="top:{{newAnnotationLocation | topForAnnotation}}px" location={{topForAnnotation}} paper={{paper}}> </oj-new-annotation>
       </template>
     </div>
 
@@ -23,14 +23,10 @@
   <script>
     Polymer({
       scale: 2,
-      locationForAnnotation: function(annotation){
+      topForAnnotation: function(annotation){
         page_no = annotation.page;
         y       = annotation.yStart;
-        return (y + (this.pageHeight + this.pageOffset)*page_no);
-      },
-      colorForAnnotation: function(annotation){
-        roles = {reviewer: "#F44336", author: "#0D47A1", contributor: "#C0CA33"};
-        return roles[annotation.author.role];
+        return (y + this.pageOffset + this.pageHeight*page_no);
       }
     })
   </script>
