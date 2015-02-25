@@ -16,7 +16,7 @@
           </p>
         </template>
         <template if="{{!collapsed}}">
-          <p><span class=text>{{annotation.body}}</span></p>
+          <p><markdown-content markdown="{{annotation.body}}"></markdown-content></p>
         </template>
       </div>
 
@@ -24,12 +24,12 @@
 
         <div class='comments'>
           <template repeat="{{response in annotation.responses}}">
-            <p class='comment'>{{response.body}}</p>
+            <markdown-content class='comment' markdown="{{response.body}}"></markdown-content>
           </template>
         </div>
 
         <template if={{newCommentVisible}}>
-          <textarea class='niceTextArea'  value="{{text}}" placeholder="Add a reply..."> </textarea>
+          <markdown-text-area placeholder="Add a reply" value="{{text}}"></markdown-text-area>
           <div layout horizontal end-justified class='controls'>
             <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
             <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
