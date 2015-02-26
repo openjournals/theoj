@@ -23,7 +23,6 @@ class AnnotationsController < ApplicationController
   end
 
   def update
-    # TODO should we be using the @paper object here?
     # There is no update code here!
     if @annotation.save
       render :json => @annotation, :status => :created, serializer: IssuesSerializer

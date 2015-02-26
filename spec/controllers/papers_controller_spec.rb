@@ -248,29 +248,29 @@ describe PapersController do
 
   end
 
-  describe "PUT #update" do
-
-    it "AS AUTHOR on pending paper should change title" do
-      user = authenticate
-      paper = create(:paper, :user => user)
-
-      put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
-
-      expect(response).to have_http_status(:success)
-      assert_equal response_json["title"], "Boo ya!"
-    end
-
-    it "AS AUTHOR responds on submitted paper should not change title" do
-      user = authenticate
-      paper = create(:submitted_paper, :user => user, :title => "Hello space")
-
-      put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
-
-      expect(response.status).to eq(403)
-      assert_equal "Hello space", paper.title
-    end
-
-  end
+  # describe "PUT #update" do
+  #
+  #   it "AS AUTHOR on pending paper should change title" do
+  #     user = authenticate
+  #     paper = create(:paper, :user => user)
+  #
+  #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
+  #
+  #     expect(response).to have_http_status(:success)
+  #     assert_equal response_json["title"], "Boo ya!"
+  #   end
+  #
+  #   it "AS AUTHOR responds on submitted paper should not change title" do
+  #     user = authenticate
+  #     paper = create(:submitted_paper, :user => user, :title => "Hello space")
+  #
+  #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
+  #
+  #     expect(response.status).to eq(403)
+  #     assert_equal "Hello space", paper.title
+  #   end
+  #
+  # end
 
   describe "PUT #accept" do
 

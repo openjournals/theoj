@@ -2,7 +2,7 @@ Theoj::Application.routes.draw do
 
   get '/papers/:paper_id/issues', to: "annotations#issues"
 
-  resources :papers, defaults: { format: 'json' } do
+  resources :papers, only:[:index, :show, :create], defaults: { format: 'json' } do
 
     collection do
       get :as_reviewer, defaults: { format: 'json' }
@@ -20,7 +20,7 @@ Theoj::Application.routes.draw do
       post :remove_reviewer
     end
 
-    resources :annotations, defaults: { format: 'json' } do
+    resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
       member do
         # Change status
         put :unresolve
