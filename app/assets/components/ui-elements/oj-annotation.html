@@ -1,26 +1,17 @@
 <polymer-element name='oj-annotation' attributes="paper annotation">
   <template>
-    <div id=container class='container {{annotation | classes}}' >
+    <div id=container class='container {{annotation | classes}} {{collapsed ? "collapsed" : "expanded"}}' >
 
-      <div on-tap="{{toggleCollapsed}}" class='content'>
+      <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+        <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
+      </template>
 
-        <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
-          <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-        </template>
-
-        <template if="{{collapsed}}">
-          <p layout horizontal class=collapsed>
-            <span class=text>{{annotation.body}}</span>
-            <span flex></span>
-            <span class=count>{{annotation.responses.length}} replies</span>
-          </p>
-        </template>
-        <template if="{{!collapsed}}">
-          <p><span class=text>{{annotation.body}}</span></p>
-        </template>
+      <div on-tap="{{toggleCollapsed}}" class=header>
+          <div class=issue>{{annotation.body}}</div>
+          <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
-      <template if="{{!collapsed}}">
+      <template if={{!collapsed}}>
 
         <div class='comments'>
           <template repeat="{{response in annotation.responses}}">
@@ -38,7 +29,6 @@
           </div>
         </template>
 
-
         <template if={{!newCommentVisible}}>
           <div layout horizontal>
             <span flex></span>
@@ -47,8 +37,8 @@
         </template>
 
       </template>
-    </div>
 
+    </div>
 
     <core-ajax id="newCommentRequest"
               url="{{paper | addIssuePath}}"
@@ -70,21 +60,32 @@
         -webkit-transition: height 3s; /* For Safari 3.1 to 6.0 */
         transition: height 3s;
       }
-      .content{
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
+      .header {
+        margin: 16px 0 12px 8px;
       }
-      .content .text {
-        font-weight: bold;
+      .issue {
+          font-weight: bold;
+          cursor: pointer;
       }
-      .content .collapsed .text {
-          display: inline-block;
-          width: 300px;
-          white-space: nowrap;
-          overflow: hidden;
+      .collapsed .issue {
+          width:         400px;
+          white-space:   nowrap;
+          overflow:      hidden;
           text-overflow: ellipsis;
       }
+      .count {
+          position: absolute;
+          top:      24px;
+          right:    12px;
+      }
+      .expanded .count {
+          display: none;
+      }
+      .comment {
+          box-sizing:border-box;
+          padding: 10px 0 10px 10px;
+      }
+
       oj-reviewer-annotation-controls {
           position: absolute;
           top:      0;
@@ -101,10 +102,6 @@
         border: 1px solid #cccccc;
         line-height: 130%;
         font-size: 13px;
-      }
-      .comment {
-        box-sizing:border-box;
-        padding: 10px 0 10px 10px;
       }
 
       /* State Colors */
@@ -148,14 +145,12 @@
       },
       showNewComment:function(){
         this.newCommentVisible = true;
-        setTimeout(function(){
-            this.afterCommentVisible();
-        }.bind(this), 0);
+        this.async( this.afterCommentVisible() );
       },
       afterCommentVisible: function() {
           var edit = this.$.container.querySelector('#replyTextArea');
-          this.scrollIntoView();
-          this.focus();
+          edit.scrollIntoView();
+          edit.focus();
       },
       submitComment:function(){
         this.$.newCommentRequest.body = this.responseParams();
