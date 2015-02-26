@@ -154,17 +154,21 @@
 
   <script>
     Polymer({
+      /* External API */
       newCommentVisible: false,
+      close:function(){
+        this.collapse();
+      },
+      /***********************/
       classes: function(annotation){
         return 'state-' + annotation.state + ' role-'+annotation.author.role;
       },
       collapse: function() {
-        console.log('collapse');
         this.$.collapsible.opened = false;
       },
       expand: function() {
-        console.log('expand');
         this.$.collapsible.opened = true;
+        this.fire('annotation-opened', this);
       },
       dismissNewComment:function(){
         this.newCommentVisible = false;

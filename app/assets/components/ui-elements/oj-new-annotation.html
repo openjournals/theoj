@@ -50,6 +50,11 @@
 
 <script>
   Polymer({
+    /* External API */
+    close:function(){
+        this.dismiss();
+    },
+    /***********************/
     submit: function(){
       this.$.saveRequest.data = this.annotationData();
       this.$.saveRequest.go()
@@ -75,7 +80,8 @@
         }
       };
     },
-    locationChanged: function() {
+    domReady: function() {
+        this.fire("annotation-opened", this);
         this.async( function() {
             var root = this.shadowRoot;
             root.querySelector('#container').scrollIntoView();
