@@ -1,10 +1,10 @@
 <polymer-element name="oj-new-annotation" attributes='location paper'>
 <template>
-  <div layout vertical center-center>
-    <textarea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
+  <div id=container layout vertical center-center>
+    <textarea id=commentTextArea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
 
     <div layout horizontal end-justified class='controls'>
-      <paper-icon-button on-click={{submit}}  icon="add"></paper-icon-button>
+      <paper-icon-button disabled?={{!text}} on-click={{submit}}  icon="add"></paper-icon-button>
       <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
     </div>
   </div>
@@ -66,7 +66,7 @@
       this.fire("notification", "Could not save annotation.")
     },
     annotationData:function(){
-      var params = {
+      return {
         annotation:{
           body: this.text,
           page: this.location.page,
@@ -74,8 +74,15 @@
           yStart: this.location.yStart
         }
       };
-      return params
+    },
+    locationChanged: function() {
+        this.async( function() {
+            var root = this.shadowRoot;
+            root.querySelector('#container').scrollIntoView();
+            root.querySelector('#commentTextArea').focus();
+        });
     }
+
   })
 </script>
 </polymer-element>
