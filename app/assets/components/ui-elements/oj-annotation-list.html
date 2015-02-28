@@ -4,14 +4,14 @@
         on-annotation-added={{onAddAnnotation}} >
       <template repeat="{{annotation in annotations}}">
         <oj-annotation paper={{paper}} annotation={{annotation}}
-                       style="top:{{annotation | topForAnnotation}}px"  top="{{annotation | topForAnnotation}}"
+                       style="top:{{annotation | topForAnnotation}}px"
                        on-annotation-opened={{annotationOpened}}
                 ></oj-annotation>
       </template>
 
       <template if={{showNewAnnotation}}>
         <oj-new-annotation style="top:{{newAnnotationLocation | topForAnnotation}}px"
-                           location={{topForAnnotation}}
+                           location={{newAnnotationLocation}}
                            paper={{paper}}
                            on-annotation-opened={{annotationOpened}}
                 > </oj-new-annotation>
