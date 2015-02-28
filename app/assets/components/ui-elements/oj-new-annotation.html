@@ -62,8 +62,8 @@
     dismiss:function(){
       this.fire("new-annotation-box-dismissed",{})
     },
-    saved:function(response){
-      this.fire("annotation-added", response.detail.response);
+    saved:function(event, response){
+      this.fire("annotation-added", response);
       this.fire("notification", "Annotation saved.");
       this.dismiss()
     },

@@ -1,6 +1,7 @@
 <polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation paper">
   <template>
-    <div layout vertical flex id="list">
+    <div layout vertical flex id="list"
+        on-annotation-added={{onAddAnnotation}} >
       <template repeat="{{annotation in annotations}}">
         <oj-annotation paper={{paper}} annotation={{annotation}}
                        style="top:{{annotation | topForAnnotation}}px"  top="{{annotation | topForAnnotation}}"
@@ -30,6 +31,12 @@
   <script>
     Polymer({
       scale: 2,
+      created: function() {
+         this.annotations = [];
+      },
+      onAddAnnotation:function(event, annotation){
+         this.annotations.push(annotation);
+      },
       topForAnnotation: function(annotation){
         page_no = annotation.page;
         y       = annotation.yStart;
