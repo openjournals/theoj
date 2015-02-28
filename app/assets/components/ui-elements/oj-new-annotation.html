@@ -84,7 +84,6 @@
         this.fire("annotation-opened", this);
         this.async( function() {
             var root = this.shadowRoot;
-            root.querySelector('#container').scrollIntoView();
             root.querySelector('#commentTextArea').focus();
         });
     }
