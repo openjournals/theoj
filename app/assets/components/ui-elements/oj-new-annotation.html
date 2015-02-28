@@ -1,12 +1,14 @@
 <polymer-element name="oj-new-annotation" attributes='location paper'>
 <template>
   <div id=container layout vertical center-center>
-    <textarea id=commentTextArea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
+     <paper-autogrow-textarea rows=4>
+       <textarea id=commentTextArea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
+     </paper-autogrow-textarea>
 
-    <div layout horizontal end-justified class='controls'>
-      <paper-icon-button disabled?={{!text}} on-click={{submit}}  icon="add"></paper-icon-button>
-      <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
-    </div>
+     <div layout horizontal end-justified class='controls'>
+       <paper-icon-button disabled?={{!text}} on-click={{submit}}  icon="add"></paper-icon-button>
+       <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
+     </div>
   </div>
 
 
@@ -18,10 +20,8 @@
   <style>
     :host{
       z-index:1;
-      height:210px;
       background-color:#607D8B;
-      padding: 20px;
-      min-height:100px;
+      padding: 20px 20px 0 20px;
       position:absolute;
       box-sizing:border-box;
       width:100%;
@@ -29,8 +29,6 @@
     }
     textarea{
       resize: none;
-      height: 100%;
-      min-height:130px;
       width: 100%;
       padding: 8px;
       border: 1px solid #cccccc;
@@ -38,7 +36,7 @@
       font-size: 13px;
     }
     paper-autogrow-textarea{
-
+      width: 100%;
     }
     .controls{
       width: 100%;
