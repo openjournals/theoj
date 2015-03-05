@@ -1,12 +1,20 @@
 <polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation paper">
   <template>
-    <div layout vertical flex>
+    <div layout vertical flex id="list"
+        on-annotation-added={{onAddAnnotation}} >
       <template repeat="{{annotation in annotations}}">
-        <oj-annotation paper={{paper}} style="top:{{annotation | topForAnnotation}}px"  top="{{annotation | topForAnnotation}}" annotation={{annotation}} ></oj-annotation>
+        <oj-annotation paper={{paper}} annotation={{annotation}}
+                       style="top:{{annotation | topForAnnotation}}px"
+                       on-annotation-opened={{annotationOpened}}
+                ></oj-annotation>
       </template>
 
       <template if={{showNewAnnotation}}>
-        <oj-new-annotation style="top:{{newAnnotationLocation | topForAnnotation}}px" location={{topForAnnotation}} paper={{paper}}> </oj-new-annotation>
+        <oj-new-annotation style="top:{{newAnnotationLocation | topForAnnotation}}px"
+                           location={{newAnnotationLocation}}
+                           paper={{paper}}
+                           on-annotation-opened={{annotationOpened}}
+                > </oj-new-annotation>
       </template>
     </div>
 
@@ -23,10 +31,27 @@
   <script>
     Polymer({
       scale: 2,
+      created: function() {
+         this.annotations = [];
+      },
+      onAddAnnotation:function(event, annotation){
+         this.annotations.push(annotation);
+      },
       topForAnnotation: function(annotation){
         page_no = annotation.page;
         y       = annotation.yStart;
         return (y + this.pageOffset + this.pageHeight*page_no);
+      },
+      annotationOpened: function(event, element) {
+          var annotations = this.$.list.querySelectorAll('oj-annotation');
+          [].forEach.call( annotations, function(annotation) {
+             if (annotation != element)
+                annotation.close();
+          });
+
+          var new_annotation = this.$.list.querySelector('oj-new-annotation');
+          if (new_annotation && new_annotation != element)
+              new_annotation.close();
       }
     })
   </script>

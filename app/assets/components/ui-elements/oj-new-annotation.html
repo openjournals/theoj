@@ -1,12 +1,14 @@
 <polymer-element name="oj-new-annotation" attributes='location paper'>
 <template>
-  <div layout vertical center-center>
-    <textarea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
+  <div id=container layout vertical center-center>
+     <paper-autogrow-textarea rows=4>
+       <textarea id=commentTextArea class='niceTextArea' value="{{text}}" placeholder="Add an issue..."> </textarea>
+     </paper-autogrow-textarea>
 
-    <div layout horizontal end-justified class='controls'>
-      <paper-icon-button on-click={{submit}}  icon="add"></paper-icon-button>
-      <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
-    </div>
+     <div layout horizontal end-justified class='controls'>
+       <paper-icon-button disabled?={{!text}} on-click={{submit}}  icon="add"></paper-icon-button>
+       <paper-icon-button on-click={{dismiss}} icon="close"></paper-icon-button>
+     </div>
   </div>
 
 
@@ -14,13 +16,12 @@
             url="{{paper | paperAnnotationsPath}}"
             on-success={{saved}}
             on-error={{error}}></json-post>
+
   <style>
     :host{
       z-index:1;
-      height:210px;
       background-color:#607D8B;
-      padding: 20px;
-      min-height:100px;
+      padding: 20px 20px 0 20px;
       position:absolute;
       box-sizing:border-box;
       width:100%;
@@ -28,8 +29,6 @@
     }
     textarea{
       resize: none;
-      height: 100%;
-      min-height:130px;
       width: 100%;
       padding: 8px;
       border: 1px solid #cccccc;
@@ -37,7 +36,7 @@
       font-size: 13px;
     }
     paper-autogrow-textarea{
-
+      width: 100%;
     }
     .controls{
       width: 100%;
@@ -50,6 +49,11 @@
 
 <script>
   Polymer({
+    /* External API */
+    close:function(){
+        this.dismiss();
+    },
+    /***********************/
     submit: function(){
       this.$.saveRequest.data = this.annotationData();
       this.$.saveRequest.go()
@@ -57,8 +61,8 @@
     dismiss:function(){
       this.fire("new-annotation-box-dismissed",{})
     },
-    saved:function(response){
-      this.fire("annotation-added", response.detail.response);
+    saved:function(event, response){
+      this.fire("annotation-added", response);
       this.fire("notification", "Annotation saved.");
       this.dismiss()
     },
@@ -66,7 +70,7 @@
       this.fire("notification", "Could not save annotation.")
     },
     annotationData:function(){
-      var params = {
+      return {
         annotation:{
           body: this.text,
           page: this.location.page,
@@ -74,8 +78,15 @@
           yStart: this.location.yStart
         }
       };
-      return params
+    },
+    domReady: function() {
+        this.fire("annotation-opened", this);
+        this.async( function() {
+            var root = this.shadowRoot;
+            root.querySelector('#commentTextArea').focus();
+        });
     }
+
   })
 </script>
 </polymer-element>

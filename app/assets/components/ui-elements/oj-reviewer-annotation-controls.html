@@ -52,7 +52,8 @@
             this.$.putStateChange.go();
         },
         putStateChangeSuccess: function(event, response) {
-            this.annotation = response;
+            $.extend( this.annotation, response);
+            this.fire("annotation-changed", response);
         }
     })
   </script>
