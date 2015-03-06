@@ -32,7 +32,7 @@
       markdown-content{
         width: 100%;
         height: 100%;
-        padding:0px
+        padding:0;
       }
       #content_wrapper{
         width:100%;
@@ -53,11 +53,11 @@
     Polymer({
       previewVisible:false,
       showPreview: function(event){
-        event.preventDefault()
+        event.preventDefault();
         this.previewVisible = true
       },
       hidePreview: function(event){
-        event.preventDefault()
+        event.preventDefault();
         this.previewVisible = false
       }
     })
