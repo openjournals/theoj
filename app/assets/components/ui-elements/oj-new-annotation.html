@@ -1,6 +1,8 @@
 <polymer-element name="oj-new-annotation" attributes='location paper text' >
 <template>
   <div layout vertical center-center>
+    <core-a11y-keys keys="esc" on-keys-pressed={{dismiss}}></core-a11y-keys>
+    <core-a11y-keys keys="shift+enter" on-keys-pressed={{submit}}></core-a11y-keys>
 
     <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
 
@@ -60,6 +62,8 @@
     },
     /***********************/
     submit: function(){
+      if (!this.text)
+        return;
       this.$.saveRequest.data = this.annotationData();
       this.$.saveRequest.go()
     },

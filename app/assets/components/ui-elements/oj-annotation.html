@@ -16,6 +16,7 @@
 
     <!-- Overlay this to get animated expansion to work nicely -->
     <core-collapse id=collapsible>
+      <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
 
       <div class='container {{annotation | classes}} expanded' >
 
@@ -34,6 +35,8 @@
           </div>
 
           <template if={{newCommentVisible}}>
+              <core-a11y-keys keys="esc" on-keys-pressed={{dismissNewComment}}></core-a11y-keys>
+              <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitComment}}></core-a11y-keys>
 
               <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
 
@@ -196,6 +199,9 @@
           edit.focus();
       },
       submitComment:function(){
+        if (!this.text)
+            return;
+
         this.$.newCommentRequest.body = this.responseParams();
         this.$.newCommentRequest.go()
       },
