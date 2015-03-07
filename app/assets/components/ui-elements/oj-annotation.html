@@ -7,8 +7,8 @@
         <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
       </template>
 
-      <div on-tap="{{expand}}" class=header>
-          <div class=issue></div>
+      <div on-tap="{{expand}}" class=header layout horizontal>
+          <div flex class=issue></div>
           <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
@@ -84,15 +84,12 @@
 
       .collapsed .issue {
           height: 1em;
-          width: 400px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
       }
       .count {
-          position: absolute;
-          top: 24px;
-          right: 12px;
+          margin-left: 12px;
       }
       .comment {
           box-sizing:border-box;
