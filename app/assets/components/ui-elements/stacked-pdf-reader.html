@@ -52,7 +52,7 @@
       setDimensions: function(){
 
         this.getPage(0).then(function(page){
-          var viewport  = this.pageContent.getViewport(this.scale)
+          var viewport  = page.getViewport(this.scale);
           this.pageHeight = viewport.height;
           this.pageOffset = 20;
         })
@@ -62,8 +62,8 @@
       },
       pdfReadyChanged: function(){
         if(this.pdfReady){
-          this.numPages       = this.pdf.numPages
-          this.pageIndexArray = new Array(this.pdf.numPages)
+          this.numPages       = this.pdf.numPages;
+          this.pageIndexArray = new Array(this.pdf.numPages);
 
           for(var i=0; i < this.pdf.numPages; i++ ){
             this.pageIndexArray[i] = i

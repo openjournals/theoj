@@ -1,0 +1,66 @@
+<polymer-element name="markdown-text-area" attributes='value placeholder'>
+
+  <template>
+    <div id='content_wrapper'>
+      <template if={{previewVisible}}>
+
+          <markdown-content markdown="{{value}}"></markdown-content>
+          <a href='#' on-click="{{hidePreview}}">Show content</a>
+
+      </template>
+
+
+      <template if={{!previewVisible}}>
+        <textarea class='niceTextArea' placeholder={{placeholder}} id="input" value="{{value}}"></textarea>
+        <a href='#' on-click="{{showPreview}}">Show preview</a>
+      </template>
+    </div>
+
+    <style>
+      textarea{
+        resize: none;
+        height: 100%;
+        min-height:130px;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #cccccc;
+        line-height: 130%;
+        font-size: 13px;
+        z-index:0;
+        position:relative;
+      }
+      markdown-content{
+        width: 100%;
+        height: 100%;
+        padding:0;
+        color: black;
+      }
+      #content_wrapper{
+        width:100%;
+        height: 100%;
+        background-color: white;
+      }
+      a {
+        color:black;
+        z-index:1;
+        float: right;
+        margin-top: -20px;
+        position:relative;
+      }
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      previewVisible:false,
+      showPreview: function(event){
+        event.preventDefault();
+        this.previewVisible = true
+      },
+      hidePreview: function(event){
+        event.preventDefault();
+        this.previewVisible = false
+      }
+    })
+  </script>
+</polymer>

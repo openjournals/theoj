@@ -29,14 +29,14 @@
 
           <div class='comments'>
               <template repeat="{{response in annotation.responses}}">
-                  <p class='comment'>{{response.body}}</p>
+                  <markdown-content markdown="{{response.body}}"></markdown-content>
               </template>
           </div>
 
           <template if={{newCommentVisible}}>
-              <paper-autogrow-textarea rows=2>
-                  <textarea id=replyTextArea class=niceTextArea value={{text}} placeholder="Add a reply..."> </textarea>
-              </paper-autogrow-textarea>
+
+              <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
+
               <div layout horizontal end-justified class='controls'>
                   <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
                   <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
@@ -54,48 +54,41 @@
 
     </core-collapse>
 
-    <core-ajax id="newCommentRequest"
-              url="{{paper | addIssuePath}}"
-              method="POST"
-              contentType="application/json"
-              handleAs=json
-              on-core-response={{saved}}
-              on-core-error={{error}}></core-ajax>
-
     <style>
       :host{
-        width: 100%;
-        position:absolute;
-        color: white;
+          width: 100%;
+            position:absolute;
       }
       .container {
-        padding: 10px;
-        box-sizing: border-box;
+          padding: 10px;
+          box-sizing: border-box;
+          color: white;
       }
       core-collapse {
           position: absolute;
-          top:      0;
-          left:     0;
-          right:    0;
-          z-index:  1;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1;
       }
       .header {
-        margin: 16px 0 12px 8px;
+          margin: 16px 0 12px 8px;
       }
       .issue {
           font-weight: bold;
           cursor: pointer;
       }
+
       .collapsed .issue {
-          width:         400px;
-          white-space:   nowrap;
-          overflow:      hidden;
+          width: 400px;
+          white-space: nowrap;
+          overflow: hidden;
           text-overflow: ellipsis;
       }
       .count {
           position: absolute;
-          top:      24px;
-          right:    12px;
+          top: 24px;
+          right: 12px;
       }
       .comment {
           box-sizing:border-box;
@@ -107,18 +100,11 @@
           top:      0;
           right:    6px;
       }
-      paper-autogrow-textarea {
-          box-sizing:border-box;
-          width: 100%;
-      }
-      textarea{
+      .comment {
         box-sizing:border-box;
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #cccccc;
-        line-height: 130%;
-        font-size: 13px;
+        padding: 10px 0 10px 10px;
       }
+
       .controls paper-icon-button {
           height: 14px;
       }
@@ -150,6 +136,15 @@
       }
 
     </style>
+
+    <core-ajax id="newCommentRequest"
+               url="{{paper | addIssuePath}}"
+               method="POST"
+               contentType="application/json"
+               handleAs=json
+               on-core-response={{saved}}
+               on-core-error={{error}}></core-ajax>
+
   </template>
 
   <script>
@@ -171,11 +166,10 @@
         this.fire('annotation-opened', this);
       },
       dismissNewComment:function(){
-        this.newCommentVisible = false;
+        this.newCommentVisible = false
       },
       showNewComment:function(){
-        this.newCommentVisible = true;
-        this.async( this.afterCommentVisible );
+        this.newCommentVisible = true
       },
       afterCommentVisible: function() {
           var edit = this.$.container.querySelector('#replyTextArea');

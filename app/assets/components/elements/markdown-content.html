@@ -1,0 +1,33 @@
+<polymer-element name="markdown-content" attributes='markdown'>
+
+  <template>
+    <div id='renderedContent'></div>
+
+    <style>
+      :host {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        display:inline;
+      }
+      p {
+        margin:0;
+        padding:0;
+
+      }
+    </style>
+  </template>
+
+  <script>
+    Polymer({
+      showPreview:false,
+      markdown: '',
+      markdownChanged:function(){
+        var parsed = marked(this.markdown);
+        console.log('parsed = ', parsed);
+        this.$.renderedContent.innerHTML =parsed;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$.renderedContent ]);
+      }
+    })
+  </script>
+</polymer>
