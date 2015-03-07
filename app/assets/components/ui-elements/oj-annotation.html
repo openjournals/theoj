@@ -7,8 +7,8 @@
         <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
       </template>
 
-      <div on-tap="{{expand}}" class=header>
-          <div class=issue>{{annotation.body}}</div>
+      <div on-tap="{{expand}}" class=header layout horizontal>
+          <div flex class=issue></div>
           <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
@@ -16,6 +16,7 @@
 
     <!-- Overlay this to get animated expansion to work nicely -->
     <core-collapse id=collapsible>
+      <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
 
       <div class='container {{annotation | classes}} expanded' >
 
@@ -24,7 +25,7 @@
           </template>
 
           <div on-tap="{{collapse}}" class=header>
-              <div class=issue>{{annotation.body}}</div>
+              <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
           </div>
 
           <div class='comments'>
@@ -34,8 +35,10 @@
           </div>
 
           <template if={{newCommentVisible}}>
+              <core-a11y-keys keys="esc" on-keys-pressed={{dismissNewComment}}></core-a11y-keys>
+              <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitComment}}></core-a11y-keys>
 
-              <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
+              <markdown-text-area id=replyTextArea placeholder="Add an issue" value="{{text}}"></markdown-text-area>
 
               <div layout horizontal end-justified class='controls'>
                   <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
@@ -80,19 +83,30 @@
       }
 
       .collapsed .issue {
-          width: 400px;
+          height: 1em;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
       }
       .count {
-          position: absolute;
-          top: 24px;
-          right: 12px;
+          margin-left: 12px;
       }
       .comment {
           box-sizing:border-box;
           padding: 10px 0 10px 10px;
+      }
+
+      markdown-text-area {
+          width: 100%;
+      }
+      markdown-text-area::shadow a.toggle {
+          bottom: -28px;
+          right:  88px;
+          color:  #eee;
+      }
+      markdown-text-area::shadow markdown-content::shadow  #renderedContent {
+          padding: 4px;
+          min-height: 40px
       }
 
       oj-reviewer-annotation-controls {
@@ -158,6 +172,12 @@
       classes: function(annotation){
         return 'state-' + annotation.state + ' role-'+annotation.author.role;
       },
+      annotationChanged: function(text) {
+         var issue_header = this.shadowRoot.querySelector('.header .issue');
+
+         if (issue_header && this.annotation)
+            issue_header.innerHTML = window.strip_markdown(this.annotation.body);
+      },
       collapse: function() {
         this.$.collapsible.opened = false;
       },
@@ -166,16 +186,19 @@
         this.fire('annotation-opened', this);
       },
       dismissNewComment:function(){
-        this.newCommentVisible = false
+        this.newCommentVisible = false;
       },
       showNewComment:function(){
-        this.newCommentVisible = true
-      },
-      afterCommentVisible: function() {
-          var edit = this.$.container.querySelector('#replyTextArea');
-          edit.focus();
+        this.newCommentVisible = true;
+        this.async( function() {
+            var edit = this.$.collapsible.querySelector('#replyTextArea');
+            edit.focus();
+        });
       },
       submitComment:function(){
+        if (!this.text)
+            return;
+
         this.$.newCommentRequest.body = this.responseParams();
         this.$.newCommentRequest.go()
       },
