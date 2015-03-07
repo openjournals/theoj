@@ -1,4 +1,4 @@
-<polymer-element name="oj-new-annotation" attributes='location paper'>
+<polymer-element name="oj-new-annotation" attributes='location paper text' >
 <template>
   <div layout vertical center-center>
 
@@ -14,9 +14,8 @@
 
     :host{
       z-index:1;
-      height:210px;
       background-color:#607D8B;
-      padding: 20px 20px 0 20px;
+      padding: 10px 10px 0 10px;
       position:absolute;
       box-sizing: border-box;
       width:100%;
@@ -25,7 +24,6 @@
 
     markdown-text-area{
       width: 100%;
-      height: 70%;
     }
 
     .controls{
@@ -37,7 +35,6 @@
     }
 
   </style>
-
 
   <json-post id="saveRequest"
              url="{{paper | paperAnnotationsPath}}"
@@ -63,7 +60,8 @@
     saved:function(event, response){
       this.fire("annotation-added", response);
       this.fire("notification", "Annotation saved.");
-      this.dismiss()
+      this.text = '';
+      this.dismiss();
     },
     error:function(response){
       this.fire("notification", "Could not save annotation.")
@@ -81,8 +79,9 @@
     domReady: function() {
         this.fire("annotation-opened", this);
         this.async( function() {
-            var root = this.shadowRoot;
-            root.querySelector('#commentTextArea').focus();
+            var textarea = this.shadowRoot.querySelector('#commentTextArea');
+            if (textarea)
+              textarea.focus();
         });
     }
 
