@@ -4,7 +4,7 @@
     <core-a11y-keys keys="esc" on-keys-pressed={{dismiss}}></core-a11y-keys>
     <core-a11y-keys keys="shift+enter" on-keys-pressed={{submit}}></core-a11y-keys>
 
-    <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
+    <markdown-text-area id=commentTextArea placeholder="Add an issue" value="{{text}}"></markdown-text-area>
 
     <div layout horizontal end-justified class='controls'>
        <paper-icon-button disabled?={{!text}} on-click={{submit}}  icon="add"></paper-icon-button>

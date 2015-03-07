@@ -73,6 +73,11 @@
         event.preventDefault();
         this.previewVisible = false;
         this.async(  function() { this.$.autogrow.update( this.$.input ); } );
+      },
+      focus: function() {
+          var textarea = this.shadowRoot.querySelector('#input');
+          if (textarea)
+              textarea.focus();
       }
     })
   </script>
