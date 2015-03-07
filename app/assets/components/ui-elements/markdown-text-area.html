@@ -5,14 +5,14 @@
 
       <template if={{previewVisible}}>
           <markdown-content markdown={{value}}></markdown-content>
-          <a href='#' on-click="{{hidePreview}}">Show content</a>
+          <a href='#' class=toggle on-click="{{hidePreview}}">Show content</a>
       </template>
 
       <div hidden?={{previewVisible}}>
         <paper-autogrow-textarea id=autogrow rows=3 maxRows=12>
           <textarea class='niceTextArea' placeholder={{placeholder}} id=input value={{value}}></textarea>
         </paper-autogrow-textarea>
-        <a href='#' on-click="{{showPreview}}">Show preview</a>
+        <a href='#' class=toggle on-click="{{showPreview}}">Show preview</a>
       </div>
 
     </div>
@@ -44,15 +44,16 @@
         margin:  0;
         padding: 0;
       }
-      a {
+      a.toggle {
         position:absolute;
-        top: 0;
+        bottom: 0;
         right: 0;
-        padding: 2px 3px;
-        color: white;
-        background-color: blue;;
+        color: blue;
         text-decoration: none;
         z-index:1;
+      }
+      a.toggle:hover {
+        text-decoration: underline;
       }
     </style>
 
