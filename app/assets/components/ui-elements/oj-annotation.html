@@ -1,102 +1,112 @@
 <polymer-element name='oj-annotation' attributes="paper annotation">
   <template>
-    <div class='container {{annotation | classes}}' >
 
-      <div on-tap="{{toggleCollapsed}}" class='content'>
+    <div class='container {{annotation | classes}} collapsed' >
 
-        <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
-          <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-        </template>
+      <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+        <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
+      </template>
 
-        <template if="{{collapsed}}">
-          <p layout horizontal class=collapsed>
-            <span class=text>{{annotation.body}}</span>
-            <span flex></span>
-            <span class=count>{{annotation.responses.length}} replies</span>
-          </p>
-        </template>
-        <template if="{{!collapsed}}">
-          <p><markdown-content markdown="{{annotation.body}}"></markdown-content></p>
-        </template>
+      <div on-tap="{{expand}}" class=header>
+          <div class=issue>{{annotation.body}}</div>
+          <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
-      <template if="{{!collapsed}}">
-
-        <div class='comments'>
-          <template repeat="{{response in annotation.responses}}">
-            <markdown-content class='comment' markdown="{{response.body}}"></markdown-content>
-          </template>
-        </div>
-
-        <template if={{newCommentVisible}}>
-          <markdown-text-area placeholder="Add a reply" value="{{text}}"></markdown-text-area>
-          <div layout horizontal end-justified class='controls'>
-            <paper-icon-button on-click={{submitComment}}  icon="add"></paper-icon-button>
-            <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
-          </div>
-        </template>
-
-        <div layout horizontal>
-          <span flex></span>
-          <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
-        </div>
-      </template>
     </div>
 
+    <!-- Overlay this to get animated expansion to work nicely -->
+    <core-collapse id=collapsible>
 
-    <core-ajax id="newCommentRequest"
-              url="{{paper | addIssuePath}}"
-              method="POST"
-              contentType="application/json"
-              handleAs=json
-              on-core-response={{saved}}
-              on-core-error={{error}}></core-ajax>
+      <div class='container {{annotation | classes}} expanded' >
+
+          <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+              <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
+          </template>
+
+          <div on-tap="{{collapse}}" class=header>
+              <div class=issue>{{annotation.body}}</div>
+          </div>
+
+          <div class='comments'>
+              <template repeat="{{response in annotation.responses}}">
+                  <markdown-content markdown="{{response.body}}"></markdown-content>
+              </template>
+          </div>
+
+          <template if={{newCommentVisible}}>
+
+              <markdown-text-area placeholder="Add an issue" value="{{text}}"></markdown-text-area>
+
+              <div layout horizontal end-justified class='controls'>
+                  <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
+                  <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
+              </div>
+          </template>
+
+          <template if={{!newCommentVisible}}>
+              <div layout horizontal>
+                  <span flex></span>
+                  <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
+              </div>
+          </template>
+
+      </div>
+
+    </core-collapse>
 
     <style>
       :host{
-        width: 100%;
-        position:absolute;
+          width: 100%;
+            position:absolute;
       }
-      .container{
-        padding: 10px;
-        box-sizing: border-box;
-        -webkit-transition: height 3s; /* For Safari 3.1 to 6.0 */
-        transition: height 3s;
+      .container {
+          padding: 10px;
+          box-sizing: border-box;
+          color: white;
       }
-      .content{
-        width:  100%;
-        height: 100%;
-        cursor: pointer;
-        color:  white;
+      core-collapse {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1;
       }
-      .content .text {
-        font-weight: bold;
+      .header {
+          margin: 16px 0 12px 8px;
       }
-      .content .collapsed .text {
-          display: inline-block;
-          width: 300px;
+      .issue {
+          font-weight: bold;
+          cursor: pointer;
+      }
+
+      .collapsed .issue {
+          width: 400px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
       }
+      .count {
+          position: absolute;
+          top: 24px;
+          right: 12px;
+      }
+      .comment {
+          box-sizing:border-box;
+          padding: 10px 0 10px 10px;
+      }
+
       oj-reviewer-annotation-controls {
           position: absolute;
           top:      0;
           right:    6px;
       }
-      textarea{
-        width: 100%;
-        min-height: 50px;
-        padding: 8px;
-        border: 1px solid #cccccc;
-        line-height: 130%;
-        font-size: 13px;
-        box-sizing:border-box;
-      }
       .comment {
         box-sizing:border-box;
         padding: 10px 0 10px 10px;
-        color: white;
+      }
+
+      .controls paper-icon-button {
+          height: 14px;
       }
 
       /* State Colors */
@@ -126,14 +136,34 @@
       }
 
     </style>
+
+    <core-ajax id="newCommentRequest"
+               url="{{paper | addIssuePath}}"
+               method="POST"
+               contentType="application/json"
+               handleAs=json
+               on-core-response={{saved}}
+               on-core-error={{error}}></core-ajax>
+
   </template>
 
   <script>
     Polymer({
+      /* External API */
       newCommentVisible: false,
-      collapsed: true,
+      close:function(){
+        this.collapse();
+      },
+      /***********************/
       classes: function(annotation){
         return 'state-' + annotation.state + ' role-'+annotation.author.role;
+      },
+      collapse: function() {
+        this.$.collapsible.opened = false;
+      },
+      expand: function() {
+        this.$.collapsible.opened = true;
+        this.fire('annotation-opened', this);
       },
       dismissNewComment:function(){
         this.newCommentVisible = false
@@ -141,17 +171,19 @@
       showNewComment:function(){
         this.newCommentVisible = true
       },
+      afterCommentVisible: function() {
+          var edit = this.$.container.querySelector('#replyTextArea');
+          edit.focus();
+      },
       submitComment:function(){
         this.$.newCommentRequest.body = this.responseParams();
         this.$.newCommentRequest.go()
       },
-      toggleCollapsed: function(){
-        this.collapsed = !this.collapsed
-      },
       saved:function(e){
         this.fire("notification", "Reply saved");
         this.annotation.responses.push(e.detail.response);
-        this.newCommentVisible = false
+        this.newCommentVisible = false;
+        this.text = '';
       },
       responseParams:function(){
         var params = {

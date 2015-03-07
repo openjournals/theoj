@@ -1,12 +1,12 @@
-<polymer-element name="oj-review-page" attributes='paper_id user'>
+<polymer-element name="oj-review-page" attributes='paper_id user attributes'>
   <template>
     <core-toolbar fixed layout >
 
       <p class='title'>{{paper.title}}</p>
       <div flex></div>
       <template if={{annotations}}>
-        <span> <core-icon id='closedIcon' icon='check'></core-icon> {{annotations | countClosed }} Closed Issues</span>
-        <span> <core-icon id='openIcon'   icon='error'></core-icon> {{annotations | countOpen }} Open Issues</span>
+        <span> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
+        <span> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
       </template>
       <span><core-icon icon='list'></core-icon></span>
 
@@ -32,7 +32,7 @@
             showNewAnnotation={{newAnnotationVisible}}
             newAnnotationLocation={{newAnnotationLocation}}
             on-new-annotation-box-dismissed={{hideAnnotationBox}}
-            on-annotation-added={{onAddAnnotation}}
+            on-annotation-changed={{onChangeAnnotation}}
             paper={{paper}}
             >
           </oj-annotation-list>
@@ -63,21 +63,22 @@
   <script>
     Polymer({
       newAnnotationVisible: false,
-      annotations: [],
 
-      countOpen:function(annotations){
-        return annotations.filter(function(annotation){return annotation.state=='new'}).length
+      created: function() {
+        this.annotations = [];
       },
 
-      countClosed:function(annotations){
-        return annotations.filter(function(annotation){return annotation.state=='closed'}).length
+      onChangeAnnotation:function(event, annotation) {
+        this.updateCounts();
       },
-
-      onAddAnnotation:function(e){
-        this.addAnnotation(e.detail)
+      annotationsChanged: function(){
+        this.updateCounts();
       },
-      addAnnotation:function(annotation){
-        this.annotations.push(annotation)
+      updateCounts: function() {
+          if (!this.annotations)
+            return;
+          this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
+          this.countOpen   = this.annotations.length - this.countClosed;
       },
       hideAnnotationBox: function(){
         this.newAnnotationVisible= false;
