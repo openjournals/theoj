@@ -8,7 +8,7 @@
       </template>
 
       <div on-tap="{{expand}}" class=header>
-          <div class=issue>{{annotation.body}}</div>
+          <div class=issue></div>
           <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
@@ -24,7 +24,7 @@
           </template>
 
           <div on-tap="{{collapse}}" class=header>
-              <div class=issue>{{annotation.body}}</div>
+              <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
           </div>
 
           <div class='comments'>
@@ -80,6 +80,7 @@
       }
 
       .collapsed .issue {
+          height: 1em;
           width: 400px;
           white-space: nowrap;
           overflow: hidden;
@@ -157,6 +158,12 @@
       /***********************/
       classes: function(annotation){
         return 'state-' + annotation.state + ' role-'+annotation.author.role;
+      },
+      annotationChanged: function(text) {
+         var issue_header = this.shadowRoot.querySelector('.header .issue');
+
+         if (issue_header && this.annotation)
+            issue_header.innerHTML = window.strip_markdown(this.annotation.body);
       },
       collapse: function() {
         this.$.collapsible.opened = false;

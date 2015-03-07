@@ -1,7 +1,6 @@
 #= require jquery
 #= require marked.min
-
-#= require_self
+#= require markdown_stripper
 
 $ ->
 
