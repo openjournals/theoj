@@ -43,7 +43,7 @@
                             paper={{paper}}
                             annotations={{annotations}}
                             pageHeight={{1584}}
-                            pageOffset={{60}}
+                            pageOffset={{68}}
                             scale={{scale}}
                             on-annotation-changed={{onChangeAnnotation}}
                 ></oj-annotation-list>
@@ -56,14 +56,16 @@
           background-color: #7986CB;
       }
       #pdf-pane {
+          box-sizing: border-box;
           width: 60%;
+          margin-right: 4px;
       }
       #add-document-issue {
-          margin-right: 10px;
+          margin-right: 6px;
       }
       #add-document-issue paper-button {
-          width: 100%;
           box-sizing: border-box;
+          width: 100%;
       }
     </style>
 
