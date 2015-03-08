@@ -1,7 +1,7 @@
-<polymer-element name='oj-annotation-list' attributes="annotations scale pageHeight pageOffset showNewAnnotation newAnnotationLocation paper">
+<polymer-element name='oj-annotation-list' attributes="paper annotations scale pageHeight pageOffset">
   <template>
-    <div layout vertical flex id="list"
-        on-annotation-added={{onAddAnnotation}} >
+    <div layout vertical flex id=list>
+
       <template repeat="{{annotation in annotations}}">
         <oj-annotation paper={{paper}} annotation={{annotation}}
                        style="top:{{annotation | topForAnnotation}}px"
@@ -9,13 +9,13 @@
                 ></oj-annotation>
       </template>
 
-      <template if={{showNewAnnotation}}>
-        <oj-new-annotation style="top:{{newAnnotationLocation | topForAnnotation}}px"
-                           location={{newAnnotationLocation}}
-                           paper={{paper}}
-                           text={{newText}}
-                           on-annotation-opened={{annotationOpened}}
-                > </oj-new-annotation>
+      <oj-new-annotation id=new_annotation
+                         paper={{paper}}
+                         text={{newText}}
+                         on-annotation-opened={{annotationOpened}}
+                         on-new-annotation-box-dismissed={{newAnnotationDismissed}}
+                         on-annotation-added={{newAnnotationAdded}}
+              ></oj-new-annotation>
       </template>
     </div>
 
@@ -23,7 +23,6 @@
       :host{
         position: relative;
         box-sizing: border-box;
-        padding-top: 20px;
       }
     </style>
 
@@ -35,24 +34,37 @@
       created: function() {
          this.annotations = [];
       },
-      onAddAnnotation:function(event, annotation){
+      newAnnotationAdded:function(event, annotation){
          this.annotations.push(annotation);
       },
       topForAnnotation: function(annotation){
         page_no = annotation.page;
-        y       = annotation.yStart;
-        return (y + this.pageOffset + this.pageHeight*page_no);
+        if (page_no===undefined || page_no===null) {
+            return 0;
+        } else {
+            y       = annotation.yStart;
+            return this.pageOffset + this.pageHeight*page_no + y;
+        }
       },
       annotationOpened: function(event, element) {
+        this.collapseAnnotations(element);
+      },
+      collapseAnnotations: function(exclude) {
           var annotations = this.$.list.querySelectorAll('oj-annotation');
           [].forEach.call( annotations, function(annotation) {
-             if (annotation != element)
+             if (annotation != exclude)
                 annotation.close();
           });
 
           var new_annotation = this.$.list.querySelector('oj-new-annotation');
-          if (new_annotation && new_annotation != element)
+          if (new_annotation && new_annotation != exclude)
               new_annotation.close();
+      },
+      startNewAnnotation: function(location) {
+        var top = this.topForAnnotation(location);
+        this.$.new_annotation.style.top = top+'px';
+        this.$.new_annotation.location = location;
+        this.$.new_annotation.visible = true;
       }
     })
   </script>
