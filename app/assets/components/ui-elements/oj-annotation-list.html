@@ -4,7 +4,7 @@
 
       <template repeat="{{annotation in annotations}}">
         <oj-annotation paper={{paper}} annotation={{annotation}}
-                       style="top:{{annotation | topForAnnotation}}px"
+                       style="top:{{annotation.top}}px"
                        on-annotation-opened={{annotationOpened}}
                 ></oj-annotation>
       </template>
@@ -13,14 +13,13 @@
                          paper={{paper}}
                          text={{newText}}
                          on-annotation-opened={{annotationOpened}}
-                         on-new-annotation-box-dismissed={{newAnnotationDismissed}}
                          on-annotation-added={{newAnnotationAdded}}
               ></oj-new-annotation>
       </template>
     </div>
 
     <style>
-      :host{
+      :host {
         position: relative;
         box-sizing: border-box;
       }
@@ -31,8 +30,41 @@
   <script>
     Polymer({
       scale: 2,
+      collapsedAnnotationHeight: 66,
+
       created: function() {
          this.annotations = [];
+      },
+      annotationsChanged: function() {
+        if (!this.annotations) return;
+        // Don't work on the original list it kills the browser
+        var copy = this.annotations.slice(0);
+        this.sortAnnotations(copy);
+        this.addLocationToAnnotations(copy);
+      },
+      sortAnnotations: function(unsorted) {
+        return unsorted.sort( function(a, b) {
+            var pa =  (a.page===undefined || a.page==null) ? -1 : a.page;
+            var pb =  (b.page===undefined || b.page==null) ? -1 : b.page;
+            if (pa !== pb) return pa - pb;
+
+            if (a.yStart !== b.yStart)
+              return a.yStart - b.yStart;
+            if (a.xStart !== b.xStart)
+              return a.xStart - b.xStart;
+
+            return a.id - b.id;
+        });
+      },
+        addLocationToAnnotations: function(annotations) {
+          var last = 0;
+          for (var i=0; i<annotations.length; i++) {
+              var a = annotations[i];
+              var top = this.topForAnnotation(a);
+              if (top < last) top = last;
+              a.top = top;
+              last = top + this.collapsedAnnotationHeight;
+          }
       },
       newAnnotationAdded:function(event, annotation){
          this.annotations.push(annotation);
@@ -63,8 +95,7 @@
       startNewAnnotation: function(location) {
         var top = this.topForAnnotation(location);
         this.$.new_annotation.style.top = top+'px';
-        this.$.new_annotation.location = location;
-        this.$.new_annotation.visible = true;
+        this.$.new_annotation.open(location);
       }
     })
   </script>

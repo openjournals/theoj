@@ -1,5 +1,5 @@
 <polymer-element name="oj-new-annotation" attributes='location paper text visible' >
-<template hidden?={{!visible}}>
+<template>
 
   <div layout vertical center-center>
     <core-a11y-keys keys="esc" on-keys-pressed={{dismiss}}></core-a11y-keys>
@@ -64,6 +64,18 @@
     close:function(){
         this.dismiss();
     },
+    open: function(location) {
+        this.location = location;
+        this.visible  = true;
+        this.async( function() {
+            var textarea = this.shadowRoot.querySelector('#commentTextArea');
+            if (textarea) {
+                textarea.focus();
+                textarea.select();
+            }
+        });
+        this.asyncFire("annotation-opened", this);
+    },
     /***********************/
     visibleChanged: function() {
       this.style.display = this.visible ? 'block' : 'none';
@@ -95,14 +107,6 @@
           yStart: this.location.yStart
         }
       };
-    },
-    domReady: function() {
-        this.fire("annotation-opened", this);
-        this.async( function() {
-            var textarea = this.shadowRoot.querySelector('#commentTextArea');
-            if (textarea)
-              textarea.focus();
-        });
     }
 
   })

@@ -1,7 +1,7 @@
 <polymer-element name='oj-annotation' attributes="paper annotation">
   <template>
 
-    <div class='container {{annotation | classes}} collapsed' >
+    <div class='container state-{{annotation.state}} role-{{annotation.author.role}} collapsed' >
 
       <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
         <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
@@ -18,7 +18,7 @@
     <core-collapse id=collapsible>
       <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
 
-      <div class='container {{annotation | classes}} expanded' >
+      <div class='container state-{{annotation.state}} role-{{annotation.author.role}} expanded' >
 
           <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
               <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
@@ -60,12 +60,13 @@
     <style>
       :host{
           width: 100%;
-            position:absolute;
+          position:absolute;
       }
       .container {
           padding: 10px;
           box-sizing: border-box;
           color: white;
+          border-bottom: solid 2px white;
       }
       core-collapse {
           position: absolute;
@@ -183,7 +184,7 @@
       },
       expand: function() {
         this.$.collapsible.opened = true;
-        this.fire('annotation-opened', this);
+        this.asyncFire('annotation-opened', this);
       },
       dismissNewComment:function(){
         this.newCommentVisible = false;
@@ -193,6 +194,7 @@
         this.async( function() {
             var edit = this.$.collapsible.querySelector('#replyTextArea');
             edit.focus();
+            edit.select();
         });
       },
       submitComment:function(){
