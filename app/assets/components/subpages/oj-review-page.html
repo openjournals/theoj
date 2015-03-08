@@ -1,16 +1,17 @@
 <polymer-element name="oj-review-page" attributes='paper_id user attributes'>
   <template>
-    <core-toolbar fixed layout >
+    <core-toolbar fixed layout>
 
-      <p class='title'>{{paper.title}}</p>
-      <div flex></div>
+      <p flex self-start class='title'>{{paper.title}}</p>
       <template if={{annotations}}>
         <span> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
         <span> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
       </template>
       <span><core-icon icon='list'></core-icon></span>
 
-      <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
+      <template if='{{loadProgress < 100}}'>
+        <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
+      </template>
     </core-toolbar>
 
     <template if="{{user.editor}}">
@@ -39,27 +40,22 @@
         </div>
       </template>
 
-      <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
-
-      <template if="{{paper}}">
-        <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></core-ajax>
-      </template>
-
-      <style>
-        core-toolbar{
-          background-color: #7986CB;
-        }
-
-      </style>
     </section>
 
     <style>
-      .title{
-        max-width: 50%;
+      core-toolbar{
+          background-color: #7986CB;
       }
     </style>
 
+    <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
+
+    <template if="{{paper}}">
+      <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></json-get>
+    </template>
+
   </template>
+
   <script>
     Polymer({
       newAnnotationVisible: false,
