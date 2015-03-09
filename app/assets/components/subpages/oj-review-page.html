@@ -1,68 +1,84 @@
-<polymer-element name="oj-review-page" attributes='paper_id user attributes'>
+<polymer-element name="oj-review-page" attributes='paper_id user'>
   <template>
-    <core-toolbar fixed layout >
 
-      <p class='title'>{{paper.title}}</p>
-      <div flex></div>
+    <core-toolbar fixed layout>
+
+      <p flex self-start class='title'>{{paper.title}}</p>
+
       <template if={{annotations}}>
         <span> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
         <span> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
       </template>
       <span><core-icon icon='list'></core-icon></span>
 
-      <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
+      <template if='{{loadProgress < 100}}'>
+        <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
+      </template>
+
     </core-toolbar>
 
     <template if="{{user.editor}}">
       <oj-editor-paper-controls flex paper="{{paper}}"></oj-editor-paper-controls>
     </template>
 
-    <section layout vertical>
+    <template if="{{paper}}">
+      <div layout horizontal>
 
-      <template if="{{paper}}">
-        <div layout horizontal>
-          <stacked-pdf-reader on-page-clicked={{createTempAnnotation}} annotations={{annotations}}  loadProgress={{loadProgress}}  pageHeight={{pageHeight}} pageOffset={{pageOffset}} src={{"/proxy?url="+paper.location}}></stacked-pdf-reader>
-          <oj-annotation-list
-            id='annotation_list'
-            flex
-            annotations={{annotations}}
-            pageHeight={{1584}}
-            pageOffset={{20}}
-            scale={{scale}}
-            showNewAnnotation={{newAnnotationVisible}}
-            newAnnotationLocation={{newAnnotationLocation}}
-            on-new-annotation-box-dismissed={{hideAnnotationBox}}
-            on-annotation-changed={{onChangeAnnotation}}
-            paper={{paper}}
-            >
-          </oj-annotation-list>
+        <div layout vertical id=pdf-pane>
+          <div id=add-document-issue>
+            <paper-button raised on-tap="{{addDocumentAnnotation}}">
+              <core-icon icon=add></core-icon>Add a comment about the whole document
+            </paper-button>
+          </div>
+          <stacked-pdf-reader src={{"/proxy?url="+paper.location}}
+                              pageHeight={{pageHeight}}
+                              pageOffset={{pageOffset}}
+                              loadProgress={{loadProgress}}
+                              on-page-clicked={{pageClicked}}
+                  ></stacked-pdf-reader>
+        </div>
+
+        <oj-annotation-list id=annotation_list
+                            flex
+                            paper={{paper}}
+                            annotations={{annotations}}
+                            pageHeight={{1584}}
+                            pageOffset={{68}}
+                            scale={{scale}}
+                            on-annotation-changed={{onChangeAnnotation}}
+                ></oj-annotation-list>
         </div>
       </template>
 
-      <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
-
-      <template if="{{paper}}">
-        <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></core-ajax>
-      </template>
-
-      <style>
-        core-toolbar{
-          background-color: #7986CB;
-        }
-
-      </style>
-    </section>
-
+    <link rel="stylesheet" href="../../stylesheets/customized-components.css.scss" />
     <style>
-      .title{
-        max-width: 50%;
+      core-toolbar{
+          background-color: #7986CB;
+      }
+      #pdf-pane {
+          box-sizing: border-box;
+          width: 60%;
+          margin-right: 4px;
+      }
+      #add-document-issue {
+          margin-right: 6px;
+      }
+      #add-document-issue paper-button {
+          box-sizing: border-box;
+          width: 100%;
       }
     </style>
 
+    <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
+
+    <template if="{{paper}}">
+      <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></json-get>
+    </template>
+
   </template>
+
   <script>
     Polymer({
-      newAnnotationVisible: false,
 
       created: function() {
         this.annotations = [];
@@ -80,15 +96,15 @@
           this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
           this.countOpen   = this.annotations.length - this.countClosed;
       },
-      hideAnnotationBox: function(){
-        this.newAnnotationVisible= false;
+      pageClicked:function(event){
+        var list = this.shadowRoot.getElementById('annotation_list');
+        list.startNewAnnotation(event.detail);
       },
-      createTempAnnotation:function(click_location){
-        this.newAnnDetails= {location: click_location.detail};
-        this.newAnnotationLocation= click_location.detail;
-
-        this.newAnnotationVisible = true;
+      addDocumentAnnotation: function(event) {
+        var list = this.shadowRoot.getElementById('annotation_list');
+        list.startNewAnnotation({});
       }
     })
   </script>
+
 </polymer-element>

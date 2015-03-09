@@ -1,5 +1,6 @@
-<polymer-element name="oj-new-annotation" attributes='location paper text' >
+<polymer-element name="oj-new-annotation" attributes='location paper text visible' >
 <template>
+
   <div layout vertical center-center>
     <core-a11y-keys keys="esc" on-keys-pressed={{dismiss}}></core-a11y-keys>
     <core-a11y-keys keys="shift+enter" on-keys-pressed={{submit}}></core-a11y-keys>
@@ -22,6 +23,9 @@
       box-sizing: border-box;
       width:100%;
       left:0;
+      display: none;
+      border-top: 2px solid white;
+      border-bottom: 2px solid white;
     }
 
     markdown-text-area {
@@ -60,7 +64,22 @@
     close:function(){
         this.dismiss();
     },
+    open: function(location) {
+        this.location = location;
+        this.visible  = true;
+        this.async( function() {
+            var textarea = this.shadowRoot.querySelector('#commentTextArea');
+            if (textarea) {
+                textarea.focus();
+                textarea.select();
+            }
+        });
+        this.asyncFire("annotation-opened", this);
+    },
     /***********************/
+    visibleChanged: function() {
+      this.style.display = this.visible ? 'block' : 'none';
+    },
     submit: function(){
       if (!this.text)
         return;
@@ -68,7 +87,7 @@
       this.$.saveRequest.go()
     },
     dismiss:function(){
-      this.fire("new-annotation-box-dismissed",{})
+      this.visible = false;
     },
     saved:function(event, response){
       this.fire("annotation-added", response);
@@ -88,14 +107,6 @@
           yStart: this.location.yStart
         }
       };
-    },
-    domReady: function() {
-        this.fire("annotation-opened", this);
-        this.async( function() {
-            var textarea = this.shadowRoot.querySelector('#commentTextArea');
-            if (textarea)
-              textarea.focus();
-        });
     }
 
   })

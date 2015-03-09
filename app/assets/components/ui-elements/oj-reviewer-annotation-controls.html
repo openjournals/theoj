@@ -15,8 +15,8 @@
 
       <paper-action-dialog id=dialog backdrop layered="false">
           <p>Do you really want to {{newState}} this annotation?</p>
-          <paper-button affirmative on-tap={{dialogAccepted}}>{{newState}}</paper-button>
-          <paper-button dismissive  autofocus>Cancel</paper-button>
+          <paper-button affirmative autofocus on-tap={{dialogAccepted}}>{{newState}}</paper-button>
+          <paper-button dismissive>Cancel</paper-button>
       </paper-action-dialog>
 
       <link rel="stylesheet" href="../../stylesheets/customized-components.css.scss" />
