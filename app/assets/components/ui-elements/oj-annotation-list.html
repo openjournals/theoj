@@ -114,8 +114,6 @@
       },
       startNewAnnotation: function(location) {
         var top = this.topForAnnotation(location);
-        console.log('--location', location);
-        console.log('--- top', top);
 
         this.$.new_annotation.style.top = top+'px';
         this.$.new_annotation.open(location);
