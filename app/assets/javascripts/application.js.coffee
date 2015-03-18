@@ -1,7 +1,9 @@
 #= require jquery
 #= require marked.min
 #= require markdown_stripper
-
+#  pdf-worker must come before pdf.js
+#= require pdfjs-dist/build/pdf.worker
+#= require pdfjs-dist/build/pdf
 $ ->
 
   marked.setOptions(
