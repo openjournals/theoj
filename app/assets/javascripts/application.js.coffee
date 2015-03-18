@@ -1,9 +1,13 @@
 #= require jquery
 #= require marked.min
-#= require markdown_stripper
-#  pdf-worker must come before pdf.js
-#= require pdfjs-dist/build/pdf.worker
+#= stub    pdfjs-dist/build/pdf.worker
+#= stub    pdf.worker
+#= stub    bootstrap
 #= require pdfjs-dist/build/pdf
+#= require_tree .
+
+PDFJS.workerSrc = '/assets/pdf.worker.js'
+
 $ ->
 
   marked.setOptions(
