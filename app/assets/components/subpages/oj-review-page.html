@@ -22,7 +22,7 @@
     </template>
 
     <template if="{{paper}}">
-      <div layout horizontal>
+      <div id=main layout horizontal>
 
         <div layout vertical id=pdf-pane>
           <div id=add-document-issue>
@@ -31,10 +31,10 @@
             </paper-button>
           </div>
           <stacked-pdf-reader src={{"/proxy?url="+paper.location}}
-                              pageHeight={{pageHeight}}
                               pageOffset={{pageOffset}}
                               loadProgress={{loadProgress}}
                               on-page-clicked={{pageClicked}}
+                              on-pdf-client-changed={{pdfClientChanged}}
                   ></stacked-pdf-reader>
         </div>
 
@@ -42,9 +42,9 @@
                             flex
                             paper={{paper}}
                             annotations={{annotations}}
-                            pageHeight={{1584}}
-                            pageOffset={{68}}
-                            scale={{scale}}
+                            firstPageOffset={{68}}
+                            pageHeight={{pdfClientHeight}}
+                            pageSpacing={{20}}
                             on-annotation-changed={{onChangeAnnotation}}
                 ></oj-annotation-list>
         </div>
@@ -67,6 +67,9 @@
           box-sizing: border-box;
           width: 100%;
       }
+      #main {
+          margin-top: 10px;
+      }
     </style>
 
     <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
@@ -82,6 +85,10 @@
 
       created: function() {
         this.annotations = [];
+      },
+
+      pdfClientChanged: function(event, detail) {
+        this.pdfClientHeight = detail.clientHeight;
       },
 
       onChangeAnnotation:function(event, annotation) {

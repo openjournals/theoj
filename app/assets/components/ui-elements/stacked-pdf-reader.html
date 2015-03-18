@@ -1,78 +1,63 @@
-<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress pageHeight pageOffset'>
+<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress'>
   <template>
 
-    <style>
-      :host {
-        padding: 2px;
-        height: 100%;
-        width: 100%;
-        overflow-y: scroll;
-      }
-      #pages{
-        width:100%;
-        height: 100%;
-      }
-    </style>
-
-    <div id='pages'>
+      <div id=pages>
       <template repeat="{{ pageNo in  pageIndexArray }}">
-        <stacked-pdf-page  page={{getPage(pageNo)}} scale=2></stacked-pdf-page>
+        <stacked-pdf-page  pageNo={{pageNo}} page={{getPage(pageNo)}}></stacked-pdf-page>
       </template>
     </div>
+
+    <style>
+        :host {
+            padding: 2px;
+            height: 100%;
+            width: 100%;
+            overflow-y: scroll;
+        }
+        #pages{
+            width:100%;
+            height: 100%;
+        }
+        stacked-pdf-page:not(:last-of-type) {
+            margin-bottom: 20px;
+        }
+    </style>
 
   </template>
 
   <script>
     Polymer({
-      scale:2,
-      pdfReady: false,
-      noPages: null,
       loadProgress: 0,
       loading: false,
       pageIndexArray: [],
       domReady:function(){
-        this.getPDF()
+        this.getPDF();
       },
       getPDF:function(){
-        if(this.loading == false){
+        if (!this.loading) {
           this.loading  = true;
           this.pdf      = null;
-          this.page     = 1;
-          this.pdfReady = false;
-          PDFJS.workerSrc = "/pdf.worker.js";
-          PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(PDF){
-            this.pdf = PDF;
-            this.pdfReady = true;
+          PDFJS.openExternalLinksInNewWindow = true;
+
+          PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(pdf){
+            this.pdf = pdf;
             this.loading  = false;
-            this.setDimensions();
-          }.bind(this))
+            this.numPages = this.pdf.numPages;
+            this.createPageIndexArray(this.numPages);
+          }.bind(this) );
+
         }
-
-      },
-      setDimensions: function(){
-
-        this.getPage(0).then(function(page){
-          var viewport  = page.getViewport(this.scale);
-          this.pageHeight = viewport.height;
-          this.pageOffset = 20;
-        })
       },
       updateProgress: function(prog){
         this.loadProgress = 100.0*prog.loaded/(1.0*prog.total)
       },
-      pdfReadyChanged: function(){
-        if(this.pdfReady){
-          this.numPages       = this.pdf.numPages;
-          this.pageIndexArray = new Array(this.pdf.numPages);
-
-          for(var i=0; i < this.pdf.numPages; i++ ){
-            this.pageIndexArray[i] = i
+      createPageIndexArray: function(numPages){
+          var pageIndexArray = [];
+          for(var i=0; i < this.numPages; i++ ){
+            pageIndexArray[i] = i
           }
-        }
+          this.pageIndexArray = pageIndexArray;
       },
-      // scaleChanged:    function(){
-      //   this.renderPage(1);
-      // },
       srcChanged:      function(){
         this.getPDF();
       },
