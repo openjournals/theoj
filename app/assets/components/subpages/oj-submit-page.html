@@ -1,16 +1,16 @@
 
 <polymer-element name="oj-submit-page" attributes='paper_title paper_location router'>
   <template>
-    <section vertical layout center>
-      <h1>Submit Paper</h1>
+    <section layout vertical class="boiler-plate">
+      <h1>Submit a paper</h1>
 
         <paper-shadow id=form flex center-justified vertical layout center z="1">
           <core-a11y-keys keys="enter" on-keys-pressed="{{submit}}"></core-a11y-keys>
 
-          <paper-input  label="arXiv paper" value="{{paperIdentifier}}"></paper-input>
+          <paper-input  label="arXiv identifier" value="{{paperIdentifier}}"></paper-input>
           <paper-button  raised disabled?={{!paperValid}} on-tap={{submit}} role=button>Submit</paper-button>
 
-          <p>Please enter the id, abstract url or pdf url of a paper from the arXiv.</p>
+          <p>Please enter the id, abstract URL or PDF URL of a paper from the arXiv.</p>
           <p class='example'>1401.0003</p>
           <p class='example'>http://arxiv.org/abs/1401.0003</p>
           <p class='example'>http://arxiv.org/pdf/1401.0003.pdf</p>
