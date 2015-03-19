@@ -1,13 +1,11 @@
 <polymer-element name="oj-review-page" attributes='paper_id user'>
   <template>
-
     <core-toolbar fixed layout>
-
       <p flex self-start class='title'>{{paper.title}}</p>
 
       <template if={{annotations}}>
-        <span> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
-        <span> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
+        <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
+        <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
       </template>
       <span><core-icon icon='list'></core-icon></span>
 
@@ -57,7 +55,7 @@
       }
       #pdf-pane {
           box-sizing: border-box;
-          width: 60%;
+          width: 65%;
           margin-right: 4px;
       }
       #add-document-issue {
@@ -68,8 +66,13 @@
           width: 100%;
       }
       #main {
-          margin-top: 10px;
+          margin-top: 5px;
       }
+
+      span.issue-summary{
+        font-size: 0.8em
+      }
+
     </style>
 
     <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>

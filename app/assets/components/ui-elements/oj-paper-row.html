@@ -1,10 +1,12 @@
 <polymer-element name='oj-paper-row' attributes='paper'>
 <template>
   <div class='row {{paper | classForPaper}}' flex layout horizontal>
-    <h3>{{paper.title}}</h3>
+    <summary>
+      <h3>{{paper.title}}</h3>
+    </summary>
     <status class='{{paper | classForPaper}}'>
       <p>State: <span class="{{paper.state}}">{{paper.state}}</span></p>
-      <p>Remaining Issues: <span>{{paper.pending_issues_count}}</span></p>
+      <p>Issues: <span>{{paper.pending_issues_count}}</span></p>
       <p>Your role: <span>{{paper.user_permissions}}</span></p>
       <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
     </status>
@@ -15,19 +17,37 @@
         margin: 0;
     }
     h3{
+
     }
-    .row{
-      width:100%;
+
+    .row {
+      width: 100%;
       height: 100%;
       cursor: pointer;
     }
 
-    status {
-        float:         right;
-        min-width:     150px;
-        padding-left:  8px;
-        padding-right: 8px;
+    summary{
+      width: 80%;
     }
+
+    status {
+      float:        right;
+      width:        20%;
+      border-left:  1px solid #efefef;
+      padding-left:  8px;
+      padding-right: 8px;
+    }
+
+    status p{
+      font-size: 1em;
+      font-weight: bolder;
+
+    }
+
+    status p span{
+      font-weight: normal;
+    }
+
     status.needs-attention {
         background: #ffd6da;
     }

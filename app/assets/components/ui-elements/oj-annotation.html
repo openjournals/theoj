@@ -76,25 +76,35 @@
           z-index: 1;
       }
       .header {
-          margin: 16px 0 12px 8px;
       }
       .issue {
-          font-weight: bold;
-          cursor: pointer;
+        cursor: pointer;
+        font-size: 0.9em;
+
       }
 
       .collapsed .issue {
-          height: 1em;
+          height: 1.5em;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
       }
+
       .count {
+          font-size: 0.9em;
           margin-left: 12px;
       }
-      .comment {
-          box-sizing:border-box;
-          padding: 10px 0 10px 10px;
+      .comments {
+          box-sizing: border-box;
+          padding: 10px 0px 10px 0px;
+          font-size: 0.9em;
+
+      }
+
+      .comments markdown-content::shadow #renderedContent{
+        background-color: white;
+        padding: 10px;
+        margin-bottom: 5px;
       }
 
       markdown-text-area {
@@ -105,9 +115,9 @@
           right:  88px;
           color:  #eee;
       }
-      markdown-text-area::shadow markdown-content::shadow  #renderedContent {
+      markdown-text-area::shadow markdown-content::shadow #renderedContent {
           padding: 4px;
-          min-height: 40px
+          min-height: 40px;
       }
 
       oj-reviewer-annotation-controls {
@@ -115,9 +125,11 @@
           top:      0;
           right:    6px;
       }
+
       .comment {
-        box-sizing:border-box;
+        box-sizing: border-box;
         padding: 10px 0 10px 10px;
+
       }
 
       .controls paper-icon-button {
@@ -126,28 +138,29 @@
 
       /* State Colors */
       .container{
-          background-color: grey;
+          background-color: #efefef;
+          color: black;
       }
       .comment {
-          background-color: #909090;
+          background-color: #e0e0e0;
       }
       .container.state-unresolved {
-          background-color: #6b711c;
+          border-top: 7px solid #6b711c;
       }
       .state-unresolved .comment {
-          background-color: #767c1e;
+          border-top: 7px solid #767c1e;
       }
       .container.state-resolved {
-          background-color: #0D47A1;
+          border-top: 7px solid #0D47A1;
       }
       .state-resolved .comment {
-          background-color: #1565b3;
+          border-top: 7px solid #1565b3;
       }
       .container.state-disputed {
-          background-color: #a42d25;
+          border-top: 7px solid #a42d25;
       }
       .state-disputed .comment {
-          background-color: #c3362b;
+          border-top: 7px solid #c3362b;
       }
 
     </style>
