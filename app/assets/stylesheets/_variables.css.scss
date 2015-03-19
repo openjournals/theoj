@@ -1,11 +1,13 @@
-
 $background_blue: #008bc6;
 $light_blue:      #00b1ff;
 $oja_green:       #b2cd00;
 $oja_purple:      #a100cf;
 $oja_message:     #ffd737;
-$default_font:    "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+$default_font:    "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 
+body {
+  font-family: $default_font;
+}
 
 // $body-bg:          #008bc6;
 // $text-color:       white;
