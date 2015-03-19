@@ -8,7 +8,7 @@
       </template>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
-          <div flex class=issue></div>
+          <markdown-content flex class=issue markdown={{annotation.body}}></markdown-content>
           <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
