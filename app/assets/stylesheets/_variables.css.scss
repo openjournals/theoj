@@ -5,8 +5,9 @@ $oja_purple:      #a100cf;
 $oja_message:     #ffd737;
 $default_font:    "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 
+//Polymer doesn't seem to like it if this file is empty
 body {
-  font-family: $default_font;
+  margin: 0;
 }
 
 // $body-bg:          #008bc6;

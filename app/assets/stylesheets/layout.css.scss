@@ -1,3 +1,25 @@
 @import 'variables';
 
+body {
+  font-family: $default_font;
+}
+
 // $navbarBackground: $light_blue;
+
+// Modified CSS for Polymer elements
+
+body /deep/ {
+
+  paper-button {
+    text-transform: none;
+
+    background: #3e50b4;
+    color:      white;
+
+    &[dismissive] {
+      background: grey;
+    }
+
+  }
+
+}
