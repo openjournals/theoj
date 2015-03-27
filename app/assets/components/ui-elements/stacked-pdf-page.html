@@ -157,8 +157,11 @@
           // pdf convertToPdfPoint doesn't sem accurate
           // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
 
-          var rx = event.offsetX / this.clientWidth;
-          var ry = event.offsetY / this.clientHeight;
+          var x  = event.offsetX || event.layerX;
+          var y  = event.offsetY || event.layerY;
+          var rx = x / this.clientWidth;
+          var ry = y / this.clientHeight;
+          var o = $(this).position();
           this.fire("page-clicked", {page:this.pageNo, xStart:rx, yStart:ry} );
       },
 
