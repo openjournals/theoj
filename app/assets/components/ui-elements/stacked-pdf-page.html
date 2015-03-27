@@ -1,10 +1,20 @@
-<polymer-element name="stacked-pdf-page" attributes='pageNo page'>
+<polymer-element name="stacked-pdf-page" attributes='pageNo page annotations'>
   <template>
 
-      <template if="{{loaded}}">
+      <template if={{loaded}}>
           <paper-shadow z=1 on-click={{fire_click}} >
             <canvas id=canvas></canvas>
-            <div id='textLayer'></div>
+            <div id=textLayer></div>
+            <template if="{{ rendered && annotations}}">
+                <div id=iconlayer>
+                    <template repeat="{{annotation in annotations}}">
+                      <template if="{{annotation.page == pageNo}}">
+                        <oj-annotation-marker annotation={{annotation}}
+                                   style="{{ annotation | annotationLocation | styleObject }}" ></oj-annotation-marker>
+                      </template>
+                    </template>
+                </div>
+            </template>
           </paper-shadow>
       </template>
 
@@ -24,7 +34,7 @@
             width: 100%;
             height: 100%;
           }
-          #textLayer {
+          #textLayer, #iconlayer {
             position: absolute;
             left: 0;
             top: 0;
@@ -34,6 +44,44 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+          }
+
+          #iconlayer oj-annotation-marker {
+              position: absolute;
+          }
+          #iconlayer core-icon {
+            position:     absolute;
+            stroke-width: 2px;
+            height:       8px;
+            width:        8px;
+            margin-top:   -4px;
+            margin-left:  -4px;
+            transition:    all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+          }
+          #iconlayer core-icon.open {
+            height:       16px;
+            width:        16px;
+            margin-top:   -8px;
+            margin-left:  -8px;
+          }
+
+          /* Icon State colors */
+
+          #iconlayer core-icon.state-unresolved {
+              fill: #d3df38 !important;
+              stroke:       #6b711c;
+          }
+          #iconlayer core-icon.state-resolved {
+              fill: #146efc !important;
+              stroke:       #0D47A1;
+          }
+          #iconlayer core-icon.state-disputed {
+              fill: #fe4539 !important;
+              stroke:       #a42d25;
+          }
+          #iconlayer core-icon.state-new {
+              fill: #ffffa0 !important;
+              stroke:       #f8f800;
           }
 
           /* CSS for text highlighting overlay */
@@ -104,8 +152,19 @@
         if (this.pageNo==0)
           this.asyncFire('pdf-client-changed', {pageNo:this.pageNo, clientHeight:this.clientHeight})
       },
-
-      render: function(){
+      annotationLocation: function(a) {
+          return {
+              'top':         (a.yStart * this.clientHeight) + 'px',
+              'left':        (a.xStart * this.clientWidth)  + 'px'
+          };
+      },
+      annotationClicked: function(event, detail) {
+        event.preventDefault();
+        event.stopPropagation();
+        var annotation = event.target.templateInstance.model.annotation;
+        annotation.open = true;
+      },
+      render: function() {
         // Get the best scaling to fit the canvas
         var scale                 = this.clientWidth / this.pageContent.getViewport(1.0).width;
         this.viewport             = this.pageContent.getViewport(scale);
@@ -120,10 +179,14 @@
           this.textLayer.setTextContent(textContent);
 
           var context = canvas.getContext('2d');
-          this.pageContent.render({canvasContext: context, viewport: this.viewport,textLayer: this.textLayer});
+          this.pageContent.render({canvasContext: context, viewport: this.viewport,textLayer: this.textLayer}).then( function() {
+              // no-op
+          }.bind(this));
+
         }.bind(this));
 
-        this.adjustClientSizes()
+        this.adjustClientSizes();
+        this.rendered = true;
       }
 
     })

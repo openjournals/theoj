@@ -1,0 +1,61 @@
+<polymer-element name=oj-annotation-marker attributes='annotation'>
+  <template>
+
+        <core-icon icon="custom-icons:selected"
+                   class="{{annotation.open ? 'open' : 'closed' }} state-{{annotation.state}}"
+                   on-click={{annotationClicked}}
+        ></core-icon>
+
+      <style>
+          core-icon {
+            stroke-width: 2px;
+            transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+          }
+          core-icon.closed {
+            height:       8px;
+            width:        8px;
+            margin-top:   -4px;
+            margin-left:  -4px;
+          }
+          core-icon.open {
+            height:       16px;
+            width:        16px;
+            margin-top:   -8px;
+            margin-left:  -8px;
+          }
+
+          /* Icon State colors */
+
+          core-icon.state-unresolved {
+              fill: #d3df38 !important;
+              stroke:       #6b711c;
+          }
+          core-icon.state-resolved {
+              fill: #146efc !important;
+              stroke:       #0D47A1;
+          }
+          core-icon.state-disputed {
+              fill: #fe4539 !important;
+              stroke:       #a42d25;
+          }
+          core-icon.state-new {
+              fill: #ffffa0 !important;
+              stroke:       #f8f800;
+          }
+
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      annotationClicked: function(event, detail) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.annotation.open = true;
+      }
+
+    })
+  </script>
+</polymer-element>

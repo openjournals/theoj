@@ -30,7 +30,7 @@
 
           <div class='comments'>
               <template repeat="{{response in annotation.responses}}">
-                  <markdown-content markdown="{{response.body}}"></markdown-content>
+                  <markdown-content class=comment markdown="{{response.body}}"></markdown-content>
               </template>
           </div>
 
@@ -65,8 +65,10 @@
       .container {
           padding: 10px;
           box-sizing: border-box;
-          color: white;
+          border-top: 7px solid;
           border-bottom: solid 2px white;
+          background-color: #efefef;
+          color: black;
       }
       core-collapse {
           position: absolute;
@@ -80,7 +82,6 @@
       .issue {
         cursor: pointer;
         font-size: 0.9em;
-
       }
 
       .collapsed .issue {
@@ -96,9 +97,8 @@
       }
       .comments {
           box-sizing: border-box;
-          padding: 10px 0px 10px 0px;
+          padding: 10px 0 10px 0;
           font-size: 0.9em;
-
       }
 
       .comments markdown-content::shadow #renderedContent{
@@ -127,9 +127,6 @@
       }
 
       .comment {
-        box-sizing: border-box;
-        padding: 10px 0 10px 10px;
-
       }
 
       .controls paper-icon-button {
@@ -137,30 +134,17 @@
       }
 
       /* State Colors */
-      .container{
-          background-color: #efefef;
-          color: black;
-      }
-      .comment {
-          background-color: #e0e0e0;
-      }
       .container.state-unresolved {
-          border-top: 7px solid #6b711c;
-      }
-      .state-unresolved .comment {
-          border-top: 7px solid #767c1e;
+          border-top-color: #6b711c;
       }
       .container.state-resolved {
-          border-top: 7px solid #0D47A1;
-      }
-      .state-resolved .comment {
-          border-top: 7px solid #1565b3;
+          border-top-color: #0D47A1;
       }
       .container.state-disputed {
-          border-top: 7px solid #a42d25;
+          border-top-color: #a42d25;
       }
-      .state-disputed .comment {
-          border-top: 7px solid #c3362b;
+      .container.state-new {
+          border-top-color: #f8f8f8;
       }
 
     </style>
@@ -179,6 +163,9 @@
     Polymer({
       /* External API */
       newCommentVisible: false,
+      observe: {
+        'annotation.open' : 'annotationOpenChanged'
+      },
       close:function(){
         this.collapse();
       },
@@ -192,10 +179,19 @@
          if (issue_header && this.annotation)
             issue_header.innerHTML = window.strip_markdown(this.annotation.body);
       },
+      annotationOpenChanged: function() {
+        console.log('a o c');
+        if (this.annotation.open)
+            this.expand();
+        else
+            this.collapse();
+      },
       collapse: function() {
+        this.annotation.open = false;
         this.$.collapsible.opened = false;
       },
       expand: function() {
+        this.annotation.open = true;
         this.$.collapsible.opened = true;
         this.asyncFire('annotation-opened', this);
       },

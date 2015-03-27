@@ -1,21 +1,27 @@
 <polymer-element name="oj-reviewer-annotation-controls" attributes='paper annotation'>
   <template>
 
-      <div class =tools on-click={{changeState}}>
+      <div class =tools on-tap={{changeState}}>
           <paper-icon-button id=unresolve
                              disabled?="{{annotation.state=='unresolved'}}"
-                             icon=thumb-down       title='Unresolved'></paper-icon-button>
+                             icon=thumb-down
+                             name="Unresolve"
+                             title='Unresolved'></paper-icon-button>
           <paper-icon-button id=resolve
                              disabled?="{{annotation.state=='resolved'}}"
-                             icon=thumb-up         title='Resolved / Complete'></paper-icon-button>
+                             icon=thumb-up
+                             name="Resolve"
+                             title='Resolved / Complete'></paper-icon-button>
           <paper-icon-button id=dispute
                              disabled?="{{annotation.state=='disputed'}}"
-                             icon=report-problem   title='In Dispute'></paper-icon-button>
+                             icon=report-problem
+                             name="Dispute"
+                             title='In Dispute'></paper-icon-button>
       </div>
 
       <paper-action-dialog id=dialog backdrop layered="false">
           <p>Do you really want to {{newState}} this annotation?</p>
-          <paper-button affirmative autofocus on-tap={{dialogAccepted}}>{{newState}}</paper-button>
+          <paper-button affirmative autofocus on-tap={{dialogAccepted}}>{{newAction}}</paper-button>
           <paper-button dismissive>Cancel</paper-button>
       </paper-action-dialog>
 
@@ -29,9 +35,13 @@
         paper-icon-button::shadow #icon {
           width: 16px;
           height: 16px;
-          color: white;
+          fill: white;
           stroke: black;
           stroke-width: 1px;
+        }
+        paper-icon-button[disabled]::shadow #icon {
+            fill:   #f6f6f6;
+            stroke: #808080;
         }
 
       </style>
@@ -45,8 +55,12 @@
     Polymer({
         changeState: function(event) {
             event.preventDefault();
-            var target = event.path[0];
+            var target = event.target;
             this.newState = target.id;
+            this.newAction = target.getAttribute('name');
+            if (!this.newAction)
+                return;
+
             this.$.dialog.open();
         },
         dialogAccepted: function() {

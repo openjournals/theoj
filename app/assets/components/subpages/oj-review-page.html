@@ -29,6 +29,7 @@
             </paper-button>
           </div>
           <stacked-pdf-reader src={{"/proxy?url="+paper.location}}
+                              annotations={{annotations}}
                               pageOffset={{pageOffset}}
                               loadProgress={{loadProgress}}
                               on-page-clicked={{pageClicked}}
