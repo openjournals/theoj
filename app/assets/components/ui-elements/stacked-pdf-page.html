@@ -151,20 +151,20 @@
       },
 
       fireClick:function(event) {
-          var canvas = this.shadowRoot.getElementById("canvas");
-          var canvasRect = canvas.getClientRects()[0];
+          // var canvas = this.shadowRoot.getElementById("canvas");
+          // var canvasRect = canvas.getClientRects()[0];
 
           // pdf convertToPdfPoint doesn't sem accurate
           // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
 
-          var rx = event.offsetX / canvasRect.width;
-          var ry = event.offsetY / canvasRect.height;
+          var rx = event.offsetX / this.clientWidth;
+          var ry = event.offsetY / this.clientHeight;
           this.fire("page-clicked", {page:this.pageNo, xStart:rx, yStart:ry} );
       },
 
       adjustClientSizes: function(event) {
         if (this.pageNo==0)
-          this.asyncFire('pdf-client-changed', {pageNo:this.pageNo, clientHeight:this.clientHeight})
+          this.asyncFire('pdf-client-changed', {pageNo:this.pageNo, clientHeight:this.clientHeight});
         this.addLocationToAnnotations();
       },
       addLocationToAnnotations: function() {

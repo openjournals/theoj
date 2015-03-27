@@ -41,7 +41,7 @@
                             flex
                             paper={{paper}}
                             annotations={{annotations}}
-                            firstPageOffset={{68}}
+                            firstPageOffset={{84}}
                             pageHeight={{pdfClientHeight}}
                             pageSpacing={{20}}
                             on-annotation-changed={{onChangeAnnotation}}
@@ -106,13 +106,16 @@
           this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
           this.countOpen   = this.annotations.length - this.countClosed;
       },
+      newAnnotation: function(properties) {
+          return $.extend( {state:'new', new:true, open:true}, properties);
+      },
       pageClicked:function(event, position){
-        var annotation = $.extend({state:'new', new:true, open:true}, position);
+        var annotation = this.newAnnotation( position );
         this.annotations.push(annotation);
       },
       addDocumentAnnotation: function(event) {
-          var annotation = {state:'new', new:true, open:true};
-          this.annotations.push(annotation);
+        var annotation = this.newAnnotation( position );
+        this.annotations.push(annotation);
       }
     })
   </script>
