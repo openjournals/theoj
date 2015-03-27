@@ -27,7 +27,7 @@
       showPreview:false,
       markdown: '',
       markdownChanged:function(){
-        var parsed = strip_markdown(this.markdown);
+        var parsed = simplified_markdown( this.markdown );
         this.$.renderedContent.innerHTML = parsed;
       }
     })
