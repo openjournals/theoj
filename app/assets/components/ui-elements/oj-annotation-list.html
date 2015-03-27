@@ -5,7 +5,7 @@
       <template repeat="{{annotation in annotations}}">
         <oj-annotation paper={{paper}}
                        annotation={{annotation}}
-                       style="top:{{annotation.top}}px"
+                       style="{{ {top:annotation.list_top} | styleObject }}"
                        on-annotation-opened={{annotationOpened}}
                        on-annotation-closed={{annotationClosed}}
                        on-annotation-added={{annotationAdded}}
@@ -39,10 +39,6 @@
         this.addLocationToAnnotations();
       },
       pageHeightChanged: function(oldValue, newValue) {
-        if (this.$.new_annotation && this.$.new_annotation.location) {
-          var top = this.topForAnnotation(this.$.new_annotation.location);
-          this.$.new_annotation.style.top = top+'px';
-        }
 
         if (oldValue==0) {
             // Do it immediately
@@ -70,7 +66,7 @@
       addLocationToAnnotations: function() {
           var annotations = this.sorted_annotations;
           var last = 0;
-          for (var i=0; i<annotations.length; i++) {
+          for (var i=0; i < annotations.length; i++) {
               var a = annotations[i];
               var top = this.topForAnnotation(a);
 
@@ -79,16 +75,14 @@
                   last = top + this.collapsedAnnotationHeight;
               }
 
-              a.top = top;
+              a.list_top = top + 'px';
           }
-      },
-      newAnnotationAdded:function(event, annotation){
-         this.annotations.push(annotation);
       },
       topForAnnotation: function(annotation){
         var page_no = annotation.page;
         if (page_no===undefined || page_no===null) {
             return 0;
+
         } else {
             var y = annotation.yStart;
             var t = this.firstPageOffset +
@@ -118,12 +112,6 @@
              if (annotation != exclude)
                 annotation.close();
           });
-      },
-      startNewAnnotation: function(location) {
-        var top = this.topForAnnotation(location);
-
-        this.$.new_annotation.style.top = top+'px';
-        this.$.new_annotation.open(location);
       }
     })
   </script>

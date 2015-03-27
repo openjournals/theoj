@@ -7,10 +7,10 @@
             <div id=textLayer></div>
             <template if="{{ rendered && annotations}}">
                 <div id=iconlayer>
-                    <template repeat="{{annotation in annotations}}">
-                      <template if="{{annotation.page == pageNo}}">
-                        <oj-annotation-marker annotation={{annotation}}
-                                   style="{{ annotation | annotationLocation | styleObject }}" ></oj-annotation-marker>
+                    <template repeat="{{a in annotations}}">
+                      <template if="{{ a.page == pageNo }}">
+                        <oj-annotation-marker annotation={{a}}
+                                   style="{{ { top:a.page_y, left:a.page_x } | styleObject }}" ></oj-annotation-marker>
                       </template>
                     </template>
                 </div>
@@ -135,6 +135,20 @@
           }.bind(this), 600)
         }.bind(this));
       },
+      annotationsChanged: function() {
+          this.addLocationToAnnotations();
+      },
+      pageHeightChanged: function(oldValue, newValue) {
+
+          if (oldValue==0) {
+              // Do it immediately
+              this.addLocationToAnnotations();
+          } else {
+              // Add a delay since we're reizing inside a mouse drag
+              this.job('update-annotation-list-locations', this.addLocationToAnnotations, 150 );
+          }
+
+      },
 
       fireClick:function(event) {
           var canvas = this.shadowRoot.getElementById("canvas");
@@ -151,11 +165,24 @@
       adjustClientSizes: function(event) {
         if (this.pageNo==0)
           this.asyncFire('pdf-client-changed', {pageNo:this.pageNo, clientHeight:this.clientHeight})
+        this.addLocationToAnnotations();
+      },
+      addLocationToAnnotations: function() {
+          if (!this.annotations)
+            return;
+
+          for (var i=0; i < this.annotations.length; i++) {
+              var a = this.annotations[i];
+              if (a.page == this.pageNo) {
+                var location = this.annotationLocation(a);
+                $.extend(a, location);
+              }
+          }
       },
       annotationLocation: function(a) {
           return {
-              'top':         (a.yStart * this.clientHeight) + 'px',
-              'left':        (a.xStart * this.clientWidth)  + 'px'
+              page_y: (a.yStart * this.clientHeight) + 'px',
+              page_x: (a.xStart * this.clientWidth ) + 'px'
           };
       },
       annotationClicked: function(event, detail) {
