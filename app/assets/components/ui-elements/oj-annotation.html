@@ -1,4 +1,4 @@
-<polymer-element name='oj-annotation' attributes="paper annotation">
+<polymer-element name='oj-annotation' attributes="paper annotation text">
   <template>
 
     <div class='container state-{{annotation.state}} role-{{annotation.author.role}} collapsed' >
@@ -8,14 +8,14 @@
       </template>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
-          <div flex class=issue></div>
+          <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
           <div class=count>{{annotation.responses.length}} replies</div>
       </div>
 
     </div>
 
     <!-- Overlay this to get animated expansion to work nicely -->
-    <core-collapse id=collapsible>
+    <core-collapse id=collapsible opened={{annotation.open}}>
       <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
 
       <div class='container state-{{annotation.state}} role-{{annotation.author.role}} expanded' >
@@ -24,33 +24,28 @@
               <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
           </template>
 
-          <div on-tap="{{collapse}}" class=header>
-              <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
-          </div>
-
-          <div class='comments'>
-              <template repeat="{{response in annotation.responses}}">
-                  <markdown-content class=comment markdown="{{response.body}}"></markdown-content>
-              </template>
-          </div>
-
-          <template if={{newCommentVisible}}>
-              <core-a11y-keys keys="esc" on-keys-pressed={{dismissNewComment}}></core-a11y-keys>
-              <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitComment}}></core-a11y-keys>
-
-              <markdown-text-area id=replyTextArea placeholder="Add an issue" value="{{text}}"></markdown-text-area>
-
-              <div layout horizontal end-justified class='controls'>
-                  <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
-                  <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
+          <template if="{{!annotation.new}}">
+              <div on-tap="{{collapse}}" class=header >
+                  <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
               </div>
+
+              <oj-annotation-comments id=comments paper={{paper}} annotation={{annotation}}></oj-annotation-comments>
           </template>
 
-          <template if={{!newCommentVisible}}>
+          <template if="{{annotation.new}}">
+
+              <div class=header >
+                  <core-a11y-keys keys="esc" on-keys-pressed={{close}}></core-a11y-keys>
+                  <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitAnnotation}}></core-a11y-keys>
+                  <markdown-text-area id=annotationTextArea class=issue value={{text}}></markdown-text-area>
+              </div>
+
               <div layout horizontal>
                   <span flex></span>
-                  <core-icon on-click= {{showNewComment}} icon='reply'></core-icon>
+                  <paper-icon-button icon='add'   on-click= {{submitAnnotation}} disabled?={{!text}} ></paper-icon-button>
+                  <paper-icon-button icon='close' on-click= {{close}} ></paper-icon-button>
               </div>
+
           </template>
 
       </div>
@@ -86,6 +81,8 @@
 
       .collapsed .issue {
           height: 1.5em;
+      }
+      .collapsed .issue::shadow #renderedContent {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -95,29 +92,9 @@
           font-size: 0.9em;
           margin-left: 12px;
       }
-      .comments {
-          box-sizing: border-box;
-          padding: 10px 0 10px 0;
-          font-size: 0.9em;
-      }
 
-      .comments markdown-content::shadow #renderedContent{
-        background-color: white;
-        padding: 10px;
-        margin-bottom: 5px;
-      }
-
-      markdown-text-area {
-          width: 100%;
-      }
-      markdown-text-area::shadow a.toggle {
-          bottom: -28px;
-          right:  88px;
-          color:  #eee;
-      }
-      markdown-text-area::shadow markdown-content::shadow #renderedContent {
-          padding: 4px;
-          min-height: 40px;
+      paper-icon-button {
+          padding-bottom: 0;
       }
 
       oj-reviewer-annotation-controls {
@@ -126,11 +103,18 @@
           right:    6px;
       }
 
-      .comment {
+      markdown-text-area {
+          width: 100%;
       }
-
-      .controls paper-icon-button {
-          height: 14px;
+      markdown-text-area::shadow a.toggle {
+          bottom: -28px;
+          right:  88px;
+          color:  #888;
+          text-transform: lowercase;
+      }
+      markdown-text-area::shadow markdown-content::shadow #renderedContent {
+          padding: 4px;
+          min-height: 40px;
       }
 
       /* State Colors */
@@ -144,43 +128,51 @@
           border-top-color: #a42d25;
       }
       .container.state-new {
-          border-top-color: #f8f8f8;
+          border-top-color: #e0e000;
       }
 
     </style>
 
-    <core-ajax id="newCommentRequest"
-               url="{{paper | addIssuePath}}"
-               method="POST"
-               contentType="application/json"
-               handleAs=json
-               on-core-response={{saved}}
-               on-core-error={{error}}></core-ajax>
-
+      <json-post id=saveAnnotationRequest
+                 url="{{paper | paperAnnotationsPath}}"
+                 on-success={{annotationSaved}}
+                 on-error={{annotationError}}></json-post>
   </template>
 
   <script>
     Polymer({
-      /* External API */
-      newCommentVisible: false,
+
+      /**** API *****/
+
+      close:function(){
+          this.collapse();
+      },
+
+      /**** polymer *******/
+
       observe: {
         'annotation.open' : 'annotationOpenChanged'
       },
-      close:function(){
-        this.collapse();
-      },
-      /***********************/
-      classes: function(annotation){
-        return 'state-' + annotation.state + ' role-'+annotation.author.role;
-      },
-      annotationChanged: function(text) {
-         var issue_header = this.shadowRoot.querySelector('.header .issue');
 
-         if (issue_header && this.annotation)
-            issue_header.innerHTML = window.strip_markdown(this.annotation.body);
+      domReady: function() {
+        if (this.annotation && this.annotation.new) {
+
+            this.async( function() {
+                var edit = this.shadowRoot.querySelector('core-collapse #annotationTextArea');
+                edit.focus();
+                edit.select();
+            });
+
+        }
       },
+
+      /***********************/
+
+      showNewComment: function() {
+        this.$.comments.showNewComment();
+      },
+
       annotationOpenChanged: function() {
-        console.log('a o c');
         if (this.annotation.open)
             this.expand();
         else
@@ -188,51 +180,40 @@
       },
       collapse: function() {
         this.annotation.open = false;
-        this.$.collapsible.opened = false;
+        this.asyncFire('annotation-closed', this);
       },
       expand: function() {
         this.annotation.open = true;
-        this.$.collapsible.opened = true;
         this.asyncFire('annotation-opened', this);
       },
-      dismissNewComment:function(){
-        this.newCommentVisible = false;
-      },
-      showNewComment:function(){
-        this.newCommentVisible = true;
-        this.async( function() {
-            var edit = this.$.collapsible.querySelector('#replyTextArea');
-            edit.focus();
-            edit.select();
-        });
-      },
-      submitComment:function(){
-        if (!this.text)
-            return;
 
-        this.$.newCommentRequest.body = this.responseParams();
-        this.$.newCommentRequest.go()
+      submitAnnotation: function(){
+          if (!this.text)
+              return;
+          this.$.saveAnnotationRequest.data = this.annotationData();
+          this.$.saveAnnotationRequest.go()
       },
-      saved:function(e){
-        this.fire("notification", "Reply saved");
-        this.annotation.responses.push(e.detail.response);
-        this.newCommentVisible = false;
-        this.text = '';
+      annotationSaved:function(event, response){
+          this.annotation = response;
+          console.log('annotation', this.annotation);
+          this.fire("annotation-added", this.annotation);
+          this.fire("notification", "Annotation saved.");
+          this.text = '';
+          this.close();
       },
-      responseParams:function(){
-        var params = {
-          annotation:{
-            body: this.text,
-            page: this.annotation.page,
-            parent_id: this.annotation.id
-          }
-        };
-
-        return JSON.stringify(params)
+      annotationError:function(response){
+          this.fire("notification", "Could not save annotation.")
       },
-      error:function(){
-        this.fire("notification", "Error saving reply")
-      }
+      annotationData:function(){
+          return {
+              annotation:{
+                    body:   this.text,
+                    page:   this.annotation.page,
+                    xStart: this.annotation.xStart,
+                    yStart: this.annotation.yStart
+                }
+            };
+        }
     })
   </script>
 </polymer-element>

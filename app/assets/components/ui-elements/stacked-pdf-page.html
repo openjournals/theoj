@@ -2,7 +2,7 @@
   <template>
 
       <template if={{loaded}}>
-          <paper-shadow z=1 on-click={{fire_click}} >
+          <paper-shadow z=1 on-click={{fireClick}} >
             <canvas id=canvas></canvas>
             <div id=textLayer></div>
             <template if="{{ rendered && annotations}}">
@@ -136,7 +136,7 @@
         }.bind(this));
       },
 
-      fire_click:function(event) {
+      fireClick:function(event) {
           var canvas = this.shadowRoot.getElementById("canvas");
           var canvasRect = canvas.getClientRects()[0];
 

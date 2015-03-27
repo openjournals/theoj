@@ -25,7 +25,7 @@
         <div layout vertical id=pdf-pane>
           <div id=add-document-issue>
             <paper-button raised on-tap="{{addDocumentAnnotation}}">
-              <core-icon icon=add></core-icon>Add a comment about the whole document
+              <paper-icon-button icon=add></paper-icon-button>Add a comment about the whole document
             </paper-button>
           </div>
           <stacked-pdf-reader src={{"/proxy?url="+paper.location}}
@@ -106,13 +106,13 @@
           this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
           this.countOpen   = this.annotations.length - this.countClosed;
       },
-      pageClicked:function(event){
-        var list = this.shadowRoot.getElementById('annotation_list');
-        list.startNewAnnotation(event.detail);
+      pageClicked:function(event, position){
+        var annotation = $.extend({state:'new', new:true, open:true}, position);
+        this.annotations.push(annotation);
       },
       addDocumentAnnotation: function(event) {
-        var list = this.shadowRoot.getElementById('annotation_list');
-        list.startNewAnnotation({});
+          var annotation = {state:'new', new:true, open:true};
+          this.annotations.push(annotation);
       }
     })
   </script>
