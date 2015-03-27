@@ -3,19 +3,15 @@
     <div layout vertical flex id=list>
 
       <template repeat="{{annotation in annotations}}">
-        <oj-annotation paper={{paper}} annotation={{annotation}}
-                       style="top:{{annotation.top}}px"
+        <oj-annotation paper={{paper}}
+                       annotation={{annotation}}
+                       style="{{ {top:annotation.list_top} | styleObject }}"
                        on-annotation-opened={{annotationOpened}}
+                       on-annotation-closed={{annotationClosed}}
+                       on-annotation-added={{annotationAdded}}
                 ></oj-annotation>
       </template>
 
-      <oj-new-annotation id=new_annotation
-                         paper={{paper}}
-                         text={{newText}}
-                         on-annotation-opened={{annotationOpened}}
-                         on-annotation-added={{newAnnotationAdded}}
-              ></oj-new-annotation>
-      </template>
     </div>
 
     <style>
@@ -28,7 +24,7 @@
   </template>
   <script>
     Polymer({
-      collapsedAnnotationHeight: 66,
+      collapsedAnnotationHeight: 50,
       pageHeight: 0,
 
       created: function() {
@@ -43,10 +39,6 @@
         this.addLocationToAnnotations();
       },
       pageHeightChanged: function(oldValue, newValue) {
-        if (this.$.new_annotation && this.$.new_annotation.location) {
-          var top = this.topForAnnotation(this.$.new_annotation.location);
-          this.$.new_annotation.style.top = top+'px';
-        }
 
         if (oldValue==0) {
             // Do it immediately
@@ -74,21 +66,23 @@
       addLocationToAnnotations: function() {
           var annotations = this.sorted_annotations;
           var last = 0;
-          for (var i=0; i<annotations.length; i++) {
+          for (var i=0; i < annotations.length; i++) {
               var a = annotations[i];
               var top = this.topForAnnotation(a);
-              if (top < last) top = last;
-              a.top = top;
-              last = top + this.collapsedAnnotationHeight;
+
+              if (!a.new) {
+                  if (top < last) top = last;
+                  last = top + this.collapsedAnnotationHeight;
+              }
+
+              a.list_top = top + 'px';
           }
-      },
-      newAnnotationAdded:function(event, annotation){
-         this.annotations.push(annotation);
       },
       topForAnnotation: function(annotation){
         var page_no = annotation.page;
         if (page_no===undefined || page_no===null) {
             return 0;
+
         } else {
             var y = annotation.yStart;
             var t = this.firstPageOffset +
@@ -101,22 +95,23 @@
       annotationOpened: function(event, element) {
         this.collapseAnnotations(element);
       },
+      annotationClosed: function(event, element) {
+        if (element.annotation.new) {
+            var index = this.annotations.indexOf(element.annotation);
+            if (index >= 0)
+                this.annotations.splice(index, 1);
+        }
+      },
+      annotationAdded: function(event, annotation) {
+          var last = this.annotations.length-1;
+          this.annotations[last] = annotation;
+      },
       collapseAnnotations: function(exclude) {
           var annotations = this.$.list.querySelectorAll('oj-annotation');
           [].forEach.call( annotations, function(annotation) {
              if (annotation != exclude)
                 annotation.close();
           });
-
-          var new_annotation = this.$.list.querySelector('oj-new-annotation');
-          if (new_annotation && new_annotation != exclude)
-              new_annotation.close();
-      },
-      startNewAnnotation: function(location) {
-        var top = this.topForAnnotation(location);
-
-        this.$.new_annotation.style.top = top+'px';
-        this.$.new_annotation.open(location);
       }
     })
   </script>

@@ -1,0 +1,36 @@
+<polymer-element name="markdown-simplified" attributes='markdown'>
+
+  <template>
+    <div id='renderedContent'></div>
+
+    <style>
+      :host {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        display:inline;
+      }
+      #renderedContent {
+        padding: 0;
+      }
+      p {
+        margin:0;
+        padding:0;
+      }
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      showPreview:false,
+      markdown: '',
+      markdownChanged:function(){
+        var parsed = simplified_markdown( this.markdown );
+        this.$.renderedContent.innerHTML = parsed;
+      }
+    })
+  </script>
+
+</polymer-element>

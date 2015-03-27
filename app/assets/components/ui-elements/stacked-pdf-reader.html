@@ -1,9 +1,9 @@
-<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress'>
+<polymer-element name="stacked-pdf-reader" attributes='src noPages loadProgress annotations'>
   <template>
 
       <div id=pages>
       <template repeat="{{ pageNo in  pageIndexArray }}">
-        <stacked-pdf-page  pageNo={{pageNo}} page={{getPage(pageNo)}}></stacked-pdf-page>
+        <stacked-pdf-page  pageNo={{pageNo}} page={{getPage(pageNo)}} annotations={{annotations}}></stacked-pdf-page>
       </template>
     </div>
 

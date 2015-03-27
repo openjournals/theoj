@@ -1,0 +1,134 @@
+<polymer-element name='oj-annotation-comments' attributes="paper annotation">
+  <template>
+
+      <div class='comments'>
+          <template repeat="{{comment in annotation.responses}}">
+              <markdown-content class=comment markdown="{{comment.body}}"></markdown-content>
+          </template>
+      </div>
+
+      <template if={{newCommentVisible}}>
+          <core-a11y-keys keys="esc" on-keys-pressed={{dismissNewComment}}></core-a11y-keys>
+          <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitComment}}></core-a11y-keys>
+
+          <markdown-text-area id=replyTextArea placeholder="Add a comment" value="{{text}}"></markdown-text-area>
+
+          <div layout horizontal end-justified class='controls'>
+              <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
+              <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
+          </div>
+      </template>
+
+      <template if={{!newCommentVisible}}>
+          <div layout horizontal>
+              <span flex></span>
+              <paper-icon-button on-click= {{showNewComment}} icon='reply'></paper-icon-button>
+          </div>
+      </template>
+
+    <style>
+
+      .comments {
+          box-sizing: border-box;
+          padding: 10px 0 10px 0;
+          font-size: 0.9em;
+      }
+
+      .comments markdown-content::shadow #renderedContent{
+        background-color: white;
+        padding: 10px;
+        margin-bottom: 5px;
+      }
+
+      .comment {
+      }
+
+      markdown-text-area {
+          width: 100%;
+      }
+      markdown-text-area::shadow a.toggle {
+          bottom: -28px;
+          right:  88px;
+          color:  #888;
+          text-transform: lowercase;
+      }
+      markdown-text-area::shadow markdown-content::shadow #renderedContent {
+          padding: 4px;
+          min-height: 40px;
+      }
+
+      paper-icon-button {
+          padding-top:    0;
+          padding-bottom: 0;
+      }
+
+    </style>
+
+    <core-ajax id="newCommentRequest"
+               url="{{paper | addIssuePath}}"
+               method="POST"
+               contentType="application/json"
+               handleAs=json
+               on-core-response={{commentSaved}}
+               on-core-error={{commentError}}></core-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      /***** API *******/
+
+      showNewComment:function(){
+            this.newCommentVisible = true;
+            this.async( function() {
+                var edit = this.shadowRoot.querySelector('#replyTextArea');
+                edit.focus();
+                edit.select();
+            });
+      },
+
+      /******** Polymer *******************/
+
+      newCommentVisible: false,
+
+      /*************************/
+
+      dismissNewComment:function(){
+        this.newCommentVisible = false;
+      },
+
+      submitComment:function(){
+        if (!this.text)
+            return;
+
+        this.$.newCommentRequest.body = this.responseParams();
+        this.$.newCommentRequest.go();
+      },
+
+      commentSaved:function(e){
+        this.fire("notification", "Reply saved");
+        this.annotation.responses.push(e.detail.response);
+        this.newCommentVisible = false;
+        this.text = '';
+      },
+
+      responseParams:function(){
+        var params = {
+          annotation:{
+            body:      this.text,
+            page:      this.annotation.page,
+            parent_id: this.annotation.id
+          }
+        };
+
+        return JSON.stringify(params)
+      },
+
+      commentError:function(){
+        this.fire("notification", "Error saving reply")
+      }
+
+    })
+  </script>
+</polymer-element>
