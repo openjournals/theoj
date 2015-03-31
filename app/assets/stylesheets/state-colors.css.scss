@@ -21,9 +21,14 @@ $oj-paper-actions-bg: (
         status:          #dcffdc,
 );
 
-body /deep/ {
+// Author roles
+$oj-paper-roles-bg: (
+        author:   #beaed4,  // blue
+        reviewer: #7fc97f,  // green
+        editor:   #fdc086,  // orange-red
+);
 
-  /* Issue state themes */
+body /deep/ {
 
   oj-annotation-marker {
 
@@ -60,6 +65,12 @@ body /deep/ {
 
       @each $action, $bg in $oj-paper-actions-bg {
         .action-#{$action} {
+          background-color: $bg;
+        }
+      }
+
+      @each $role, $bg in $oj-paper-roles-bg {
+        .role-#{$role} {
           background-color: $bg;
         }
       }

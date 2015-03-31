@@ -1,13 +1,13 @@
 <polymer-element name='oj-paper-row' attributes='paper'>
 <template>
-  <div class='row {{paper | classForPaper}}' flex layout horizontal>
+  <div class='row {{paper | actionForPaper}}' flex layout horizontal>
     <summary>
       <h3>{{paper.title}}</h3>
     </summary>
-    <status class='action-{{paper | classForPaper}}'>
-      <p>State: <span>{{paper.state | textForState}}</span></p>
-      <p>Issues: <span>{{paper.pending_issues_count}}</span></p>
-      <p class="role-{{paper}}">Your role: <span>{{paper.user_permissions}}</span></p>
+    <status class='action-{{paper | actionForPaper}}'>
+      <p class="state">State: <span>{{paper.state | textForState}}</span></p>
+      <p class="issues">Issues: <span>{{paper.pending_issues_count}}</span></p>
+      <p class="role role-{{paper | roleForPaper}}">Your role: <span>{{paper.user_permissions}}</span></p>
       <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
     </status>
   </div>
@@ -18,7 +18,6 @@
     }
 
     h3 {
-
     }
 
     .row {
@@ -34,14 +33,25 @@
     status {
       float:        right;
       width:        20%;
-      border-left:  1px solid #efefef;
+      border-left:  4px solid #c0c0c0;
+    }
+
+    status p {
+      font-size:   1em;
+      font-weight: bolder;
       padding-left:  8px;
       padding-right: 8px;
     }
 
-    status p {
-      font-size: 1em;
-      font-weight: bolder;
+    status p.state {
+        margin-top:     8px;
+    }
+
+    status p.role {
+        margin-top:     8px;
+        padding-top:    8px;
+        padding-bottom: 8px;
+        margin-bottom:  0;
     }
 
     status p span {
@@ -53,7 +63,7 @@
 
 <script>
   Polymer({
-      classForPaper: function(paper){
+      actionForPaper: function(paper){
           if (!paper) return;
 
           var has_role = function(role) { return paper.user_permissions.indexOf(role) >= 0; };
@@ -74,6 +84,20 @@
               return 'in-process';
 
       },
+
+      roleForPaper: function(paper){
+        if (!paper)
+            return '';
+        else if (paper.user_permissions.indexOf('editor') >= 0)
+            return 'editor';
+        else if (paper.user_permissions.indexOf('reviewer') >= 0)
+            return 'reviewer';
+        else if (paper.user_permissions.indexOf('collaborator') >= 0)
+            return 'author';
+        else if (paper.user_permissions.indexOf('submittor') >= 0)
+            return 'author';
+      },
+
       textForState: function(state) {
         return state && state.replace(/_/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
       }
