@@ -79,4 +79,18 @@ body /deep/ {
 
   }
 
+  oj-review-page {
+
+    &::shadow {
+
+      @each $role, $bg in $oj-paper-roles-bg {
+        .role-#{$role} {
+          background-color: $bg;
+        }
+      }
+
+    }
+
+  }
+
 }

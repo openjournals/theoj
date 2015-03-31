@@ -1,12 +1,20 @@
 <polymer-element name="oj-review-page" attributes='paper_id user'>
   <template>
     <core-toolbar fixed layout>
-      <p flex self-start class='title'>{{paper.title}}</p>
+
+      <span class='role role-{{paper | roleForPaper}}'>
+          <template repeat="{{perm in paper.user_permissions}}">
+            <span class=permission>{{perm}}<br/></span>
+          </template>
+      </span>
+
+      <span flex self-start class='title'>{{paper.title}}</span>
 
       <template if={{annotations}}>
-        <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} Closed Issues</span>
-        <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} Open Issues</span>
+        <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>
+        <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>
       </template>
+
       <span><core-icon icon='list'></core-icon></span>
 
       <template if='{{loadProgress < 100}}'>
@@ -52,7 +60,12 @@
     <style>
       core-toolbar{
           background-color: #7986CB;
+          border-top: solid 2px #4f5783;
       }
+      core-toolbar::shadow .toolbar-tools {
+          padding-left: 0;
+      }
+
       #pdf-pane {
           box-sizing: border-box;
           width: 65%;
@@ -69,8 +82,24 @@
           margin-top: 5px;
       }
 
-      span.issue-summary{
-        font-size: 0.8em
+      span.issue-summary {
+        font-size: 0.8em;
+        text-align: right;
+      }
+
+      span.role {
+        height:     100%;
+        font-size:   0.7em;
+        margin-left: 0;
+        padding:     4px 8px;
+        box-sizing:  border-box;
+        text-align:  center;
+      }
+
+      span.issue-summary span {
+          display:        inline-block;
+          vertical-align: middle;
+          font-size:      0.6em;
       }
 
     </style>
