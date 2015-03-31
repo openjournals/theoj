@@ -4,12 +4,12 @@ class UsersController < ApplicationController
 
   def show
     user = User.find_by_sha(params[:id])
-    render :json => user
+    render :json => user, serializer: UserWithPapersSerializer
   end
 
   def get_current_user
     if current_user
-      respond_with current_user
+      respond_with current_user, serializer: UserWithPapersSerializer
     else
       render :json => {}
     end
@@ -20,4 +20,5 @@ class UsersController < ApplicationController
     users = User.where("name like ?", "%#{guess}%").to_a
     respond_with users
   end
+
 end
