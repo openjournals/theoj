@@ -1,0 +1,42 @@
+<script>
+
+    $.extend(  PolymerExpressions.prototype, {
+
+        actionForPaper: function(paper){
+            if (!paper) return;
+
+            var has_role = function(role) { return paper.user_permissions.indexOf(role) >= 0; };
+
+            if (has_role('submittor') && paper.pending_issues_count>1)
+                return 'needs-attention';
+
+            else if (has_role('reviewer') && paper.state=='under_review')
+                return 'needs-attention';
+
+            else if (paper.state=='rejected')
+                return 'needs-attention';
+
+            else if (paper.state=='accepted')
+                return 'accepted';
+
+            else if (has_role('submittor'))
+                return 'in-process';
+
+        },
+
+        roleForPaper: function(paper){
+            if (!paper)
+                return '';
+            else if (paper.user_permissions.indexOf('editor') >= 0)
+                return 'editor';
+            else if (paper.user_permissions.indexOf('reviewer') >= 0)
+                return 'reviewer';
+            else if (paper.user_permissions.indexOf('collaborator') >= 0)
+                return 'author';
+            else if (paper.user_permissions.indexOf('submittor') >= 0)
+                return 'author';
+        }
+
+    });
+
+</script>

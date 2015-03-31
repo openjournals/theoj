@@ -24,7 +24,7 @@
     Polymer({
       dismissable:true,
       remove: function(event){
-        event.preventDefault()
+        event.preventDefault();
         this.fire("remove-reviewer", this.reviewer)
       }
     })

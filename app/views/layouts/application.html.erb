@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <%= javascript_include_tag "webcomponentsjs/webcomponents" unless Rails.env.test? %>
-
     <title>The Open Journal</title>
+
+    <%= javascript_include_tag "webcomponentsjs/webcomponents" unless Rails.env.test? %>
+    <%= javascript_include_tag "application" %>
 
     <%= stylesheet_link_tag    "application", media: "all", :'shim-shadowdom'=>'' %>
     <%= html_import_tag "application" %>
-
-    <%= javascript_include_tag "application" %>
 
     <script charset="utf-8" src="http://vivin.net/pub/pdfjs/textlayerbuilder.js"></script>
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
