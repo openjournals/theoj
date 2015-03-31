@@ -4,10 +4,10 @@
     <summary>
       <h3>{{paper.title}}</h3>
     </summary>
-    <status class='{{paper | classForPaper}}'>
-      <p>State: <span class="{{paper.state}}">{{paper.state}}</span></p>
+    <status class='action-{{paper | classForPaper}}'>
+      <p>State: <span>{{paper.state | textForState}}</span></p>
       <p>Issues: <span>{{paper.pending_issues_count}}</span></p>
-      <p>Your role: <span>{{paper.user_permissions}}</span></p>
+      <p class="role-{{paper}}">Your role: <span>{{paper.user_permissions}}</span></p>
       <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
     </status>
   </div>
@@ -16,7 +16,8 @@
     ::host {
         margin: 0;
     }
-    h3{
+
+    h3 {
 
     }
 
@@ -26,7 +27,7 @@
       cursor: pointer;
     }
 
-    summary{
+    summary {
       width: 80%;
     }
 
@@ -38,24 +39,13 @@
       padding-right: 8px;
     }
 
-    status p{
+    status p {
       font-size: 1em;
       font-weight: bolder;
-
     }
 
-    status p span{
+    status p span {
       font-weight: normal;
-    }
-
-    status.needs-attention {
-        background: #ffd6da;
-    }
-    status.in-process {
-        background: #ffffc8;
-    }
-    status.accepted {
-        color: #dcffdc;
     }
 
   </style>
@@ -83,6 +73,9 @@
           else if (has_role('submittor'))
               return 'in-process';
 
+      },
+      textForState: function(state) {
+        return state && state.replace(/_/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
       }
   })
 </script>

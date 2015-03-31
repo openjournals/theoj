@@ -1,0 +1,71 @@
+// @import 'variables';
+
+// Issue States
+$oj-issue-states-fg: (
+        unresolved: #6b711c,
+        resolved:   #0D47A1,
+        disputed:   #a42d25,
+        new:        #e0e000,
+);
+$oj-issue-states-bg: (
+        unresolved: #d3df38,
+        resolved:   #146efc,
+        disputed:   #fe4539,
+        new:        #e0e0a0,
+);
+
+// Paper states
+$oj-paper-actions-bg: (
+        needs-attention: #ffd6da,
+        in-process:      #ffffc8,
+        status:          #dcffdc,
+);
+
+body /deep/ {
+
+  /* Issue state themes */
+
+  oj-annotation-marker {
+
+    &::shadow core-icon {
+
+      @each $state, $fg in $oj-issue-states-fg {
+        &.state-#{$state} {
+          stroke: map-get($oj-issue-states-fg, $state);
+          fill:   map-get($oj-issue-states-bg, $state);
+        }
+      }
+
+    }
+
+  }
+
+  oj-annotation {
+
+    &::shadow .container {
+
+      @each $state, $fg in $oj-issue-states-fg {
+        &.state-#{$state} {
+          border-top-color: $fg;
+        }
+      }
+
+    }
+
+  }
+
+  oj-paper-row {
+
+    &::shadow {
+
+      @each $action, $bg in $oj-paper-actions-bg {
+        .action-#{$action} {
+          background-color: $bg;
+        }
+      }
+
+    }
+
+  }
+
+}
