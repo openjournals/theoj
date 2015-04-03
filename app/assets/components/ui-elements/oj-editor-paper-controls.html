@@ -17,7 +17,7 @@
       <div flex></div>
 
       <div id='status' layout vertical>
-        <p>Status:{{paper.state}}</p>
+        <p>Status:{{paper.state|capitalize}}</p>
         <template if="{{paper.status=='pending'}}">
           <div>
             <paper-icon-button id='accept' on-tap="{{acceptClick}}" aria-label="accept" icon="thumb-up"></paper-icon-button>

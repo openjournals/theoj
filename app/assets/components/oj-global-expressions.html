@@ -18,6 +18,11 @@
             return JSON.stringify(obj);
         },
 
+        // capitalize snake cased style text
+        capitalize: function(text) {
+            return text && text.replace(/[_-]/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
+        },
+
         log: function(value, args) {
             args = Array.prototype.slice.call(arguments, 1);
             args.splice(1, 0, value);
