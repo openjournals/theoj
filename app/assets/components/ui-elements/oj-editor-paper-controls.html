@@ -5,29 +5,30 @@
 
       <div layout vertical flex>
         <div layout horizontal>
-          <p>Reviewers: </p>
-          <template repeat="{{reviewer in paper.reviewers}}">
-            <oj-reviewer reviewer={{reviewer}} dismissable="{{paper.status=='pending'}}" on-remove-reviewer={{removeReviewer}}></oj-reviewer> <paper-icon-button icon="accept"></paper-icon-button>
-          </template>
+          <div class="label">Reviewers:</div>
+          <div>
+            <template if={{pending}}>
+                <oj-user-lookup placeholder="Add Reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
+            </template>
+            <template repeat="{{reviewer in paper.reviewers}}">
+                <oj-reviewer reviewer={{reviewer}} dismissable={{pending}} on-remove-reviewer={{removeReviewer}}></oj-reviewer>
+            </template>
+            <template if="{{!pending && !paper.reviewes}}">
+                This paper does not have any reviewers.
+            </template>
+          </div>
         </div>
-        <template if="{{paper.status=='pending'}}">
-          <oj-user-lookup placeholder="Add reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
-        </template>
       </div>
 
       <div id='status' layout vertical>
         <p>Status:{{paper.state|capitalize}}</p>
-        <template if="{{paper.status=='pending'}}">
+        <template if={{true}}>
           <div>
             <paper-icon-button id='accept' on-tap="{{acceptClick}}" aria-label="accept" icon="thumb-up"></paper-icon-button>
             <paper-icon-button id='reject' on-tap="{{rejectClick}}" aria-label="reject" icon="thumb-down"></paper-icon-button>
           </div>
         </template>
       </div>
-
-
-      <json-post id='addReviewer'    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
-      <json-post id='removeReviewer' on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
 
     </div>
 
@@ -37,16 +38,17 @@
       <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-
     <paper-action-dialog id='rejectDialog' backdrop layered="false">
       <p>Do you really want to reject this paper?</p>
       <paper-button affirmative on-tap={{rejectPaper}}>Reject</paper-button>
       <paper-button cdismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
+    <json-post id='addReviewer'    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
+    <json-post id='removeReviewer' on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
+
     <json-put id='paperAcceptPost' url="{{paper | acceptPaperPath}}" on-success="{{paperDone}}"></json-put>
     <json-put id='paperRejectPost' url="{{paper | rejectPaperPath}}" on-success="{{paperDone}}"></json-put>
-
 
     <style>
       :host{
@@ -56,14 +58,16 @@
         display: block;
         margin:0;
       }
-      #status{
+      .label {
+          font-weight: bold;
+          padding-right: 14px;
+      }
+      #status {
         margin-right:60px
       }
-      oj-reviewer{
-        margin-left: 10px
-      }
-      oj-user-lookup{
-        display: block;
+      oj-reviewer, oj-user-lookup {
+        margin-right: 10px;
+        margin-bottom: 10px;
       }
       #accept{
         color: green;
@@ -72,10 +76,14 @@
         color: red;
       }
     </style>
+
   </template>
 
   <script>
     Polymer({
+      paperChanged: function() {
+        this.pending = this.paper && this.paper.state == 'pending';
+      },
       removeReviewer:function(event,detail){
         this.$.removeReviewer.data = {user_name: detail.name};
         this.$.removeReviewer.go()
@@ -105,4 +113,5 @@
       }
     })
   </script>
+
 </polymer-element>

@@ -1,7 +1,7 @@
 <polymer-element name='oj-user-lookup' attributes='placeholder'>
   <template>
-    <input placeholder={{placeholder}} value={{search}}></input>
-    <ul class='suggestions'>
+    <input placeholder={{placeholder}} value={{search}} on-blur={{hideDropdown}} on-focus={{showDropdown}}></input>
+    <ul class='suggestions' hidden?={{dropdownHidden}}>
       <template repeat="{{suggestion in suggestions}}">
         <li on-tap="{{selectName}}" userid="{{suggestion.name}}">{{suggestion.name}}</li>
       </template>
@@ -9,49 +9,79 @@
 
     <json-get  id='lookUpSearch'
                url='/users/name_lookup'
-               on-success={{response}}
-               >
-    </json-get>
+               result={{suggestions}}
+               ></json-get>
 
     <style>
-      ul{
-        padding:0px;
-        margin:0px;
+      :host {
+          position: relative;
       }
 
-      li{
-        box-model:border-box;
-        padding: 5px 10px;
-        background-color: grey;
-        color:white;
+      input {
+          font-size:  16px;
+          padding: 4px;
+          vertical-align: top;
+      }
+
+      ul {
+        position: absolute;
+        z-index: 100;
+        padding:0;
+        margin:0;
+        list-style: none;
+        margin-top: -8px;
+      }
+
+      li {
+        box-sizing: border-box;
+        padding:    5px 10px;
+        background-color: #e7e7e7;
+        color:black;
         border-bottom: 1px solid black;
         cursor: pointer;
       }
-
+      li:hover {
+          background-color: #d0d0d0;
+      }
 
     </style>
   </template>
 
   <script>
     Polymer({
-      suggestions:[],
-      searching: false,
-      searchChanged:function(){
-        if(this.searching==false && this.search!=""){
-          this.searching= true;
-          this.$.lookUpSearch.data = {guess: this.search}
-          this.$.lookUpSearch.go()
-        }
+
+      created: function() {
+          this.suggestions = [];
       },
+
+      searchChanged:function(){
+       this.job('user_search', function() {
+          if (this.search.length > 2) {
+            this.$.lookUpSearch.data = {guess: this.search};
+            this.$.lookUpSearch.go();
+
+          } else {
+              this.suggestions = [];
+          }
+       }, 300);
+      },
+
+      showDropdown: function() {
+        this.dropdownHidden = false;
+      },
+      hideDropdown: function() {
+        this.async( function() {
+            this.dropdownHidden = true;
+        }, null, 100);
+      },
+
       selectName:function(event, detail, sender){
-        this.fire("user-selected", sender.getAttribute("userid"))
+        this.fire("user-selected", sender.getAttribute("userid"));
         this.search = "";
         this.suggestions = []
-      },
-      response:function(event,detail){
-        this.searching= false;
-        this.suggestions=detail;
       }
+
     })
   </script>
+
 </polymer-element>

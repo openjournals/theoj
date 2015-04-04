@@ -1,22 +1,24 @@
 <polymer-element name='oj-reviewer' attributes='reviewer dismissable'>
 
   <template>
-    <div layout horizontal>
-      <p>{{reviewer.name}}  <template if={{dismissable}}> <a href='#' on-click={{remove}} >&times</a></template></p>
-    </div>
+      <span class=name>{{reviewer.name}}</span>
+      <template if={{dismissable}}><a href='#' on-click={{remove}} >&times</a></template>
 
     <style>
 
-      p{
+      :host {
+        display: inline-block;
         background-color:#0f9d58;
         color: white;
-        box-model: border-box;
+        box-sizing: border-box;
         padding: 5px 10px
       }
-      a{
+
+      a {
         color:white;
         text-decoration:none;
       }
+
     </style>
   </template>
 

@@ -17,7 +17,7 @@ class UsersController < ApplicationController
 
   def name_lookup
     guess = params["guess"]
-    users = User.where("name like ?", "%#{guess}%").to_a
+    users = User.where("name like ?", "%#{guess}%")
     respond_with users
   end
 
