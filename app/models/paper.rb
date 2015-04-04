@@ -11,24 +11,26 @@ class Paper < ActiveRecord::Base
   # Which User is this currently for the attention of?
   belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
 
-  scope :active, -> { where.not(state:'pending') }
+  scope :active, -> { all }
 
 
   before_create :set_sha, :get_arxiv_details
 
 
   aasm column: :state do
-    state :pending,          initial:true
-    state :submitted
+    state :submitted,          initial:true
     state :under_review
     state :accepted
     state :rejected
 
     event :accept, after: :resolve_all_issues do
-      transitions to: :accepted
+      transitions from: :under_review, to: :accepted
+    end
+    event :reject do
+      transitions from: :under_review, to: :rejected
     end
 
-    event :assigned do
+    event :start_review do
       transitions from: :submitted, to: :under_review
     end
 
@@ -54,10 +56,6 @@ class Paper < ActiveRecord::Base
     annotations.each(&:resolve!)
   end
 
-  def pretty_status
-    state.humanize
-  end
-
   def editors
     User.editors
   end
@@ -67,7 +65,7 @@ class Paper < ActiveRecord::Base
   end
 
   def draft?
-    state == "pending"
+    submitted?
   end
 
   def self.for_user(user)
@@ -80,19 +78,15 @@ class Paper < ActiveRecord::Base
 
   def assign_reviewer(user)
     # Change this to actually be username later on. Also this is a mess tidy up later
-    assigned = false
 
-    if user.reviewer_of? self
-       return true
-    end
+    return true if user.reviewer_of? self
 
     if assignments.create(user: user, role:"reviewer")
-      assigned = true
+      true
     else
-      @errors = ["Something bad went wrong"]
+      errors.add(:assignments, 'Unable to assign user')
+      false
     end
-
-    assigned
   end
 
   def remove_reviewer(user)
@@ -110,7 +104,7 @@ class Paper < ActiveRecord::Base
       assigned << "editor"
     end
 
-    return assigned
+    assigned
   end
 
   private

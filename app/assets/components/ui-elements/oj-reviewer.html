@@ -1,8 +1,8 @@
-<polymer-element name='oj-reviewer' attributes='reviewer dismissable'>
+<polymer-element name='oj-reviewer' attributes='reviewer removable'>
 
   <template>
       <span class=name>{{reviewer.name}}</span>
-      <template if={{dismissable}}><a href='#' on-click={{remove}} >&times</a></template>
+      <template if={{removable}}><a href='#' on-click={{remove}} >&times</a></template>
 
     <style>
 
@@ -24,7 +24,7 @@
 
   <script>
     Polymer({
-      dismissable:true,
+      removable:true,
       remove: function(event){
         event.preventDefault();
         this.fire("remove-reviewer", this.reviewer)

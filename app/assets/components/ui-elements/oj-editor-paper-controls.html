@@ -7,13 +7,13 @@
         <div layout horizontal>
           <div class="label">Reviewers:</div>
           <div>
-            <template if={{pending}}>
+            <template if={{submitted}}>
                 <oj-user-lookup placeholder="Add Reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
             </template>
             <template repeat="{{reviewer in paper.reviewers}}">
-                <oj-reviewer reviewer={{reviewer}} dismissable={{pending}} on-remove-reviewer={{removeReviewer}}></oj-reviewer>
+                <oj-reviewer reviewer={{reviewer}} removable={{submitted}} on-remove-reviewer={{removeReviewer}}></oj-reviewer>
             </template>
-            <template if="{{!pending && !paper.reviewes}}">
+            <template if="{{!submitted && !paper.reviewes}}">
                 This paper does not have any reviewers.
             </template>
           </div>
@@ -82,7 +82,7 @@
   <script>
     Polymer({
       paperChanged: function() {
-        this.pending = this.paper && this.paper.state == 'pending';
+        this.submitted = this.paper && this.paper.state == 'submitted';
       },
       removeReviewer:function(event,detail){
         this.$.removeReviewer.data = {user_name: detail.name};

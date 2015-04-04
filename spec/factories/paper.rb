@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :paper do
     location       "http://example.com/1234"
-    state          "pending"
+    state          "submitted"
     title          "My awesome paper"
     summary        "Summary of my awesome paper"
     sha            "1234abcd" * 8

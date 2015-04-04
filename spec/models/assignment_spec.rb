@@ -55,4 +55,5 @@ describe Assignment do
 
     assert_includes editor.papers_as_editor, paper
   end
+
 end

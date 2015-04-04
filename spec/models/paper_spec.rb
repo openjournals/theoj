@@ -7,9 +7,8 @@ describe Paper do
 
     assert !paper.sha.nil?
     expect(paper.sha.length).to eq(32)
-    expect(paper.state).to eq("pending")
+    expect(paper.state).to eq("submitted")
   end
-
 
   describe "::with_scope" do
 
@@ -56,16 +55,16 @@ describe Paper do
       assert ability.can?(:read, paper)
     end
 
-    it "should allow a user to update their own paper if it's not submitted" do
-      user = create(:user)
-      paper = create(:paper, :user => user)
+    # it "should allow a user to update their own paper if it's not submitted" do
+    #   user = create(:user)
+    #   paper = create(:paper, :user => user)
+    #
+    #   ability = Ability.new(user, paper)
+    #
+    #   assert ability.can?(:update, paper)
+    # end
 
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:update, paper)
-    end
-
-    it "should not allow a user to update their own paper if it has been submitted" do
+    it "should not allow a user to update their own paper" do
       user = create(:user)
       paper = create(:submitted_paper, :user => user)
 
@@ -74,14 +73,14 @@ describe Paper do
       assert ability.cannot?(:update, paper)
     end
 
-    it "can destroy a draft paper that a user owns" do
-      user = create(:user)
-      paper = create(:paper, :user => user)
-
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:destroy, paper)
-    end
+    # it "can destroy a draft paper that a user owns" do
+    #   user = create(:user)
+    #   paper = create(:paper, :user => user)
+    #
+    #   ability = Ability.new(user, paper)
+    #
+    #   assert ability.can?(:destroy, paper)
+    # end
 
     it "cannot destroy a draft paper that a user doesn't own" do
       user = create(:user)

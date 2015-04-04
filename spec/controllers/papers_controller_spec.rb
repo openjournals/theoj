@@ -250,7 +250,7 @@ describe PapersController do
 
   # describe "PUT #update" do
   #
-  #   it "AS AUTHOR on pending paper should change title" do
+  #   it "AS AUTHOR on submitted paper should change title" do
   #     user = authenticate
   #     paper = create(:paper, :user => user)
   #
@@ -330,7 +330,7 @@ describe PapersController do
         paper = create(:paper_under_review)
         create(:assignment_as_reviewer, :user => user, :paper => paper)
 
-        get :as_reviewer, :format => :json, :state => 'pending'
+        get :as_reviewer, :format => :json, :state => 'submittted'
 
         expect(response).to have_http_status(:success)
         assert_equal 0, response_json.size
@@ -365,7 +365,6 @@ describe PapersController do
       user = authenticate(:editor)
       create(:paper_under_review) # should be returned
       create(:submitted_paper) # should be returned
-      create(:paper) # pending (should not be returned)
 
       get :as_editor, :format => :json
 
