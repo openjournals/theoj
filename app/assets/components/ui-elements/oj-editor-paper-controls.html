@@ -2,7 +2,8 @@
   <template>
 
     <div flex layout horizontal>
-      <div layout vertical>
+
+      <div layout vertical flex>
         <div layout horizontal>
           <p>Reviewers: </p>
           <template repeat="{{reviewer in paper.reviewers}}">
@@ -13,8 +14,6 @@
           <oj-user-lookup placeholder="Add reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
         </template>
       </div>
-
-      <div flex></div>
 
       <div id='status' layout vertical>
         <p>Status:{{paper.state|capitalize}}</p>

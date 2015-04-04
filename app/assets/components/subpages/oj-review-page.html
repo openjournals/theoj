@@ -132,8 +132,9 @@
       updateCounts: function() {
           if (!this.annotations)
             return;
+          this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
           this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
-          this.countOpen   = this.annotations.length - this.countClosed;
+          this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
       },
       newAnnotation: function(properties) {
           return $.extend( {state:'new', new:true, open:true}, properties);
@@ -143,7 +144,7 @@
         this.annotations.push(annotation);
       },
       addDocumentAnnotation: function(event) {
-        var annotation = this.newAnnotation( position );
+        var annotation = this.newAnnotation();
         this.annotations.push(annotation);
       }
     })
