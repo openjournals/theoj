@@ -157,13 +157,13 @@ describe PapersController do
 
   end
 
-  describe "GET #status" do
+  describe "GET #state" do
 
     render_views
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code" do
       paper = create(:paper_under_review)
-      get :status, :id => paper.sha, :format => :html
+      get :state, :id => paper.sha, :format => :html
 
       etag1 = response.header['ETag']
 
@@ -174,7 +174,7 @@ describe PapersController do
 
       paper.accept!
 
-      get :status, :id => paper.sha, :format => :html
+      get :state, :id => paper.sha, :format => :html
 
       etag2 = response.header['ETag']
 
@@ -272,23 +272,32 @@ describe PapersController do
   #
   # end
 
-  describe "PUT #accept" do
+  describe "PUT #transition" do
 
     it "AS EDITOR responds successfully with a correct status and accept paper" do
       authenticate(:editor)
       paper = create(:paper_under_review)
 
-      put :accept, :id => paper.sha, :format => :json
+      put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
       expect(response).to have_http_status(:success)
       assert_equal response_json["state"], "accepted"
+    end
+
+    it "AS EDITOR responds with an unprocessable entity for an invalid transition" do
+      authenticate(:editor)
+      paper = create(:paper, :submitted)
+
+      put :transition, :id => paper.sha, :transition => :accept, :format => :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
     it "AS USER responds successfully with a correct status (403) and NOT accept paper" do
       authenticate
       paper = create(:paper_under_review)
 
-      put :accept, :id => paper.sha, :format => :json
+      put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
       # Should be redirected
       expect(response.status).to eq(403)
@@ -298,7 +307,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper_under_review, :user => user)
 
-      put :accept, :id => paper.sha, :format => :json
+      put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
       expect(response).to have_http_status(:forbidden)
       expect(response_json).to eq(error_json(:forbidden))
