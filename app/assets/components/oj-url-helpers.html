@@ -33,10 +33,7 @@
     PolymerExpressions.prototype.paperAnnotationStateChangePath = function(paper, annotation, state){
         return "/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
     };
-    PolymerExpressions.prototype.acceptPaperPath = function(paper){
-      return  paper ? "/papers/"+paper.sha+"/accept" :  ""
-    };
-    PolymerExpressions.prototype.rejectPaperPath = function(paper){
-      return paper ? "/papers/"+paper.sha+"/reject" : ""
+    PolymerExpressions.prototype.paperTransitionPath = function(paper, transition){
+      return  paper ? "/papers/"+paper.sha+"/transition?transition=" + transition :  ""
     };
 </script>
