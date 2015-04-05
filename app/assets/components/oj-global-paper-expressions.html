@@ -19,6 +19,9 @@
             else if (paper.state=='accepted')
                 return 'accepted';
 
+            else if (paper.state=='rejected')
+                return 'rejected';
+
             else if (has_role('submittor'))
                 return 'in-process';
 

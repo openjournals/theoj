@@ -18,7 +18,8 @@ $oj-issue-states-bg: (
 $oj-paper-actions-bg: (
         needs-attention: #ffd6da,
         in-process:      #ffffc8,
-        status:          #dcffdc,
+        accepted:        #dcffdc,
+        rejected:        #ffd6da,
 );
 
 // Author roles
