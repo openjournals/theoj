@@ -23,7 +23,7 @@ class Paper < ActiveRecord::Base
     state :accepted
     state :rejected
 
-    event :accept, after: :resolve_all_issues do
+    event :accept, before: :resolve_all_issues do
       transitions from: :under_review,
                   to:   :accepted
     end
@@ -52,11 +52,11 @@ class Paper < ActiveRecord::Base
   end
 
   def outstanding_issues
-    annotations.where.not(state:'resolved')
+    issues.where.not(state:'resolved')
   end
 
   def resolve_all_issues
-    annotations.each(&:resolve!)
+    issues.each(&:resolve!)
   end
 
   def editors
