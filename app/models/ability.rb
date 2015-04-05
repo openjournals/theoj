@@ -79,6 +79,11 @@ class Ability
       can :unresolve, Annotation
       can :dispute,   Annotation
       can :resolve,   Annotation
+
+      #Ppaer Transitions
+      can :start_review, Paper
+      can :accept,       Paper
+      can :reject,       Paper
     end
   end
 

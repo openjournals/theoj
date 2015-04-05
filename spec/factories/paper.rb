@@ -33,7 +33,8 @@ FactoryGirl.define do
     end
     after(:create) do |paper, factory|
       if factory.reviewer
-        create(:assignment_as_reviewer, user:factory.reviewer, paper:paper)
+        reviewer = factory.reviewer == true ? create(:user) : factory.reviewer
+        create(:assignment_as_reviewer, user:reviewer, paper:paper)
       end
     end
 

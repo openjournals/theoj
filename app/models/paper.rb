@@ -24,14 +24,17 @@ class Paper < ActiveRecord::Base
     state :rejected
 
     event :accept, after: :resolve_all_issues do
-      transitions from: :under_review, to: :accepted
+      transitions from: :under_review,
+                  to:   :accepted
     end
     event :reject do
-      transitions from: :under_review, to: :rejected
+      transitions from: :under_review,
+                  to:   :rejected
     end
 
-    event :start_review do
-      transitions from: :submitted, to: :under_review
+    event :start_review, guard: :has_reviewers? do
+      transitions from: :submitted,
+                  to:   :under_review
     end
 
   end
@@ -113,7 +116,6 @@ class Paper < ActiveRecord::Base
     self.sha = SecureRandom.hex
   end
 
-
   def get_arxiv_details
     details          = Arxiv.get(self.arxiv_id.to_s)
 
@@ -128,6 +130,10 @@ class Paper < ActiveRecord::Base
   rescue => ex
     self.location  = "http://arxiv.org/pdf/#{self.arxiv_id}.pdf"
     logger.debug "couldn't find paper on arxiv #{ex}"
+  end
+
+  def has_reviewers?
+    reviewers.any?
   end
 
 end

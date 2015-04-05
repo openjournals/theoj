@@ -22,6 +22,24 @@ describe Paper do
 
   end
 
+  describe "states" do
+
+    context "begin_review event" do
+
+      it "should succeed if the paper has reviewers" do
+        paper = create(:paper, reviewer:true)
+        paper.start_review!
+      end
+
+      it "should fail if the paper has no reviewers" do
+        paper = create(:paper)
+        expect { paper.start_review! }.to raise_exception(AASM::InvalidTransition)
+      end
+
+    end
+
+  end
+
   describe "#resolve_all_issues" do
 
     it "should resolve any outstanding issues" do
@@ -98,6 +116,42 @@ describe Paper do
       ability = Ability.new(user, paper)
 
       assert ability.cannot?(:destroy, paper)
+    end
+
+    it "an editor can change the state of a paper" do
+      user = create(:editor)
+      paper = create(:submitted_paper, user:create(:user))
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).to be_able_to(:start_review, paper)
+    end
+
+    it "an author cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:user)
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
+    end
+
+    it "a reviewer cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:create(:user), reviewer:user )
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
+    end
+
+    it "a reader cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:create(:user) )
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
     end
 
   end
