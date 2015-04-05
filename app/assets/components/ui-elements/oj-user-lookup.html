@@ -1,57 +1,88 @@
-<polymer-element name='oj-user-lookup' attributes='placeholder'>
+<polymer-element name='oj-user-lookup' attributes='placeholder' >
   <template>
-    <input placeholder={{placeholder}} value={{search}}></input>
-    <ul class='suggestions'>
-      <template repeat="{{suggestion in suggestions}}">
-        <li on-tap="{{selectName}}" userid="{{suggestion.name}}">{{suggestion.name}}</li>
-      </template>
-    </ul>
+    <input id=input placeholder={{placeholder}} value={{search}}></input>
+    <core-dropdown class=suggestions relatedTarget={{$.input}} valign=bottom>
+        <core-menu>
+          <template repeat="{{suggestion in suggestions}}">
+            <core-item on-tap="{{selectName}}" userid="{{suggestion.name}}">{{suggestion.name}}</core-item>
+          </template>
+        </core-menu>
+    </core-dropdown>
 
     <json-get  id='lookUpSearch'
                url='/users/name_lookup'
-               on-success={{response}}
-               >
-    </json-get>
+               result={{suggestions}}
+               ></json-get>
 
     <style>
-      ul{
-        padding:0px;
-        margin:0px;
+      :host {
+          position: relative;
       }
 
-      li{
-        box-model:border-box;
-        padding: 5px 10px;
-        background-color: grey;
-        color:white;
+      input {
+          font-size:  16px;
+          padding: 4px;
+          vertical-align: top;
+      }
+
+      .suggestions {
+        display: none;
+        position: absolute;
+        z-index: 100;
+        top: 13px;
+        left: -13px;
+        min-width: 250px;
+      }
+
+      core-item {
+        box-sizing: border-box;
+        padding:    5px 10px;
+        background-color: #e7e7e7;
+        color:black;
         border-bottom: 1px solid black;
         cursor: pointer;
       }
+      core-item:hover {
+          background-color: #d0d0d0;
+      }
+      core-item.core-selected {
+          font-weight: normal;
+      }
 
+      /* Only show the drop down when the edit is focused */
+      input:focus + .suggestions, .suggestions:active, .suggestions:focus {
+          display: block;
+      }
 
     </style>
   </template>
 
   <script>
     Polymer({
-      suggestions:[],
-      searching: false,
-      searchChanged:function(){
-        if(this.searching==false && this.search!=""){
-          this.searching= true;
-          this.$.lookUpSearch.data = {guess: this.search}
-          this.$.lookUpSearch.go()
-        }
+
+      created: function() {
+          this.suggestions = [];
       },
+
+      searchChanged:function(){
+       this.job('user_search', function() {
+          if (this.search.length > 2) {
+            this.$.lookUpSearch.data = {guess: this.search};
+            this.$.lookUpSearch.go();
+
+          } else {
+              this.suggestions = [];
+          }
+       }, 300);
+      },
+
       selectName:function(event, detail, sender){
-        this.fire("user-selected", sender.getAttribute("userid"))
+        this.fire("user-selected", sender.getAttribute("userid"));
         this.search = "";
         this.suggestions = []
-      },
-      response:function(event,detail){
-        this.searching= false;
-        this.suggestions=detail;
       }
+
     })
   </script>
+
 </polymer-element>

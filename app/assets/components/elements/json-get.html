@@ -8,7 +8,7 @@
                 contentType="application/json"
                 method="GET"
                 response={{result}}
-                body="{{data | json}}"
+                params="{{data | json}}"
                 on-core-response={{success}}
                 on-core-error={{error}}
 

@@ -7,9 +7,8 @@ describe Paper do
 
     assert !paper.sha.nil?
     expect(paper.sha.length).to eq(32)
-    expect(paper.state).to eq("pending")
+    expect(paper.state).to eq("submitted")
   end
-
 
   describe "::with_scope" do
 
@@ -19,6 +18,24 @@ describe Paper do
 
       assert_equal Paper.count, 2
       assert_includes Paper.with_state('submitted'), paper
+    end
+
+  end
+
+  describe "states" do
+
+    context "begin_review event" do
+
+      it "should succeed if the paper has reviewers" do
+        paper = create(:paper, reviewer:true)
+        paper.start_review!
+      end
+
+      it "should fail if the paper has no reviewers" do
+        paper = create(:paper)
+        expect { paper.start_review! }.to raise_exception(AASM::InvalidTransition)
+      end
+
     end
 
   end
@@ -56,16 +73,16 @@ describe Paper do
       assert ability.can?(:read, paper)
     end
 
-    it "should allow a user to update their own paper if it's not submitted" do
-      user = create(:user)
-      paper = create(:paper, :user => user)
+    # it "should allow a user to update their own paper if it's not submitted" do
+    #   user = create(:user)
+    #   paper = create(:paper, :user => user)
+    #
+    #   ability = Ability.new(user, paper)
+    #
+    #   assert ability.can?(:update, paper)
+    # end
 
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:update, paper)
-    end
-
-    it "should not allow a user to update their own paper if it has been submitted" do
+    it "should not allow a user to update their own paper" do
       user = create(:user)
       paper = create(:submitted_paper, :user => user)
 
@@ -74,14 +91,14 @@ describe Paper do
       assert ability.cannot?(:update, paper)
     end
 
-    it "can destroy a draft paper that a user owns" do
-      user = create(:user)
-      paper = create(:paper, :user => user)
-
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:destroy, paper)
-    end
+    # it "can destroy a draft paper that a user owns" do
+    #   user = create(:user)
+    #   paper = create(:paper, :user => user)
+    #
+    #   ability = Ability.new(user, paper)
+    #
+    #   assert ability.can?(:destroy, paper)
+    # end
 
     it "cannot destroy a draft paper that a user doesn't own" do
       user = create(:user)
@@ -99,6 +116,42 @@ describe Paper do
       ability = Ability.new(user, paper)
 
       assert ability.cannot?(:destroy, paper)
+    end
+
+    it "an editor can change the state of a paper" do
+      user = create(:editor)
+      paper = create(:submitted_paper, user:create(:user))
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).to be_able_to(:start_review, paper)
+    end
+
+    it "an author cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:user)
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
+    end
+
+    it "a reviewer cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:create(:user), reviewer:user )
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
+    end
+
+    it "a reader cannot change the state of a paper" do
+      user = create(:user)
+      paper = create(:submitted_paper, user:create(:user) )
+
+      ability = Ability.new(user, paper)
+
+      expect(ability).not_to be_able_to(:start_review, paper)
     end
 
   end

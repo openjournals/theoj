@@ -31,11 +31,9 @@ class Ability
       can :destroy, Paper, :user_id => user.id
 
       cannot :update, Paper
-      
-      can :update, Paper, :user_id => user.id if paper.draft?
+      cannot :destroy, Paper
 
-      # Don't let the user delete a paper once submitted.
-      cannot :destroy, Paper unless paper.draft?
+      # can :update, Paper, :user_id => user.id if paper.draft?
 
       # Can respond to annotations from reviewers
       # TODO this isn't actually defining a response to something
@@ -81,6 +79,11 @@ class Ability
       can :unresolve, Annotation
       can :dispute,   Annotation
       can :resolve,   Annotation
+
+      #Ppaer Transitions
+      can :start_review, Paper
+      can :accept,       Paper
+      can :reject,       Paper
     end
   end
 

@@ -12,8 +12,9 @@ Theoj::Application.routes.draw do
     end
 
     member do
-      get  :status, defaults: { format: 'html' }
-      put  :accept, defaults: { format: 'json' }
+      get  :state, defaults: { format: 'html' }
+      put  :transition, format: 'json'
+
       get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
 
       post :assign_reviewer

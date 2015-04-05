@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :paper do
     location       "http://example.com/1234"
-    state          "pending"
+    state          "submitted"
     title          "My awesome paper"
     summary        "Summary of my awesome paper"
     sha            "1234abcd" * 8
@@ -33,7 +33,8 @@ FactoryGirl.define do
     end
     after(:create) do |paper, factory|
       if factory.reviewer
-        create(:assignment_as_reviewer, user:factory.reviewer, paper:paper)
+        reviewer = factory.reviewer == true ? create(:user) : factory.reviewer
+        create(:assignment_as_reviewer, user:reviewer, paper:paper)
       end
     end
 

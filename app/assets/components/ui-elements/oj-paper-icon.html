@@ -9,7 +9,7 @@
     Polymer({
       icon_for_paper:function(paper){
 
-        paper_icon_options = {pending: "paper_submit", accepted: "paper_accepted",view: "paper_view"};
+        paper_icon_options = {submitted: "paper_submit", accepted: "paper_accepted",view: "paper_view"};
         icon = paper_icon_options[this.paper.state];
         if(!icon){
           icon = paper_icon_options.view;

@@ -1,7 +1,7 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user, :except => [ :status, :index ]
-  before_filter :require_editor, :only => [ :accept, :assign_reviewer, :remove_reviewer]
+  before_filter :require_user, :except => [ :state, :index ]
+  before_filter :require_editor, :only => [ :transition, :assign_reviewer, :remove_reviewer]
 
   def index
     if current_user
@@ -58,7 +58,7 @@ class PapersController < ApplicationController
     end
   end
 
-  def status
+  def state
     @paper = Paper.find_by_sha(params[:id])
     if @paper
       etag(params.inspect, @paper.state)
@@ -69,12 +69,16 @@ class PapersController < ApplicationController
     render :layout => false
   end
 
-  def accept
+  def transition
     paper = Paper.find_by_sha(params[:id])
-    authorize! :accept, paper
+    transition = params[:transition].to_sym
 
-    if paper.accept!
+    authorize! transition, paper
+
+    if paper.aasm.may_fire_event?(transition)
+      paper.send("#{transition.to_s}!")
       render :json => paper, :location => url_for(paper)
+
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end

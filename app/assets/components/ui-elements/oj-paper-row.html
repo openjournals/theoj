@@ -5,7 +5,7 @@
       <h3>{{paper.title}}</h3>
     </summary>
     <status class='action-{{paper | actionForPaper}}'>
-      <p class="state">State: <span>{{paper.state | textForState}}</span></p>
+      <p class="state">State: <span>{{paper.state | capitalize}}</span></p>
       <p class="issues">Issues: <span>{{paper.pending_issues_count}}</span></p>
       <p class="role role-{{paper | roleForPaper}}">Your role: <span>{{paper.user_permissions}}</span></p>
       <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
@@ -63,9 +63,6 @@
 
 <script>
   Polymer({
-      textForState: function(state) {
-        return state && state.replace(/_/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
-      }
   })
 </script>
 </polymer-element>
