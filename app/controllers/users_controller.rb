@@ -4,12 +4,12 @@ class UsersController < ApplicationController
 
   def show
     user = User.find_by_sha(params[:id])
-    render :json => user, serializer: UserWithPapersSerializer
+    render :json => user
   end
 
   def get_current_user
     if current_user
-      respond_with current_user, serializer: UserWithPapersSerializer
+      respond_with current_user
     else
       render :json => {}
     end

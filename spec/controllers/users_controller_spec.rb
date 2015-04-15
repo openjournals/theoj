@@ -46,9 +46,6 @@ describe UsersController do
 
         hash = response_json
         assert_equal hash["name"], user.name
-        assert_equal hash['papers'].length, 0
-        assert_equal hash['papers_as_reviewer'].length, 1
-        assert_equal hash['papers_as_reviewer'].first['fao_id'], user.id
       end
 
     end

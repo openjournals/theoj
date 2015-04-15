@@ -41,7 +41,7 @@ class Paper < ActiveRecord::Base
 
   def self.with_state(state = nil)
     if state
-      where('state = ?', state)
+      where(state:state)
     else
       all
     end
