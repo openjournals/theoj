@@ -1,18 +1,18 @@
-<polymer-element name='oj-papers-page' attributes='user'>
+<polymer-element name='oj-papers-page' attributes='src header'>
   <template>
+      
     <section layout vertical class="boiler-plate">
-      <h1>Your submissions</h1>
-      <oj-paper-collection  src='/papers'></oj-paper-collection>
+      <h1>{{header}}</h1>
+      <oj-paper-collection  src={{src}}></oj-paper-collection>
     </section>
 
     <style>
-      paper-tabs{
-        background: #7986CB;
-        color: white;
-      }
     </style>
+
   </template>
+
   <script>
     Polymer({})
   </script>
+
 </polymer-element>

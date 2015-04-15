@@ -12,11 +12,8 @@
             <a is='push' href="/#" target="_self"></a>
           </core-item>
 
-          <core-item id='about' icon="info-outline" label="About" horizontal center layout>
-            <a href="/#/about" target="_self"></a>
-          </core-item>
-
           <template if={{user}}>
+
             <core-item id='papers' icon="receipt" label="Your Papers" horizontal center layout>
               <a href="/#/papers" target="_self"></a>
             </core-item>
@@ -24,7 +21,12 @@
             <core-item id='submit' icon="send" label="Submit" horizontal center layout>
               <a href="/#/submit" target="_self"></a>
             </core-item>
+
           </template>
+
+          <core-item id='about' icon="info-outline" label="About" horizontal center layout>
+              <a href="/#/about" target="_self"></a>
+          </core-item>
 
         </core-menu>
 
@@ -42,7 +44,7 @@
         <app-route path='/about'  element='oj-about-page' noAuth></app-route>
         <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
         <app-route path='/submit' element='oj-submit-page'></app-route>
-        <app-route path='/papers' element='oj-papers-page'></app-route>
+        <app-route path='/papers'><template><oj-papers-page src='/papers' header="'Your submissions"></oj-papers-page></template></app-route>
         <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
       </app-router>
     </core-scaffold>
