@@ -22,6 +22,18 @@
               <a href="/#/submit" target="_self"></a>
             </core-item>
 
+            <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing" horizontal center layout>
+              <a href="/#/review" target="_self"></a>
+            </core-item>
+
+            <template if={{user}}>
+
+                <core-item id=editing icon="speaker-notes" label="Papers You Are Editing" horizontal center layout>
+                    <a href="/#/editing" target="_self"></a>
+                </core-item>
+
+            </template>
+
           </template>
 
           <core-item id='about' icon="info-outline" label="About" horizontal center layout>
@@ -42,9 +54,13 @@
                             on-notification={{notify}}  >
         <app-route path='/' element='oj-home-page' noAuth></app-route>
         <app-route path='/about'  element='oj-about-page' noAuth></app-route>
-        <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
+
         <app-route path='/submit' element='oj-submit-page'></app-route>
-        <app-route path='/papers'><template><oj-papers-page src='/papers' header="'Your submissions"></oj-papers-page></template></app-route>
+        <app-route path='/papers'><template><oj-papers-page src='/papers' header="Your submissions"></oj-papers-page></template></app-route>
+        <app-route path='/review'><template><oj-papers-page src='/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page></template></app-route>
+        <app-route path='/editing'><template><oj-papers-page src='/papers/as_editor' header="Papers you are editing"></oj-papers-page></template></app-route>
+
+        <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
         <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
       </app-router>
     </core-scaffold>
