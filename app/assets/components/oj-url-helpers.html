@@ -2,6 +2,9 @@
     PolymerExpressions.prototype.paperPath = function(paper_id) {
         return "/papers/"+paper_id
     };
+    PolymerExpressions.prototype.annotationsFirebasePath = function(paper_id){
+        return "https://theoj.firebaseio.com/"+paper_id+"_annotations" 
+    };
     PolymerExpressions.prototype.addReviewerPath = function(paper) {
         return paper ? "/papers/"+paper.sha+"/assign_reviewer" :  ""
     };

@@ -9,6 +9,8 @@ class Annotation < ActiveRecord::Base
 
   scope :root_annotations , -> { where(parent_id: nil) }
 
+  after_save :push_to_firebase
+
   validates_presence_of :body, :paper_id
 
   aasm column: :state, no_direct_assignment:true do
@@ -28,6 +30,18 @@ class Annotation < ActiveRecord::Base
       transitions to: :disputed
     end
 
+  end
+
+  def base_annotation
+    parent_id.nil? ? self : parent
+  end
+
+  def firebase_key
+    "#{paper.sha}_annotations/#{base_annotation.id}"
+  end
+
+  def push_to_firebase
+    FirebaseClient.set firebase_key, IssuesSerializer.new(base_annotation).as_json
   end
 
   def is_issue?
