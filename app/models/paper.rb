@@ -14,7 +14,7 @@ class Paper < ActiveRecord::Base
   scope :active, -> { all }
 
 
-  before_create :set_sha, :get_arxiv_details
+  before_create :set_iniital_values, :get_arxiv_details
 
 
   aasm column: :state do
@@ -112,8 +112,9 @@ class Paper < ActiveRecord::Base
 
   private
 
-  def set_sha
+  def set_iniital_values
     self.sha = SecureRandom.hex
+    self.submitted_at = Time.now
   end
 
   def get_arxiv_details
