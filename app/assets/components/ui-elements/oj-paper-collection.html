@@ -1,9 +1,9 @@
-<polymer-element name='oj-paper-collection' attributes="src">
+<polymer-element name='oj-paper-collection' attributes="src sortKey sortDesc">
 
   <template>
     <div flex horizontal center-justified layout>
       <paper-shadow >
-        <core-list on-core-activate={{selectPaper}} data={{papers}} >
+        <core-list on-core-activate={{selectPaper}} data="{{papers | filtered(sortKey, sortDesc) }}" >
           <template>
             <div class='item {{ {selected: selected} | tokenList }}'>
               <oj-paper-row paper={{model}}></oj-paper-row>
@@ -35,9 +35,32 @@
 
   <script>
     Polymer({
+
       selectPaper: function(e){
-          window.location = '/#/review/'+ e.detail.data.sha;
+        window.location = '/#/review/'+ e.detail.data.sha;
+      },
+
+      filtered: function(array, key, desc) {
+          if (!array)
+            return array;
+
+          var sortFunction = function(a, b) {
+              var x = a[key];
+              var y = b[key];
+
+              if (typeof x == "string"){
+                  x = x.toLowerCase();
+                  y = y.toLowerCase();
+              }
+
+              var order = ((x < y) ? -1 : ((x > y) ? 1 : 0));
+              return desc ? -order : order;
+          };
+
+          return array.sort(sortFunction);
       }
+
+
     })
   </script>
 </polymer-element
