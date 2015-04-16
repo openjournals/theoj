@@ -9,6 +9,8 @@ describe Annotation do
       first_annotation = create(:annotation, :paper => paper)
       second_annotation = create(:annotation, :parent_id => first_annotation.id)
 
+      first_annotation.reload
+
       assert first_annotation.has_responses?
       assert_equal second_annotation.parent, first_annotation
     end
@@ -183,6 +185,8 @@ describe Annotation do
 
       annotation_1 = create(:annotation, :user => user, :paper => paper)
       annotation_2 = create(:annotation, :user => editor, :paper => paper, :parent_id => annotation_1.id)
+
+      annotation_1.reload
 
       ability = Ability.new(user, paper, annotation_1)
       assert ability.cannot?(:update, annotation_1)
