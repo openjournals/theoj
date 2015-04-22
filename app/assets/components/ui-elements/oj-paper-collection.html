@@ -44,9 +44,12 @@
           if (!array)
             return array;
 
+          var keys = key.split('.');
           var sortFunction = function(a, b) {
-              var x = a[key];
-              var y = b[key];
+              var x = a;
+              keys.forEach( function(key) { x = x && x[key] } );
+              var y = b;
+              keys.forEach( function(key) { y = y && y[key] } );
 
               if (typeof x == "string"){
                   x = x.toLowerCase();
