@@ -48,6 +48,8 @@ gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
 gem 'aasm'
 gem 'cancancan', '~> 1.8'
 
+gem 'firebase'
+
 group :test do
   gem 'rspec-rails', '~> 3.1'
   gem 'shoulda-matchers', '~> 2.6.1'

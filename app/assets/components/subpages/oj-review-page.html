@@ -107,7 +107,14 @@
     <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
 
     <template if="{{paper}}">
-      <json-get auto=true  url="{{paper | getIssuesPath}}" result={{annotations}}></json-get>
+      <firebase-element
+        id="annotation-firebase"
+        location="{{paper_id | annotationsFirebasePath}}"
+        data="{{data}}"
+        keys="{{keys}}"
+        data-change={{updateAnnotations}}
+      ></firebase-element>
+
     </template>
 
   </template>
@@ -118,13 +125,20 @@
       created: function() {
         this.annotations = [];
       },
-
       pdfClientChanged: function(event, detail) {
         this.pdfClientHeight = detail.clientHeight;
       },
-
       onChangeAnnotation:function(event, annotation) {
         this.updateCounts();
+      },
+      keysChanged:function(){
+        console.log('mapping ')
+        console.log(this.keys.map(function(key){return this.data[key]}.bind(this)))
+        this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this))
+      },
+      updateAnnotations:function(event){
+        console.log("UPDATING ANNOTAITONS")
+        console.log(event)
       },
       annotationsChanged: function(){
         this.updateCounts();
