@@ -1,18 +1,49 @@
-<polymer-element name='oj-papers-page' attributes='user'>
+<polymer-element name='oj-papers-page' attributes='src header'>
   <template>
+      
     <section layout vertical class="boiler-plate">
-      <h1>Your submissions</h1>
-      <oj-paper-collection  src='/papers'></oj-paper-collection>
+      <div layout horizontal>
+          <h1 flex>{{header}}</h1>
+          <paper-dropdown-menu on-core-select={{changeSortOrder}}>
+              <paper-dropdown class="dropdown">
+                  <core-menu class="menu" selected=3>
+                      <paper-item key=title>Article Title</paper-item>
+                      <paper-item key=author.name>Author</paper-item>
+                      <paper-item key=state>State</paper-item>
+                      <paper-item key=created_at desc>Submitted Date</paper-item>
+                  </core-menu>
+              </paper-dropdown>
+          </paper-dropdown-menu>
+      </div>
+      <oj-paper-collection
+              src={{src}}
+              sortKey={{sortKey}}
+              sortDesc={{sortDesc}}
+              ></oj-paper-collection>
     </section>
 
     <style>
-      paper-tabs{
-        background: #7986CB;
-        color: white;
-      }
+
+        paper-dropdown-menu {
+            width: 200px;
+        }
+
     </style>
+
   </template>
+
   <script>
-    Polymer({})
+    Polymer({
+
+        sortKey:  'created_at',
+        sortDesc: true,
+
+        changeSortOrder: function(event, detail) {
+            this.sortKey  = detail.item.getAttribute('key');
+            this.sortDesc = detail.item.hasAttribute('desc');
+        }
+
+    })
   </script>
+
 </polymer-element>

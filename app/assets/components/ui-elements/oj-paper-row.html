@@ -2,13 +2,12 @@
 <template>
   <div class='row {{paper | actionForPaper}}' flex layout horizontal>
     <summary>
-      <h3>{{paper.title}}</h3>
+      <div class=title>{{paper.title}}</div>
+      <div class=submitted> - submitted by <span class=author>{{paper.user.name}}</span> on <span class=date>{{ paper.submitted_at || paper.created_at | date }}</span></div>
     </summary>
     <status class='action-{{paper | actionForPaper}}'>
-      <p class="state">State: <span>{{paper.state | capitalize}}</span></p>
-      <p class="issues">Issues: <span>{{paper.pending_issues_count}}</span></p>
-      <p class="role role-{{paper | roleForPaper}}">Your role: <span>{{paper.user_permissions}}</span></p>
-      <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
+      <div class="state">State: <span>{{paper.state | capitalize}}</span></div>
+      <div class="issues">Issues: <span>{{paper.pending_issues_count}}</span></div>
     </status>
   </div>
 
@@ -30,31 +29,40 @@
       width: 80%;
     }
 
+    summary .title {
+        font-weight: bold;
+    }
+
+    summary .submitted {
+        font-size: 80%;
+        font-style: italic;
+    }
+
+    summary .author, summary .date {
+        font-weight: bold;
+    }
+
     status {
       float:        right;
       width:        20%;
       border-left:  4px solid #c0c0c0;
     }
 
-    status p {
+    status div {
       font-size:   1em;
       font-weight: bolder;
       padding-left:  8px;
       padding-right: 8px;
     }
 
-    status p.state {
+    status .state {
         margin-top:     8px;
     }
-
-    status p.role {
-        margin-top:     8px;
-        padding-top:    8px;
-        padding-bottom: 8px;
-        margin-bottom:  0;
+    status .issues {
+        margin-bottom:  8px;
     }
 
-    status p span {
+    status div span {
       font-weight: normal;
     }
 

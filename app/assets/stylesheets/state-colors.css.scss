@@ -70,12 +70,6 @@ body /deep/ {
         }
       }
 
-      @each $role, $bg in $oj-paper-roles-bg {
-        .role-#{$role} {
-          background-color: $bg;
-        }
-      }
-
     }
 
   }

@@ -23,6 +23,13 @@
             return text && text.replace(/[_-]/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
         },
 
+        date: function(date) {
+            if (!date) return undefined;
+            if (typeof date == 'string')
+                date = new Date(date);
+            return date.toDateString()
+        },
+
         log: function(value, args) {
             args = Array.prototype.slice.call(arguments, 1);
             args.splice(1, 0, value);
