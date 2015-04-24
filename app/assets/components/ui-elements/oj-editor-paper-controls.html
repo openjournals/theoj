@@ -13,7 +13,7 @@
             <template repeat="{{reviewer in paper.reviewers}}">
                 <oj-reviewer reviewer={{reviewer}} removable={{submitted}} on-remove-reviewer={{removeReviewer}}></oj-reviewer>
             </template>
-            <template if="{{!submitted && !paper.reviewes}}">
+            <template if="{{!submitted && !paper.reviewers}}">
                 This paper does not have any reviewers.
             </template>
           </div>
