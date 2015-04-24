@@ -37,7 +37,7 @@ class Annotation < ActiveRecord::Base
   end
 
   def firebase_key
-    "#{paper.sha}_annotations/#{base_annotation.id}"
+    "/papers/#{paper.sha}/annotations/#{base_annotation.id}"
   end
 
   def push_to_firebase
