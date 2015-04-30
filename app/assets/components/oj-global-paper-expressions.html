@@ -10,7 +10,7 @@
             if (has_role('submittor') && paper.pending_issues_count>1)
                 return 'needs-attention';
 
-            else if (has_role('reviewer') && paper.state=='under_review')
+            else if (paper.state=='under_review')
                 return 'needs-attention';
 
             else if (paper.state=='rejected')
