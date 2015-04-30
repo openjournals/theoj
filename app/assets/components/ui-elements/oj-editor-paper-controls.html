@@ -11,7 +11,7 @@
                 <oj-user-lookup placeholder="Add Reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
             </template>
             <template repeat="{{reviewer in paper.reviewers}}">
-                <oj-reviewer reviewer={{reviewer}} removable={{submitted}} on-remove-reviewer={{removeReviewer}}></oj-reviewer>
+                <oj-user-tag user={{reviewer}} removable={{submitted}} on-remove-user={{removeReviewer}}></oj-user-tag>
             </template>
             <template if="{{!submitted && !paper.reviewers}}">
                 This paper does not have any reviewers.
