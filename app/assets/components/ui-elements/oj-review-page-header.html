@@ -1,0 +1,81 @@
+<polymer-element name="oj-review-page-header" attributes='paper router loadProgress'>
+  <template>
+      <div class=top-header flex layout horizontal >
+          <div flex class=left>
+              <span class=title>{{paper.title}}</span>
+              <oj-user-tag user={{paper.user}}></oj-user-tag>
+          </div>
+
+          <div class=right layout vertical>
+              <div class='role role-{{paper | roleForPaper}}'><span class=label>Role: </span>{{paper | roleForPaper | capitalize}}</div>
+              <div flex class="state state-{{paper.state}}"><span class=label>Status: </span>{{paper.state | capitalize}}</div>
+          </div>
+      </div>
+
+      <template if='{{loadProgress < 100}}'>
+          <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
+      </template>
+
+          <!--<template if={{annotations}}>-->
+              <!--<span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>-->
+              <!--<span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>-->
+          <!--</template>-->
+      <!--span.issue-summary {-->
+      <!--font-size: 0.8em;-->
+      <!--text-align: right;-->
+      <!--}-->
+
+      <!--span.issue-summary span {-->
+      <!--display:        inline-block;-->
+      <!--vertical-align: middle;-->
+      <!--font-size:      0.6em;-->
+      <!--}-->
+
+
+
+    <style>
+        :host {
+            /*position:   relative;*/
+        }
+        .top-header {
+            box-sizing: border-box;;
+            border-top: solid 2px #4f5783;
+            background: #5C6BC0;
+        }
+
+        .left {
+            padding:   4px;
+        }
+        .title {
+            color:     white;
+            font-size: 1.3em;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .role, .state {
+            padding-left:  2px;
+            padding-right: 2px;
+        }
+
+        .left oj-user-tag {
+            background-color: orangered;
+        }
+
+        .progress {
+            position: absolute;
+            width:    100%;
+        }
+
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+    })
+  </script>
+
+</polymer-element>

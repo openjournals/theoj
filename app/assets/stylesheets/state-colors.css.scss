@@ -14,7 +14,15 @@ $oj-issue-states-bg: (
         new:        #e0e0a0,
 );
 
-// Paper states
+// Paper states? / actions
+
+$oj-paper-states-bg: (
+        submitted:       #ffd6da,
+        under_review:    #ffffc8,
+        accepted:        #dcffdc,
+        rejected:        #ffd6da,
+);
+
 $oj-paper-actions-bg: (
         needs-attention: #ffd6da,
         in-process:      #ffffc8,
@@ -74,12 +82,18 @@ body /deep/ {
 
   }
 
-  oj-review-page {
+  oj-review-page-header {
 
     &::shadow {
 
       @each $role, $bg in $oj-paper-roles-bg {
         .role-#{$role} {
+          background-color: $bg;
+        }
+      }
+
+      @each $state, $bg in $oj-paper-states-bg {
+        .state-#{$state} {
           background-color: $bg;
         }
       }
