@@ -1,19 +1,23 @@
-<polymer-element name="oj-review-page-actions" attributes='paper router' layout vertical>
+<polymer-element name="oj-review-page-actions" attributes='user paper router' layout vertical>
   <template>
 
       <div layout horizontal>
-        <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
-            <core-icon icon=arrow-forward></core-icon>
-            Start Review
-        </paper-button>
-        <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
-            <core-icon icon=thumb-up></core-icon>
-            Accept
-        </paper-button>
-        <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
-            <core-icon icon=thumb-down></core-icon>
-            Reject
-        </paper-button>
+
+          <template if="{{user.editor}}">
+              <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
+                  <core-icon icon=arrow-forward></core-icon>
+                  Start Review
+              </paper-button>
+              <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
+                  <core-icon icon=thumb-up></core-icon>
+                  Accept
+              </paper-button>
+              <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
+                  <core-icon icon=thumb-down></core-icon>
+                  Reject
+              </paper-button>
+          </template>
+
       </div>
 
     <style>

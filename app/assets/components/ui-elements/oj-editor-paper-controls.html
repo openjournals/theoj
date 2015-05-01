@@ -25,14 +25,17 @@
     <style>
       :host{
         box-sizing: border-box;
-        padding: 10px 20px;
+        padding: 6px 4px 0 4px;
         width : 100%;
         display: block;
         margin:0;
+        margin-bottom: -4px;
+        background: #6374cf;
       }
       .label {
-          font-weight: bold;
-          padding-right: 14px;
+          color: white;
+          padding-right: 8px;
+          padding-top:   2px;
       }
       #status {
         margin-right:60px
@@ -58,15 +61,15 @@
       paperChanged: function() {
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
-      removeReviewer:function(event,detail){
-        this.$.removeReviewer.data = {user_name: detail.name};
+      removeReviewer:function(event, user){
+        this.$.removeReviewer.data = {user_name: user.name};
         this.$.removeReviewer.go();
       },
-      addReviewer:function(event,detail){
-        this.$.addReviewer.data = {user_name: detail};
+      addReviewer:function(event, user){
+        this.$.addReviewer.data = {user_name: user.name};
         this.$.addReviewer.go();
       },
-      updateReviewers:function(event,detail){
+      updateReviewers:function(event, detail){
         this.paper.reviewers = detail.reviewers;
       }
     })

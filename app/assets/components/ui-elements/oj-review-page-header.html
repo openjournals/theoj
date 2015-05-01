@@ -1,9 +1,15 @@
-<polymer-element name="oj-review-page-header" attributes='paper annotations router loadProgress'>
+<polymer-element name="oj-review-page-header" attributes='user paper annotations router loadProgress'>
   <template>
       <div class=top-header flex layout horizontal >
           <div  class=left flex>
-              <span class=title>{{paper.title}}</span>
-              <oj-user-tag user={{paper.user}}></oj-user-tag>
+              <div class=left-top>
+                  <span class=title>{{paper.title}}</span>
+                  <oj-user-tag user={{paper.user}}></oj-user-tag>
+              </div>
+
+              <template if="{{user.editor}}">
+                  <oj-editor-paper-controls flex paper={{paper}} router={{router}}></oj-editor-paper-controls>
+              </template>
           </div>
 
           <div class=right layout vertical>
@@ -19,6 +25,7 @@
                   </template>
 
                   <oj-review-page-actions
+                          user={{user}}
                           paper={{paper}}
                           router={{router}}
                       ></oj-review-page-actions>
@@ -34,14 +41,16 @@
 
     <style>
         :host {
+            display: block;
         }
         .top-header {
             box-sizing: border-box;;
             border-top: solid 2px #4f5783;
+            border-bottom: solid 2px #4f5783;
             background: #5C6BC0;
         }
 
-        .left {
+        .left-top {
             padding:   4px;
         }
         .title {

@@ -1,31 +1,15 @@
 <polymer-element name="oj-review-page" attributes='paper_id user router'>
   <template>
-    <core-toolbar fixed layout>
 
-      <span class='role role-{{paper | roleForPaper}}'>
-          <template repeat="{{perm in paper.user_permissions}}">
-            <span class=permission>{{perm}}<br/></span>
-          </template>
-      </span>
+    <oj-review-page-header
+            id=header
+            user={{user}}
+            paper={{paper}}
+            annotations={{annotations}}
+            router={{router}}
+            loadProgress={{loadProgress}}
+            ></oj-review-page-header>
 
-      <span flex self-start class='title'>{{paper.title}}</span>
-
-      <template if={{annotations}}>
-        <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>
-        <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>
-      </template>
-
-      <span><core-icon icon='list'></core-icon></span>
-
-      <template if='{{loadProgress < 100}}'>
-        <paper-progress class='bottom fit' value="{{loadProgress}}"></paper-progress>
-      </template>
-
-    </core-toolbar>
-
-    <template if="{{user.editor}}">
-      <oj-editor-paper-controls flex paper={{paper}} router={{router}}></oj-editor-paper-controls>
-    </template>
 
     <template if="{{paper}}">
       <div id=main layout horizontal>
@@ -58,12 +42,9 @@
       </template>
 
     <style>
-      core-toolbar{
-          background-color: #7986CB;
-          border-top: solid 2px #4f5783;
-      }
-      core-toolbar::shadow .toolbar-tools {
-          padding-left: 0;
+
+      oj-review-page-header {
+          margin-bottom: 20px;
       }
 
       #pdf-pane {
@@ -80,26 +61,6 @@
       }
       #main {
           margin-top: 5px;
-      }
-
-      span.issue-summary {
-        font-size: 0.8em;
-        text-align: right;
-      }
-
-      span.role {
-        height:     100%;
-        font-size:   0.7em;
-        margin-left: 0;
-        padding:     4px 8px;
-        box-sizing:  border-box;
-        text-align:  center;
-      }
-
-      span.issue-summary span {
-          display:        inline-block;
-          vertical-align: middle;
-          font-size:      0.6em;
       }
 
     </style>
@@ -129,26 +90,17 @@
         this.pdfClientHeight = detail.clientHeight;
       },
       onChangeAnnotation:function(event, annotation) {
-        this.updateCounts();
+          console.log('**** annotation changed');
+        this.$.header.updateCounts();
       },
-      keysChanged:function(){
-        console.log('mapping ')
-        console.log(this.keys.map(function(key){return this.data[key]}.bind(this)))
-        this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this))
-      },
+      //keysChanged:function(){
+      //  // console.log('mapping ');
+      //  // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
+      //  this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this));
+      //},
       updateAnnotations:function(event){
-        console.log("UPDATING ANNOTAITONS")
-        console.log(event)
-      },
-      annotationsChanged: function(){
-        this.updateCounts();
-      },
-      updateCounts: function() {
-          if (!this.annotations)
-            return;
-          this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
-          this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
-          this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
+        // console.log("UPDATING ANNOTAITONS");
+        // console.log(event);
       },
       newAnnotation: function(properties) {
           return $.extend( {state:'new', new:true, open:true}, properties);
