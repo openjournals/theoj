@@ -1,7 +1,7 @@
-<polymer-element name='oj-reviewer' attributes='reviewer removable'>
+<polymer-element name='oj-user-tag' attributes='user removable'>
 
   <template>
-      <span class=name>{{reviewer.name}}</span>
+      <span class=name>{{user.name}}</span>
       <template if={{removable}}><a href='#' on-click={{remove}} >&times</a></template>
 
     <style>
@@ -11,7 +11,8 @@
         background-color:#0f9d58;
         color: white;
         box-sizing: border-box;
-        padding: 5px 10px
+        padding: 2px 10px;
+        border-radius: 14px;
       }
 
       a {
@@ -24,10 +25,10 @@
 
   <script>
     Polymer({
-      removable:true,
+      removable:false,
       remove: function(event){
         event.preventDefault();
-        this.fire("remove-reviewer", this.reviewer)
+        this.fire("remove-user", this.user)
       }
     })
   </script>

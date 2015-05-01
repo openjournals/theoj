@@ -1,0 +1,118 @@
+<polymer-element name="oj-review-page-header" attributes='user paper annotations router loadProgress'>
+  <template>
+      <div class=top-header flex layout horizontal >
+          <div  class=left flex>
+              <div class=left-top>
+                  <span class=title>{{paper.title}}</span>
+                  <oj-user-tag user={{paper.user}}></oj-user-tag>
+              </div>
+
+              <template if="{{user.editor}}">
+                  <oj-editor-paper-controls flex paper={{paper}} router={{router}}></oj-editor-paper-controls>
+              </template>
+          </div>
+
+          <div class=right layout vertical>
+              <div class='role role-{{paper | roleForPaper}}'><span class=label>Role: </span>{{paper | roleForPaper | capitalize}}</div>
+              <div flex class="state state-{{paper.state}}">
+                  <div><span class=label>Status: </span>{{paper.state | capitalize}}</div>
+
+                  <template if="{{paper.state=='under_review' && annotations}}">
+                      <div>
+                          <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>
+                          <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>
+                      </div>
+                  </template>
+
+                  <oj-review-page-actions
+                          user={{user}}
+                          paper={{paper}}
+                          router={{router}}
+                      ></oj-review-page-actions>
+
+              </div>
+          </div>
+      </div>
+
+      <template if='{{loadProgress < 100}}'>
+          <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
+      </template>
+
+
+    <style>
+        :host {
+            display: block;
+        }
+        .top-header {
+            box-sizing: border-box;;
+            border-top: solid 2px #4f5783;
+            border-bottom: solid 2px #4f5783;
+            background: #5C6BC0;
+        }
+
+        .left-top {
+            padding:   4px;
+        }
+        .title {
+            color:     white;
+            font-size: 1.3em;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .role, .state {
+            padding-left:  2px;
+            padding-right: 6px;
+            flex: 1 0 auto !important;
+        }
+
+        .left oj-user-tag {
+            background-color: orangered;
+        }
+
+        .progress {
+            position: absolute;
+            width:    100%;
+        }
+
+        span.issue-summary {
+                font-size:  0.8em;
+                text-align: right;
+            margin-right:   12px;
+            }
+
+        span.issue-summary span {
+                display:        inline-block;
+                vertical-align: middle;
+                font-size:      0.6em;
+            }
+
+        oj-review-page-actions {
+            margin-bottom: 6px;
+        }
+
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+
+        annotationsChanged: function(){
+            this.updateCounts();
+        },
+
+        updateCounts: function() {
+            if (!this.annotations)
+                return;
+            this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
+            this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
+            this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
+        }
+
+    })
+  </script>
+
+</polymer-element>

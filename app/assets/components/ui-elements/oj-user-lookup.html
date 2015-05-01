@@ -1,37 +1,43 @@
 <polymer-element name='oj-user-lookup' attributes='placeholder' >
   <template>
+
     <input id=input placeholder={{placeholder}} value={{search}}></input>
-    <core-dropdown class=suggestions relatedTarget={{$.input}} valign=bottom>
+
+    <core-dropdown id=suggestions relatedTarget={{$.input}} valign=bottom autoCloseDisabled=true autoFocusDisabled="true">
         <core-menu>
           <template repeat="{{suggestion in suggestions}}">
-            <core-item on-tap="{{selectName}}" userid="{{suggestion.name}}">{{suggestion.name}}</core-item>
+            <core-item on-tap={{selectUser}}>{{suggestion.name}}</core-item>
           </template>
         </core-menu>
     </core-dropdown>
 
-    <json-get  id='lookUpSearch'
+    <json-get  id=lookUpSearch
                url='/users/name_lookup'
                result={{suggestions}}
+               on-success={{lookupSuccess}}
                ></json-get>
 
     <style>
       :host {
+          display: inline-block;
           position: relative;
       }
 
       input {
-          font-size:  16px;
-          padding: 4px;
+          font-size:      14px;
+          padding:        0 4px;
           vertical-align: top;
       }
 
-      .suggestions {
-        display: none;
-        position: absolute;
-        z-index: 100;
-        top: 13px;
-        left: -13px;
+      #suggestions {
+        display:   none;
+        position:  absolute;
+        z-index:   100;
         min-width: 250px;
+        top:       20px;
+      }
+      #suggestions core-menu {
+          margin: 0;
       }
 
       core-item {
@@ -50,7 +56,7 @@
       }
 
       /* Only show the drop down when the edit is focused */
-      input:focus + .suggestions, .suggestions:active, .suggestions:focus {
+      input:focus + #suggestions, #suggestions:active, #suggestions:focus {
           display: block;
       }
 
@@ -69,17 +75,24 @@
           if (this.search.length > 2) {
             this.$.lookUpSearch.data = {guess: this.search};
             this.$.lookUpSearch.go();
-
-          } else {
-              this.suggestions = [];
           }
        }, 300);
       },
+      lookupSuccess: function() {
+          if (this.suggestions.length) {
+            this.async( function() {
+                this.$.suggestions.opened = true;
+                this.$.suggestions.discoverDimensions();
+                this.$.suggestions.resetTargetDimensions();
+            } );
+          }
+      },
 
-      selectName:function(event, detail, sender){
-        this.fire("user-selected", sender.getAttribute("userid"));
-        this.search = "";
-        this.suggestions = []
+      selectUser:function(event, detail, sender){
+          var user = event.target.templateInstance.model.suggestion;
+          this.fire("user-selected", user);
+          this.search = "";
+          this.suggestions = []
       }
 
     })
