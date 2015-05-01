@@ -20,46 +20,7 @@
         </div>
       </div>
 
-      <div id=status layout vertical>
-        <div><span class=label>Status:</span>{{paper.state|capitalize}}</div>
-        <template if={{true}}>
-          <div layout horizontal>
-            <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
-                <core-icon icon=arrow-forward></core-icon>
-                Start Review
-            </paper-button>
-            <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
-                <core-icon icon=thumb-up></core-icon>
-                Accept
-            </paper-button>
-            <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
-                <core-icon icon=thumb-down></core-icon>
-                Reject
-            </paper-button>
-          </div>
-        </template>
-      </div>
-
     </div>
-
-    <paper-action-dialog id='startReviewDialog' backdrop layered="false">
-        <p>Do you really want to start reviewing this paper?</p>
-        <paper-button affirmative on-tap={{startReviewPaper}}>Start Review</paper-button>
-        <paper-button dismissive autofocus>Cancel</paper-button>
-    </paper-action-dialog>
-
-    <paper-action-dialog id='acceptDialog' backdrop layered="false">
-      <p>Do you really want to accept this paper?<br/>
-         This will close all open issues and mark the paper as accepted.</p>
-      <paper-button affirmative on-tap={{acceptPaper}} >Accept</paper-button>
-      <paper-button dismissive autofocus>Cancel</paper-button>
-    </paper-action-dialog>
-
-    <paper-action-dialog id='rejectDialog' backdrop layered="false">
-      <p>Do you really want to reject this paper?</p>
-      <paper-button affirmative on-tap={{rejectPaper}}>Reject</paper-button>
-      <paper-button dismissive autofocus>Cancel</paper-button>
-    </paper-action-dialog>
 
     <style>
       :host{
@@ -76,7 +37,7 @@
       #status {
         margin-right:60px
       }
-      oj-reviewer, oj-user-lookup {
+      oj-user-tag, oj-user-lookup {
         margin-right: 10px;
         margin-bottom: 10px;
       }
@@ -85,38 +46,10 @@
           line-height: 0;
           padding 1px 0 2px 0;
       }
-      #status paper-button core-icon {
-          width: 16px !important;
-          height: 16px !important;
-          padding: 0;
-          margin-top: -8px;
-          margin-bottom: -8px;
-          margin-right: 4px;
-      }
-      #status #accept, #status #start-review {
-        background: green;
-      }
-      #status #accept:hover, #status #start-review:hover {
-        background: #009000;
-      }
-      #status #reject {
-        background: #800000;
-      }
-      #status #reject:hover {
-        background: #c00000;
-      }
-      #status paper-button[disabled] {
-        background: gray !important;
-        color:      white;
-      }
     </style>
 
     <json-post id=addReviewer    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
     <json-post id=removeReviewer on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
-
-    <json-put id=paperStartReviewPost url="{{paper | paperTransitionPath('start_review')}}" on-success={{paperDone}}></json-put>
-    <json-put id=paperAcceptPost      url="{{paper | paperTransitionPath('accept')}}"       on-success={{paperDone}}></json-put>
-    <json-put id=paperRejectPost      url="{{paper | paperTransitionPath('reject')}}"       on-success={{paperDone}}></json-put>
 
   </template>
 
@@ -135,28 +68,6 @@
       },
       updateReviewers:function(event,detail){
         this.paper.reviewers = detail.reviewers;
-      },
-      startReviewClick:function(){
-        this.$.startReviewDialog.open();
-      },
-      startReviewPaper:function(){
-        this.$.paperStartReviewPost.go();
-      },
-      acceptClick:function(){
-        this.$.acceptDialog.open();
-      },
-      acceptPaper:function(){
-        this.$.paperAcceptPost.go();
-      },
-      rejectClick:function(){
-        this.$.rejectDialog.open();
-      },
-      rejectPaper:function(){
-        this.$.paperRejectPost.go();
-      },
-      paperDone:function(){
-        this.fire("notification", "Thank your for your service");
-        this.router.go("/papers");
       }
     })
   </script>

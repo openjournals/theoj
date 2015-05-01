@@ -1,0 +1,127 @@
+<polymer-element name="oj-review-page-actions" attributes='paper router' layout vertical>
+  <template>
+
+      <div layout horizontal>
+        <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
+            <core-icon icon=arrow-forward></core-icon>
+            Start Review
+        </paper-button>
+        <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
+            <core-icon icon=thumb-up></core-icon>
+            Accept
+        </paper-button>
+        <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
+            <core-icon icon=thumb-down></core-icon>
+            Reject
+        </paper-button>
+      </div>
+
+    <style>
+      paper-button {
+          margin-top: 5px;
+          line-height: 0;
+          padding 1px 0 2px 0;
+      }
+      paper-button core-icon {
+          width: 16px !important;
+          height: 16px !important;
+          padding: 0;
+          margin-top: -8px;
+          margin-bottom: -8px;
+          margin-right: 4px;
+      }
+      #accept, #start-review {
+        background: green;
+      }
+      #accept:hover, #start-review:hover {
+        background: #009000;
+      }
+      #reject {
+        background: #800000;
+      }
+      #reject:hover {
+        background: #c00000;
+      }
+      paper-button[disabled] {
+        background: gray !important;
+        color:      white;
+      }
+    </style>
+
+    <paper-action-dialog id=dialog backdrop layered=false>
+        <p></p>
+        <paper-button affirmative></paper-button>
+        <paper-button dismissive autofocus>Cancel</paper-button>
+    </paper-action-dialog>
+
+    <json-put id=putRequest></json-put>
+
+  </template>
+
+  <script>
+    Polymer({
+      paperChanged: function() {
+        this.submitted = this.paper && this.paper.state == 'submitted';
+      },
+
+      startReviewClick:function(){
+          this.changeState('start_review',
+                           'Do you really want to start reviewing this paper?',
+                           'Start Review',
+                           'Thank You. The paper will now be available for review.'
+          );
+      },
+      acceptClick:function(){
+          this.changeState('accept',
+                           'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.',
+                           'Accept',
+                           'The paper has been accepted.'
+          );
+      },
+      rejectClick:function(){
+          this.changeState('reject',
+                           'Do you really want to reject this paper?',
+                           'Reject',
+                           'The paper has been rejected.'
+          );
+      },
+
+      showDialog: function(html, buttonText, onSuccess) {
+          var $dialog = this.$.dialog;
+          var $content = $dialog.querySelector('p');
+          $content.innerHTML = html;
+
+          var $button = $dialog.querySelector('paper-button[affirmative]');
+          $button.innerHTML = buttonText;
+          $($button).off('tap');
+          $($button).on('tap', onSuccess.bind(this) );
+
+          $dialog.open();
+      },
+
+      putRequest: function(url, successMessage) {
+          var $request = this.$.putRequest;
+          $request.url = url;
+
+          $($request).off('success');
+          $($request).on('success', function() {
+              this.fire("notification", successMessage);
+              this.router.go("/papers");
+          }.bind(this) );
+
+          $request.go();
+      },
+
+      changeState: function(newState, html, buttonText, successMessage) {
+
+          this.showDialog(html, buttonText, function() {
+              var url = PolymerExpressions.prototype.paperTransitionPath(this.paper, newState);
+              this.putRequest(url, successMessage);
+          });
+
+      }
+
+    })
+  </script>
+
+</polymer-element>

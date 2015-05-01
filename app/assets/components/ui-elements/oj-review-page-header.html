@@ -1,14 +1,29 @@
-<polymer-element name="oj-review-page-header" attributes='paper router loadProgress'>
+<polymer-element name="oj-review-page-header" attributes='paper annotations router loadProgress'>
   <template>
       <div class=top-header flex layout horizontal >
-          <div flex class=left>
+          <div  class=left flex>
               <span class=title>{{paper.title}}</span>
               <oj-user-tag user={{paper.user}}></oj-user-tag>
           </div>
 
           <div class=right layout vertical>
               <div class='role role-{{paper | roleForPaper}}'><span class=label>Role: </span>{{paper | roleForPaper | capitalize}}</div>
-              <div flex class="state state-{{paper.state}}"><span class=label>Status: </span>{{paper.state | capitalize}}</div>
+              <div flex class="state state-{{paper.state}}">
+                  <div><span class=label>Status: </span>{{paper.state | capitalize}}</div>
+
+                  <template if="{{paper.state=='under_review' && annotations}}">
+                      <div>
+                          <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>
+                          <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>
+                      </div>
+                  </template>
+
+                  <oj-review-page-actions
+                          paper={{paper}}
+                          router={{router}}
+                      ></oj-review-page-actions>
+
+              </div>
           </div>
       </div>
 
@@ -16,26 +31,9 @@
           <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
       </template>
 
-          <!--<template if={{annotations}}>-->
-              <!--<span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>-->
-              <!--<span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>-->
-          <!--</template>-->
-      <!--span.issue-summary {-->
-      <!--font-size: 0.8em;-->
-      <!--text-align: right;-->
-      <!--}-->
-
-      <!--span.issue-summary span {-->
-      <!--display:        inline-block;-->
-      <!--vertical-align: middle;-->
-      <!--font-size:      0.6em;-->
-      <!--}-->
-
-
 
     <style>
         :host {
-            /*position:   relative;*/
         }
         .top-header {
             box-sizing: border-box;;
@@ -57,7 +55,8 @@
 
         .role, .state {
             padding-left:  2px;
-            padding-right: 2px;
+            padding-right: 6px;
+            flex: 1 0 auto !important;
         }
 
         .left oj-user-tag {
@@ -69,12 +68,41 @@
             width:    100%;
         }
 
+        span.issue-summary {
+                font-size:  0.8em;
+                text-align: right;
+            margin-right:   12px;
+            }
+
+        span.issue-summary span {
+                display:        inline-block;
+                vertical-align: middle;
+                font-size:      0.6em;
+            }
+
+        oj-review-page-actions {
+            margin-bottom: 6px;
+        }
+
     </style>
 
   </template>
 
   <script>
     Polymer({
+
+        annotationsChanged: function(){
+            this.updateCounts();
+        },
+
+        updateCounts: function() {
+            if (!this.annotations)
+                return;
+            this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
+            this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
+            this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
+        }
+
     })
   </script>
 
