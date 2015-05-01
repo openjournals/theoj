@@ -67,12 +67,12 @@
 
     <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
 
-    <template if="{{paper}}">
+    <template if={{paper}}>
       <firebase-element
-        id="annotation-firebase"
-        location="{{paper_id | annotationsFirebasePath}}"
-        data="{{data}}"
-        keys="{{keys}}"
+        id=annotation-firebase
+        location="{{paper_id | annotationsFirebasePath }}"
+        data={{data}}
+        keys={{keys}}
         data-change={{updateAnnotations}}
       ></firebase-element>
 
@@ -93,14 +93,14 @@
           console.log('**** annotation changed');
         this.$.header.updateCounts();
       },
-      //keysChanged:function(){
-      //  // console.log('mapping ');
-      //  // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
-      //  this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this));
-      //},
+      keysChanged:function(){
+        // console.log('mapping ');
+        // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
+        this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this));
+      },
       updateAnnotations:function(event){
-        // console.log("UPDATING ANNOTAITONS");
-        // console.log(event);
+          // console.log("UPDATING ANNOTAITONS");
+          // console.log($.extend({},event));
       },
       newAnnotation: function(properties) {
           return $.extend( {state:'new', new:true, open:true}, properties);
@@ -113,6 +113,7 @@
         var annotation = this.newAnnotation();
         this.annotations.push(annotation);
       }
+
     })
   </script>
 
