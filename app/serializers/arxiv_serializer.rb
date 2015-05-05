@@ -22,11 +22,15 @@ class ArxivSerializer < ActiveModel::Serializer
   end
 
   def self_owned
-    scope && scope == object.user
+    current_user && current_user == object.user
   end
 
   def source
     'theoj'
+  end
+
+  def current_user
+    scope
   end
 
 end
