@@ -46,4 +46,6 @@ RSpec.configure do |config|
 
   config.include SpecHelpers
   config.include ControllerSpecHelpers, type: :controller
+  config.include ActionController::SerializationAssertions, type: :controller
+
 end

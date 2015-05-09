@@ -196,4 +196,77 @@ describe Paper do
 
   end
 
+  describe "#assign_reviewer" do
+
+    it "should add the user as a reviewer" do
+      user  = create(:user)
+      paper = create(:paper)
+
+      expect(paper.assign_reviewer(user)). to be_truthy
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.reviewers.first).to eq(user)
+    end
+
+    it "should fail if the user is the submittor" do
+      user  = create(:user)
+      paper = create(:paper, user:user)
+
+      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.reviewers).to be_empty
+      expect(paper.errors).not_to be_empty
+    end
+
+    it "should fail if the user is a collaborator" do
+      user  = create(:user)
+      paper = create(:paper, collaborator:user)
+
+      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.reviewers).to be_empty
+      expect(paper.errors).not_to be_empty
+    end
+
+    it "should fail if the user is already a reviewer" do
+      user  = create(:user)
+      paper = create(:paper, reviewer:user)
+
+      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.errors).not_to be_empty
+    end
+
+  end
+
+  describe "#remove_reviewer" do
+
+    it "should remove the reviewer" do
+      user1 = create(:user)
+      user2 = create(:user)
+      paper = create(:paper, reviewer:[user1,user2])
+
+      expect(paper.remove_reviewer(user1)).to be_truthy
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.reviewers.first).to eq(user2)
+    end
+
+    it "should fail if the user is not a reviewer" do
+      user1 = create(:user)
+      user2 = create(:user)
+      paper = create(:paper, reviewer:user2)
+
+      expect(paper.remove_reviewer(user1)).to be_falsy
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.reviewers.first).to eq(user2)
+    end
+
+    it "should fail if the user is a collaborator" do
+      user  = create(:user)
+      paper = create(:paper, collaborator:user)
+
+      expect(paper.remove_reviewer(user)).to be_falsy
+      expect(paper.collaborators.length).to eq(1)
+      expect(paper.collaborators.first).to eq(user)
+    end
+
+  end
+
 end

@@ -8,7 +8,10 @@
           <div class="label">Reviewers:</div>
           <div>
             <template if={{submitted}}>
-                <oj-user-lookup placeholder="Add Reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
+                <oj-user-lookup placeholder="Add Reviewer"
+                                on-user-selected={{addReviewer}}
+                                on-filter-suggestions={{filterReviewerList}}
+                        ></oj-user-lookup>
             </template>
             <template repeat="{{reviewer in paper.reviewers}}">
                 <oj-user-tag user={{reviewer}} removable={{submitted}} on-remove-user={{removeReviewer}}></oj-user-tag>
@@ -51,8 +54,8 @@
       }
     </style>
 
-    <json-post id=addReviewer    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
-    <json-post id=removeReviewer on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
+    <json-post   id=addReviewer    on-success={{updateReviewers}} ></json-post>
+    <json-delete id=removeReviewer on-success={{updateReviewers}} ></json-delete>
 
   </template>
 
@@ -62,15 +65,33 @@
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
       removeReviewer:function(event, user){
-        this.$.removeReviewer.data = {user_name: user.name};
+        this.$.removeReviewer.url = PolymerExpressions.prototype.removeReviewerPath(this.paper, user);
         this.$.removeReviewer.go();
       },
       addReviewer:function(event, user){
-        this.$.addReviewer.data = {user_name: user.name};
+        this.$.addReviewer.url = PolymerExpressions.prototype.addReviewerPath(this.paper, user);
         this.$.addReviewer.go();
       },
       updateReviewers:function(event, detail){
         this.paper.reviewers = detail.reviewers;
+      },
+
+      filterReviewerList: function(event, suggestions) {
+          var paper = this.paper;
+          var reviewers = paper.reviewers;
+
+          event.result = suggestions.filter( function(item) {
+
+              if (paper.user && paper.user.sha == item.sha)
+                return false;
+
+              for (var i=0; i<reviewers.length; i++) {
+                  if (reviewers[i].sha == item.sha)
+                    return false;
+              }
+
+              return true;
+          });
       }
     })
   </script>

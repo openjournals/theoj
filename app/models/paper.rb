@@ -80,11 +80,11 @@ class Paper < ActiveRecord::Base
   end
 
   def assign_reviewer(user)
-    # Change this to actually be username later on. Also this is a mess tidy up later
+    can_assign = ! user.author_of?(self)  &&
+                 ! user.reviewer_of?(self) &&
+                 ! user.collaborator_on?(self)
 
-    return true if user.reviewer_of? self
-
-    if assignments.create(user: user, role:"reviewer")
+    if can_assign && assignments.create(user: user, role:"reviewer")
       true
     else
       errors.add(:assignments, 'Unable to assign user')
@@ -93,7 +93,15 @@ class Paper < ActiveRecord::Base
   end
 
   def remove_reviewer(user)
-    assignments.where(user_id: user.id).where(role: "reviewer").first.destroy
+    assignment = assignments.where(user_id: user.id).where(role: 'reviewer').first
+
+    if assignment
+      assignment.destroy
+      true
+
+    else
+      false
+    end
   end
 
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.

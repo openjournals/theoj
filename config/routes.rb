@@ -17,8 +17,9 @@ Theoj::Application.routes.draw do
 
       get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
 
-      post :assign_reviewer
-      post :remove_reviewer
+      # Adding reviewers
+      post   'reviewers/:sha', action: :add_reviewer
+      delete 'reviewers/:sha', action: :remove_reviewer
     end
 
     resources :annotations, only:[:index, :create], defaults: { format: 'json' } do

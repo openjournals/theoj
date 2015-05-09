@@ -5,11 +5,11 @@
     PolymerExpressions.prototype.annotationsFirebasePath = function(paper_id){
         return "https://theoj.firebaseio.com/papers/"+paper_id+"/annotations/";
     };
-    PolymerExpressions.prototype.addReviewerPath = function(paper) {
-        return paper ? "/papers/"+paper.sha+"/assign_reviewer" :  ""
+    PolymerExpressions.prototype.addReviewerPath = function(paper, reviewer) {
+        return "/papers/"+paper.sha+"/reviewers/" + reviewer.sha ;
     };
-    PolymerExpressions.prototype.removeReviewerPath = function(paper) {
-        return paper ? "/papers/"+paper.sha+"/remove_reviewer" :  ""
+    PolymerExpressions.prototype.removeReviewerPath = function(paper, reviewer) {
+        return "/papers/"+paper.sha+"/reviewers/" + reviewer.sha ;
     };
     PolymerExpressions.prototype.addIssuePath = function(paper) {
         return "/papers/"+paper.sha+"/annotations"

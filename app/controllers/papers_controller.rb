@@ -1,7 +1,7 @@
 class PapersController < ApplicationController
   respond_to :json
   before_filter :require_user, :except => [ :state, :index ]
-  before_filter :require_editor, :only => [ :transition, :assign_reviewer, :remove_reviewer]
+  before_filter :require_editor, :only => [ :transition, :add_reviewer, :remove_reviewer]
 
   def index
     if current_user
@@ -85,9 +85,9 @@ class PapersController < ApplicationController
   end
 
 
-  def assign_reviewer
+  def add_reviewer
     paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_name(params[:user_name])
+    user  = User.find_by_sha(params[:sha])
 
     if user && paper.assign_reviewer(user)
       render :json => paper, :status => :created, :location => url_for(paper)
@@ -98,7 +98,7 @@ class PapersController < ApplicationController
 
   def remove_reviewer
     paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_name(params[:user_name])
+    user  = User.find_by_sha(params[:sha])
 
     if user && paper.remove_reviewer(user)
       render :json => paper, :status => :created, :location => url_for(paper)

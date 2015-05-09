@@ -72,6 +72,218 @@ describe PapersController do
 
   end
 
+  describe "POST #add_reviewer" do
+
+    it "an unauthenticated user should be forbidden" do
+      paper = create(:paper)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "an authenticated user should be forbidden" do
+      authenticate
+      paper = create(:paper)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "the submittor should be forbidden" do
+      user = authenticate
+      paper = create(:paper, user:user)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "a collaborator should be forbidden" do
+      user = authenticate
+      paper = create(:paper, collaborator:user)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "a reviewer should be forbidden" do
+      user = authenticate
+      paper = create(:paper, reviewer:user)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "the editor should be allowed to add reviewers" do
+      authenticate(:editor)
+
+      paper = create(:paper)
+
+      reviewer = create(:user)
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => reviewer.sha
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it "the editor should add a reviewer" do
+      authenticate(:editor)
+
+      paper = create(:paper)
+
+      reviewer = create(:user)
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => reviewer.sha
+
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.reviewers.first).to eq(reviewer)
+    end
+
+    it "the editor should return the list of reviewers" do
+      authenticate(:editor)
+
+      paper = create(:paper)
+
+      reviewer = create(:user)
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => reviewer.sha
+
+      expect(response.content_type).to eq("application/json")
+      expect(response_json['reviewers'].length).to eq(1)
+    end
+
+    it "should fail if you add a reviewer that is the submittor" do
+      authenticate(:editor)
+
+      submittor = create(:user)
+      paper = create(:paper, user:submittor)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => submittor.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "should fail if you add a reviewer that is a collaborator" do
+      authenticate(:editor)
+
+      collaborator = create(:user)
+      paper = create(:paper, collaborator:collaborator)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => collaborator.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "should fail if you add a reviewer that is already a reviewer" do
+      authenticate(:editor)
+
+      reviewer = create(:user)
+      paper = create(:paper, reviewer:reviewer)
+
+      get :add_reviewer, :id => paper.sha, :format => :json, :sha => reviewer.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+  end
+
+  describe "POST #remove_reviewer" do
+
+    it "an unauthenticated user should be forbidden" do
+      paper = create(:paper)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "an authenticated user should be forbidden" do
+      authenticate
+      paper = create(:paper)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "the submittor should be forbidden" do
+      user = authenticate
+      paper = create(:paper, user:user)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "a collaborator should be forbidden" do
+      user = authenticate
+      paper = create(:paper, collaborator:user)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "a reviewer should be forbidden" do
+      user = authenticate
+      paper = create(:paper, reviewer:user)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "the editor should be allowed to remove reviewers" do
+      authenticate(:editor)
+
+      reviewer = create(:user)
+      paper = create(:paper, reviewer:reviewer)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => reviewer.sha
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it "the editor should remove a reviewer" do
+      authenticate(:editor)
+
+      reviewer1 = create(:user)
+      reviewer2 = create(:user)
+      paper = create(:paper, reviewer:[reviewer1,reviewer2])
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => reviewer1.sha
+
+      expect(paper.reviewers.length).to eq(1)
+      expect(paper.reviewers.first).to eq(reviewer2)
+    end
+
+    it "the editor should return the list of reviewers" do
+      authenticate(:editor)
+
+      reviewer1 = create(:user)
+      reviewer2 = create(:user)
+      paper = create(:paper, reviewer:[reviewer1,reviewer2])
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => reviewer1.sha
+
+      expect(response.content_type).to eq("application/json")
+      expect(response_json['reviewers'].length).to eq(1)
+    end
+
+    it "should fail if you remove a user that is not a reviewer" do
+      authenticate(:editor)
+
+      reviewer1 = create(:user)
+      paper = create(:paper)
+
+      get :remove_reviewer, :id => paper.sha, :format => :json, :sha => reviewer1.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+  end
+  
   describe "GET #arXiv_details" do
 
     let(:arxiv_response) do
