@@ -9,6 +9,33 @@ describe User do
     expect(user.sha.length).to eq(32)
   end
 
+  describe "should have an anonymous name" do
+
+    it "if the name is empty" do
+      user = create(:user, name:'')
+      expect(user.anonymous_name).to be_nil
+    end
+
+    it "if the user has a single name" do
+      user = create(:user, name:'John')
+      expect(user.anonymous_name).to eq('J')
+    end
+
+    it "if the user has multiple names" do
+      user = create(:user, name:'John Q.Doe')
+      expect(user.anonymous_name).to eq('JD')
+    end
+
+    it "is always uppercase" do
+      user = create(:user)
+      user.name = 'john'
+      expect(user.anonymous_name).to eq('J')
+      user.name = 'john doe'
+      expect(user.anonymous_name).to eq('JD')
+    end
+
+  end
+
   describe "#editors" do
 
     it "should return editors" do

@@ -26,7 +26,7 @@ class PapersController < ApplicationController
     existing = Paper.find_by_arxiv_id(id)
 
     if existing
-      respond_with existing, serializer:ArxivSerializer, current_user:current_user
+      respond_with existing, serializer:ArxivSerializer
 
     else
       data = Arxiv.get(id)

@@ -1,6 +1,6 @@
 # Serialize a Paper in the Arxiv format
 
-class ArxivSerializer < ActiveModel::Serializer
+class ArxivSerializer < BaseSerializer
 
   attributes :arxiv_url, :sha, :title, :summary, :links, :authors, :source, :self_owned
 
@@ -27,10 +27,6 @@ class ArxivSerializer < ActiveModel::Serializer
 
   def source
     'theoj'
-  end
-
-  def current_user
-    scope
   end
 
 end

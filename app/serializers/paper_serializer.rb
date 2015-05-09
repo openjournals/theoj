@@ -1,4 +1,4 @@
-class PaperSerializer < ActiveModel::Serializer
+class PaperSerializer < BaseSerializer
   attributes :id,
              :user_permissions,
              :location,
@@ -10,8 +10,16 @@ class PaperSerializer < ActiveModel::Serializer
              :pending_issues_count,
              :sha
 
-  has_one  :user
+  has_one  :user,       serializer:PublicUserSerializer
   has_many :reviewers
+
+  def reviewers
+      serializer_klass = current_user && current_user.editor ? PublicUserSerializer : AnonymousUserSerializer
+
+      object.reviewers.map do |reviewer|
+        serializer_klass.new(reviewer)
+      end
+  end
 
   def user_permissions
     if scope
@@ -24,4 +32,5 @@ class PaperSerializer < ActiveModel::Serializer
   def pending_issues_count
     object.outstanding_issues.count
   end
+
 end

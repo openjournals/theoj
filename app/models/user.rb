@@ -30,6 +30,18 @@ class User < ActiveRecord::Base
     end
   end
 
+  def anonymous_name
+    parts = name.upcase.split(/\W+/)
+    case parts.length
+      when 0
+        nil
+      when 1
+        parts.first[0]
+      else
+        parts.first[0] + parts.last[0]
+    end
+  end
+
   def reviewer_of?(paper)
     papers_as_reviewer.include?(paper)
   end
