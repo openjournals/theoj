@@ -65,11 +65,11 @@
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
       removeReviewer:function(event, user){
-        this.$.removeReviewer.url = PolymerExpressions.prototype.removeReviewerPath(this.paper, user);
+        this.$.removeReviewer.url = Oj.urls.removeReviewerPath(this.paper, user);
         this.$.removeReviewer.go();
       },
       addReviewer:function(event, user){
-        this.$.addReviewer.url = PolymerExpressions.prototype.addReviewerPath(this.paper, user);
+        this.$.addReviewer.url = Oj.urls.addReviewerPath(this.paper, user);
         this.$.addReviewer.go();
       },
       updateReviewers:function(event, detail){

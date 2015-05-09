@@ -119,7 +119,7 @@
       changeState: function(newState, html, buttonText, successMessage) {
 
           this.showDialog(html, buttonText, function() {
-              var url = PolymerExpressions.prototype.paperTransitionPath(this.paper, newState);
+              var url = Oj.urls.paperTransitionPath(this.paper, newState);
               this.putRequest(url, successMessage);
           });
 
