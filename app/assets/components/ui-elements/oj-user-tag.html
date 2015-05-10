@@ -1,8 +1,9 @@
-<polymer-element name='oj-user-tag' attributes='user removable'>
+<polymer-element name='oj-user-tag' attributes='user removable showColor tagColor'>
 
   <template>
       <span class=name>{{user.name}}</span>
-      <template if={{removable}}><a href='#' on-click={{remove}} >&times</a></template>
+      <template if={{removable}}><a class='remover' href='#' on-click={{remove}} >&times</a></template>
+      <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template>
 
     <style>
 
@@ -15,9 +16,24 @@
         border-radius: 14px;
       }
 
-      a {
+      :host([showcolor]) {
+          padding-right: 4px;
+      }
+
+      .remover {
         color:white;
         text-decoration:none;
+      }
+
+      .color {
+          display: inline-block;
+          box-sizing: border-box;;
+          background-color: white;
+          width:  12px;
+          height: 12px;
+          border-radius: 6px;
+          margin: 2px;
+          vertical-align: text-bottom;
       }
 
     </style>

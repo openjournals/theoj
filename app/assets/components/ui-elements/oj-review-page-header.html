@@ -4,7 +4,7 @@
           <div  class=left flex>
               <div class=left-top>
                   <span class=title>{{paper.title}}</span>
-                  <oj-user-tag user={{paper.user}}></oj-user-tag>
+                  <oj-user-tag user={{paper.user} showColor={{!submitted}}></oj-user-tag>
               </div>
 
               <template if="{{user.editor}}">
@@ -99,6 +99,10 @@
 
   <script>
     Polymer({
+
+        paperChanged: function() {
+            this.submitted = this.paper && this.paper.state == 'submitted';
+        },
 
         annotationsChanged: function(){
             this.updateCounts();

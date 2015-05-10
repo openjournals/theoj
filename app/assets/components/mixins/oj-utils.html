@@ -1,0 +1,14 @@
+<script>
+
+    window.Oj.utils = {
+
+        indexOf: function(array, callback, thisObj) {
+            for (var i=0; i<array.length; i++)
+                if (callback.call(thisObj, array[i], i, array) )
+                    return i;
+            return -1;
+        }
+
+    };
+
+</script>

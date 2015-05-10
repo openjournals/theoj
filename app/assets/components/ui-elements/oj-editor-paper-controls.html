@@ -14,7 +14,13 @@
                         ></oj-user-lookup>
             </template>
             <template repeat="{{reviewer in paper.reviewers}}">
-                <oj-user-tag user={{reviewer}} removable={{submitted}} on-remove-user={{removeReviewer}}></oj-user-tag>
+                <oj-user-tag
+                        user={{reviewer}}
+                        showColor={{!submitted}}
+                        tagColor={{userColor(reviewer)}}
+                        removable={{submitted}}
+                        on-remove-user={{removeReviewer}}
+                        ></oj-user-tag>
             </template>
             <template if="{{!submitted && !paper.reviewers}}">
                 This paper does not have any reviewers.
@@ -92,6 +98,10 @@
 
               return true;
           });
+      },
+
+      userColor: function(user) {
+          return Oj.colors.userColor(this.paper,user);
       }
     })
   </script>
