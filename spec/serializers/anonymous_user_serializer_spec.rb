@@ -8,7 +8,7 @@ describe AnonymousUserSerializer do
     serializer = AnonymousUserSerializer.new(user)
     hash = hash_from_json(serializer.to_json)
 
-    ["name", "sha"].each do |key|
+    ["tag_name", "sha"].each do |key|
       expect(hash).to include(key)
     end
   end
@@ -19,7 +19,7 @@ describe AnonymousUserSerializer do
     serializer = AnonymousUserSerializer.new(user)
     hash = hash_from_json(serializer.to_json)
 
-    ["created_at", "email", "picture"].each do |key|
+    ["name", "created_at", "email", "picture"].each do |key|
       expect(hash).not_to include(key)
     end
   end
@@ -30,7 +30,7 @@ describe AnonymousUserSerializer do
     serializer = AnonymousUserSerializer.new(user)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash['name']).to eq('JD')
+    expect(hash['tag_name']).to eq('JD')
   end
 
 end

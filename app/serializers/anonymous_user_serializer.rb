@@ -1,9 +1,9 @@
 class AnonymousUserSerializer < BaseSerializer
 
-  attributes :name,
+  attributes :tag_name,
              :sha
 
-  def name
+  def tag_name
     object.anonymous_name
   end
   

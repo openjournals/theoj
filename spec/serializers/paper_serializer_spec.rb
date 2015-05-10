@@ -31,13 +31,13 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper)
     reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
 
-    expect(reviewers_hash.first).to include('name', 'sha')
-    expect(reviewers_hash.first).not_to include('email', 'created_at', 'picture')
-    expect(reviewers_hash.first['name']).to eq('JD')
+    expect(reviewers_hash.first).to include('tag_name', 'sha')
+    expect(reviewers_hash.first).not_to include('name', 'email', 'created_at', 'picture')
+    expect(reviewers_hash.first['tag_name']).to eq('JD')
 
-    expect(reviewers_hash.second).to include('name', 'sha')
-    expect(reviewers_hash.second).not_to include('email', 'created_at', 'picture')
-    expect(reviewers_hash.second['name']).to eq('MJ')
+    expect(reviewers_hash.second).to include('tag_name', 'sha')
+    expect(reviewers_hash.second).not_to include('name', 'email', 'created_at', 'picture')
+    expect(reviewers_hash.second['tag_name']).to eq('MJ')
   end
 
   it "should serialize the reviewers as anonymous when a user is logged in" do
@@ -50,13 +50,12 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper, scope:user)
     reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
 
-    expect(reviewers_hash.first).to include('name', 'sha')
-    expect(reviewers_hash.first).not_to include('email', 'created_at', 'picture')
-    expect(reviewers_hash.first['name']).to eq('JD')
+    expect(reviewers_hash.first).to include('tag_name', 'sha')
+    expect(reviewers_hash.first).not_to include('name', 'email', 'created_at', 'picture')
+    expect(reviewers_hash.first['tag_name']).to eq('JD')
 
-    expect(reviewers_hash.second).to include('name', 'sha')
-    expect(reviewers_hash.second).not_to include('email', 'created_at', 'picture')
-    expect(reviewers_hash.second['name']).to eq('MJ')
+    expect(reviewers_hash.second).to include('tag_name', 'sha')
+    expect(reviewers_hash.second).not_to include('name', 'email', 'created_at', 'picture')
   end
 
   it "should serialize the reviewers as public when an editor is logged in" do
@@ -69,10 +68,10 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper, scope:user)
     reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
 
-    expect(reviewers_hash.first).to include('name', 'sha', 'email', 'created_at', 'picture')
+    expect(reviewers_hash.first).to include('name', 'tag_name', 'sha', 'email', 'created_at', 'picture')
     expect(reviewers_hash.first['name']).to eq('John Doe')
 
-    expect(reviewers_hash.second).to include('name', 'sha', 'email', 'created_at', 'picture')
+    expect(reviewers_hash.second).to include('name', 'tag_name', 'sha', 'email', 'created_at', 'picture')
     expect(reviewers_hash.second['name']).to eq('Mary Jane')
   end
 

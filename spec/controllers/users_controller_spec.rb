@@ -11,7 +11,7 @@ describe UsersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
-      assert_equal response_json["name"], user.anonymous_name
+      assert_equal response_json["tag_name"], user.anonymous_name
     end
 
   end

@@ -1,25 +1,22 @@
-class IssuesSerializer < BaseSerializer
+class IssueSerializer < BaseSerializer
   attributes :id,
-             :user_id,
              :paper_id,
              :state,
              :parent_id,
-             :category, :body,
+             :body,
              :author,
              :created_at,
+             :page,
              :xStart,
              :xEnd,
              :yStart,
-             :yEnd,
-             :page
+             :yEnd
 
   has_many :responses
 
   def author
-    {
-      id:          object.user.id,
-      role:       object.user.role_for(object.paper)
-    }
+    serializer_klass = UserSerializer.serialization_class(current_user)
+    serializer_klass.new(object.user)
   end
 
 end

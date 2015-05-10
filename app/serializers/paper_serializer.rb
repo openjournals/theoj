@@ -14,11 +14,11 @@ class PaperSerializer < BaseSerializer
   has_many :reviewers
 
   def reviewers
-      serializer_klass = current_user && current_user.editor ? PublicUserSerializer : AnonymousUserSerializer
+    serializer_klass = UserSerializer.serialization_class(current_user)
 
-      object.reviewers.map do |reviewer|
-        serializer_klass.new(reviewer)
-      end
+    object.reviewers.map do |reviewer|
+      serializer_klass.new(reviewer)
+    end
   end
 
   def user_permissions

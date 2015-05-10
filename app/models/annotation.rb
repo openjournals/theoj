@@ -41,7 +41,8 @@ class Annotation < ActiveRecord::Base
   end
 
   def push_to_firebase
-    FirebaseClient.set firebase_key, IssuesSerializer.new(base_annotation).as_json
+    # Note this must be anonymized user data
+    FirebaseClient.set firebase_key, IssueSerializer.new(base_annotation).as_json
   end
 
   def is_issue?
