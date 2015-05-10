@@ -4,7 +4,10 @@
           <div  class=left flex>
               <div class=left-top>
                   <span class=title>{{paper.title}}</span>
-                  <oj-user-tag user={{paper.user} showColor={{!submitted}}></oj-user-tag>
+                  <oj-user-tag user={{paper.user}
+                               showColor={{!submitted}}
+                               tagColor={{userColor(paper.user)}}
+                          ></oj-user-tag>
               </div>
 
               <template if="{{user.editor}}">
@@ -114,6 +117,11 @@
             this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
             this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
             this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
+        },
+
+        userColor: function(user) {
+            var paper_user = Oj.paperHelpers.paperUser(this.paper, user);
+            return Oj.colors.userColor(paper_user);
         }
 
     })

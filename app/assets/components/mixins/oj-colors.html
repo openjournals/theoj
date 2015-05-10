@@ -3,33 +3,29 @@
     window.Oj.colors = {
 
         // Currently we only support one author
-        authorColors: ['white'],
+        authorColors: ['green', 'black'],
 
-        reviewerColors: ['aqua', 'aquamarine', 'royalblue',
-                         'darkviolet', 'chartreuse', 'fuschia',
-                         'gold',  'hotpink', 'orange', 'red' ],
+        reviewerColors: ['royalblue', 'darkviolet', 'red', 'orangered', 'teal', 'darkgoldenrod' ],
 
-        userColor: function(paper, user) {
+        defaultUserColor: 'black',
 
-            if (!paper.userColors)
-                paper.userColors = {};
+        userColor: function(user) {
 
-            if (!paper.userColors[user.sha]) {
-                var index, color;
+            switch (user && user.role) {
+                case 'submittor':
+                    return this.authorColors[0];
 
-                if (paper.user.sha == user.sha)
-                    color = this.authorColors[0];
+                case 'collaborator':
+                    return this.authorColors[user.index+1 % this.authorColors.length];
 
-                else if (index = Oj.utils.indexOf(paper.reviewers, function(r) {return r.sha == user.sha}) )
-                    color = this.reviewerColors[index % this.reviewerColors.length];
+                case 'reviewer':
+                    return this.reviewerColors[user.index % this.reviewerColors.length];
 
-                else
-                    color = 'black';
+                default:
+                    return this.defaultUserColor;
 
-                paper.userColors[user.sha] = color;
             }
 
-            return paper.userColors[user.sha];
         }
 
     };

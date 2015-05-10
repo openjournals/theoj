@@ -1,4 +1,4 @@
-<polymer-element name='oj-user-tag' attributes='user removable showColor tagColor'>
+<polymer-element name='oj-user-tag' attributes='user removable showColor tagColor' >
 
   <template>
       <span class=name>{{user.name}}</span>
@@ -41,6 +41,10 @@
 
   <script>
     Polymer({
+      userChanged: function() {
+        this.title = (this.user && this.user.email) || '';
+      },
+
       removable:false,
       remove: function(event){
         event.preventDefault();

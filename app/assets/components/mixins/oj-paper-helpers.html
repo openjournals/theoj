@@ -1,6 +1,6 @@
 <script>
 
-    window.Oj.paperExpressions = {
+    window.Oj.paperHelpers = {
 
         actionForPaper: function(paper){
             if (!paper) return;
@@ -38,6 +38,40 @@
                 return 'author';
             else if (paper.user_permissions.indexOf('submittor') >= 0)
                 return 'author';
+        },
+
+        // Given any user object returns the user object from the paper
+        // With some additional metadata
+        paperUser: function(paper, user) {
+            if (!user)
+                return undefined;
+            var sha = user.sha;
+
+            if (!paper.userBySha)
+                paper.userBySha = {};
+
+            if (paper.userBySha[sha]===undefined) {
+                var index;
+
+                if (paper.user.sha == sha) {
+                    user  = paper.user;
+                    user.index = 0;
+                    user.role  = 'submittor';
+
+
+                } else if (index = Oj.utils.indexOf(paper.reviewers, function(r) {return r.sha == sha}) ) {
+                    user  = paper.reviewers[index];
+                    user.index = index;
+                    user.role  = 'reviewer';
+
+                } else {
+                    user = null;
+                }
+
+                paper.userBySha[sha] = user;
+            }
+
+            return paper.userBySha[sha];
         }
 
     };

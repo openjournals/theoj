@@ -101,7 +101,8 @@
       },
 
       userColor: function(user) {
-          return Oj.colors.userColor(this.paper,user);
+          var paper_user = Oj.paperHelpers.paperUser(this.paper, user);
+          return Oj.colors.userColor(paper_user);
       }
     })
   </script>
