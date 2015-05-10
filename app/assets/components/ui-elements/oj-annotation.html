@@ -9,7 +9,7 @@
 
       <div on-tap="{{expand}}" class=header layout horizontal>
           <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
-          <div class=count>{{annotation.responses.length}} replies</div>
+          <div class=count>{{annotation.responses.length||0}} replies</div>
       </div>
 
     </div>
@@ -77,6 +77,10 @@
       .issue {
         cursor: pointer;
         font-size: 0.9em;
+      }
+
+      .collapsed .header {
+          overflow-x: hidden;
       }
 
       .collapsed .issue {

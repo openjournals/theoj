@@ -4,6 +4,7 @@
         <core-icon icon="custom-icons:selected"
                    class="{{annotation.open ? 'open' : 'closed' }} state-{{annotation.state}}"
                    on-click={{annotationClicked}}
+                   title={{stripped(annotation.body)}}
         ></core-icon>
 
       <style>
@@ -45,6 +46,10 @@
         event.preventDefault();
         event.stopPropagation();
         this.annotation.open = true;
+      },
+
+      stripped: function(markdown) {
+        return stripped_markdown(markdown);
       }
 
     })
