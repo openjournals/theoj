@@ -1,21 +1,24 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  belongs_to :user
-  has_many :annotations
-  has_many :assignments
+  belongs_to :user, inverse_of: :papers
+  has_many :annotations, inverse_of: :paper, dependent: :destroy
+  has_many :assignments, inverse_of: :paper, dependent: :destroy
 
-  has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
-  has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
+  has_many :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name: 'Assignment'
+  has_many :collaborators, :through => :collaborator_assignments, :source => :user
+  has_many :reviewer_assignments, -> { where('assignments.role = ?', 'reviewer') }, class_name: 'Assignment'
+  has_many :reviewers, :through => :reviewer_assignments, :source => :user
 
   # Which User is this currently for the attention of?
   belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
 
   scope :active, -> { all }
 
+  before_create :set_initial_values, :get_arxiv_details
+  after_create  :create_assignments
 
-  before_create :set_iniital_values, :get_arxiv_details
-
+  validates :user, presence:true
 
   aasm column: :state do
     state :submitted,          initial:true
@@ -114,18 +117,18 @@ class Paper < ActiveRecord::Base
 
     assigned += assignments.where(:user_id => user.id).pluck(:role)
 
-    if user.author_of?(self)
-      assigned << "submittor"
-    end
-
     assigned
   end
 
   private
 
-  def set_iniital_values
+  def set_initial_values
     self.sha = SecureRandom.hex
     self.submitted_at = Time.now
+  end
+
+  def create_assignments
+    self.assignments.create(role:'submittor',user:self.user)
   end
 
   def get_arxiv_details

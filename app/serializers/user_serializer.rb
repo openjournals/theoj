@@ -4,7 +4,7 @@ class UserSerializer < BaseSerializer
     authenticated_user && authenticated_user.editor ? PublicUserSerializer : AnonymousUserSerializer
   end
 
-  # Make sure that a user is never fully serialized because thtat would
+  # Make sure that a user is never fully serialized because that would
   # Expose too much public information
 
   def initialize(*)

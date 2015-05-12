@@ -11,7 +11,6 @@ class Assignment < ActiveRecord::Base
 
   def set_initial_values
     self.sha = SecureRandom.hex
-    self.submitted_at = Time.now
   end
 
 end
