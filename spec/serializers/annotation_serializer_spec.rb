@@ -17,8 +17,7 @@ describe AnnotationSerializer do
     serializer = AnnotationSerializer.new(annotation)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash['author']).to include('tag_name', 'sha')
-    expect(hash['author']).not_to include('name', 'email', 'created_at', 'picture')
+    expect(hash['author']).not_to include('name', 'sha', 'email', 'created_at', 'picture')
   end
 
   it "should serialize the reviewers as anonymous when a user is logged in" do
@@ -26,8 +25,7 @@ describe AnnotationSerializer do
     serializer = AnnotationSerializer.new(annotation, scope: create(:user) )
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash['author']).to include('tag_name', 'sha')
-    expect(hash['author']).not_to include('name', 'email', 'created_at', 'picture')
+    expect(hash['author']).not_to include('name', 'sha', 'email', 'created_at', 'picture')
   end
 
   it "should serialize the reviewers as public when an editor is logged in" do
@@ -35,7 +33,7 @@ describe AnnotationSerializer do
     serializer = AnnotationSerializer.new(annotation, scope: create(:editor) )
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash['author']).to include('tag_name', 'sha', 'name', 'email', 'created_at', 'picture')
+    expect(hash['author']).to include('sha', 'name', 'email', 'created_at', 'picture')
   end
 
 end

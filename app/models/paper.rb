@@ -5,6 +5,7 @@ class Paper < ActiveRecord::Base
   has_many :annotations, inverse_of: :paper, dependent: :destroy
   has_many :assignments, inverse_of: :paper, dependent: :destroy
 
+  has_one  :submittor_assignment, -> { where('assignments.role = ?', 'submittor') }, class_name: 'Assignment'
   has_many :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name: 'Assignment'
   has_many :collaborators, :through => :collaborator_assignments, :source => :user
   has_many :reviewer_assignments, -> { where('assignments.role = ?', 'reviewer') }, class_name: 'Assignment'

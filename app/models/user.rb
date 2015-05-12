@@ -1,9 +1,9 @@
 class User < ActiveRecord::Base
-  has_many :annotations
-  has_many :assignments
+  has_many :annotations, inverse_of: :user
+  has_many :assignments, inverse_of: :user
 
   # Submitting author relationship with paper
-  has_many :papers
+  has_many :papers, inverse_of: :user
   has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
   has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
   has_many :papers_for_attention, :foreign_key => 'fao_id', :class_name => "Paper"
@@ -27,18 +27,6 @@ class User < ActiveRecord::Base
       user.oauth_token = auth["credentials"]["token"]
       user.oauth_expires_at = Time.at(auth["credentials"]["expires_at"]) if auth["provider"] == "facebook"
       user.extra = auth
-    end
-  end
-
-  def anonymous_name
-    parts = name.upcase.split(/\W+/)
-    case parts.length
-      when 0
-        nil
-      when 1
-        parts.first[0]
-      else
-        parts.first[0] + parts.last[0]
     end
   end
 

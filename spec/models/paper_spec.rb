@@ -10,6 +10,19 @@ describe Paper do
     expect(paper.state).to eq("submitted")
   end
 
+  describe "construction" do
+
+    it "Adds the submittor as an assignment" do
+      submittor = create(:user)
+      p = create(:paper, user:submittor)
+
+      expect(p.submittor_assignment.user).to eq(submittor)
+      expect(p.assignments.length).to eq(1)
+      expect(p.assignments.first.user). to eq(submittor)
+    end
+
+  end
+
   describe "::with_scope" do
 
     it "should return properly scoped records" do
