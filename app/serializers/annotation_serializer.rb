@@ -1,4 +1,4 @@
-class IssueSerializer < BaseSerializer
+class AnnotationSerializer < BaseSerializer
   attributes :id,
              :paper_id,
              :state,

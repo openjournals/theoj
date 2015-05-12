@@ -1,10 +1,10 @@
 require "rails_helper"
 
-describe IssueSerializer do
+describe AnnotationSerializer do
 
   it "should initialize properly" do
     annotation = create(:annotation)
-    serializer = IssueSerializer.new(annotation)
+    serializer = AnnotationSerializer.new(annotation)
     hash = hash_from_json(serializer.to_json)
 
     expect(hash).to include('id', 'paper_id', 'state', 'parent_id',
@@ -14,7 +14,7 @@ describe IssueSerializer do
 
   it "should serialize the reviewers as anonymous when no user is logged in" do
     annotation = create(:annotation)
-    serializer = IssueSerializer.new(annotation)
+    serializer = AnnotationSerializer.new(annotation)
     hash = hash_from_json(serializer.to_json)
 
     expect(hash['author']).to include('tag_name', 'sha')
@@ -23,7 +23,7 @@ describe IssueSerializer do
 
   it "should serialize the reviewers as anonymous when a user is logged in" do
     annotation = create(:annotation)
-    serializer = IssueSerializer.new(annotation, scope: create(:user) )
+    serializer = AnnotationSerializer.new(annotation, scope: create(:user) )
     hash = hash_from_json(serializer.to_json)
 
     expect(hash['author']).to include('tag_name', 'sha')
@@ -32,7 +32,7 @@ describe IssueSerializer do
 
   it "should serialize the reviewers as public when an editor is logged in" do
     annotation = create(:annotation)
-    serializer = IssueSerializer.new(annotation, scope: create(:editor) )
+    serializer = AnnotationSerializer.new(annotation, scope: create(:editor) )
     hash = hash_from_json(serializer.to_json)
 
     expect(hash['author']).to include('tag_name', 'sha', 'name', 'email', 'created_at', 'picture')
