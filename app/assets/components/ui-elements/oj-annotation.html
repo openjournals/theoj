@@ -8,6 +8,7 @@
       </template>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
+          <oj-user-label user={{annotation.author|fixUser}}></oj-user-label>
           <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
           <div class=count>{{annotation.responses.length||0}} replies</div>
       </div>
@@ -25,7 +26,8 @@
           </template>
 
           <template if="{{!annotation.new}}">
-              <div on-tap="{{collapse}}" class=header >
+              <div on-tap="{{collapse}}" class=header layout horizontal>
+                  <oj-user-label user={{annotation.author|fixUser}}></oj-user-label>
                   <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
               </div>
 
@@ -80,7 +82,7 @@
       }
 
       .collapsed .header {
-          overflow-x: hidden;
+          overflow: hidden;
       }
 
       .collapsed .issue {
@@ -203,7 +205,12 @@
                     yStart: this.annotation.yStart
                 }
             };
-        }
+      },
+
+      fixUser: function(user) {
+          return Oj.paperHelpers.paperUser(this.paper, user);
+      }
+
     })
   </script>
 </polymer-element>

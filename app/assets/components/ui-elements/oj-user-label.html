@@ -1,17 +1,19 @@
-<polymer-element name='oj-user-label' attributes='user role color'>
+<polymer-element name='oj-user-label' attributes='user'>
 
   <template>
-      <span class=label>
-          {{user.tag_name}}
-      </span>
+      <span class=label title={{user.name}}></span>
 
     <style>
 
       :host {
+        border-top: 5px solid;
         display: inline-block;
         background-color:red;
         color: white;
         box-sizing: border-box;
+        font-size:10px;
+        padding: 0 3px 0 3px;
+        margin-right: 4px;
       }
 
     </style>
@@ -19,6 +21,19 @@
 
   <script>
     Polymer({
+        userChanged: function() {
+            if (!this.user) return;
+
+            $(this).addClass('role-'+this.user.role);
+            this.style.backgroundColor = Oj.colors.userColor(this.user);
+
+            if (this.user.name) {
+                var title = this.user.name;
+                if (this.user.email)
+                    title = title + ' [' + this.user.email + ']';
+                this.title = title;
+            }
+        }
     })
   </script>
 

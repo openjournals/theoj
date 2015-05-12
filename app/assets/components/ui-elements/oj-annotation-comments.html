@@ -3,7 +3,10 @@
 
       <div class='comments'>
           <template repeat="{{comment in annotation.responses}}">
-              <markdown-content class=comment markdown="{{comment.body}}"></markdown-content>
+              <div layout horizontal>
+                  <oj-user-label user={{comment.author|fixUser}}></oj-user-label>
+                  <markdown-content class=comment flex markdown="{{comment.body}}"></markdown-content>
+              </div>
           </template>
       </div>
 
@@ -60,6 +63,11 @@
       paper-icon-button {
           padding-top:    0;
           padding-bottom: 0;
+      }
+
+      oj-user-label {
+          margin-bottom: 5px;
+          box-shadow: 4px 0 0 white; /* Make the right border white */
       }
 
     </style>
@@ -127,6 +135,10 @@
 
       commentError:function(){
         this.fire("notification", "Error saving reply")
+      },
+
+      fixUser: function(user) {
+          return Oj.paperHelpers.paperUser(this.paper, user);
       }
 
     })
