@@ -2,15 +2,21 @@ FactoryGirl.define do
   factory :assignment do
     user
     paper
+    role           'collaborator'
     created_at     { Time.now }
     updated_at     { Time.now }
 
-    factory :assignment_as_reviewer do
-      role "reviewer"
+    trait :collaborator do
+      role 'collaborator'
     end
 
-    factory :assignment_as_collaborator do
-      role "collaborator"
+    trait :reviewer do
+      role 'reviewer'
     end
+
+    trait :editor do
+      role 'editor'
+    end
+
   end
 end

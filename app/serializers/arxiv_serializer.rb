@@ -2,7 +2,14 @@
 
 class ArxivSerializer < BaseSerializer
 
-  attributes :arxiv_url, :sha, :title, :summary, :links, :authors, :source, :self_owned
+  attributes :arxiv_url,
+             :sha,
+             :title,
+             :summary,
+             :links,
+             :authors,
+             :source,
+             :self_owned
 
   def arxiv_url
     object.location.sub(/\.pdf$/,'')
@@ -22,7 +29,7 @@ class ArxivSerializer < BaseSerializer
   end
 
   def self_owned
-    current_user && current_user == object.user
+    current_user && current_user == object.submittor
   end
 
   def source

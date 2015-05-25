@@ -31,10 +31,7 @@ describe UsersController do
       it "should have the correct attributes" do
         user = authenticate
         paper = create(:paper)
-        create(:assignment_as_reviewer, :user => user, :paper => paper)
-
-        # Set paper as for attention of user
-        paper.update_attributes(:fao_id => user.id)
+        create(:assignment, :reviewer, user:user, paper:paper)
 
         get :get_current_user, :format => :json
 

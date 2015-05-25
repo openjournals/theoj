@@ -13,5 +13,6 @@ FactoryGirl.define do
     factory :editor do
       editor true
     end
+
   end
 end

@@ -31,6 +31,7 @@ class ApplicationController < ActionController::Base
     render_error :forbidden unless current_user
   end
 
+  #@mro - needs to be rewritten (should be editor of Paper)
   def require_editor
     render_error :forbidden unless (current_user && current_user.editor?)
   end

@@ -5,7 +5,7 @@ class PapersController < ApplicationController
 
   def index
     if current_user
-      papers = Paper.for_user(current_user)
+      papers = current_user.papers_as_submittor
     else
       papers = []
     end
@@ -35,7 +35,7 @@ class PapersController < ApplicationController
   end
 
   def create
-    paper = Paper.new(arxiv_id:params[:arxiv_id], user:current_user)
+    paper = Paper.new(arxiv_id:params[:arxiv_id], submittor:current_user)
     authorize! :create, paper
 
     if paper.save
@@ -119,7 +119,7 @@ class PapersController < ApplicationController
   end
 
   def as_author
-    papers = current_user.papers.with_state(params[:state])
+    papers = current_user.papers_as_submittor.with_state(params[:state])
     respond_with papers
   end
 

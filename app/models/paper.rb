@@ -1,25 +1,26 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  belongs_to :user, inverse_of: :papers
-  has_many :annotations, inverse_of: :paper, dependent: :destroy
-  has_many :assignments, inverse_of: :paper, dependent: :destroy
+  has_many   :annotations, inverse_of: :paper, dependent: :destroy
+  has_many   :assignments, inverse_of: :paper, dependent: :destroy
 
-  has_one  :submittor_assignment, -> { where('assignments.role = ?', 'submittor') }, class_name: 'Assignment'
-  has_many :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name: 'Assignment'
-  has_many :collaborators, :through => :collaborator_assignments, :source => :user
-  has_many :reviewer_assignments, -> { where('assignments.role = ?', 'reviewer') }, class_name: 'Assignment'
-  has_many :reviewers, :through => :reviewer_assignments, :source => :user
+  has_one   :submittor_assignment,     -> { where('assignments.role = ?', 'submittor') },    class_name:'Assignment'
+  has_many  :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name:'Assignment'
+  has_many  :reviewer_assignments,     -> { where('assignments.role = ?', 'reviewer') },     class_name: 'Assignment'
+  has_many  :editor_assignments,       -> { where('assignments.role = ?', 'editor') },       class_name:'Assignment'
 
-  # Which User is this currently for the attention of?
-  belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
+  belongs_to :submittor,                class_name:'User', inverse_of: :papers_as_submittor
+  has_many  :collaborators,             through: :collaborator_assignments, source: :user
+  has_many  :reviewers,                 through: :reviewer_assignments,     source: :user
+  has_many  :editors,                   through: :editor_assignments,       source: :user
 
   scope :active, -> { all }
 
   before_create :set_initial_values, :get_arxiv_details
   after_create  :create_assignments
 
-  validates :user, presence:true
+  validates :submittor,
+            presence: true
 
   aasm column: :state do
     state :submitted,          initial:true
@@ -63,20 +64,12 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def editors
-    User.editors
-  end
-
   def pretty_submission_date
     submitted_at.strftime("%-d %B %Y")
   end
 
   def draft?
     submitted?
-  end
-
-  def self.for_user(user)
-    user.papers
   end
 
   def to_param
@@ -110,15 +103,7 @@ class Paper < ActiveRecord::Base
 
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
   def permissions_for_user(user)
-    assigned = []
-
-    if user.editor?
-      assigned << "editor"
-    end
-
-    assigned += assignments.where(:user_id => user.id).pluck(:role)
-
-    assigned
+    assignments.where(user_id:user.id).pluck(:role)
   end
 
   private
@@ -129,7 +114,9 @@ class Paper < ActiveRecord::Base
   end
 
   def create_assignments
-    self.assignments.create(role:'submittor',user:self.user)
+    editor = User.next_editor
+    self.assignments.create(role:'editor',   user:editor) if editor
+    self.assignments.create(role:'submittor',user:submittor)
   end
 
   def get_arxiv_details

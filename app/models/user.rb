@@ -1,14 +1,11 @@
 class User < ActiveRecord::Base
-  has_many :annotations, inverse_of: :user
   has_many :assignments, inverse_of: :user
 
-  # Submitting author relationship with paper
-  has_many :papers, inverse_of: :user
-  has_many :papers_as_reviewer, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :paper
-  has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :paper
-  has_many :papers_for_attention, :foreign_key => 'fao_id', :class_name => "Paper"
-
-  scope :editors, -> { where(:editor => true) }
+  # # Submitting author relationship with paper
+  has_many :papers_as_submittor,    class_name:'Paper', inverse_of: :submittor, foreign_key:'submittor_id'
+  has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, through: :assignments, source: :paper
+  has_many :papers_as_reviewer,     -> { where('assignments.role = ?', 'reviewer') },     through: :assignments, source: :paper
+  has_many :papers_as_editor,       -> { where('assignments.role = ?', 'editor') },       through: :assignments, source: :paper
 
   serialize :extra
 
@@ -30,12 +27,24 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.next_editor
+    @editor ||=   where(editor:true).first
+  end
+
   def reviewer_of?(paper)
-    papers_as_reviewer.include?(paper)
+    paper.reviewers.include?(self)
   end
 
   def editor_of?(paper)
-    self.editor?
+    self.editor? && paper.editors.include?(self)
+  end
+
+  def collaborator_on?(paper)
+    paper.collaborators.include?(self)
+  end
+
+  def author_of?(paper)
+    paper.submittor == self
   end
 
   def role_for(paper)
@@ -49,22 +58,6 @@ class User < ActiveRecord::Base
       when collaborator_on?(paper)
         'collaborator'
     end
-  end
-
-  def papers_as_editor
-    if self.editor?
-      return Paper.active
-    else
-      return []
-    end
-  end
-
-  def collaborator_on?(paper)
-    papers_as_collaborator.include?(paper)
-  end
-
-  def author_of?(paper)
-    paper.user == self
   end
 
   def to_param

@@ -37,8 +37,8 @@ describe PapersController do
 
     it "AS REVIEWER (with permissions)" do
       user = authenticate
-      paper = create(:paper_under_review)
-      create(:assignment_as_reviewer, :paper => paper, :user => user)
+      paper = create(:paper, :under_review)
+      create(:assignment, :reviewer, paper:paper, user:user)
 
       get :show, :id => paper.sha, :format => :json
 
@@ -49,8 +49,8 @@ describe PapersController do
 
     it "AS COLLABORATOR (with permissions)" do
       user = authenticate
-      paper = create(:paper_under_review)
-      create(:assignment_as_collaborator, :paper => paper, :user => user)
+      paper = create(:paper, :under_review)
+      create(:assignment, :collaborator, paper:paper, user:user)
 
       get :show, :id => paper.sha, :format => :json
 
@@ -61,7 +61,7 @@ describe PapersController do
 
     it "AS AUTHOR (with permissions)" do
       user = authenticate
-      paper = create(:paper_under_review, :user => user)
+      paper = create(:paper, :under_review, submittor:user)
 
       get :show, :id => paper.sha, :format => :json
 
@@ -93,7 +93,7 @@ describe PapersController do
 
     it "the submittor should be forbidden" do
       user = authenticate
-      paper = create(:paper, user:user)
+      paper = create(:paper, submittor:user)
 
       get :add_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
 
@@ -157,7 +157,7 @@ describe PapersController do
       authenticate(:editor)
 
       submittor = create(:user)
-      paper = create(:paper, user:submittor)
+      paper = create(:paper, submittor:submittor)
 
       get :add_reviewer, :id => paper.sha, :format => :json, :sha => submittor.sha
 
@@ -209,7 +209,7 @@ describe PapersController do
 
     it "the submittor should be forbidden" do
       user = authenticate
-      paper = create(:paper, user:user)
+      paper = create(:paper, submittor:user)
 
       get :remove_reviewer, :id => paper.sha, :format => :json, :sha => 'abcd'
 
@@ -374,7 +374,7 @@ describe PapersController do
     render_views
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code" do
-      paper = create(:paper_under_review)
+      paper = create(:paper, :under_review)
       get :state, :id => paper.sha, :format => :html
 
       etag1 = response.header['ETag']
@@ -424,13 +424,13 @@ describe PapersController do
       expect( new.title    ).to start_with('Serendipitous')
     end
 
-    it "should set the papers submitter" do
+    it "should set the papers submittor" do
       authenticate
 
       post :create, :format => :json, arxiv_id: '1401.0003'
 
       new = Paper.last
-      expect( new.user ).to eq(current_user)
+      expect( new.submittor ).to eq(current_user)
     end
 
     it "should return a created status code" do
@@ -464,7 +464,7 @@ describe PapersController do
   #
   #   it "AS AUTHOR on submitted paper should change title" do
   #     user = authenticate
-  #     paper = create(:paper, :user => user)
+  #     paper = create(:paper, submittor:user)
   #
   #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
   #
@@ -474,7 +474,7 @@ describe PapersController do
   #
   #   it "AS AUTHOR responds on submitted paper should not change title" do
   #     user = authenticate
-  #     paper = create(:submitted_paper, :user => user, :title => "Hello space")
+  #     paper = create(:paper, :submitted, submittor:user, title:'Hello space')
   #
   #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
   #
@@ -488,7 +488,7 @@ describe PapersController do
 
     it "AS EDITOR responds successfully with a correct status and accept paper" do
       authenticate(:editor)
-      paper = create(:paper_under_review)
+      paper = create(:paper, :under_review)
 
       put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
@@ -507,7 +507,7 @@ describe PapersController do
 
     it "AS USER responds successfully with a correct status (403) and NOT accept paper" do
       authenticate
-      paper = create(:paper_under_review)
+      paper = create(:paper, :under_review)
 
       put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
@@ -517,7 +517,7 @@ describe PapersController do
 
     it "AS AUTHOR responds successfully with a correct status (403) and NOT accept paper" do
       user = authenticate
-      paper = create(:paper_under_review, :user => user)
+      paper = create(:paper, :under_review, submittor:user)
 
       put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
@@ -531,8 +531,8 @@ describe PapersController do
 
     it "AS REVIEWER should return correct papers" do
       user = authenticate
-      paper = create(:paper_under_review)
-      create(:assignment_as_reviewer, :user => user, :paper => paper)
+      paper = create(:paper, :under_review)
+      create(:assignment, :reviewer, user:user, paper:paper)
 
       get :as_reviewer, :format => :json
 
@@ -548,8 +548,8 @@ describe PapersController do
 
       it "AS REVIEWER should return correct papers" do
         user = authenticate
-        paper = create(:paper_under_review)
-        create(:assignment_as_reviewer, :user => user, :paper => paper)
+        paper = create(:paper, :under_review)
+        create(:assignment, :reviewer, user:user, paper:paper)
 
         get :as_reviewer, :format => :json, :state => 'submittted'
 
@@ -565,12 +565,12 @@ describe PapersController do
 
     it "AS REVIEWER should return correct papers" do
       user = create(:user)
-      paper = create(:paper_under_review)
-      create(:assignment_as_reviewer, :user => user, :paper => paper)
+      paper = create(:paper, :under_review)
+      create(:assignment, :reviewer, user:user, paper:paper)
 
       # This is the one that should be returned
       user = authenticate
-      paper = create(:paper, :user => user)
+      paper = create(:paper, submittor:user)
 
       get :as_author, :format => :json
 
@@ -583,9 +583,9 @@ describe PapersController do
   describe "GET #as_editor" do
 
     it "AS EDITOR should return correct papers" do
-      user = authenticate(:editor)
-      create(:paper_under_review) # should be returned
-      create(:submitted_paper) # should be returned
+      user = set_editor( authenticate(:editor) )
+      create(:paper, :under_review) # should be returned
+      create(:paper, :submitted) # should be returned
 
       get :as_editor, :format => :json
 

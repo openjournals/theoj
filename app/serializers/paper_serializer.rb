@@ -10,7 +10,7 @@ class PaperSerializer < BaseSerializer
              :pending_issues_count,
              :sha
 
-  has_one  :user,       serializer:PublicUserSerializer
+  has_one  :submittor,       serializer:PublicUserSerializer
   has_many :reviewers
 
   def reviewers

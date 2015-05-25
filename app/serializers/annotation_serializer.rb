@@ -4,7 +4,7 @@ class AnnotationSerializer < BaseSerializer
              :state,
              :parent_id,
              :body,
-             :author,
+             :assignment,
              :created_at,
              :page,
              :xStart,
@@ -14,9 +14,8 @@ class AnnotationSerializer < BaseSerializer
 
   has_many :responses
 
-  def author
-    serializer_klass = UserSerializer.serialization_class(current_user)
-    serializer_klass.new(object.user)
+  def assignment
+    object.assignment.sha
   end
 
 end

@@ -1,11 +1,11 @@
 class Annotation < ActiveRecord::Base
   include AASM
 
-  belongs_to :paper
-  belongs_to :user
+  belongs_to :paper,      inverse_of: :annotations
+  belongs_to :assignment, inverse_of: :annotations
 
-  has_many :responses, :class_name => "Annotation", :foreign_key => "parent_id"
-  belongs_to :parent, :class_name => "Annotation", :foreign_key => "parent_id"
+  has_many   :responses, class_name:'Annotation', foreign_key:'parent_id'
+  belongs_to :parent,    class_name:'Annotation', foreign_key:'parent_id'
 
   scope :root_annotations , -> { where(parent_id: nil) }
 

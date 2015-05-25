@@ -48,4 +48,8 @@ RSpec.configure do |config|
   config.include ControllerSpecHelpers, type: :controller
   config.include ActionController::SerializationAssertions, type: :controller
 
+  config.before(:each) do
+    allow(User).to receive(:next_editor).and_return(nil)
+  end
+
 end
