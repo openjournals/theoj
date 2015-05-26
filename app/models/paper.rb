@@ -1,21 +1,26 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  belongs_to :user
-  has_many :annotations
-  has_many :assignments
+  has_many   :annotations, inverse_of: :paper, dependent: :destroy
+  has_many   :assignments, inverse_of: :paper, dependent: :destroy
 
-  has_many :reviewers, -> { where('assignments.role = ?', 'reviewer') }, :through => :assignments, :source => :user
-  has_many :collaborators, -> { where('assignments.role = ?', 'collaborator') }, :through => :assignments, :source => :user
+  has_one   :submittor_assignment,     -> { where('assignments.role = ?', 'submittor') },    class_name:'Assignment'
+  has_many  :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name:'Assignment'
+  has_many  :reviewer_assignments,     -> { where('assignments.role = ?', 'reviewer') },     class_name: 'Assignment'
+  has_many  :editor_assignments,       -> { where('assignments.role = ?', 'editor') },       class_name:'Assignment'
 
-  # Which User is this currently for the attention of?
-  belongs_to :fao, :class_name => "User", :foreign_key => "fao_id"
+  belongs_to :submittor,                class_name:'User', inverse_of: :papers_as_submittor
+  has_many  :collaborators,             through: :collaborator_assignments, source: :user
+  has_many  :reviewers,                 through: :reviewer_assignments,     source: :user
+  has_many  :editors,                   through: :editor_assignments,       source: :user
 
   scope :active, -> { all }
 
+  before_create :set_initial_values, :get_arxiv_details
+  after_create  :create_assignments
 
-  before_create :set_iniital_values, :get_arxiv_details
-
+  validates :submittor,
+            presence: true
 
   aasm column: :state do
     state :submitted,          initial:true
@@ -59,10 +64,6 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def editors
-    User.editors
-  end
-
   def pretty_submission_date
     submitted_at.strftime("%-d %B %Y")
   end
@@ -71,20 +72,18 @@ class Paper < ActiveRecord::Base
     submitted?
   end
 
-  def self.for_user(user)
-    user.papers
-  end
-
   def to_param
     sha
   end
 
-  def assign_reviewer(user)
-    # Change this to actually be username later on. Also this is a mess tidy up later
+  def user_assignment(user)
+    assignments.detect { |a| a.user == user }
+  end
 
-    return true if user.reviewer_of? self
+  def add_assignee(user, role)
+    can_assign = ! user_assignment(user)
 
-    if assignments.create(user: user, role:"reviewer")
+    if can_assign && assignments.create(user: user, role:role)
       true
     else
       errors.add(:assignments, 'Unable to assign user')
@@ -92,32 +91,26 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def remove_reviewer(user)
-    assignments.where(user_id: user.id).where(role: "reviewer").first.destroy
-  end
-
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
   def permissions_for_user(user)
-    assigned = []
+    assignments.where(user_id:user.id).pluck(:role)
+  end
 
-    if user.editor?
-      assigned << "editor"
-    end
-
-    assigned += assignments.where(:user_id => user.id).pluck(:role)
-
-    if user.author_of?(self)
-      assigned << "submittor"
-    end
-
-    assigned
+  def firebase_key
+    "/papers/#{sha}"
   end
 
   private
 
-  def set_iniital_values
+  def set_initial_values
     self.sha = SecureRandom.hex
     self.submitted_at = Time.now
+  end
+
+  def create_assignments
+    editor = User.next_editor
+    self.assignments.create(role:'editor',   user:editor) if editor
+    self.assignments.create(role:'submittor',user:submittor)
   end
 
   def get_arxiv_details

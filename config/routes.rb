@@ -16,10 +16,9 @@ Theoj::Application.routes.draw do
       put  :transition, format: 'json'
 
       get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
-
-      post :assign_reviewer
-      post :remove_reviewer
     end
+
+    resources :assignments, only:[:index, :create, :destroy]
 
     resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
       member do
@@ -34,7 +33,7 @@ Theoj::Application.routes.draw do
 
   get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}
 
-  resources :users, defaults: { format: 'json' }, only: [:show] do
+  resources :users, defaults: { format: 'json' }, only: [] do
     resources :papers, defaults: { format: 'json' } do
       collection do
         get :as_reviewer, defaults: { format: 'json' }

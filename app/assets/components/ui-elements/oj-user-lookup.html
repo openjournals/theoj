@@ -13,7 +13,6 @@
 
     <json-get  id=lookUpSearch
                url='/users/name_lookup'
-               result={{suggestions}}
                on-success={{lookupSuccess}}
                ></json-get>
 
@@ -78,7 +77,10 @@
           }
        }, 300);
       },
-      lookupSuccess: function() {
+
+      lookupSuccess: function(event, suggestions) {
+          this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
+
           if (this.suggestions.length) {
             this.async( function() {
                 this.$.suggestions.opened = true;
@@ -91,8 +93,9 @@
       selectUser:function(event, detail, sender){
           var user = event.target.templateInstance.model.suggestion;
           this.fire("user-selected", user);
+          this.$.suggestions.opened = false;
           this.search = "";
-          this.suggestions = []
+          this.suggestions = [];
       }
 
     })

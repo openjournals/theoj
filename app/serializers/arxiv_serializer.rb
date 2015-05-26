@@ -1,8 +1,15 @@
 # Serialize a Paper in the Arxiv format
 
-class ArxivSerializer < ActiveModel::Serializer
+class ArxivSerializer < BaseSerializer
 
-  attributes :arxiv_url, :sha, :title, :summary, :links, :authors, :source, :self_owned
+  attributes :arxiv_url,
+             :sha,
+             :title,
+             :summary,
+             :links,
+             :authors,
+             :source,
+             :self_owned
 
   def arxiv_url
     object.location.sub(/\.pdf$/,'')
@@ -22,7 +29,7 @@ class ArxivSerializer < ActiveModel::Serializer
   end
 
   def self_owned
-    scope && scope == object.user
+    current_user && current_user == object.submittor
   end
 
   def source

@@ -64,7 +64,7 @@
             this.$.dialog.open();
         },
         dialogAccepted: function() {
-            this.$.putStateChange.url = PolymerExpressions.prototype.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState);
+            this.$.putStateChange.url = Oj.urls.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState);
             this.$.putStateChange.go();
         },
         putStateChangeSuccess: function(event, response) {

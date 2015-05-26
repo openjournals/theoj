@@ -9,14 +9,16 @@ class AnnotationsController < ApplicationController
   end
 
   def issues
-    render :json => @paper.issues, each_serializer: IssuesSerializer
+    render :json => @paper.issues
   end
 
   def create
-    annotation = @paper.annotations.new(annotation_params.merge(user_id: current_user.id))
+    assignment = @paper.user_assignment(current_user)
+    render :json => {}, :status => :unprocessable_entity and return unless assignment
+    annotation = @paper.annotations.new(annotation_params.merge(assignment: assignment))
 
     if @paper.annotations << annotation
-      render :json => annotation, :status => :created, serializer: IssuesSerializer
+      render :json => annotation, :status => :created
     else
       render :json => annotation.errors, :status => :unprocessable_entity
     end
@@ -25,7 +27,7 @@ class AnnotationsController < ApplicationController
   def update
     # There is no update code here!
     if @annotation.save
-      render :json => @annotation, :status => :created, serializer: IssuesSerializer
+      render :json => @annotation, :status => :created
     else
       render :json => @annotation.errors, :status => :unprocessable_entity
     end
@@ -50,7 +52,7 @@ class AnnotationsController < ApplicationController
     ability.authorize!(event, @annotation)
 
     @annotation.send("#{event}!")
-    render :json => @annotation, serializer: IssuesSerializer
+    render :json => @annotation
 
   rescue AASM::InvalidTransition
     render_error :unprocessable_entity

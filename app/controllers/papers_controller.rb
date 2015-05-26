@@ -1,11 +1,11 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user, :except => [ :state, :index ]
-  before_filter :require_editor, :only => [ :transition, :assign_reviewer, :remove_reviewer]
+  before_filter :require_user,   except: [ :state, :index ]
+  before_filter :require_editor, only:   [ :transition ]
 
   def index
     if current_user
-      papers = Paper.for_user(current_user)
+      papers = current_user.papers_as_submittor
     else
       papers = []
     end
@@ -26,7 +26,7 @@ class PapersController < ApplicationController
     existing = Paper.find_by_arxiv_id(id)
 
     if existing
-      respond_with existing, serializer:ArxivSerializer, current_user:current_user
+      respond_with existing, serializer:ArxivSerializer
 
     else
       data = Arxiv.get(id)
@@ -35,7 +35,7 @@ class PapersController < ApplicationController
   end
 
   def create
-    paper = Paper.new(arxiv_id:params[:arxiv_id], user:current_user)
+    paper = Paper.new(arxiv_id:params[:arxiv_id], submittor:current_user)
     authorize! :create, paper
 
     if paper.save
@@ -84,29 +84,6 @@ class PapersController < ApplicationController
     end
   end
 
-
-  def assign_reviewer
-    paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_name(params[:user_name])
-
-    if user && paper.assign_reviewer(user)
-      render :json => paper, :status => :created, :location => url_for(paper)
-    else
-      render :json => paper.errors, :status => :unprocessable_entity
-    end
-  end
-
-  def remove_reviewer
-    paper = Paper.find_by_sha(params[:id])
-    user  = User.find_by_name(params[:user_name])
-
-    if user && paper.remove_reviewer(user)
-      render :json => paper, :status => :created, :location => url_for(paper)
-    else
-      render :json => paper.errors, :status => :unprocessable_entity
-    end
-  end
-
   def as_reviewer
     papers = current_user.papers_as_reviewer.with_state(params[:state])
     respond_with papers
@@ -119,7 +96,7 @@ class PapersController < ApplicationController
   end
 
   def as_author
-    papers = current_user.papers.with_state(params[:state])
+    papers = current_user.papers_as_submittor.with_state(params[:state])
     respond_with papers
   end
 

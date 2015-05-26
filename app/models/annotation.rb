@@ -1,11 +1,11 @@
 class Annotation < ActiveRecord::Base
   include AASM
 
-  belongs_to :paper
-  belongs_to :user
+  belongs_to :paper,      inverse_of: :annotations
+  belongs_to :assignment, inverse_of: :annotations
 
-  has_many :responses, :class_name => "Annotation", :foreign_key => "parent_id"
-  belongs_to :parent, :class_name => "Annotation", :foreign_key => "parent_id"
+  has_many   :responses, class_name:'Annotation', foreign_key:'parent_id'
+  belongs_to :parent,    class_name:'Annotation', foreign_key:'parent_id'
 
   scope :root_annotations , -> { where(parent_id: nil) }
 
@@ -37,11 +37,12 @@ class Annotation < ActiveRecord::Base
   end
 
   def firebase_key
-    "/papers/#{paper.sha}/annotations/#{base_annotation.id}"
+    "#{paper.firebase_key}/annotations/#{base_annotation.id}"
   end
 
   def push_to_firebase
-    FirebaseClient.set firebase_key, IssuesSerializer.new(base_annotation).as_json
+    # Note this must be anonymized user data
+    FirebaseClient.set firebase_key, AnnotationSerializer.new(base_annotation).as_json
   end
 
   def is_issue?

@@ -1,0 +1,25 @@
+<script>
+
+    window.Oj.colors = {
+
+        // Currently we only support one author
+        colors: ['green', 'royalblue', 'darkviolet', 'red', 'orangered', 'teal', 'darkgoldenrod' ],
+
+        defaultUserColor: 'black',
+
+        userColor: function(assignment) {
+
+            if (assignment && assignment.role && assignment.index>=0) {
+                var colorIndex = assignment.index % this.colors.length;
+                return this.colors[colorIndex];
+
+            } else {
+                return this.defaultUserColor;
+
+            }
+
+        }
+
+    };
+
+</script>

@@ -7,7 +7,7 @@ describe AnnotationsController do
     it "AS EDITOR responds successfully with a correct status and changed issue" do
       authenticate(:editor)
 
-      paper = create(:paper_under_review)
+      paper = create(:paper, :under_review)
       issue = create(:issue, initial_state.to_sym, paper:paper)
 
       put method, paper_id:paper.sha, id:issue.id, format:'json'
@@ -21,7 +21,7 @@ describe AnnotationsController do
     it "AS REVIEWER responds successfully with a correct status and changed issue" do
       user = authenticate
 
-      paper = create(:paper_under_review, reviewer:user)
+      paper = create(:paper, :under_review, reviewer:user)
       issue = create(:issue, initial_state.to_sym, paper:paper)
 
       user.reload
@@ -37,7 +37,7 @@ describe AnnotationsController do
     it "AS USER responds successfully with a forbidden status" do
       authenticate
 
-      paper = create(:paper_under_review)
+      paper = create(:paper, :under_review)
       issue = create(:issue, initial_state.to_sym, paper:paper)
 
       put method, paper_id:paper.sha, id:issue.id, format:'json'
@@ -50,7 +50,7 @@ describe AnnotationsController do
     it "AS AUTHOR responds successfully with a forbidden status" do
       user = authenticate
 
-      paper = create(:paper_under_review, user:user)
+      paper = create(:paper, :under_review, submittor:user)
       issue = create(:issue, initial_state.to_sym, paper:paper)
 
       put method, paper_id:paper.sha, id:issue.id, format:'json'

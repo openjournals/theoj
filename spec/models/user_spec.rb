@@ -9,24 +9,13 @@ describe User do
     expect(user.sha.length).to eq(32)
   end
 
-  describe "#editors" do
-
-    it "should return editors" do
-      user = create(:editor)
-      create(:user)
-
-      expect(User.editors).to eq([user])
-    end
-
-  end
-
   describe "#reviewer_of?" do
 
     it "should return correct reviewer assignments" do
       user = create(:user)
-      paper = create(:submitted_paper)
+      paper = create(:paper, :submitted)
 
-      create(:assignment_as_reviewer, :user => user, :paper => paper)
+      create(:assignment, :reviewer, user:user, paper:paper)
 
       assert user.reviewer_of?(paper)
       assert !user.author_of?(paper)
@@ -38,10 +27,10 @@ describe User do
   describe "#collaborator_on?" do
 
     it "should return correct collaborator assignments" do
-      user = create(:user)
-      paper = create(:submitted_paper)
+      user  = create(:user)
+      paper = create(:paper, :submitted)
 
-      create(:assignment_as_collaborator, :user => user, :paper => paper)
+      create(:assignment, :collaborator, user:user, paper:paper)
 
       assert user.collaborator_on?(paper)
       assert !user.reviewer_of?(paper)
@@ -54,11 +43,32 @@ describe User do
 
     it "should know who the author is" do
       user = create(:user)
-      paper = create(:paper, :user => user)
+      paper = create(:paper, submittor:user)
 
       assert user.author_of?(paper)
       assert !user.reviewer_of?(paper)
       assert !user.collaborator_on?(paper)
+    end
+
+  end
+
+  describe "#editor_of?" do
+
+    it "should know who the editor is" do
+      user = create(:user)
+
+      editor1 = set_editor
+      paper1 = create(:paper, submittor:user)
+      paper2 = create(:paper, submittor:user)
+
+      editor2 = set_editor
+      paper3 = create(:paper, submittor:user)
+
+      assert editor1.editor_of?(paper1)
+      assert editor1.editor_of?(paper2)
+      assert !editor1.editor_of?(paper3)
+      assert !editor1.reviewer_of?(paper1)
+      assert !editor1.collaborator_on?(paper1)
     end
 
   end

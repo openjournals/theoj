@@ -80,7 +80,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 
 RSpec.configure do |config|
   config.before(:each) do
-    /.*example.*/
+    # *example.
     stub_request(:any, /https\:\/\/theoj\.firebaseio.com\/.*/).to_return(:status => 200, :body => "", :headers => {})
     stub_request(:get, "pub.orcid.org/v1.1/0000-0001-7857-2795/orcid-bio").
       with(headers: {'Accept'=>'application/orcid+json'}).

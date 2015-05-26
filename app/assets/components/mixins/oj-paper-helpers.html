@@ -1,6 +1,6 @@
 <script>
 
-    $.extend(  PolymerExpressions.prototype, {
+    window.Oj.paperHelpers = {
 
         actionForPaper: function(paper){
             if (!paper) return;
@@ -38,8 +38,34 @@
                 return 'author';
             else if (paper.user_permissions.indexOf('submittor') >= 0)
                 return 'author';
+        },
+
+        // Given a assignment sha returns the assignment object from the paper
+        // With some additional metadata
+        assignmentFromSha: function(paper, assignment_sha) {
+            if (!assignment_sha)
+                return undefined;
+
+            if (!paper.assignmentsBySha)
+                paper.assignmentsBySha = {};
+
+            if (paper.assignmentsBySha[assignment_sha]===undefined) {
+                var index = Oj.utils.indexOf(paper.assigned_users, function(a) {return a.sha == assignment_sha} );
+
+                if (index >= 0) {
+                    var assignment = paper.assigned_users[index];
+                    assignment.index = index;
+
+                } else {
+                    var assignment = null;
+                }
+
+                paper.assignmentsBySha[assignment_sha] = assignment;
+            }
+
+            return paper.assignmentsBySha[assignment_sha];
         }
 
-    });
+    };
 
 </script>

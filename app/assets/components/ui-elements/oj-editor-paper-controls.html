@@ -8,12 +8,21 @@
           <div class="label">Reviewers:</div>
           <div>
             <template if={{submitted}}>
-                <oj-user-lookup placeholder="Add Reviewer" on-user-selected="{{addReviewer}}"></oj-user-lookup>
+                <oj-user-lookup placeholder="Add Reviewer"
+                                on-user-selected={{addReviewer}}
+                                on-filter-suggestions={{filterReviewerList}}
+                        ></oj-user-lookup>
             </template>
-            <template repeat="{{reviewer in paper.reviewers}}">
-                <oj-user-tag user={{reviewer}} removable={{submitted}} on-remove-user={{removeReviewer}}></oj-user-tag>
+            <template repeat="{{reviewer in paper.assigned_users | onlyReviewers}}">
+                <oj-user-tag
+                        assignment={{reviewer}}
+                        showColor={{!submitted}}
+                        tagColor={{userColor(reviewer)}}
+                        removable={{submitted}}
+                        on-remove-user={{removeReviewer}}
+                        ></oj-user-tag>
             </template>
-            <template if="{{!submitted && !paper.reviewers}}">
+            <template if="{{!submitted && !onlyReviewers(paper.assigned_users)}}">
                 This paper does not have any reviewers.
             </template>
           </div>
@@ -51,8 +60,8 @@
       }
     </style>
 
-    <json-post id=addReviewer    on-success={{updateReviewers}} url="{{paper | addReviewerPath}}"> </json-post>
-    <json-post id=removeReviewer on-success={{updateReviewers}} url="{{paper | removeReviewerPath}}"></json-post>
+    <json-post   id=addReviewer    on-success={{updateReviewers}} ></json-post>
+    <json-delete id=removeReviewer on-success={{updateReviewers}} ></json-delete>
 
   </template>
 
@@ -61,16 +70,40 @@
       paperChanged: function() {
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
-      removeReviewer:function(event, user){
-        this.$.removeReviewer.data = {user_name: user.name};
+      removeReviewer:function(event, assignment){
+        this.$.removeReviewer.url = Oj.urls.removeAssigneePath(this.paper, assignment);
         this.$.removeReviewer.go();
       },
       addReviewer:function(event, user){
-        this.$.addReviewer.data = {user_name: user.name};
+        this.$.addReviewer.url = Oj.urls.addAssigneePath(this.paper, user);
         this.$.addReviewer.go();
       },
       updateReviewers:function(event, detail){
-        this.paper.reviewers = detail.reviewers;
+        this.paper.assigned_users = detail;
+      },
+
+      filterReviewerList: function(event, suggestions) {
+          var paper = this.paper;
+
+          event.result = suggestions.filter( function(item) {
+
+              for (var i=0; i < paper.assigned_users.length; i++) {
+                  var user = paper.assigned_users[i].user;
+                  if (user.sha == item.sha)
+                    return false;
+              }
+
+              return true;
+          });
+      },
+
+      onlyReviewers: function(list) {
+        return list && list.filter( function(a) { return a.role == 'reviewer' });
+      },
+
+      userColor: function(assignment) {
+          assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
+          return Oj.colors.userColor(assignment);
       }
     })
   </script>

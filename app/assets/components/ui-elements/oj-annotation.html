@@ -1,15 +1,16 @@
 <polymer-element name='oj-annotation' attributes="paper annotation text">
   <template>
 
-    <div class='container state-{{annotation.state}} role-{{annotation.author.role}} collapsed' >
+    <div class='container state-{{annotation.state}} collapsed' >
 
-      <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+      <template if="{{paper.state=='under_review' && (role=='editor' || role == 'reviewer' ) }}">
         <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
       </template>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
+          <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
           <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
-          <div class=count>{{annotation.responses.length}} replies</div>
+          <div class=count>{{annotation.responses.length||0}} replies</div>
       </div>
 
     </div>
@@ -18,14 +19,15 @@
     <core-collapse id=collapsible opened={{annotation.open}}>
       <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
 
-      <div class='container state-{{annotation.state}} role-{{annotation.author.role}} expanded' >
+      <div class='container state-{{annotation.state}} expanded' >
 
-          <template if="{{paper.state=='under_review' && (annotation.author.role=='editor' || annotation.author.role == 'reviewer' ) }}">
+          <template if="{{paper.state=='under_review' && (role=='editor' || role == 'reviewer' ) }}">
               <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
           </template>
 
           <template if="{{!annotation.new}}">
-              <div on-tap="{{collapse}}" class=header >
+              <div on-tap="{{collapse}}" class=header layout horizontal>
+                  <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
                   <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
               </div>
 
@@ -77,6 +79,10 @@
       .issue {
         cursor: pointer;
         font-size: 0.9em;
+      }
+
+      .collapsed .header {
+          overflow: hidden;
       }
 
       .collapsed .issue {
@@ -157,7 +163,12 @@
       showNewComment: function() {
         this.$.comments.showNewComment();
       },
+      annotationChanged: function() {
+        if (!this.annotation) return;
 
+        var assignment = Oj.paperHelpers.assignmentFromSha(this.paper, this.annotation.assignment);
+        this.role = assignment && assignment.role;
+      },
       annotationOpenChanged: function() {
         if (this.annotation.open)
             this.expand();
@@ -199,7 +210,12 @@
                     yStart: this.annotation.yStart
                 }
             };
-        }
+      },
+
+      getAssignment: function(assignment) {
+          return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
+      }
+
     })
   </script>
 </polymer-element>

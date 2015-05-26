@@ -1,0 +1,60 @@
+<script>
+
+    window.Oj.urls = {
+
+        paperPath: function(paper_id) {
+            return "/papers/"+paper_id
+        },
+
+        annotationsFirebasePath: function(paper_id){
+            return "https://theoj.firebaseio.com/papers/"+paper_id+"/annotations/";
+        },
+
+        addAssigneePath: function(paper, user) {
+            return "/papers/"+paper.sha+"/assignments?user=" + user.sha ;
+        },
+
+        removeAssigneePath: function(paper, assignment) {
+            return "/papers/"+paper.sha+"/assignments/" + assignment.sha ;
+        },
+
+        addIssuePath: function(paper) {
+            return "/papers/"+paper.sha+"/annotations"
+        },
+
+        getIssuesPath: function(paper) {
+            return "/papers/"+paper.sha+"/issues"
+        },
+
+        arxiv_lookup_url: function(paper_id){
+          return "/papers/"+paper_id+"/arXiv_details"
+        },
+
+        google_preview_lookup: function(paper){
+          var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url
+          if(link.indexOf(".pdf")==-1){
+              link+=".pdf"
+          }
+          return "http://docs.google.com/gview?url=" + link + "&embedded=true"
+        },
+
+        paperAnnotationsPath: function(paper){
+          return "/papers/"+paper.sha+"/annotations"
+        },
+
+        paperAnnotationPath: function(paper, annotation){
+            return "/papers/"+paper.sha+"/annotations/" + annotation.id;
+        },
+
+        paperAnnotationStateChangePath: function(paper, annotation, state){
+            return "/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
+        },
+
+        paperTransitionPath: function(paper, transition){
+          return  paper ? "/papers/"+paper.sha+"/transition?transition=" + transition :  ""
+        }
+
+
+    };
+
+</script>

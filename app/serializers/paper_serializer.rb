@@ -1,7 +1,21 @@
-class PaperSerializer < ActiveModel::Serializer
-  attributes :id, :user_permissions, :location, :state, :submitted_at, :title, :version, :created_at, :pending_issues_count, :sha
-  has_one :user
-  has_many :reviewers
+class PaperSerializer < BaseSerializer
+  attributes :id,
+             :user_permissions,
+             :location,
+             :state,
+             :submitted_at,
+             :title,
+             :version,
+             :created_at,
+             :pending_issues_count,
+             :sha
+
+  has_many :assignments
+  has_many :assigned_users
+
+  def assigned_users
+    object.assignments
+  end
 
   def user_permissions
     if scope
@@ -14,4 +28,5 @@ class PaperSerializer < ActiveModel::Serializer
   def pending_issues_count
     object.outstanding_issues.count
   end
+
 end

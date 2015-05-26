@@ -1,0 +1,33 @@
+<polymer-element name="json-delete" attributes='result url data auto'>
+
+  <template>
+    <core-ajax  id=request
+                auto={{auto}}
+                url={{url}}
+                handleAs="json"
+                contentType="application/json"
+                method="DELETE"
+                response={{result}}
+                body="{{data | json}}"
+                on-core-response={{success}}
+                on-core-error={{error}}
+                >
+    </core-ajax>
+  </template>
+
+  <script>
+    Polymer({
+      auto: false,
+      data: {},
+      go:function(){
+        this.$.request.go()
+      },
+      success:function(event,detail){
+        this.fire("success", detail.response)
+      },
+      error:function(event,detail){
+        this.fire("error", detail.response)
+      }
+    })
+  </script>
+</polymer-element>
