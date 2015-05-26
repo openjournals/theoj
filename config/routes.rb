@@ -16,12 +16,9 @@ Theoj::Application.routes.draw do
       put  :transition, format: 'json'
 
       get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
-
-      # Adding reviewers
-      get    'assignees',      action: :get_assignees
-      post   'assignees/:sha', action: :add_assignee
-      delete 'assignees/:sha', action: :remove_assignee
     end
+
+    resources :assignments, only:[:index, :create, :destroy]
 
     resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
       member do

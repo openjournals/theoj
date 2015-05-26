@@ -241,37 +241,4 @@ describe Paper do
 
   end
 
-  describe "#remove_assignee" do
-
-    it "should remove the reviewer" do
-      user1 = create(:user)
-      user2 = create(:user)
-      paper = create(:paper, reviewer:[user1,user2])
-
-      expect(paper.remove_assignee(user1, 'reviewer')).to be_truthy
-      expect(paper.reviewers.length).to eq(1)
-      expect(paper.reviewers.first).to eq(user2)
-    end
-
-    it "should fail if the user is not a reviewer" do
-      user1 = create(:user)
-      user2 = create(:user)
-      paper = create(:paper, reviewer:user2)
-
-      expect(paper.remove_assignee(user1, 'reviewer')).to be_falsy
-      expect(paper.reviewers.length).to eq(1)
-      expect(paper.reviewers.first).to eq(user2)
-    end
-
-    it "should fail if the user is a collaborator" do
-      user  = create(:user)
-      paper = create(:paper, collaborator:user)
-
-      expect(paper.remove_assignee(user, 'reviewer')).to be_falsy
-      expect(paper.collaborators.length).to eq(1)
-      expect(paper.collaborators.first).to eq(user)
-    end
-
-  end
-
 end
