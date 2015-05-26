@@ -13,7 +13,9 @@ class AnnotationsController < ApplicationController
   end
 
   def create
-    annotation = @paper.annotations.new(annotation_params.merge(user_id: current_user.id))
+    assignment = @paper.user_assignment(current_user)
+    render :json => {}, :status => :unprocessable_entity and return unless assignment
+    annotation = @paper.annotations.new(annotation_params.merge(assignment: assignment))
 
     if @paper.annotations << annotation
       render :json => annotation, :status => :created

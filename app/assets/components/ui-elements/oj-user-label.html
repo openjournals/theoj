@@ -1,7 +1,6 @@
-<polymer-element name='oj-user-label' attributes='user'>
+<polymer-element name='oj-user-label' attributes='assignment'>
 
   <template>
-      <span class=label title={{user.name}}></span>
 
     <style>
 
@@ -21,17 +20,21 @@
 
   <script>
     Polymer({
-        userChanged: function() {
-            if (!this.user) return;
+        assignmentChanged: function() {
+            if (!this.assignment) return;
 
-            $(this).addClass('role-'+this.user.role);
-            this.style.backgroundColor = Oj.colors.userColor(this.user);
+            $(this).addClass('role-'+this.assignment.role);
+            this.style.backgroundColor = Oj.colors.userColor(this.assignment);
 
-            if (this.user.name) {
-                var title = this.user.name;
-                if (this.user.email)
-                    title = title + ' [' + this.user.email + ']';
+            if (this.assignment.user) {
+                var title = this.assignment.user.name;
+                if (this.assignment.user.email)
+                    title = title + ' [' + this.assignment.email + ']';
+                title = title + ', ' + this.assignment.role;
                 this.title = title;
+
+            } else {
+                this.title = this.assignment.role;
             }
         }
     })

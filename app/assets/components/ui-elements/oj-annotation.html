@@ -8,7 +8,7 @@
       </template>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
-          <oj-user-label user={{annotation.author|fixUser}}></oj-user-label>
+          <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
           <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
           <div class=count>{{annotation.responses.length||0}} replies</div>
       </div>
@@ -27,7 +27,7 @@
 
           <template if="{{!annotation.new}}">
               <div on-tap="{{collapse}}" class=header layout horizontal>
-                  <oj-user-label user={{annotation.author|fixUser}}></oj-user-label>
+                  <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
                   <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
               </div>
 
@@ -207,8 +207,8 @@
             };
       },
 
-      fixUser: function(user) {
-          return Oj.paperHelpers.paperUser(this.paper, user);
+      getAssignment: function(assignment) {
+          return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
       }
 
     })

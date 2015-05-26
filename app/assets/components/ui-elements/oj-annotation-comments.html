@@ -4,7 +4,7 @@
       <div class='comments'>
           <template repeat="{{comment in annotation.responses}}">
               <div layout horizontal>
-                  <oj-user-label user={{comment.author|fixUser}}></oj-user-label>
+                  <oj-user-label assignment={{comment.assignment|getAssignment}}></oj-user-label>
                   <markdown-content class=comment flex markdown="{{comment.body}}"></markdown-content>
               </div>
           </template>
@@ -137,8 +137,8 @@
         this.fire("notification", "Error saving reply")
       },
 
-      fixUser: function(user) {
-          return Oj.paperHelpers.paperUser(this.paper, user);
+      getAssignment: function(assignment) {
+        return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
       }
 
     })

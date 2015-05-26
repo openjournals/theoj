@@ -22,7 +22,7 @@
                         on-remove-user={{removeReviewer}}
                         ></oj-user-tag>
             </template>
-            <template if="{{!submitted && !paper.reviewers}}">
+            <template if="{{!submitted && !onlyReviewers(paper.assigned_users)}}">
                 This paper does not have any reviewers.
             </template>
           </div>
@@ -101,9 +101,9 @@
         return list && list.filter( function(a) { return a.role == 'reviewer' });
       },
 
-      userColor: function(user) {
-          var paper_user = Oj.paperHelpers.paperUser(this.paper, user);
-          return Oj.colors.userColor(paper_user);
+      userColor: function(assignment) {
+          assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
+          return Oj.colors.userColor(assignment);
       }
     })
   </script>

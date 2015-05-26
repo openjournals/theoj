@@ -3,26 +3,18 @@
     window.Oj.colors = {
 
         // Currently we only support one author
-        authorColors: ['green', 'black'],
-
-        reviewerColors: ['royalblue', 'darkviolet', 'red', 'orangered', 'teal', 'darkgoldenrod' ],
+        colors: ['green', 'royalblue', 'darkviolet', 'red', 'orangered', 'teal', 'darkgoldenrod' ],
 
         defaultUserColor: 'black',
 
-        userColor: function(user) {
+        userColor: function(assignment) {
 
-            switch (user && user.role) {
-                case 'submittor':
-                    return this.authorColors[0];
+            if (assignment && assignment.role && assignment.index>=0) {
+                var colorIndex = assignment.index % this.colors.length;
+                return this.colors[colorIndex];
 
-                case 'collaborator':
-                    return this.authorColors[user.index+1 % this.authorColors.length];
-
-                case 'reviewer':
-                    return this.reviewerColors[user.index % this.reviewerColors.length];
-
-                default:
-                    return this.defaultUserColor;
+            } else {
+                return this.defaultUserColor;
 
             }
 
