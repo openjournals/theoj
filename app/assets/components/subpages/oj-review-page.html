@@ -89,6 +89,13 @@
       pdfClientChanged: function(event, detail) {
         this.pdfClientHeight = detail.clientHeight;
       },
+      paperChanged: function() {
+        if (this.paper) {
+            var current_user_sha = this.user.sha;
+            var index = Oj.utils.indexOf(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
+            this.paper.current_assignment = this.paper.assigned_users[index];
+        }
+      },
       onChangeAnnotation:function(event, annotation) {
         this.$.header.updateCounts();
       },

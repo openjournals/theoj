@@ -16,7 +16,7 @@ class AssignmentSerializer < BaseSerializer
   end
 
   def make_user_info_public?
-    object.role!='reviewer' || (current_user && current_user.editor_of?(object.paper) )
+    object.role!='reviewer' || (current_user==object.user) || (current_user && current_user.editor_of?(object.paper) )
   end
 
 end

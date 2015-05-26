@@ -71,4 +71,13 @@ describe AssignmentSerializer do
 
   end
 
+  it "should include reviewer info when the reviewer is logged in" do
+    user       = create(:user, name:'John Doe')
+    assignment = create(:assignment, :reviewer, user:user)
+    serializer = AssignmentSerializer.new(assignment, scope:user)
+
+    hash = hash_from_json(serializer.to_json)
+    expect(hash['user']).to include('name' => 'John Doe')
+  end
+
 end
