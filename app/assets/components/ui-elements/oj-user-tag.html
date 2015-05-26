@@ -1,7 +1,7 @@
-<polymer-element name='oj-user-tag' attributes='user removable showColor tagColor' >
+<polymer-element name='oj-user-tag' attributes='assignment removable showColor tagColor' >
 
   <template>
-      <span class=name>{{user.name}}</span>
+      <span class=name>{{assignment.user.name}}</span>
       <template if={{removable}}><a class='remover' href='#' on-click={{remove}} >&times</a></template>
       <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template>
 
@@ -9,7 +9,7 @@
 
       :host {
         display: inline-block;
-        background-color:#0f9d58;
+        background-color:black;
         color: white;
         box-sizing: border-box;
         padding: 2px 10px;
@@ -41,14 +41,19 @@
 
   <script>
     Polymer({
-      userChanged: function() {
-        this.title = (this.user && this.user.email) || '';
+        assignmentChanged: function() {
+        if (this.assignment ) {
+            this.className = this.className + ' role-'+this.assignment.role;
+            this.title = this.assignment.role;
+            if (this.assignment.user && this.assignment.user.email)
+                this.title = this.assignment.user.email + ', ' + this.title;
+        }
       },
 
       removable:false,
       remove: function(event){
         event.preventDefault();
-        this.fire("remove-user", this.user)
+        this.fire("remove-user", this.assignment)
       }
     })
   </script>

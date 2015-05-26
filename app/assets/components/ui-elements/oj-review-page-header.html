@@ -4,10 +4,12 @@
           <div  class=left flex>
               <div class=left-top>
                   <span class=title>{{paper.title}}</span>
-                  <oj-user-tag user={{paper.user}
-                               showColor={{!submitted}}
-                               tagColor={{userColor(paper.user)}}
-                          ></oj-user-tag>
+                  <template repeat="{{assignment in paper.assigned_users | exceptReviewers}}" >
+                      <oj-user-tag assignment={{assignment}}
+                                   showColor={{!submitted}}
+                                   tagColor={{userColor(u)}}
+                              ></oj-user-tag>
+                  </template>
               </div>
 
               <template if="{{user.editor}}">
@@ -71,10 +73,6 @@
             flex: 1 0 auto !important;
         }
 
-        .left oj-user-tag {
-            background-color: orangered;
-        }
-
         .progress {
             position: absolute;
             width:    100%;
@@ -117,6 +115,10 @@
             this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
             this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
             this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
+        },
+
+        exceptReviewers: function(list) {
+            return list && list.filter( function(a) { return a.role != 'reviewer' });
         },
 
         userColor: function(user) {

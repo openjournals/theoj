@@ -13,9 +13,9 @@
                                 on-filter-suggestions={{filterReviewerList}}
                         ></oj-user-lookup>
             </template>
-            <template repeat="{{reviewer in paper.reviewers}}">
+            <template repeat="{{reviewer in paper.assigned_users | onlyReviewers}}">
                 <oj-user-tag
-                        user={{reviewer}}
+                        assignment={{reviewer}}
                         showColor={{!submitted}}
                         tagColor={{userColor(reviewer)}}
                         removable={{submitted}}
@@ -70,34 +70,35 @@
       paperChanged: function() {
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
-      removeReviewer:function(event, user){
-        this.$.removeReviewer.url = Oj.urls.removeReviewerPath(this.paper, user);
+      removeReviewer:function(event, assignment){
+        this.$.removeReviewer.url = Oj.urls.removeAssigneePath(this.paper, assignment);
         this.$.removeReviewer.go();
       },
       addReviewer:function(event, user){
-        this.$.addReviewer.url = Oj.urls.addReviewerPath(this.paper, user);
+        this.$.addReviewer.url = Oj.urls.addAssigneePath(this.paper, user);
         this.$.addReviewer.go();
       },
       updateReviewers:function(event, detail){
-        this.paper.reviewers = detail.reviewers;
+        this.paper.assigned_users = detail;
       },
 
       filterReviewerList: function(event, suggestions) {
           var paper = this.paper;
-          var reviewers = paper.reviewers;
 
           event.result = suggestions.filter( function(item) {
 
-              if (paper.user && paper.user.sha == item.sha)
-                return false;
-
-              for (var i=0; i<reviewers.length; i++) {
-                  if (reviewers[i].sha == item.sha)
+              for (var i=0; i < paper.assigned_users.length; i++) {
+                  var user = paper.assigned_users[i].user;
+                  if (user.sha == item.sha)
                     return false;
               }
 
               return true;
           });
+      },
+
+      onlyReviewers: function(list) {
+        return list && list.filter( function(a) { return a.role == 'reviewer' });
       },
 
       userColor: function(user) {

@@ -10,12 +10,12 @@
             return "https://theoj.firebaseio.com/papers/"+paper_id+"/annotations/";
         },
 
-        addReviewerPath: function(paper, reviewer) {
-            return "/papers/"+paper.sha+"/reviewers/" + reviewer.sha ;
+        addAssigneePath: function(paper, user) {
+            return "/papers/"+paper.sha+"/assignments?user=" + user.sha ;
         },
 
-        removeReviewerPath: function(paper, reviewer) {
-            return "/papers/"+paper.sha+"/reviewers/" + reviewer.sha ;
+        removeAssigneePath: function(paper, assignment) {
+            return "/papers/"+paper.sha+"/assignments/" + assignment.sha ;
         },
 
         addIssuePath: function(paper) {
