@@ -91,15 +91,13 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def remove_assignee(user, role)
-    assignment = assignments.where(user:user, role:role).first
-
-    assignment && assignment.destroy
-  end
-
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
   def permissions_for_user(user)
     assignments.where(user_id:user.id).pluck(:role)
+  end
+
+  def firebase_key
+    "/papers/#{sha}"
   end
 
   private
