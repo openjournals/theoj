@@ -10,15 +10,11 @@ class PaperSerializer < BaseSerializer
              :pending_issues_count,
              :sha
 
-  has_one  :submittor,       serializer:PublicUserSerializer
-  has_many :reviewers
+  has_many :assignments
+  has_many :assigned_users
 
-  def reviewers
-    serializer_klass = UserSerializer.serialization_class(current_user)
-
-    object.reviewers.map do |reviewer|
-      serializer_klass.new(reviewer)
-    end
+  def assigned_users
+    object.assignments
   end
 
   def user_permissions

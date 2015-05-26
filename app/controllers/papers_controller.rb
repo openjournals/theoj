@@ -1,7 +1,7 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user, :except => [ :state, :index ]
-  before_filter :require_editor, :only => [ :transition, :add_reviewer, :remove_reviewer]
+  before_filter :require_user,   :except => [ :state, :index ]
+  before_filter :require_editor, :only => [ :transition, :add_assignee, :remove_assignee]
 
   def index
     if current_user
@@ -84,24 +84,35 @@ class PapersController < ApplicationController
     end
   end
 
+  def get_assignees
+    paper = Paper.find_by_sha(params[:id])
+    render json:paper.assignments, status: :ok, location: url_for(paper)
+  end
 
-  def add_reviewer
+  def add_assignee
     paper = Paper.find_by_sha(params[:id])
     user  = User.find_by_sha(params[:sha])
+    role  = params[:role] || 'reviewer'
 
-    if user && paper.assign_reviewer(user)
-      render :json => paper, :status => :created, :location => url_for(paper)
+    if role != 'reviewer' && role != 'collaborator'
+      render :json => 'invalid role', :status => :bad_request
+
+    elsif user && paper.add_assignee(user, role)
+      render :json => paper.assignments, :status => :created, :location => url_for(paper)
+
     else
       render :json => paper.errors, :status => :unprocessable_entity
+
     end
   end
 
-  def remove_reviewer
+  def remove_assignee
     paper = Paper.find_by_sha(params[:id])
     user  = User.find_by_sha(params[:sha])
+    role  = params[:role] || 'reviewer'
 
-    if user && paper.remove_reviewer(user)
-      render :json => paper, :status => :created, :location => url_for(paper)
+    if user && paper.remove_assignee(user, role)
+      render json:paper.assignments, status: :ok, location: url_for(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end

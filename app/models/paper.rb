@@ -76,12 +76,14 @@ class Paper < ActiveRecord::Base
     sha
   end
 
-  def assign_reviewer(user)
-    can_assign = ! user.author_of?(self)  &&
-                 ! user.reviewer_of?(self) &&
-                 ! user.collaborator_on?(self)
+  def user_assignment(user)
+    assignments.detect { |a| a.user == user }
+  end
 
-    if can_assign && assignments.create(user: user, role:"reviewer")
+  def add_assignee(user, role)
+    can_assign = ! user_assignment(user)
+
+    if can_assign && assignments.create(user: user, role:role)
       true
     else
       errors.add(:assignments, 'Unable to assign user')
@@ -89,16 +91,10 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def remove_reviewer(user)
-    assignment = assignments.where(user_id: user.id).where(role: 'reviewer').first
+  def remove_assignee(user, role)
+    assignment = assignments.where(user:user, role:role).first
 
-    if assignment
-      assignment.destroy
-      true
-
-    else
-      false
-    end
+    assignment && assignment.destroy
   end
 
   # FIXME if the UI needs it then we should add "submittor" and "editor" in here.

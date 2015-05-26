@@ -201,13 +201,13 @@ describe Paper do
 
   end
 
-  describe "#assign_reviewer" do
+  describe "#add_assignee" do
 
     it "should add the user as a reviewer" do
       user  = create(:user)
       paper = create(:paper)
 
-      expect(paper.assign_reviewer(user)). to be_truthy
+      expect(paper.add_assignee(user,'reviewer')). to be_truthy
       expect(paper.reviewers.length).to eq(1)
       expect(paper.reviewers.first).to eq(user)
     end
@@ -216,7 +216,7 @@ describe Paper do
       user  = create(:user)
       paper = create(:paper, submittor:user)
 
-      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.add_assignee(user,'reviewer')). to be_falsy
       expect(paper.reviewers).to be_empty
       expect(paper.errors).not_to be_empty
     end
@@ -225,7 +225,7 @@ describe Paper do
       user  = create(:user)
       paper = create(:paper, collaborator:user)
 
-      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.add_assignee(user,'reviewer')). to be_falsy
       expect(paper.reviewers).to be_empty
       expect(paper.errors).not_to be_empty
     end
@@ -234,21 +234,21 @@ describe Paper do
       user  = create(:user)
       paper = create(:paper, reviewer:user)
 
-      expect(paper.assign_reviewer(user)). to be_falsy
+      expect(paper.add_assignee(user,'reviewer')). to be_falsy
       expect(paper.reviewers.length).to eq(1)
       expect(paper.errors).not_to be_empty
     end
 
   end
 
-  describe "#remove_reviewer" do
+  describe "#remove_assignee" do
 
     it "should remove the reviewer" do
       user1 = create(:user)
       user2 = create(:user)
       paper = create(:paper, reviewer:[user1,user2])
 
-      expect(paper.remove_reviewer(user1)).to be_truthy
+      expect(paper.remove_assignee(user1, 'reviewer')).to be_truthy
       expect(paper.reviewers.length).to eq(1)
       expect(paper.reviewers.first).to eq(user2)
     end
@@ -258,7 +258,7 @@ describe Paper do
       user2 = create(:user)
       paper = create(:paper, reviewer:user2)
 
-      expect(paper.remove_reviewer(user1)).to be_falsy
+      expect(paper.remove_assignee(user1, 'reviewer')).to be_falsy
       expect(paper.reviewers.length).to eq(1)
       expect(paper.reviewers.first).to eq(user2)
     end
@@ -267,7 +267,7 @@ describe Paper do
       user  = create(:user)
       paper = create(:paper, collaborator:user)
 
-      expect(paper.remove_reviewer(user)).to be_falsy
+      expect(paper.remove_assignee(user, 'reviewer')).to be_falsy
       expect(paper.collaborators.length).to eq(1)
       expect(paper.collaborators.first).to eq(user)
     end

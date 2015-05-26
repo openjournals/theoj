@@ -2,19 +2,6 @@ require "rails_helper"
 
 describe UsersController do
 
-  describe "GET #show" do
-
-    it "responds successfully with an HTTP 200 status code" do
-      user = authenticate
-      get :show, :id => user.sha, :format => :json
-
-      expect(response).to have_http_status(:success)
-      expect(response.status).to eq(200)
-      expect(response.content_type).to eq("application/json")
-    end
-
-  end
-
   describe "GET #get_current_user" do
 
     it "responds successfully with an HTTP 200 status code" do

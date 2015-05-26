@@ -1,3 +1,0 @@
-class AnonymousUserSerializer < BaseSerializer
-
-end

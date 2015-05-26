@@ -18,8 +18,9 @@ Theoj::Application.routes.draw do
       get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
 
       # Adding reviewers
-      post   'reviewers/:sha', action: :add_reviewer
-      delete 'reviewers/:sha', action: :remove_reviewer
+      get    'assignees',      action: :get_assignees
+      post   'assignees/:sha', action: :add_assignee
+      delete 'assignees/:sha', action: :remove_assignee
     end
 
     resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
@@ -35,7 +36,7 @@ Theoj::Application.routes.draw do
 
   get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}
 
-  resources :users, defaults: { format: 'json' }, only: [:show] do
+  resources :users, defaults: { format: 'json' }, only: [] do
     resources :papers, defaults: { format: 'json' } do
       collection do
         get :as_reviewer, defaults: { format: 'json' }

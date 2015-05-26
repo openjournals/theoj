@@ -12,59 +12,23 @@ describe PaperSerializer do
     expect(hash).to include("user_permissions", "location", "state",
                             "submitted_at", "title", "version",
                             "created_at", "pending_issues_count",
-                            "sha", "submittor", "reviewers")
+                            "sha", "assigned_users")
   end
 
-  it "should serialize the user as public" do
-    user = create(:user, name:'John Doe')
-
-    paper = Paper.new(location:"http://example.com", title:"Teh awesomeness", submittor:user)
-    serializer = PaperSerializer.new(paper)
-    user_hash = hash_from_json(serializer.to_json)['submittor']
-
-    expect(user_hash).to include('name', 'sha', 'email', 'created_at', 'picture')
-    expect(user_hash['name']).to eq('John Doe')
-  end
-
-  it "should serialize the reviewers as anonymous when no user is logged in" do
-    paper = create(:paper, location:"http://example.com")
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'John Doe') )
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'Mary Jane') )
+  it "should serialize a list of assignments" do
+    set_editor create(:editor, name:'An Editor')
+    paper = create(:paper, submittor:create(:user, name:'The Submittor'))
+    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'The Reviewer'))
 
     serializer = PaperSerializer.new(paper)
-    reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
+    assignments = hash_from_json(serializer.to_json)['assigned_users']
 
-    expect(reviewers_hash.first).not_to include('name', 'sha', 'email', 'created_at', 'picture')
-    expect(reviewers_hash.second).not_to include('name', 'sha', 'email', 'created_at', 'picture')
-  end
-
-  it "should serialize the reviewers as anonymous when a user is logged in" do
-    user = create(:user)
-
-    paper = create(:paper, location:"http://example.com")
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'John Doe') )
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'Mary Jane') )
-
-    serializer = PaperSerializer.new(paper, scope:user)
-    reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
-
-    expect(reviewers_hash.first).not_to include('name', 'sha', 'email', 'created_at', 'picture')
-    expect(reviewers_hash.second).not_to include('name', 'sha', 'email', 'created_at', 'picture')
-  end
-
-  it "should serialize the reviewers as public when an editor is logged in" do
-    user = create(:editor)
-
-    paper = create(:paper, location:"http://example.com")
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'John Doe') )
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'Mary Jane') )
-
-    serializer = PaperSerializer.new(paper, scope:user)
-    reviewers_hash = hash_from_json(serializer.to_json)['reviewers']
-
-    expect(reviewers_hash.first).to include('name', 'sha', 'email', 'created_at', 'picture')
-    expect(reviewers_hash.second).to include('name', 'sha', 'email', 'created_at', 'picture')
-    expect(reviewers_hash.second['name']).to eq('Mary Jane')
+    expect(assignments[0]['role']).to eq('editor')
+    expect(assignments[0]['user']['name']).to eq('An Editor')
+    expect(assignments[1]['role']).to eq('submittor')
+    expect(assignments[1]['user']['name']).to eq('The Submittor')
+    expect(assignments[2]['role']).to eq('reviewer')
+    expect(assignments[2]['user']).to be_nil
   end
 
 end
