@@ -25,6 +25,50 @@ describe Paper do
       expect(p.assignments.second.user).to eq(submittor)
     end
 
+    it "should build a paper from an arxiv_id" do
+
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
+                   to_return(fixture("arxiv.1311.1653v2.xml"))
+
+      p = Paper.new_for_arxiv_id('1311.1653')
+
+      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.version).to eq(2)
+      expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
+      expect(p.summary).to match /^We present.*paper.$/
+      expect(p.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(p.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
+    end
+
+    it "should build a paper from an arxiv_id with a version" do
+
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").
+          to_return(fixture("arxiv.1311.1653v2.xml"))
+
+      p = Paper.new_for_arxiv_id('1311.1653v2')
+
+      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.version).to eq(2)
+    end
+
+    it "should include additional attributes when building a paper from an arxiv_id" do
+
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
+          to_return(fixture("arxiv.1311.1653v2.xml"))
+
+      u = create(:user)
+      p = Paper.new_for_arxiv_id('1311.1653', submittor:u)
+
+      expect(p.submittor).to eq(u)
+    end
+
+    it "should raise record not found if the arxiv id is not found" do
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=0000.0000").
+          to_return(fixture("arxiv.not_found.xml"))
+
+      expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(ActiveRecord::RecordNotFound)
+    end
+
   end
 
   describe "::with_scope" do

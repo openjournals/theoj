@@ -16,7 +16,7 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { all }
 
-  before_create :set_initial_values, :get_arxiv_details
+  before_create :set_initial_values
   after_create  :create_assignments
 
   validates :submittor,
@@ -50,6 +50,30 @@ class Paper < ActiveRecord::Base
     else
       all
     end
+  end
+
+  def self.new_for_arxiv_id(arxiv_id, attributes={})
+    begin
+      details = Arxiv.get(arxiv_id.to_s)
+    rescue Arxiv::Error::ManuscriptNotFound
+      raise ActiveRecord::RecordNotFound
+    end
+
+    attributes = attributes.merge(
+        arxiv_id:    details.arxiv_id,
+        version:     details.version,
+
+        title:       details.title,
+        summary:     details.summary,
+        location:    details.pdf_url,
+        author_list: details.authors.collect{|a| a.name}.join(", ")
+    )
+
+    new(attributes)
+  end
+
+  def full_arxiv_id
+    "#{arxiv_id}v#{version}"
   end
 
   def issues
@@ -111,22 +135,6 @@ class Paper < ActiveRecord::Base
     editor = User.next_editor
     self.assignments.create(role:'editor',   user:editor) if editor
     self.assignments.create(role:'submittor',user:submittor)
-  end
-
-  def get_arxiv_details
-    details          = Arxiv.get(self.arxiv_id.to_s)
-
-    location         = details.links.select{|link| link.content_type=="application/pdf"}.first.url
-    location         = location + ".pdf" unless location.ends_with? ".pdf"
-    self.location    = location
-
-    self.title       = details.title
-    self.summary     = details.summary
-    self.author_list = details.authors.collect{|a| a.name}.join(", ")
-
-  rescue => ex
-    self.location  = "http://arxiv.org/pdf/#{self.arxiv_id}.pdf"
-    logger.debug "couldn't find paper on arxiv #{ex}"
   end
 
   def has_reviewers?

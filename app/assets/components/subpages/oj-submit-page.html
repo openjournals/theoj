@@ -19,6 +19,7 @@
 
         <paper-url-resolver       text={{paperIdentifier}}
                                   paperId={{paperId}}
+                                  paperFullId={{paperFullId}}
                                   paperVersion={{paperVersion}}
                                   paperURL={{paperURL}}
                                   resolved={{paperValid}}>
@@ -51,13 +52,12 @@
 
   <script>
     Polymer({
-      paper: {},
-      paperURL:"initial",
 
       submit:function(){
         if (this.paperValid)
-            this.router.go("/papers/"+this.paperId+"/preview");
+            this.router.go("/papers/"+this.paperFullId+"/preview");
       }
+
     })
   </script>
 </polymer-element>
