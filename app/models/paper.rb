@@ -17,7 +17,7 @@ class Paper < ActiveRecord::Base
   has_many  :reviewers,                 through: :reviewer_assignments,     source: :user
   has_many  :editors,                   through: :editor_assignments,       source: :user
 
-  scope :active, -> { ! superceded }
+  scope :active, -> { where.not(state:'superceded') }
 
   before_create :set_initial_values, :create_assignments
 
@@ -61,12 +61,7 @@ class Paper < ActiveRecord::Base
   end
 
   def self.new_for_arxiv_id(arxiv_id, attributes={})
-    begin
-      arxiv_doc = Arxiv.get(arxiv_id.to_s)
-    rescue Arxiv::Error::ManuscriptNotFound
-      raise ActiveRecord::RecordNotFound
-    end
-
+    arxiv_doc = Arxiv.get(arxiv_id.to_s)
     new_for_arxiv(arxiv_doc, attributes)
   end
 

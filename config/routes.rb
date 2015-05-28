@@ -12,10 +12,11 @@ Theoj::Application.routes.draw do
     end
 
     member do
+      put  :check_for_update, id: Paper::ArxivIdRegex
+      get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
+
       get  :state, defaults: { format: 'html' }
       put  :transition, format: 'json'
-
-      get  :arXiv_details, :id => /[0-9]{4}.*[0-9]{4}/
     end
 
     resources :assignments, only:[:index, :create, :destroy]

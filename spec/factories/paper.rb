@@ -13,11 +13,9 @@ FactoryGirl.define do
     created_at     { Time.now }
     updated_at     { Time.now }
 
-    trait :submitted do state 'submitted' end
-
-    trait :under_review do state 'under_review' end
-
-    trait :accepted do state 'accepted' end
+    Paper.aasm.states.each do |s|
+      trait s.name do state s.name end
+    end
 
     ignore do
       reviewer     nil

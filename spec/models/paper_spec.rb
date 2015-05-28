@@ -90,11 +90,11 @@ describe Paper do
       expect(p.submittor).to eq(u)
     end
 
-    it "should raise record not found if the arxiv id is not found" do
+    it "should raise an error if the arxiv id is not found" do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=0000.0000").
           to_return(fixture("arxiv.not_found.xml"))
 
-      expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
     end
 
   end

@@ -5,11 +5,11 @@ class PapersController < ApplicationController
 
   def index
     if current_user
-      papers = current_user.papers_as_submittor
+      as_author
     else
       papers = []
+      respond_with papers
     end
-    respond_with papers
   end
 
   def show
@@ -21,7 +21,7 @@ class PapersController < ApplicationController
     respond_with paper
   end
 
-  def arXiv_details
+  def arxiv_details
     id = params[:id]
     existing = Paper.find_by_arxiv_id(id)
 
@@ -84,24 +84,40 @@ class PapersController < ApplicationController
     end
   end
 
+  def check_for_update
+    arxiv_id = params[:id]
+    latest_paper = Paper.where(arxiv_id:arxiv_id).order(version: :desc).first
+
+    render_error(:not_found)    and return unless latest_paper
+    render_error(:forbidden)    and return unless latest_paper.submittor == current_user
+    render_error(:conflict)     and return unless latest_paper.may_supercede?
+
+    arxiv_doc = Arxiv.get(arxiv_id)
+
+    render_error(:conflict, text:'There is no new version of this document.') and return unless arxiv_doc.version > latest_paper.version
+
+    new_paper = Paper.create_updated!(latest_paper, arxiv_doc)
+
+    render json:new_paper, status: :created
+  end
+
   def as_reviewer
-    papers = current_user.papers_as_reviewer.with_state(params[:state])
+    papers = current_user.papers_as_reviewer.active.with_state(params[:state])
     respond_with papers
   end
 
-  # ATTENTION: This behaviour has now changed - editor is a global entity
   def as_editor
-    papers = current_user.papers_as_editor.with_state(params[:state])
+    papers = current_user.papers_as_editor.active.with_state(params[:state])
     respond_with papers
   end
 
   def as_author
-    papers = current_user.papers_as_submittor.with_state(params[:state])
+    papers = current_user.papers_as_submittor.active.with_state(params[:state])
     respond_with papers
   end
 
   def as_collaborator
-    papers = current_user.papers_as_collaborator.with_state(params[:state])
+    papers = current_user.papers_as_collaborator.active.with_state(params[:state])
     respond_with papers
   end
 
