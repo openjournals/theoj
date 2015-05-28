@@ -9,16 +9,16 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash).to include("user_permissions", "location", "state",
+    expect(hash).to include("id", "arxiv_id", "version",
+                            "user_permissions", "location", "state",
                             "submitted_at", "title", "version",
                             "created_at", "pending_issues_count",
                             "sha", "assigned_users")
   end
 
   it "should serialize a list of assignments" do
-    set_editor create(:editor, name:'An Editor')
-    paper = create(:paper, submittor:create(:user, name:'The Submittor'))
-    create(:assignment, :reviewer, paper:paper, user:create(:user,name:'The Reviewer'))
+    set_paper_editor create(:editor, name:'An Editor')
+    paper    = create(:paper, submittor:create(:user, name:'The Submittor'), reviewer:create(:user,name:'The Reviewer') )
 
     serializer = PaperSerializer.new(paper)
     assignments = hash_from_json(serializer.to_json)['assigned_users']

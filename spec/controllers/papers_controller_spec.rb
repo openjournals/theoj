@@ -95,7 +95,7 @@ describe PapersController do
     it "should fail if no user is logged in" do
       expect(Arxiv).not_to receive(:get)
 
-      get :arXiv_details, :id => '1234.5678', :format => :json
+      get :arxiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:forbidden)
       expect(response_json).to eq(error_json(:forbidden))
@@ -106,7 +106,7 @@ describe PapersController do
       expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( build(:paper) )
       expect(Arxiv).not_to receive(:get)
 
-      get :arXiv_details, :id => '1234.5678', :format => :json
+      get :arxiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
@@ -124,7 +124,7 @@ describe PapersController do
       paper = build(:paper)
       expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return(paper)
 
-      get :arXiv_details, :id => '1234.5678', :format => :json
+      get :arxiv_details, :id => '1234.5678', :format => :json
 
       expect(response_json).to include("source" => "theoj")
     end
@@ -134,7 +134,7 @@ describe PapersController do
       expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
       expect(Arxiv).to receive(:get).with('1234.5678').and_return(arxiv_response)
 
-      get :arXiv_details, :id => '1234.5678', :format => :json
+      get :arxiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
@@ -150,7 +150,7 @@ describe PapersController do
       expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
       expect(Arxiv).to receive(:get).and_raise(Arxiv::Error::ManuscriptNotFound)
 
-      get :arXiv_details, :id => '1234.5678', :format => :json
+      get :arxiv_details, :id => '1234.5678', :format => :json
 
       expect(response).to have_http_status(:not_found)
     end
@@ -371,7 +371,7 @@ describe PapersController do
   describe "GET #as_editor" do
 
     it "AS EDITOR should return correct papers" do
-      user = set_editor( authenticate(:editor) )
+      user = set_paper_editor( authenticate(:editor) )
       create(:paper, :under_review) # should be returned
       create(:paper, :submitted) # should be returned
 

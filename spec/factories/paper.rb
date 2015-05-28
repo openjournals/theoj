@@ -24,21 +24,20 @@ FactoryGirl.define do
       collaborator nil
     end
 
-    after(:create) do |paper, factory|
+    after(:build) do |paper, factory|
+      paper.send(:create_assignments) if paper.submittor
 
       if factory.reviewer
-        reviewers = Array(factory.reviewer)
+        reviewers = Array(factory.reviewer==true ? create(:user) : factory.reviewer)
         reviewers.each do |r|
-          reviewer = r == true ? create(:user) : r
-          create(:assignment, :reviewer, user:reviewer, paper:paper)
+          paper.assignments.build(role: :reviewer, user:r)
         end
       end
 
       if factory.collaborator
-        collaborators = Array(factory.collaborator)
+        collaborators = Array(factory.collaborator==true ? create(:user) : factory.collaborator)
         collaborators.each do |c|
-          collaborator = c == true ? create(:user) : c
-          create(:assignment, :collaborator, user:collaborator, paper:paper)
+          paper.assignments.build(role: :collaborator, user:c)
         end
       end
 

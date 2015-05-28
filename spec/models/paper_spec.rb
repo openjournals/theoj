@@ -13,7 +13,7 @@ describe Paper do
   describe "construction" do
 
     it "Adds the submittor and editor as assignments" do
-      editor    = set_editor
+      editor    = set_paper_editor
       submittor = create(:user)
       p = create(:paper, submittor:submittor)
 
@@ -23,6 +23,34 @@ describe Paper do
       expect(p.assignments.first.user).to  eq(editor)
       expect(p.assignments.second.role).to eq('submittor')
       expect(p.assignments.second.user).to eq(submittor)
+    end
+
+    it "should build a paper from an arxiv document" do
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
+          to_return(fixture("arxiv.1311.1653v2.xml"))
+
+      doc = Arxiv.get('1311.1653')
+      p = Paper.new_for_arxiv(doc)
+
+      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.version).to eq(2)
+      expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
+      expect(p.summary).to match /^We present.*paper.$/
+      expect(p.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(p.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
+    end
+
+    it "should include additional attributes when building a paper from an arxiv document" do
+
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
+          to_return(fixture("arxiv.1311.1653v2.xml"))
+
+      doc = Arxiv.get('1311.1653')
+
+      u = create(:user)
+      p = Paper.new_for_arxiv(doc, submittor:u)
+
+      expect(p.submittor).to eq(u)
     end
 
     it "should build a paper from an arxiv_id" do
@@ -79,6 +107,106 @@ describe Paper do
 
       assert_equal Paper.count, 2
       assert_includes Paper.with_state('submitted'), paper
+    end
+
+  end
+
+  describe "::create_updated!" do
+
+    let(:arxiv_doc) {
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv.1311.1653v2.xml'))
+      Arxiv.get('1311.1653v2')
+    }
+
+    it "should create a new instance" do
+      original  = create(:paper, arxiv_id:'1311.1653')
+      new_paper = nil
+      expect {
+        new_paper = Paper.create_updated!(original, arxiv_doc)
+      }.to change{Paper.count}.by(1)
+
+      expect(new_paper).to be_persisted
+    end
+
+    it "should change the state of the original instance to superceded" do
+      original  = create(:paper, arxiv_id:'1311.1653')
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(original).to be_superceded
+    end
+
+    it "should copy the attributes from the original paper" do
+      original  = create(:paper, :under_review, arxiv_id:'1311.1653')
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.submittor).to eq(original.submittor)
+      expect(new_paper.state).to     eq('under_review')
+    end
+
+    it "should set the arxiv attributes on the new paper" do
+      original  = create(:paper, arxiv_id:'1311.1653')
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.arxiv_id).to eq('1311.1653')
+      expect(new_paper.version).to eq(2)
+      expect(new_paper.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
+      expect(new_paper.summary).to match /^We present.*paper.$/
+      expect(new_paper.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(new_paper.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
+    end
+
+    it "should copy the assignments from the original paper" do
+      set_paper_editor
+      original  = create(:paper, arxiv_id:'1311.1653',
+                         reviewer:[ create(:user), create(:user) ])
+      expect(original.assignments.length).to eq(4)
+
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.assignments.length).to eq(original.assignments.length)
+      (0...original.assignments.length).each do |index|
+        expect(new_paper.assignments[index].role).to eq(original.assignments[index].role)
+        expect(new_paper.assignments[index].user).to eq(original.assignments[index].user)
+      end
+
+    end
+
+    it "should copy the original editor" do
+      set_paper_editor
+      original  = create(:paper, arxiv_id:'1311.1653',
+                         reviewer:[ create(:user), create(:user) ])
+      expect(original.assignments.length).to eq(4)
+
+      set_paper_editor
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.assignments.length).to eq(original.assignments.length)
+      (0...original.assignments.length).each do |index|
+        expect(new_paper.assignments[index].role).to eq(original.assignments[index].role)
+        expect(new_paper.assignments[index].user).to eq(original.assignments[index].user)
+      end
+
+    end
+
+    it "should raise an error if the arxiv_ids are different" do
+      original  = create(:paper, arxiv_id:'9999.9999')
+      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+    end
+
+    it "should raise an error if the original cannot be superceded" do
+      original  = create(:paper, arxiv_id:'1311.1653')
+
+      expect { Paper.create_updated!(original, arxiv_doc) }.not_to raise_exception
+
+      original.state = 'superceded'
+      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+      original.state = 'resolved'
+      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+    end
+
+    it "should raise an error if there is no new arxiv version" do
+      original  = create(:paper, arxiv_id:'1311.1653', version:2)
+      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
     end
 
   end
@@ -232,7 +360,7 @@ describe Paper do
     end
 
     it "should return correct permissions for paper for user as editor" do
-      user  = set_editor
+      user  = set_paper_editor
       paper = create(:paper, submittor:user)
 
       create(:assignment, :reviewer,     user:user, paper:paper)

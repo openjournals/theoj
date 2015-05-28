@@ -85,7 +85,7 @@ describe AssignmentsController do
     end
 
     it "the editor should return the list of reviewers" do
-      set_editor authenticate(:editor)
+      set_paper_editor authenticate(:editor)
 
       paper = create(:paper)
 
@@ -203,7 +203,7 @@ describe AssignmentsController do
     end
 
     it "the editor should return the list of reviewers" do
-      set_editor authenticate(:editor)
+      set_paper_editor authenticate(:editor)
 
       reviewer1 = create(:user)
       reviewer2 = create(:user)

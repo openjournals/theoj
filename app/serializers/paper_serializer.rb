@@ -1,5 +1,7 @@
 class PaperSerializer < BaseSerializer
   attributes :id,
+             :arxiv_id,
+             :version,
              :user_permissions,
              :location,
              :state,
@@ -10,7 +12,6 @@ class PaperSerializer < BaseSerializer
              :pending_issues_count,
              :sha
 
-  has_many :assignments
   has_many :assigned_users
 
   def assigned_users
