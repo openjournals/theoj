@@ -43,13 +43,13 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
-  def render_error(status_code, message = nil)
+  def render_error(status_code, text = nil)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
-    message ||= "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
+    message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
 
     respond_to do |format|
-      format.html { render plain:message, status: status_code }
-      format.json { render json: {error:message}, status: status_code }
+      format.html { render plain:text || message, status: status_code }
+      format.json { render json: {error:message, text:text, code:code}, status: status_code }
     end
 
   end

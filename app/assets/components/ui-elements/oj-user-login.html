@@ -1,7 +1,8 @@
 <polymer-element name="oj-user-login" attributes='user userReady'>
   <template>
     <template if="{{user.name != undefined}}">
-      <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >{{user.name}} {{ {"(Editor)": user.editor} | tokenList }}</a>
+      <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >
+          {{user.name}}{{user|roles}}</a>
       <a class='link signout' href='/signout'>Sign Out</a>
     </template>
 
@@ -39,6 +40,7 @@
   <script>
     Polymer({
       userReady: false,
+
       isReady:function(event){
         if(event.detail.response.name){
           this.user = event.detail.response;
@@ -47,7 +49,21 @@
           this.user =null;
         }
         this.userReady=true;
+      },
+
+      roles: function(user) {
+          if (!user)
+            return '';
+          else if (user.admin && user.editor)
+              return ' (Admin, Editor)';
+          else if (user.admin)
+            return ' (Admin)';
+          else if (user.editor)
+            return ' (Editor)';
+          else
+            return '';
       }
+
     })
   </script>
 

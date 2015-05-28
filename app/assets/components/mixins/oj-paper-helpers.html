@@ -27,18 +27,18 @@
 
         },
 
-        roleForPaper: function(paper){
-            if (!paper)
-                return '';
-            else if (paper.user_permissions.indexOf('editor') >= 0)
-                return 'editor';
-            else if (paper.user_permissions.indexOf('reviewer') >= 0)
-                return 'reviewer';
-            else if (paper.user_permissions.indexOf('collaborator') >= 0)
-                return 'author';
-            else if (paper.user_permissions.indexOf('submittor') >= 0)
-                return 'author';
-        },
+//        roleForPaper: function(paper){
+//            if (!paper)
+//                return '';
+//            else if (paper.user_permissions.indexOf('editor') >= 0)
+//                return 'editor';
+//            else if (paper.user_permissions.indexOf('reviewer') >= 0)
+//                return 'reviewer';
+//            else if (paper.user_permissions.indexOf('collaborator') >= 0)
+//                return 'author';
+//            else if (paper.user_permissions.indexOf('submittor') >= 0)
+//                return 'author';
+//        },
 
         // Given a assignment sha returns the assignment object from the paper
         // With some additional metadata
@@ -50,7 +50,7 @@
                 paper.assignmentsBySha = {};
 
             if (paper.assignmentsBySha[assignment_sha]===undefined) {
-                var index = Oj.utils.indexOf(paper.assigned_users, function(a) {return a.sha == assignment_sha} );
+                var index = Oj.Utils.indexOf(paper.assigned_users, function(a) {return a.sha == assignment_sha} );
 
                 if (index >= 0) {
                     var assignment = paper.assigned_users[index];

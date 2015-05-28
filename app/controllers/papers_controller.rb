@@ -94,7 +94,7 @@ class PapersController < ApplicationController
 
     arxiv_doc = Arxiv.get(arxiv_id)
 
-    render_error(:conflict, text:'There is no new version of this document.') and return unless arxiv_doc.version > latest_paper.version
+    render_error(:conflict, 'There is no new version of this document.') and return unless arxiv_doc.version > latest_paper.version
 
     new_paper = Paper.create_updated!(latest_paper, arxiv_doc)
 

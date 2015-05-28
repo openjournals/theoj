@@ -12,13 +12,13 @@
                   </template>
               </div>
 
-              <template if="{{user.editor}}">
+              <template if="{{paper.current_role=='editor'}}">
                   <oj-editor-paper-controls flex paper={{paper}} router={{router}}></oj-editor-paper-controls>
               </template>
           </div>
 
           <div class=right layout vertical>
-              <div class='role role-{{paper | roleForPaper}}'><span class=label>Role: </span>{{paper | roleForPaper | capitalize}}</div>
+              <div class='role role-{{paper.current_role}}'><span class=label>Role: </span>{{paper.current_role | capitalize}}</div>
               <div flex class="state state-{{paper.state}}">
                   <div><span class=label>Status: </span>{{paper.state | capitalize}}</div>
 
