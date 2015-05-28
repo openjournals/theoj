@@ -35,7 +35,7 @@ describe PapersController do
 
       get :show, :id => paper.sha, :format => :json
 
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
 
     it "AS REVIEWER (with permissions)" do
@@ -48,6 +48,7 @@ describe PapersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
     end
 
     it "AS COLLABORATOR (with permissions)" do
@@ -60,6 +61,7 @@ describe PapersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
     end
 
     it "AS AUTHOR (with permissions)" do
@@ -71,6 +73,7 @@ describe PapersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
     end
 
   end
@@ -237,6 +240,8 @@ describe PapersController do
 
       post :create, :format => :json, arxiv_id: '1401.0003'
 
+      assert_serializer FullPaperSerializer
+
       expect(response_json).to include(
                                    "location" => "http://arxiv.org/pdf/1401.0003v1.pdf",
                                    "sha"       => Paper.last.sha
@@ -269,7 +274,7 @@ describe PapersController do
   #
   #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
   #
-  #     expect(response.status).to eq(403)
+  #     expect(response.status).to eq(:forbidden)
   #     assert_equal "Hello space", paper.title
   #   end
   #
@@ -303,7 +308,7 @@ describe PapersController do
       put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
       # Should be redirected
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
 
     it "AS AUTHOR responds successfully with a correct status (403) and NOT accept paper" do
@@ -331,6 +336,7 @@ describe PapersController do
 
       expect(response).to have_http_status(:created)
       expect(response.content_type).to eq("application/json")
+      assert_serializer PaperSerializer
       expect(response_json['arxiv_id']).to eq('1311.1653')
       expect(response_json['version']).to eq(2)
     end
@@ -385,6 +391,23 @@ describe PapersController do
       put :check_for_update, id:'1311.1653'
 
       expect(response).to have_http_status(:not_found)
+    end
+
+  end
+
+  describe "GET #versions" do
+
+    it "returns a list of papers" do
+      create(:paper, arxiv_id:'1234.5678', version:1)
+      create(:paper, arxiv_id:'1234.5678', version:2)
+
+      get :versions, id:'1234.5678'
+
+      expect(response).to have_http_status(:ok)
+      expect(response.content_type).to eq("application/json")
+      assert_serializer BasicPaperSerializer
+
+      expect(response_json.length).to eq(2)
     end
 
   end

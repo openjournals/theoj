@@ -1,6 +1,6 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :state, :index ]
+  before_filter :require_user,   except: [ :state, :index, :versions ]
   before_filter :require_editor, only:   [ :transition ]
 
   def index
@@ -18,7 +18,7 @@ class PapersController < ApplicationController
 
     raise CanCan::AccessDenied if ability.cannot? :show, paper
 
-    respond_with paper
+    respond_with paper, serializer:FullPaperSerializer
   end
 
   def arxiv_details
@@ -39,9 +39,9 @@ class PapersController < ApplicationController
     authorize! :create, paper
 
     if paper.save
-      render :json => paper, :status => :created, :location => url_for(paper)
+      render json:paper, status: :created, location:url_for(paper), serializer:FullPaperSerializer
     else
-      render :json => paper.errors, :status => :unprocessable_entity
+      render json:aper.errors, status: :unprocessable_entity
     end
   end
 
@@ -52,9 +52,9 @@ class PapersController < ApplicationController
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
     if paper.update_attributes(paper_params)
-      render :json => paper, :location => url_for(paper)
+      render json:paper, location:url_for(paper), serializer:FullPaperSerializer
     else
-      render :json => paper.errors, :status => :unprocessable_entity
+      render json:paper.errors, status: :unprocessable_entity
     end
   end
 
@@ -77,11 +77,16 @@ class PapersController < ApplicationController
 
     if paper.aasm.may_fire_event?(transition)
       paper.send("#{transition.to_s}!")
-      render :json => paper, :location => url_for(paper)
+      render json:paper, location:url_for(paper), serializer:FullPaperSerializer
 
     else
-      render :json => paper.errors, :status => :unprocessable_entity
+      render json:paper.errors, status: :unprocessable_entity
     end
+  end
+
+  def versions
+    papers   = Paper.versions_for( params[:id] )
+    render json:papers, each_serializer: BasicPaperSerializer
   end
 
   def check_for_update

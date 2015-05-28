@@ -14,6 +14,7 @@ Theoj::Application.routes.draw do
     member do
       put  :check_for_update, id: Paper::ArxivIdRegex
       get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
+      get  :versions,         id: Paper::ArxivIdRegex
 
       get  :state, defaults: { format: 'html' }
       put  :transition, format: 'json'

@@ -111,6 +111,25 @@ describe Paper do
 
   end
 
+  describe "::versions_for" do
+
+    it "should return a sorted list of papers" do
+      create(:paper, arxiv_id:'9999.9999', version:2)
+      create(:paper, arxiv_id:'1234.5678', version:2)
+      create(:paper, arxiv_id:'1234.5678', version:1)
+      create(:paper, arxiv_id:'1234.5678', version:3)
+      create(:paper, arxiv_id:'1234.5678', version:4)
+
+      papers = Paper.versions_for('1234.5678')
+
+      expect(papers[0]['version']).to eq(4)
+      expect(papers[1]['version']).to eq(3)
+      expect(papers[2]['version']).to eq(2)
+      expect(papers[3]['version']).to eq(1)
+    end
+
+  end
+
   describe "::create_updated!" do
 
     let(:arxiv_doc) {

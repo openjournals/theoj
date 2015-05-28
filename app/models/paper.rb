@@ -60,6 +60,10 @@ class Paper < ActiveRecord::Base
     end
   end
 
+  def self.versions_for(arxiv_id)
+    where(arxiv_id:arxiv_id).order(version: :desc)
+  end
+
   def self.new_for_arxiv_id(arxiv_id, attributes={})
     arxiv_doc = Arxiv.get(arxiv_id.to_s)
     new_for_arxiv(arxiv_doc, attributes)
