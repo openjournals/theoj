@@ -69,4 +69,5 @@ class User < ActiveRecord::Base
   def set_sha
     self.sha = SecureRandom.hex
   end
+
 end

@@ -60,7 +60,7 @@ describe AssignmentSerializer do
   end
 
   it "should include reviewer info when the editor is logged in" do
-    current_user = set_editor
+    current_user = set_paper_editor
 
     user       = create(:user, name:'John Doe')
     assignment = create(:assignment, :reviewer, user:user)

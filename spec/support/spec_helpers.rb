@@ -9,7 +9,11 @@ module SpecHelpers
     File.open(filename, 'r')
   end
 
-  def set_editor(user=nil)
+  def hash_from_json(json)
+    return JSON.parse(json)
+  end
+
+  def set_paper_editor(user=nil)
     if user.is_a?(Symbol)
       user = create(user)
     elsif user.nil?

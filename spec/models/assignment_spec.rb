@@ -51,7 +51,7 @@ describe Assignment do
   end
 
   it "AS EDITOR: should be editor for all papers" do
-    editor1 = set_editor
+    editor1 = set_paper_editor
     editor2 = create(:editor)
     paper = create(:paper, :submitted)
     paper = create(:paper, :submitted)
@@ -72,6 +72,8 @@ describe Assignment do
   it "should not delete assignments if the they are used in associations" do
     p = create(:paper)
     a = create(:assignment, paper:p)
+    p.assignments.reload
+
     create(:annotation, paper:p, assignment:a)
 
     expect(a.destroy).to be_falsey

@@ -15,6 +15,7 @@
       <div id=main layout horizontal>
 
         <div layout vertical id=pdf-pane>
+
           <div id=add-document-issue>
             <paper-button raised on-tap="{{addDocumentAnnotation}}">
               <paper-icon-button icon=add></paper-icon-button>Add a comment about the whole document
@@ -94,6 +95,7 @@
             var current_user_sha = this.user.sha;
             var index = Oj.utils.indexOf(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
             this.paper.current_assignment = this.paper.assigned_users[index];
+            this.paper.current_role       = this.paper.current_assignment.role;
         }
       },
       onChangeAnnotation:function(event, annotation) {

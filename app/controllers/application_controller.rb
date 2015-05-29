@@ -13,8 +13,10 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from  Arxiv::Error::ManuscriptNotFound do render_error(:not_found) end
+  rescue_from  ActiveRecord::RecordNotFound     do render_error(:not_found) end
 
   rescue_from  ActiveRecord::RecordNotUnique do render_error(:conflict) end
+
 
   private
 
@@ -28,7 +30,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_user
-    render_error :forbidden unless current_user
+    render_error :unauthorized unless current_user
   end
 
   #@mro - needs to be rewritten (should be editor of Paper)
@@ -41,13 +43,13 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
-  def render_error(status_code)
+  def render_error(status_code, text = nil)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
     message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
 
     respond_to do |format|
-      format.html { render plain:message, status: status_code }
-      format.json { render json: {error:message}, status: status_code }
+      format.html { render plain:text || message, status: status_code }
+      format.json { render json: {error:message, text:text, code:code}, status: status_code }
     end
 
   end

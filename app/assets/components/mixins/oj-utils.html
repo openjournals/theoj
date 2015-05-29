@@ -14,6 +14,22 @@
                 if (callback.call(thisObj, array[i], i, array) )
                     return array[i];
             return undefined;
+        },
+
+        errorMessage: function(error) {
+            if (!$.isPlainObject(error)) {
+                try {
+                    error = JSON.parse(error);
+                } catch (SyntaxError) {
+                }
+            }
+
+            if (error && error.text)
+                return error.text;
+            else if (error && error.message)
+                return error.message.slice(4);
+            else
+                return (error && error.toString()) || 'An error occurred.'
         }
 
 

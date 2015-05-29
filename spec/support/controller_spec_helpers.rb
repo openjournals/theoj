@@ -19,7 +19,7 @@ module ControllerSpecHelpers
   def error_json(status_code)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
     message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
-    {"error" => message}
+    {"error" => message, "text" => nil, "code" => code}
   end
 
 end

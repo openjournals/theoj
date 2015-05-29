@@ -57,11 +57,11 @@ describe User do
     it "should know who the editor is" do
       user = create(:user)
 
-      editor1 = set_editor
+      editor1 = set_paper_editor
       paper1 = create(:paper, submittor:user)
       paper2 = create(:paper, submittor:user)
 
-      editor2 = set_editor
+      editor2 = set_paper_editor
       paper3 = create(:paper, submittor:user)
 
       assert editor1.editor_of?(paper1)

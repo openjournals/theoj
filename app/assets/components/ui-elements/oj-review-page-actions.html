@@ -3,7 +3,7 @@
 
       <div layout horizontal>
 
-          <template if="{{user.editor}}">
+          <template if="{{paper.current_role=='editor'}}">
               <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
                   <core-icon icon=arrow-forward></core-icon>
                   Start Review
@@ -15,6 +15,13 @@
               <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
                   <core-icon icon=thumb-down></core-icon>
                   Reject
+              </paper-button>
+          </template>
+
+          <template if="{{paper.current_role=='submittor'}}">
+              <paper-button id=check-for-update raised hidden?="{{paper.state!='submitted' && paper.state!='under_review'}}" on-tap="{{checkForUpdateClick}}" >
+                  <core-icon icon=refresh   ></core-icon>
+                  Check for Update
               </paper-button>
           </template>
 
@@ -46,6 +53,12 @@
       #reject:hover {
         background: #c00000;
       }
+      #check-for-update {
+          background: #000080;
+      }
+      #check-for-update:hover {
+          background: #0000a0;
+      }
       paper-button[disabled] {
         background: gray !important;
         color:      white;
@@ -58,7 +71,8 @@
         <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-    <json-put id=putRequest></json-put>
+    <json-put id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
+    <json-put id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{updateRequestError}}></json-put>
 
   </template>
 
@@ -68,26 +82,41 @@
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
 
-      startReviewClick:function(){
+      startReviewClick:function() {
           this.changeState('start_review',
                            'Do you really want to start reviewing this paper?',
                            'Start Review',
                            'Thank You. The paper will now be available for review.'
           );
       },
-      acceptClick:function(){
+      acceptClick:function() {
           this.changeState('accept',
                            'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.',
                            'Accept',
                            'The paper has been accepted.'
           );
       },
-      rejectClick:function(){
+      rejectClick:function() {
           this.changeState('reject',
                            'Do you really want to reject this paper?',
                            'Reject',
                            'The paper has been rejected.'
           );
+      },
+
+      checkForUpdateClick: function() {
+          var $request = this.$.updateRequest;
+          $request.url = Oj.urls.paperCheckForUpdatePath(this.paper);
+          $request.go();
+      },
+
+      updateRequestSuccess: function(event, detail) {
+          var message = 'We have retrieved version ' + detail.version + ' of your document.';
+          this.fire('notification', message);
+          this.router.go('/review/' + detail.sha);
+      },
+      updateRequestError: function(event, detail) {
+          this.fire('notification', Oj.utils.errorMessage(detail) );
       },
 
       showDialog: function(html, buttonText, onSuccess) {
@@ -103,26 +132,23 @@
           $dialog.open();
       },
 
-      putRequest: function(url, successMessage) {
-          var $request = this.$.putRequest;
-          $request.url = url;
-
-          $($request).off('success');
-          $($request).on('success', function() {
-              this.fire("notification", successMessage);
-              this.router.go("/papers");
-          }.bind(this) );
-
-          $request.go();
-      },
-
       changeState: function(newState, html, buttonText, successMessage) {
 
           this.showDialog(html, buttonText, function() {
+              this.successMessage = successMessage;
+
               var url = Oj.urls.paperTransitionPath(this.paper, newState);
-              this.putRequest(url, successMessage);
+              var $request = this.$.statusChangeRequest;
+
+              $request.url = url;
+              $request.go();
           });
 
+      },
+
+      statusChangeRequestSuccess: function(event, detail) {
+          this.fire('notification', this.successMessage);
+          this.router.go('/papers');
       }
 
     })

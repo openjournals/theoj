@@ -1,6 +1,9 @@
 class Paper < ActiveRecord::Base
   include AASM
 
+  ArxivIdRegex = /[0-9]{4}.*[0-9]{4,5}/
+  ArxivIdWithVersionRegex = /[0-9]{4}.*[0-9]{4,5}(v\d+)?/
+
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
   has_many   :assignments, inverse_of: :paper, dependent: :destroy
 
@@ -14,10 +17,9 @@ class Paper < ActiveRecord::Base
   has_many  :reviewers,                 through: :reviewer_assignments,     source: :user
   has_many  :editors,                   through: :editor_assignments,       source: :user
 
-  scope :active, -> { all }
+  scope :active, -> { where.not(state:'superceded') }
 
-  before_create :set_initial_values, :get_arxiv_details
-  after_create  :create_assignments
+  before_create :set_initial_values, :create_assignments
 
   validates :submittor,
             presence: true
@@ -25,8 +27,19 @@ class Paper < ActiveRecord::Base
   aasm column: :state do
     state :submitted,          initial:true
     state :under_review
+    state :superceded
     state :accepted
     state :rejected
+
+    event :start_review, guard: :has_reviewers? do
+      transitions from: :submitted,
+                  to:   :under_review
+    end
+
+    event :supercede do
+      transitions from: [:submitted, :under_review],
+                  to:   :superceded
+    end
 
     event :accept, before: :resolve_all_issues do
       transitions from: :under_review,
@@ -37,11 +50,6 @@ class Paper < ActiveRecord::Base
                   to:   :rejected
     end
 
-    event :start_review, guard: :has_reviewers? do
-      transitions from: :submitted,
-                  to:   :under_review
-    end
-
   end
 
   def self.with_state(state = nil)
@@ -50,6 +58,59 @@ class Paper < ActiveRecord::Base
     else
       all
     end
+  end
+
+  def self.versions_for(arxiv_id)
+    where(arxiv_id:arxiv_id).order(version: :desc)
+  end
+
+  def self.new_for_arxiv_id(arxiv_id, attributes={})
+    arxiv_doc = Arxiv.get(arxiv_id.to_s)
+    new_for_arxiv(arxiv_doc, attributes)
+  end
+
+  def self.new_for_arxiv(arxiv_doc, attributes={})
+
+    attributes = attributes.merge(
+        arxiv_id:    arxiv_doc.arxiv_id,
+        version:     arxiv_doc.version,
+
+        title:       arxiv_doc.title,
+        summary:     arxiv_doc.summary,
+        location:    arxiv_doc.pdf_url,
+        author_list: arxiv_doc.authors.collect{|a| a.name}.join(", ")
+    )
+
+    new(attributes)
+  end
+
+  def self.create_updated!(original, arxiv_doc)
+
+    raise 'Arxiv IDs do not match'            unless original.arxiv_id == arxiv_doc.arxiv_id
+    raise 'Cannot update superceded original' unless original.may_supercede?
+    raise 'No new version available'          unless arxiv_doc.version > original.version
+
+    ActiveRecord::Base.transaction do
+      new_paper = Paper.new_for_arxiv(arxiv_doc,
+                                      submittor: original.submittor,
+                                      state:     original.state
+      )
+
+      original.assignments.each do |a|
+        new_paper.assignments.build(role:a.role, user:a.user)
+      end
+
+      new_paper.save!
+
+      original.supercede!
+
+      new_paper
+    end
+
+  end
+
+  def full_arxiv_id
+    "#{arxiv_id}v#{version}"
   end
 
   def issues
@@ -80,10 +141,10 @@ class Paper < ActiveRecord::Base
     assignments.detect { |a| a.user == user }
   end
 
-  def add_assignee(user, role)
+  def add_assignee(user, role='reviewer')
     can_assign = ! user_assignment(user)
 
-    if can_assign && assignments.create(user: user, role:role)
+    if can_assign && a=assignments.create(user: user, role:role)
       true
     else
       errors.add(:assignments, 'Unable to assign user')
@@ -91,7 +152,6 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  # FIXME if the UI needs it then we should add "submittor" and "editor" in here.
   def permissions_for_user(user)
     assignments.where(user_id:user.id).pluck(:role)
   end
@@ -108,25 +168,16 @@ class Paper < ActiveRecord::Base
   end
 
   def create_assignments
-    editor = User.next_editor
-    self.assignments.create(role:'editor',   user:editor) if editor
-    self.assignments.create(role:'submittor',user:submittor)
-  end
 
-  def get_arxiv_details
-    details          = Arxiv.get(self.arxiv_id.to_s)
+    if assignments.none? { |a| a.role=='editor' }
+      editor = User.next_editor
+      assignments.build(role:'editor',   user:editor) if editor
+    end
 
-    location         = details.links.select{|link| link.content_type=="application/pdf"}.first.url
-    location         = location + ".pdf" unless location.ends_with? ".pdf"
-    self.location    = location
+    if assignments.none? { |a| a.role=='submittor' && a.user==submittor }
+      assignments.build(role:'submittor',user:submittor)
+    end
 
-    self.title       = details.title
-    self.summary     = details.summary
-    self.author_list = details.authors.collect{|a| a.name}.join(", ")
-
-  rescue => ex
-    self.location  = "http://arxiv.org/pdf/#{self.arxiv_id}.pdf"
-    logger.debug "couldn't find paper on arxiv #{ex}"
   end
 
   def has_reviewers?

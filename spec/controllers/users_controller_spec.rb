@@ -37,7 +37,7 @@ describe UsersController do
 
     it "requires the user to be authenticated as an editor" do
       get :name_lookup, :guess => "Scooby", :format => :json
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:unauthorized)
 
       authenticate(:user)
       get :name_lookup, :guess => "Scooby", :format => :json

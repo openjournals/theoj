@@ -3,6 +3,8 @@
 class ArxivSerializer < BaseSerializer
 
   attributes :arxiv_url,
+             :arxiv_id,
+             :version,
              :sha,
              :title,
              :summary,

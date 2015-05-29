@@ -1,0 +1,64 @@
+HTTP/1.1 200 OK
+Date: Wed, 27 May 2015 17:25:06 GMT
+Server: Apache
+Access-control-allow-origin: *
+Vary: Accept-Encoding,User-Agent
+Transfer-Encoding: chunked
+Content-Type: application/atom+xml; charset=UTF-8
+
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="http://arxiv.org/api/query?search_query%3D%26id_list%3D1311.1653%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=&amp;id_list=1311.1653&amp;start=0&amp;max_results=10</title>
+  <id>http://arxiv.org/api/JOaSZ4UKZC81S2j9dxj/b6FUElI</id>
+  <updated>2015-05-27T00:00:00-04:00</updated>
+  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">1</opensearch:totalResults>
+  <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
+  <entry>
+    <id>http://arxiv.org/abs/1311.1653v2</id>
+    <updated>2015-05-24T09:41:27Z</updated>
+    <published>2013-11-07T12:20:40Z</published>
+    <title>A photometric comprehensive study of circumnuclear star forming rings:
+  the sample</title>
+    <summary>  We present photometry in U, B, V, R and I continuum bands and in H{\alpha}
+and H{\beta} emission lines for a sample of 336 circumnuclear star forming
+regions (CNSFR) located in 20 early type spiral galaxies with different levels
+of activity in their nuclei. This reported activity ranges from Sy1 to
+Starburst, including Sy2 and LINER. They are nearby galaxies, with distances
+less than 100 Mpc, $60\%$ of which are considered as interacting objects. We
+have found a clear relationship between MB of the galaxy and the major axis of
+the rings based on data from a wide sample of galaxies with outer, inner and
+circumnuclear rings. This relationship allows us to define the "limiting
+radius" for each galaxy as the radius beyond which, HII regions should not be
+considered as circumnuclear. This concept of "limiting radius" allows to
+ascertain whether an HII region close to the galactic nucleus can be considered
+circumnuclear or not. Extinction corrected H{\alpha}luminosities range from 1.3
+10^38 to 4 10^41 erg s-1. H{\alpha} and H{\beta} images have allowed us to
+obtain an accurate measure of extinction. Av varies around an average value of
+1.85 magnitudes. Most of the regions are placed around (U-B) \simeq -0.7, while
+a second maximum value appears at (U-B) \simeq -0.3. (R-I) also presents a
+bimodal behaviour, with two peaks located close to the values 0.6 and 0.9. As
+in the previous case, reddest regions appear in non-interacting galaxies.
+Interestingly enough, for a significant number of HII regions the observed
+colours and equivalent widths are not well reproduced by evolutionary
+theoretical models of a single burst. To disentangle if we are dealing with
+compound star populations or just mismatching metallicity or extinction
+effects, a deeper study using different theoretical evolutionary models has
+been carried and will be presented in a second paper.
+</summary>
+    <author>
+      <name>Mar Álvarez-Álvarez</name>
+    </author>
+    <author>
+      <name>Angeles I. Díaz</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">Accepted for publication in MNRAS. Accepted 15 May 2015. Received, 21
+  April 2015</arxiv:comment>
+    <link href="http://arxiv.org/abs/1311.1653v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1311.1653v2" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph.GA" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph.GA" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph.CO" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

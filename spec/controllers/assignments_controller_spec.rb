@@ -22,7 +22,7 @@ describe AssignmentsController do
 
       post :create, paper_id:paper.sha, format: :json, user:'abcd'
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it "an authenticated user should be forbidden" do
@@ -85,7 +85,7 @@ describe AssignmentsController do
     end
 
     it "the editor should return the list of reviewers" do
-      set_editor authenticate(:editor)
+      set_paper_editor authenticate(:editor)
 
       paper = create(:paper)
 
@@ -139,7 +139,7 @@ describe AssignmentsController do
 
       delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it "an authenticated user should be forbidden" do
@@ -203,7 +203,7 @@ describe AssignmentsController do
     end
 
     it "the editor should return the list of reviewers" do
-      set_editor authenticate(:editor)
+      set_paper_editor authenticate(:editor)
 
       reviewer1 = create(:user)
       reviewer2 = create(:user)

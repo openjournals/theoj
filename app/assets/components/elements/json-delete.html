@@ -23,10 +23,10 @@
         this.$.request.go()
       },
       success:function(event,detail){
-        this.fire("success", detail.response)
+        this.fire("success", detail.response);
       },
       error:function(event,detail){
-        this.fire("error", detail.response)
+        this.fire("error", detail.xhr.responseText);
       }
     })
   </script>
