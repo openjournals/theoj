@@ -50,7 +50,7 @@
                 paper.assignmentsBySha = {};
 
             if (paper.assignmentsBySha[assignment_sha]===undefined) {
-                var index = Oj.Utils.indexOf(paper.assigned_users, function(a) {return a.sha == assignment_sha} );
+                var index = Oj.utils.indexOf(paper.assigned_users, function(a) {return a.sha == assignment_sha} );
 
                 if (index >= 0) {
                     var assignment = paper.assigned_users[index];

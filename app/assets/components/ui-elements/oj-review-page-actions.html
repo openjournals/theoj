@@ -116,7 +116,7 @@
           this.router.go('/review/' + detail.sha);
       },
       updateRequestError: function(event, detail) {
-          this.fire('notification', Oj.Utils.errorMessage(detail) );
+          this.fire('notification', Oj.utils.errorMessage(detail) );
       },
 
       showDialog: function(html, buttonText, onSuccess) {

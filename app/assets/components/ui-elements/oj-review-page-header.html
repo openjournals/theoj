@@ -3,6 +3,17 @@
       <div class=top-header flex layout horizontal >
           <div  class=left flex>
               <div class=left-top>
+
+                  <paper-dropdown-menu on-core-activate={{versionSelected}}>
+                      <paper-dropdown class=dropdown>
+                          <core-menu id=versionMenu valueattr=version selected={{paper.version}}>
+                              <template repeat="{{version in paper.versions}}">
+                                <paper-item version={{version.version}}>{{version.arxiv_id}} v{{version.version}}</paper-item>
+                              </template>
+                          </core-menu>
+                      </paper-dropdown>
+                  </paper-dropdown-menu>
+
                   <span class=title>{{paper.title}}</span>
                   <template repeat="{{assignment in paper.assigned_users | exceptReviewers}}" >
                       <oj-user-tag assignment={{assignment}}
@@ -78,17 +89,38 @@
             width:    100%;
         }
 
+        paper-dropdown-menu {
+            background: #d0d0d0;
+            padding: 0;
+            margin:  0;
+            padding-left: 4px;
+            width: 120px;
+        }
+        paper-dropdown-menu::shadow core-icon {
+            margin: -4px;
+        }
+        paper-dropdown {
+        }
+        core-menu {
+            margin: 0;
+        }
+        paper-item {
+        }
+        paper-item::shadow .button-content {
+            padding: 0 0 0 4px;
+        }
+
         span.issue-summary {
-                font-size:  0.8em;
-                text-align: right;
-            margin-right:   12px;
-            }
+            font-size:    0.8em;
+            text-align:   right;
+            margin-right: 12px;
+        }
 
         span.issue-summary span {
-                display:        inline-block;
-                vertical-align: middle;
-                font-size:      0.6em;
-            }
+            display:        inline-block;
+            vertical-align: middle;
+            font-size:      0.6em;
+        }
 
         oj-review-page-actions {
             margin-bottom: 6px;
@@ -124,6 +156,12 @@
         userColor: function(assignment) {
             assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
             return Oj.colors.userColor(assignment);
+        },
+
+        versionSelected: function(event, detail) {
+            var sha = this.$.versionMenu.selectedModel.version.sha;
+            if (sha != this.paper.sha)
+                this.router.go('/review/'+sha);
         }
 
     })
