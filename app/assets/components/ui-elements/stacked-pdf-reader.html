@@ -38,8 +38,12 @@
           this.loading  = true;
           this.pdf      = null;
           PDFJS.openExternalLinksInNewWindow = true;
+          PDFJS.disableRange = true;
 
-          PDFJS.getDocument(this.src, null, null, this.updateProgress.bind(this)).then(function(pdf){
+          // var url = "/proxy?url="+ this.src;
+          var url = this.src;
+
+          PDFJS.getDocument(url, null, null, this.updateProgress.bind(this)).then(function(pdf){
             this.pdf = pdf;
             this.loading  = false;
             this.numPages = this.pdf.numPages;
