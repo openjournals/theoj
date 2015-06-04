@@ -41,7 +41,7 @@
     window.stripped_markdown = function(markup) {
       if (!window.strippedMarkdownRenderer)
           window.strippedMarkdownRenderer = new StrippedMarkdownRenderer();
-      return marked.parse(markup, {renderer:window.strippedMarkdownRenderer} );
+      return marked.parse(markup || '', {renderer:window.strippedMarkdownRenderer} );
     };
 
 }());

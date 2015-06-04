@@ -27,7 +27,7 @@
       showPreview:false,
       markdown: '',
       markdownChanged:function(){
-        var parsed = marked(this.markdown);
+        var parsed = marked(this.markdown || '');
         this.$.renderedContent.innerHTML =parsed;
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$.renderedContent ]);
       }

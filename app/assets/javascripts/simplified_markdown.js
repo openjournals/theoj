@@ -35,7 +35,7 @@
     window.simplified_markdown = function(markup) {
       if (!window.simplifiedMarkdownRenderer)
           window.simplifiedMarkdownRenderer = new SimplifiedMarkdownRenderer();
-      return marked.parse(markup, {renderer:window.simplifiedMarkdownRenderer} );
+      return marked.parse(markup || '', {renderer:window.simplifiedMarkdownRenderer} );
     };
 
 }());
