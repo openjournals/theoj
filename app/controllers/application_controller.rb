@@ -43,7 +43,7 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
-  def render_error(status_code, text = nil)
+  def render_error(status_code, text=nil)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
     message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
 
@@ -51,7 +51,10 @@ class ApplicationController < ActionController::Base
       format.html { render plain:text || message, status: status_code }
       format.json { render json: {error:message, text:text, code:code}, status: status_code }
     end
+  end
 
+  def render_errors(object, status_code=:conflict)
+    render_error(status_code, object.errors.full_messages.join(".\r\n") + "." )
   end
 
 end

@@ -61,6 +61,46 @@ describe UsersController do
 
   end
 
+  describe "PUT #update" do
+
+    it "should fail if the user is not authenticated" do
+      put :update
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "should succeed" do
+      user = authenticate
+      put :update, format: :json, user:{ email:'1@2.com' }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "should change the user's attributes" do
+      user = authenticate
+      put :update, format: :json, user:{ email:'1@2.com' }
+      expect(user.reload.email).to eq('1@2.com')
+    end
+
+    it "should render a user" do
+      user = authenticate
+      put :update, format: :json, user:{ email:'1@2.com'}
+      expect(response_json['name']).to eq(user.name)
+      expect(response_json['email']).to eq('1@2.com')
+    end
+
+    it "should not change unexpected parameters" do
+      user = authenticate
+      put :update, format: :json, user:{ picture: '123' }
+      expect(user.reload.picture).not_to eq('123')
+    end
+
+    it "should not change invalid parameters" do
+      user = authenticate
+      put :update, format: :json, user:{ email: '123' }
+      expect(response).to have_http_status(:conflict)
+    end
+
+  end
+
   describe "GET #lookup" do
 
     it "requires the user to be authenticated as an editor" do

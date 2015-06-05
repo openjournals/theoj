@@ -9,6 +9,11 @@ class User < ActiveRecord::Base
 
   serialize :extra
 
+  validates :email,
+            format: {with:      /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i,
+                     allow_nil: true,
+                     message:   "Doesn't look like an email address"             }
+
   before_create :set_sha
 
   def self.from_omniauth(auth)
