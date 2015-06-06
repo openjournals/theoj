@@ -1,4 +1,4 @@
-<polymer-element name="oj-review-page-header" attributes='user paper annotations router loadProgress'>
+<polymer-element name="oj-review-page-header" attributes='user paper annotations loadProgress'>
   <template>
       <div class=top-header flex layout horizontal >
           <div  class=left flex>
@@ -24,7 +24,7 @@
               </div>
 
               <template if="{{paper.current_role=='editor'}}">
-                  <oj-editor-paper-controls flex paper={{paper}} router={{router}}></oj-editor-paper-controls>
+                  <oj-editor-paper-controls flex paper={{paper}}></oj-editor-paper-controls>
               </template>
           </div>
 
@@ -43,7 +43,6 @@
                   <oj-review-page-actions
                           user={{user}}
                           paper={{paper}}
-                          router={{router}}
                       ></oj-review-page-actions>
 
               </div>
@@ -161,7 +160,7 @@
         versionSelected: function(event, detail) {
             var sha = this.$.versionMenu.selectedModel.version.sha;
             if (sha != this.paper.sha)
-                this.router.go('/review/'+sha);
+                this.fire('go', '/review/'+sha);
         }
 
     })
