@@ -192,7 +192,6 @@
       },
       annotationSaved:function(event, response){
           this.annotation = response;
-          console.log('annotation', this.annotation);
           this.fire("annotation-added", this.annotation);
           this.fire("notification", "Annotation saved.");
           this.text = '';

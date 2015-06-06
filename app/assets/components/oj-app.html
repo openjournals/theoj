@@ -8,18 +8,18 @@
           <span class="title">The Open Journal</span>
         </core-toolbar>
 
-        <oj-main-menu id=mainmenu user={{user}}></oj-main-menu>
+        <oj-main-menu id=mainmenu currentUser={{currentUser}}></oj-main-menu>
 
       </nav>
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login user={{user}} userReady={{userReady}}></oj-user-login>
+        <oj-user-login user={{currentUser}} userReady={{currentUserReady}}></oj-user-login>
       </core-toolbar>
 
       <oj-page-router id=pages
-                      userReady={{userReady}}
-                      user={{user}}
+                      currentUserReady={{currentUserReady}}
+                      currentUser={{currentUser}}
                       on-path-changed={{onPathChanged}}
               ></oj-page-router>
 

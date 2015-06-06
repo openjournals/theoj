@@ -1,10 +1,11 @@
-<polymer-element name="oj-page-router" attributes='userReady user'>
+<polymer-element name="oj-page-router" attributes='currentUserReady currentUser'>
     <template>
 
         <app-router id=router
                     on-activate-route-start={{validateOrRedirectUser}}
                     on-before-data-binding={{bindExtraAttributes}}
                     >
+
             <app-route path='/' element='oj-home-page' noAuth></app-route>
             <app-route path='/about' element='oj-about-page' noAuth></app-route>
 
@@ -24,6 +25,7 @@
                     <oj-papers-page src='/papers/as_editor' header="Papers you are editing"></oj-papers-page>
                 </template>
             </app-route>
+            <app-route path='/settings' element=oj-settings-page></app-route>
 
             <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
             <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
@@ -46,11 +48,11 @@
                 // Login not required
                 if (!this.loginRequired(event)) {
                     this.fire('path-changed', path);
-                    return;
+                    return true;
                 }
 
                 // Waiting for current user
-                if (!this.userReady) {
+                if (!this.currentUserReady) {
                     event.preventDefault();
                     setTimeout(function () {
                         this.$.router.go(path, {replace: true});
@@ -59,10 +61,18 @@
                 }
 
                 // User not logged in
-                if (!this.user) {
+                if (!this.currentUser) {
                     event.preventDefault();
                     this.fire('notification', "Please log in");
                     this.$.router.go('/');
+                    return false;
+                }
+
+                // Force users to enter an email
+                if (!this.currentUser.email && path!='/settings') {
+                    event.preventDefault();
+                    this.fire('notification', "Please enter your email to continue");
+                    this.$.router.go('/settings');
                     return false;
                 }
 
@@ -76,7 +86,8 @@
             },
 
             bindExtraAttributes:    function (event) {
-                event.detail.model.user = this.user;
+                event.detail.model.user        = this.currentUser;
+                event.detail.model.currentUser = this.currentUser;
             }
         });
   </script>

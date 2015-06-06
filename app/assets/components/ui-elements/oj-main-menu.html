@@ -1,13 +1,13 @@
-<polymer-element name="oj-main-menu" attributes="user" >
+<polymer-element name="oj-main-menu" attributes="currentUser" >
     <template>
 
         <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
 
-            <core-item id='' icon="home" label="Home">
+            <core-item id=home icon="home" label="Home">
                 <a is='push' href="/#" target="_self"></a>
             </core-item>
 
-            <template if={{user}}>
+            <template if={{currentUser}}>
 
                 <core-item id='papers' icon="receipt" label="Your Papers">
                     <a href="/#/papers" target="_self"></a>
@@ -21,13 +21,17 @@
                     <a href="/#/review" target="_self"></a>
                 </core-item>
 
-                <template if={{user.editor}}>
+                <template if={{currentUser.editor}}>
 
                     <core-item id=editing icon="speaker-notes" label="Papers You Are Editing">
                         <a href="/#/editing" target="_self"></a>
                     </core-item>
 
                 </template>
+
+                <core-item id=settings icon="settings" label="Settings">
+                    <a href="/#/settings" target="_self"></a>
+                </core-item>
 
             </template>
 
@@ -57,8 +61,15 @@
         // External API
 
         pathChanged: function(path) {
-            var page = path.split("/")[1];
-            this.selectedMenuItem = page;
+            if (path=='/')
+                var page='home';
+            else
+                var page = path.split("/")[1];
+
+            // Make sure any other menu tap events are handled first
+            this.async( function() {
+                this.selectedMenuItem = page;
+            });
         }
 
     })

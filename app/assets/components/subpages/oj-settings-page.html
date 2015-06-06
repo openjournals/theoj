@@ -1,0 +1,76 @@
+<polymer-element name="oj-settings-page" attributes='currentUser'>
+    <template>
+        <section layout vertical class="boiler-plate">
+
+            <h1>Settings</h1>
+
+            <paper-shadow id=form flex center-justified vertical layout center z="1">
+                <core-a11y-keys keys="enter" on-keys-pressed="{{submit}}"></core-a11y-keys>
+
+                <paper-input label="e-mail address" value={{email}}></paper-input>
+                <paper-button raised disabled?={{!valid}} on-tap={{submit}} role=button>Update</paper-button>
+
+            </paper-shadow>
+
+        </section>
+
+        <style>
+            section {
+                height: 100%;
+                min-height: 400px;
+            }
+
+            #form {
+                min-width: 70%;
+                background-color: white;
+            }
+
+            paper-input {
+                width: 90%;
+            }
+
+        </style>
+
+        <json-put id=update url="/user" on-success={{updateSuccess}} on-error={{updateError}}></json-put>
+
+    </template>
+
+    <script>
+        Polymer({
+
+            valid: false,
+
+            currentUserChanged: function () {
+                this.email = this.currentUser && this.currentUser.email;
+            },
+
+            emailChanged: function () {
+                this.valid = Oj.utils.EMAIL_REGEX.test(this.email || '');
+            },
+
+            submit: function () {
+                if (!this.valid)
+                    return;
+
+                this.$.update.data =  {
+                    user: {
+                        email: this.email
+                    }
+                };
+
+                this.$.update.go();
+            },
+
+            updateSuccess: function(event, detail) {
+                this.fire('notification', 'Your e-mail address has been updated');
+                $.extend(this.currentUser, detail);
+                this.fire('go', "/");
+            },
+
+            updateError: function(event, detail) {
+                this.fire('notification', Oj.utils.errorMessage(detail) );
+            }
+
+        })
+    </script>
+</polymer-element>
