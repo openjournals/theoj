@@ -13,7 +13,7 @@ describe FullPaperSerializer do
                                         "user_permissions", "location", "state",
                                         "submitted_at", "title",
                                         "pending_issues_count",
-                                        "sha",
+                                        "sha", "submittor",
                                         "assigned_users", "versions")
   end
 

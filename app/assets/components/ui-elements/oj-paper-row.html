@@ -3,7 +3,7 @@
   <div class='row {{paper | actionForPaper}}' flex layout horizontal>
     <summary>
       <div class=title>{{paper.title}}</div>
-      <div class=submitted> - submitted by <span class=author>{{paper.user.name}}</span> on <span class=date>{{ paper.submitted_at || paper.created_at | date }}</span></div>
+      <div class=submitted> - submitted by <span class=author>{{paper.submittor.name}}</span> on <span class=date>{{ paper.submitted_at | date }}</span></div>
     </summary>
     <status class='action-{{paper | actionForPaper}}'>
       <div class="state">State: <span>{{paper.state | capitalize}}</span></div>

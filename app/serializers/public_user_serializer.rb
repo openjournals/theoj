@@ -1,7 +1,6 @@
-class PublicUserSerializer < ActiveModel::Serializer
+class PublicUserSerializer < BasicUserSerializer
 
-  attributes :name,
-             :email,
+  attributes :email,
              :created_at,
              :picture,
              :sha
