@@ -48,6 +48,6 @@ Theoj::Application.routes.draw do
   get '/auth/failure',            to: 'sessions#failure'
   get "/signout",                 to: "sessions#destroy"
 
-  get '/path*', to: 'home#index'
-  root          to: 'home#index'
+  get '/*paths', to: 'home#index'
+  root           to: 'home#index'
 end

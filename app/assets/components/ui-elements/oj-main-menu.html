@@ -4,39 +4,39 @@
         <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
 
             <core-item id=home icon="home" label="Home">
-                <a is='push' href="/#" target="_self"></a>
+                <a is='pushstate-anchor' href="/" target="_self"></a>
             </core-item>
 
             <template if={{currentUser}}>
 
                 <core-item id='papers' icon="receipt" label="Your Papers">
-                    <a href="/#/papers" target="_self"></a>
+                    <a is='pushstate-anchor' href="/papers" target="_self"></a>
                 </core-item>
 
                 <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing">
-                    <a href="/#/review" target="_self"></a>
+                    <a is='pushstate-anchor' href="/review" target="_self"></a>
                 </core-item>
 
                 <template if={{currentUser.editor}}>
 
                     <core-item id=editing icon="speaker-notes" label="Papers You Are Editing">
-                        <a href="/#/editing" target="_self"></a>
+                        <a is='pushstate-anchor' href="/editing" target="_self"></a>
                     </core-item>
 
                 </template>
 
                 <core-item id='submit' icon="send" label="Submit">
-                    <a href="/#/submit" target="_self"></a>
+                    <a is='pushstate-anchor' href="/submit" target="_self"></a>
                 </core-item>
 
                 <core-item id=settings icon="settings" label="Settings">
-                    <a href="/#/settings" target="_self"></a>
+                    <a is='pushstate-anchor' href="/settings" target="_self"></a>
                 </core-item>
 
             </template>
 
             <core-item id='about' icon="info-outline" label="About">
-                <a href="/#/about" target="_self"></a>
+                <a is='pushstate-anchor' href="/about" target="_self"></a>
             </core-item>
 
         </core-menu>

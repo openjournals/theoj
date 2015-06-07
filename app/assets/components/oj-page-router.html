@@ -2,7 +2,7 @@
     <template>
 
         <app-router id=router
-                    mode="auto|hash|pushstate"
+                    mode=pushstate
                     on-activate-route-start={{validateOrRedirectUser}}
                     on-before-data-binding={{bindExtraAttributes}}
                     >
