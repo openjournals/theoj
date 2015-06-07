@@ -3,7 +3,7 @@
     window.Oj.urls = {
 
         paperPath: function(paper_id) {
-            return "/papers/"+paper_id;
+            return "/api/papers/"+paper_id;
         },
 
         annotationsFirebasePath: function(paper_id){
@@ -11,31 +11,31 @@
         },
 
         addAssigneePath: function(paper, user) {
-            return "/papers/"+paper.sha+"/assignments?user=" + user.sha ;
+            return "/api/papers/"+paper.sha+"/assignments?user=" + user.sha ;
         },
 
         removeAssigneePath: function(paper, assignment) {
-            return "/papers/"+paper.sha+"/assignments/" + assignment.sha;
+            return "/api/papers/"+paper.sha+"/assignments/" + assignment.sha;
         },
 
         addIssuePath: function(paper) {
-            return "/papers/"+paper.sha+"/annotations";
+            return "/api/papers/"+paper.sha+"/annotations";
         },
 
         getIssuesPath: function(paper) {
-            return "/papers/"+paper.sha+"/issues";
+            return "/api/papers/"+paper.sha+"/issues";
         },
 
         arxiv_lookup_url: function(paper_id){
-          return "/papers/"+paper_id+"/arxiv_details";
+          return "/api/papers/"+paper_id+"/arxiv_details";
         },
 
         paperVersionsPath: function(paper) {
-            return paper ? "/papers/"+paper.arxiv_id+"/versions" : undefined;
+            return paper && "/api/papers/"+paper.arxiv_id+"/versions" ;
         },
 
         paperCheckForUpdatePath: function(paper) {
-            return "/papers/"+paper.arxiv_id+"/check_for_update";
+            return "/api/papers/"+paper.arxiv_id+"/check_for_update";
         },
 
         google_preview_lookup: function(paper){
@@ -47,21 +47,20 @@
         },
 
         paperAnnotationsPath: function(paper){
-          return "/papers/"+paper.sha+"/annotations";
+          return "/api/papers/"+paper.sha+"/annotations";
         },
 
         paperAnnotationPath: function(paper, annotation){
-            return "/papers/"+paper.sha+"/annotations/" + annotation.id;
+            return "/api/papers/"+paper.sha+"/annotations/" + annotation.id;
         },
 
         paperAnnotationStateChangePath: function(paper, annotation, state){
-            return "/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
+            return "/api/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
         },
 
         paperTransitionPath: function(paper, transition){
-          return  paper ? "/papers/"+paper.sha+"/transition?transition=" + transition :  "";
+          return  paper && "/api/papers/"+paper.sha+"/transition?transition=" + transition ;
         }
-
 
     };
 

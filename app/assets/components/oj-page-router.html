@@ -2,6 +2,7 @@
     <template>
 
         <app-router id=router
+                    mode="auto|hash|pushstate"
                     on-activate-route-start={{validateOrRedirectUser}}
                     on-before-data-binding={{bindExtraAttributes}}
                     >
@@ -12,17 +13,17 @@
             <app-route path='/submit' element='oj-submit-page'></app-route>
             <app-route path='/papers'>
                 <template>
-                    <oj-papers-page src='/papers' header="Your submissions"></oj-papers-page>
+                    <oj-papers-page src='/api/papers' header="Your submissions"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/review'>
                 <template>
-                    <oj-papers-page src='/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/editing'>
                 <template>
-                    <oj-papers-page src='/papers/as_editor' header="Papers you are editing"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_editor' header="Papers you are editing"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/settings' element=oj-settings-page></app-route>

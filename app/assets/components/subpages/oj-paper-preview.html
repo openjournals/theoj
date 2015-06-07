@@ -37,7 +37,7 @@
 
     <json-post id=postRequest
                data="{{ paper_id | postQueryParams }}"
-               url='/papers'
+               url='/api/papers'
                on-success={{onPostRepsonse}}
                on-error={{onPostError}}>
     </json-post>
