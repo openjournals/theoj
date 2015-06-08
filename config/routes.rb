@@ -48,6 +48,11 @@ Theoj::Application.routes.draw do
   get '/auth/failure',            to: 'sessions#failure'
   get "/signout",                 to: "sessions#destroy"
 
-  get '/*paths', to: 'home#index'
-  root           to: 'home#index'
+  # Make all other routes get the SPA page
+  if Rails.env.development?
+    get '/*path', to: 'home#index', constraints: { path: /(?!rails).*/ }
+  else
+    get '/*path', to: 'home#index'
+  end
+  root            to: 'home#index'
 end
