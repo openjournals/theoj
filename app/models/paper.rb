@@ -125,10 +125,6 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def pretty_submission_date
-    submitted_at.strftime("%-d %B %Y")
-  end
-
   def draft?
     submitted?
   end
@@ -164,7 +160,6 @@ class Paper < ActiveRecord::Base
 
   def set_initial_values
     self.sha = SecureRandom.hex
-    self.submitted_at = Time.now
   end
 
   def create_assignments

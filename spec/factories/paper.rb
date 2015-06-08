@@ -7,8 +7,6 @@ FactoryGirl.define do
     sha            "1234abcd" * 8
     author_list    "John Smith, Paul Adams, Ella Fitzgerald"
     association    :submittor, factory: :user
-
-    submitted_at   { Time.now }
     version        1
     created_at     { Time.now }
     updated_at     { Time.now }

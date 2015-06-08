@@ -1,5 +1,5 @@
 
-<polymer-element name="oj-submit-page" attributes='paper_title paper_location router'>
+<polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
   <template>
     <section layout vertical class="boiler-plate">
       <h1>Submit a paper</h1>
@@ -55,7 +55,7 @@
 
       submit:function(){
         if (this.paperValid)
-            this.router.go("/papers/"+this.paperFullId+"/preview");
+            this.fir('go', '/papers/' + this.paperFullId + '/preview');
       }
 
     })

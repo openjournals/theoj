@@ -1,4 +1,4 @@
-<polymer-element name="oj-review-page-actions" attributes='user paper router' layout vertical>
+<polymer-element name="oj-review-page-actions" attributes='user paper' layout vertical>
   <template>
 
       <div layout horizontal>
@@ -113,7 +113,7 @@
       updateRequestSuccess: function(event, detail) {
           var message = 'We have retrieved version ' + detail.version + ' of your document.';
           this.fire('notification', message);
-          this.router.go('/review/' + detail.sha);
+          this.fire('go', '/review/' + detail.sha);
       },
       updateRequestError: function(event, detail) {
           this.fire('notification', Oj.utils.errorMessage(detail) );
@@ -148,7 +148,7 @@
 
       statusChangeRequestSuccess: function(event, detail) {
           this.fire('notification', this.successMessage);
-          this.router.go('/papers');
+          this.fire('go', '/papers');
       }
 
     })

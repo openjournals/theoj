@@ -1,0 +1,78 @@
+<polymer-element name="oj-main-menu" attributes="currentUser" >
+    <template>
+
+        <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
+
+            <core-item id=home icon="home" label="Home">
+                <a is='pushstate-anchor' href="/" target="_self"></a>
+            </core-item>
+
+            <template if={{currentUser}}>
+
+                <core-item id='papers' icon="receipt" label="Your Papers">
+                    <a is='pushstate-anchor' href="/papers" target="_self"></a>
+                </core-item>
+
+                <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing">
+                    <a is='pushstate-anchor' href="/review" target="_self"></a>
+                </core-item>
+
+                <template if={{currentUser.editor}}>
+
+                    <core-item id=editing icon="speaker-notes" label="Papers You Are Editing">
+                        <a is='pushstate-anchor' href="/editing" target="_self"></a>
+                    </core-item>
+
+                </template>
+
+                <core-item id='submit' icon="send" label="Submit">
+                    <a is='pushstate-anchor' href="/submit" target="_self"></a>
+                </core-item>
+
+                <core-item id=settings icon="settings" label="Settings">
+                    <a is='pushstate-anchor' href="/settings" target="_self"></a>
+                </core-item>
+
+            </template>
+
+            <core-item id='about' icon="info-outline" label="About">
+                <a is='pushstate-anchor' href="/about" target="_self"></a>
+            </core-item>
+
+        </core-menu>
+
+        <style>
+
+            core-menu {
+                font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            }
+
+            core-menu /deep/ #drawer{
+                background-color: #7986CB;
+            }
+
+        </style>
+
+    </template>
+
+    <script>
+    Polymer({
+
+        // External API
+
+        pathChanged: function(path) {
+            if (path=='/')
+                var page='home';
+            else
+                var page = path.split("/")[1];
+
+            // Make sure any other menu tap events are handled first
+            this.async( function() {
+                this.selectedMenuItem = page;
+            });
+        }
+
+    })
+  </script>
+
+</polymer-element>

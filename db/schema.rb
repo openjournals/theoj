@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150526184138) do
+ActiveRecord::Schema.define(version: 20150607033009) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "assignment_id", limit: 4
@@ -51,7 +51,6 @@ ActiveRecord::Schema.define(version: 20150526184138) do
     t.integer  "submittor_id", limit: 4
     t.string   "location",     limit: 255
     t.string   "state",        limit: 255
-    t.datetime "submitted_at"
     t.string   "title",        limit: 255
     t.integer  "version",      limit: 4,     default: 1
     t.datetime "created_at"
@@ -65,7 +64,6 @@ ActiveRecord::Schema.define(version: 20150526184138) do
   add_index "papers", ["arxiv_id", "version"], name: "index_papers_on_arxiv_id_and_version", unique: true, using: :btree
   add_index "papers", ["sha"], name: "index_papers_on_sha", unique: true, using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
-  add_index "papers", ["submitted_at"], name: "index_paper_submitted_at", using: :btree
   add_index "papers", ["submittor_id"], name: "index_papers_on_submittor_id", using: :btree
 
   create_table "users", force: :cascade do |t|

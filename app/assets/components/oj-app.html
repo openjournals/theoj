@@ -1,82 +1,31 @@
 <polymer-element name="oj-app" id="oj-app">
   <template>
-    <core-scaffold id='scaffold'>
+    <core-scaffold id='scaffold'
+                   on-notification={{onNotification}}
+                   on-go={{onGo}}>
       <nav>
         <core-toolbar>
           <span class="title">The Open Journal</span>
         </core-toolbar>
 
-        <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
-
-          <core-item id='' icon="home" label="Home" horizontal center layout>
-            <a is='push' href="/#" target="_self"></a>
-          </core-item>
-
-          <template if={{user}}>
-
-            <core-item id='papers' icon="receipt" label="Your Papers" horizontal center layout>
-              <a href="/#/papers" target="_self"></a>
-            </core-item>
-
-            <core-item id='submit' icon="send" label="Submit" horizontal center layout>
-              <a href="/#/submit" target="_self"></a>
-            </core-item>
-
-            <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing" horizontal center layout>
-              <a href="/#/review" target="_self"></a>
-            </core-item>
-
-            <template if={{user}}>
-
-                <core-item id=editing icon="speaker-notes" label="Papers You Are Editing" horizontal center layout>
-                    <a href="/#/editing" target="_self"></a>
-                </core-item>
-
-            </template>
-
-          </template>
-
-          <core-item id='about' icon="info-outline" label="About" horizontal center layout>
-              <a href="/#/about" target="_self"></a>
-          </core-item>
-
-        </core-menu>
+        <oj-main-menu id=mainmenu currentUser={{currentUser}}></oj-main-menu>
 
       </nav>
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login user={{user}} userReady={{userReady}}></oj-user-login>
+        <oj-user-login user={{currentUser}} userReady={{currentUserReady}}></oj-user-login>
       </core-toolbar>
 
-      <app-router id=router on-activate-route-start={{validateOrRedirectUser}}
-                            on-before-data-binding={{bindExtraAttributes}} bindRouter
-                            on-notification={{notify}}  >
-        <app-route path='/' element='oj-home-page' noAuth></app-route>
-        <app-route path='/about'  element='oj-about-page' noAuth></app-route>
+      <oj-page-router id=pages
+                      currentUserReady={{currentUserReady}}
+                      currentUser={{currentUser}}
+                      on-path-changed={{onPathChanged}}
+              ></oj-page-router>
 
-        <app-route path='/submit' element='oj-submit-page'></app-route>
-        <app-route path='/papers'><template><oj-papers-page src='/papers' header="Your submissions"></oj-papers-page></template></app-route>
-        <app-route path='/review'><template><oj-papers-page src='/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page></template></app-route>
-        <app-route path='/editing'><template><oj-papers-page src='/papers/as_editor' header="Papers you are editing"></oj-papers-page></template></app-route>
-
-        <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
-        <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
-      </app-router>
-    </core-scaffold>
-
-    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" text="" role="status" touch-action="none" tabindex="-1"></paper-toast>
+      <paper-toast id=notification class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
 
     <style>
-      :host /deep/ core-toolbar {
-        background-color: #5C6BC0;
-        color: #fff;
-        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-      }
-
-      :host /deep/ core-menu {
-        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-      }
 
       .title {
         font-size: 25px;
@@ -84,10 +33,6 @@
 
       :host /deep/ #mainContainer{
         background-color: white;
-      }
-
-      :host core-menu /deep/ #drawer{
-        background-color: #7986CB;
       }
 
       #notification {
@@ -99,60 +44,27 @@
         box-sizing: border-box;
       }
 
-
     </style>
   </template>
 
   <script>
     Polymer({
 
-      validateOrRedirectUser: function(event) {
-
-        var path = event.detail.path;
-        this.configureMenuForPath(path);
-
-        // Login not required
-        if (!this.loginRequired(event))
-            return;
-
-        // Waiting for current user
-        if (!this.userReady) {
-            event.preventDefault();
-            setTimeout(function(){
-                this.$.router.go(path, {replace:true} );
-            }.bind(this), 20);
-            return false;
-        }
-
-        // User not logged in
-        if(!this.user){
-          event.preventDefault();
-          this.showNotification("Please log in");
-          this.$.router.go('/');
-          return false;
-        }
-
-        // login successful
-        return true;
-      },
-      loginRequired: function(event) {
-          return ! event.detail.route.hasAttribute('noAuth');
-      },
-      configureMenuForPath: function(path) {
-          var page = path.split("/")[1];
-          this.selectedMenuItem = page;
-      },
-      bindExtraAttributes: function(event) {
-          event.detail.model.user = this.user;
-      },
-      notify: function(event) {
-        this.showNotification(event.detail);
-      },
-      showNotification:function(text){
+      onNotification: function(event, text) {
         console.info('Notification: ', text);
         this.$.notification.text = text;
         this.$.notification.show();
+      },
+
+      onGo: function(event, url) {
+        this.$.pages.go(url);
+      },
+
+      onPathChanged: function(event, path) {
+          var $menu = this.shadowRoot.querySelector('#mainmenu');
+          $menu.pathChanged(path);
       }
+
     });
   </script>
 

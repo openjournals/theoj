@@ -8,9 +8,7 @@ describe PublicUserSerializer do
     serializer = PublicUserSerializer.new(user)
     hash = hash_from_json(serializer.to_json)
 
-    ["name", "email", "created_at", "picture", "sha"].each do |key|
-      expect(hash).to include(key)
-    end
+    expect(hash.keys).to contain_exactly("name", "email", "created_at", "picture", "sha")
   end
 
 end

@@ -1,61 +1,53 @@
 Theoj::Application.routes.draw do
 
-  get '/papers/:paper_id/issues', to: "annotations#issues"
+  scope path:'api' do
 
-  resources :papers, only:[:index, :show, :create], defaults: { format: 'json' } do
+    get '/papers/:paper_id/issues', to: "annotations#issues"
 
-    collection do
-      get :as_reviewer, defaults: { format: 'json' }
-      get :as_editor, defaults: { format: 'json' }
-      get :as_author, defaults: { format: 'json' }
-      get :as_collaborator, defaults: { format: 'json' }
-    end
+    resources :papers, only:[:index, :show, :create], defaults: { format: 'json' } do
 
-    member do
-      put  :check_for_update, id: Paper::ArxivIdRegex
-      get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
-      get  :versions,         id: Paper::ArxivIdRegex
-
-      get  :state, defaults: { format: 'html' }
-      put  :transition, format: 'json'
-    end
-
-    resources :assignments, only:[:index, :create, :destroy]
-
-    resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
-      member do
-        # Change status
-        put :unresolve
-        put :dispute
-        put :resolve
-      end
-    end
-
-  end
-
-  get '/current_user', to:'users#get_current_user', defaults: {format: 'json'}
-
-  resources :users, defaults: { format: 'json' }, only: [] do
-    resources :papers, defaults: { format: 'json' } do
       collection do
-        get :as_reviewer, defaults: { format: 'json' }
-        get :as_editor, defaults: { format: 'json' }
-        get :as_author, defaults: { format: 'json' }
+        get :as_reviewer,     defaults: { format: 'json' }
+        get :as_editor,       defaults: { format: 'json' }
+        get :as_author,       defaults: { format: 'json' }
         get :as_collaborator, defaults: { format: 'json' }
       end
+
+      member do
+        put  :check_for_update, id: Paper::ArxivIdRegex
+        get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
+        get  :versions,         id: Paper::ArxivIdRegex
+
+        get  :state, defaults: { format: 'html' }
+        put  :transition, format: 'json'
+      end
+
+      resources :assignments, only:[:index, :create, :destroy]
+
+      resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
+        member do
+          # Change status
+          put :unresolve
+          put :dispute
+          put :resolve
+        end
+      end
+
     end
 
-    collection do
-      get :name_lookup, defaults: { format: 'json' }
+    resource :user, defaults: { format: 'json' }, only: [:show, :update] do
+      collection do
+        get :lookup
+      end
     end
+
   end
 
-  get '/user/name_lookup', to: 'users#name_lookup'
-
-  get '/sessions/new', to: 'sessions#new', as: 'new_session'
+  get '/sessions/new',            to: 'sessions#new',     as: 'new_session'
   get '/auth/:provider/callback', to: 'sessions#create'
-  get '/auth/failure', to: 'sessions#failure'
-  get "/signout" => "sessions#destroy", :as => :signout
+  get '/auth/failure',            to: 'sessions#failure'
+  get "/signout",                 to: "sessions#destroy"
 
-  root :to => 'home#index'
+  get '/*paths', to: 'home#index'
+  root           to: 'home#index'
 end

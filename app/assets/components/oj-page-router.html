@@ -1,0 +1,96 @@
+<polymer-element name="oj-page-router" attributes='currentUserReady currentUser'>
+    <template>
+
+        <app-router id=router
+                    mode=pushstate
+                    on-activate-route-start={{validateOrRedirectUser}}
+                    on-before-data-binding={{bindExtraAttributes}}
+                    >
+
+            <app-route path='/' element='oj-home-page' noAuth></app-route>
+            <app-route path='/about' element='oj-about-page' noAuth></app-route>
+
+            <app-route path='/submit' element='oj-submit-page'></app-route>
+            <app-route path='/papers'>
+                <template>
+                    <oj-papers-page src='/api/papers' header="Your submissions"></oj-papers-page>
+                </template>
+            </app-route>
+            <app-route path='/review'>
+                <template>
+                    <oj-papers-page src='/api/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page>
+                </template>
+            </app-route>
+            <app-route path='/editing'>
+                <template>
+                    <oj-papers-page src='/api/papers/as_editor' header="Papers you are editing"></oj-papers-page>
+                </template>
+            </app-route>
+            <app-route path='/settings' element=oj-settings-page></app-route>
+
+            <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
+            <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
+        </app-router>
+
+    </template>
+
+    <script>
+        Polymer({
+
+            // Public API
+
+            go: function (url) {
+                this.$.router.go(url);
+            },
+
+            validateOrRedirectUser: function (event) {
+                var path = event.detail.path;
+
+                // Login not required
+                if (!this.loginRequired(event)) {
+                    this.fire('path-changed', path);
+                    return true;
+                }
+
+                // Waiting for current user
+                if (!this.currentUserReady) {
+                    event.preventDefault();
+                    setTimeout(function () {
+                        this.$.router.go(path, {replace: true});
+                    }.bind(this), 20);
+                    return false;
+                }
+
+                // User not logged in
+                if (!this.currentUser) {
+                    event.preventDefault();
+                    this.fire('notification', "Please log in");
+                    this.$.router.go('/');
+                    return false;
+                }
+
+                // Force users to enter an email
+                if (!this.currentUser.email && path!='/settings') {
+                    event.preventDefault();
+                    this.fire('notification', "Please enter your email to continue");
+                    this.$.router.go('/settings');
+                    return false;
+                }
+
+                // login successful
+                this.fire('path-changed', path);
+                return true;
+            },
+
+            loginRequired:          function (event) {
+                return !event.detail.route.hasAttribute('noAuth');
+            },
+
+            bindExtraAttributes:    function (event) {
+                event.detail.model.user        = this.currentUser;
+                event.detail.model.currentUser = this.currentUser;
+            }
+        });
+  </script>
+
+</polymer-element>

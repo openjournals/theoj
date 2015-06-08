@@ -1,4 +1,5 @@
 #= require jquery
+#= require pushstate-anchor
 #= require marked.min
 #= stub    pdfjs-dist/build/pdf.worker
 #= stub    pdf.worker

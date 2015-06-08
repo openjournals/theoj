@@ -1,4 +1,4 @@
-<polymer-element name='oj-paper-preview' attributes='user paper_id router'>
+<polymer-element name='oj-paper-preview' attributes='user paper_id'>
   <template>
 
     <template if="{{paper_details && !paper_details.source}}">
@@ -37,7 +37,7 @@
 
     <json-post id=postRequest
                data="{{ paper_id | postQueryParams }}"
-               url='/papers'
+               url='/api/papers'
                on-success={{onPostRepsonse}}
                on-error={{onPostError}}>
     </json-post>
@@ -101,9 +101,9 @@
               this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
 
               if (this.paper_details.self_owned)
-                  this.router.go("/review/"+this.paper_details.sha);
+                  this.fire('go', "/review/"+this.paper_details.sha);
               else
-                  this.router.go("/submit");
+                  this.fire('go', "/submit");
           }
       },
       onDetailsError: function(event) {
@@ -115,14 +115,14 @@
               var message = 'There was an error retrieving the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
 
           this.fire("notification", message);
-          this.router.go("/submit");
+          this.fire('go', "/submit");
       },
       submitForReview:function(event){
           this.$.postRequest.go()
       },
       onPostRepsonse:function(response){
         this.fire("notification", "Paper "+this.paper_details.title+" submitted");
-        this.router.go("/papers")
+          this.fire('go', "/papers")
       },
       onPostError: function(event) {
         var xhr = event.detail.xhr;

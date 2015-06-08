@@ -9,6 +9,34 @@ describe User do
     expect(user.sha.length).to eq(32)
   end
 
+  describe "validation" do
+
+    describe "email" do
+
+      it "should validate nil" do
+        u = build(:user, email:nil)
+        expect(u).to be_valid
+      end
+
+      it "should validate an email" do
+        u = build(:user, email:'123+4@abc.com')
+        expect(u).to be_valid
+      end
+
+      it "should flag invalid emails" do
+        u = build(:user, email:'123+4abc.com')
+        expect(u).not_to be_valid
+      end
+
+      it "should flag blank emails" do
+        u = build(:user, email:'')
+        expect(u).not_to be_valid
+      end
+
+    end
+
+  end
+
   describe "#reviewer_of?" do
 
     it "should return correct reviewer assignments" do
