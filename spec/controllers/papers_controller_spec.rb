@@ -109,7 +109,8 @@ describe PapersController do
 
     it "should attempt to fetch the response from the database" do
       authenticate
-      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( build(:paper) )
+      paper = build(:paper, sha:'1234abcd'*8)
+      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( paper )
       expect(Arxiv).not_to receive(:get)
 
       get :arxiv_details, :id => '1234.5678', :format => :json

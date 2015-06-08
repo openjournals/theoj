@@ -159,7 +159,7 @@ class Paper < ActiveRecord::Base
   private
 
   def set_initial_values
-    self.sha = SecureRandom.hex
+    self.sha ||= SecureRandom.hex
   end
 
   def create_assignments

@@ -4,7 +4,7 @@ FactoryGirl.define do
     state          "submitted"
     title          "My awesome paper"
     summary        "Summary of my awesome paper"
-    sha            "1234abcd" * 8
+    # sha          "1234abcd" * 8
     author_list    "John Smith, Paul Adams, Ella Fitzgerald"
     association    :submittor, factory: :user
     version        1
