@@ -79,12 +79,14 @@ Theoj::Application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   config.action_mailer.smtp_settings = {
-    user_name: ENV["SENDGRID_USERNAME"],
-    password: ENV["SENDGRID_PASSWORD"],
-    address: 'smtp.sendgrid.net',
-    domain: 'theoj.org',
-    port: 587,
-    authentication: :plain,
+    user_name:            ENV["SENDGRID_USERNAME"],
+    password:             ENV["SENDGRID_PASSWORD"],
+    address:              'smtp.sendgrid.net',
+    domain:               'theoj.org',
+    port:                 587,
+    authentication:       :plain,
     enable_starttls_auto: true
   }
+
+  config.action_mailer.default_url_options = { host:'beta.theoj.org' }
 end

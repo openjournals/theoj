@@ -9,6 +9,8 @@ Bundler.require(:default, Rails.env)
 
 module Theoj
   class Application < Rails::Application
+    require File.join(Rails.root, 'lib/settings')
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -30,5 +32,13 @@ module Theoj
       g.integration_tool :rspec
     end
 
+    Rails.configuration.action_mailer.default_options = {
+        from: '"The OJ Team" <robot@theoj.org>'
+    }
+
+    Rails.configuration.action_mailer.smtp_settings = Settings.smtp_settings if Settings.smtp_settings
+
   end
 end
+
+

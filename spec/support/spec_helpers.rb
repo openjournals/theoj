@@ -9,6 +9,10 @@ module SpecHelpers
     File.open(filename, 'r')
   end
 
+  def fixture_text(filename)
+    fixture(filename).readlines.join
+  end
+
   def hash_from_json(json)
     return JSON.parse(json)
   end

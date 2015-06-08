@@ -1,0 +1,39 @@
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hi Joe Smith,
+
+Here is the content
+
+A Paper Title: http://test.host/api/papers/abcd
+
+Thanks
+The OJ Team
+
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>[TheOJ] A Paper Title - The Subject</title>
+      <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    </head>
+    <body>
+        <p>Hi Joe Smith,</p>
+
+        <p>
+  Here is the content
+  <br/><br/>
+  <a href="http://test.host/api/papers/abcd">A Paper Title</a>
+</p>
+
+
+        <p>
+          Thanks<br/>
+          The OJ Team
+        </p>
+    </body>
+</html>
