@@ -50,8 +50,12 @@ gem 'cancancan', '~> 1.8'
 
 gem 'firebase'
 
-group :test do
+# Needs to be available in development for generators
+group :test, :development do
   gem 'rspec-rails', '~> 3.1'
+end
+
+group :test do
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
   gem 'webmock', '~> 1.18.0'

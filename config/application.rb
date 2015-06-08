@@ -25,5 +25,10 @@ module Theoj
     Rails.application.config.assets.precompile.push( "webcomponentsjs/webcomponents.js" )
     config.i18n.enforce_available_locales = true
 
+    config.generators do |g|
+      g.test_framework  :rspec
+      g.integration_tool :rspec
+    end
+
   end
 end
