@@ -27,7 +27,7 @@ describe Paper do
 
     it "should build a paper from an arxiv document" do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       doc = Arxiv.get('1311.1653')
       p = Paper.new_for_arxiv(doc)
@@ -43,7 +43,7 @@ describe Paper do
     it "should include additional attributes when building a paper from an arxiv document" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       doc = Arxiv.get('1311.1653')
 
@@ -56,7 +56,7 @@ describe Paper do
     it "should build a paper from an arxiv_id" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-                   to_return(fixture("arxiv.1311.1653v2.xml"))
+                   to_return(fixture("arxiv/1311.1653v2.xml"))
 
       p = Paper.new_for_arxiv_id('1311.1653')
 
@@ -71,7 +71,7 @@ describe Paper do
     it "should build a paper from an arxiv_id with a version" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       p = Paper.new_for_arxiv_id('1311.1653v2')
 
@@ -82,7 +82,7 @@ describe Paper do
     it "should include additional attributes when building a paper from an arxiv_id" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       u = create(:user)
       p = Paper.new_for_arxiv_id('1311.1653', submittor:u)
@@ -92,7 +92,7 @@ describe Paper do
 
     it "should raise an error if the arxiv id is not found" do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=0000.0000").
-          to_return(fixture("arxiv.not_found.xml"))
+          to_return(fixture("arxiv/not_found.xml"))
 
       expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
     end
@@ -133,7 +133,7 @@ describe Paper do
   describe "::create_updated!" do
 
     let(:arxiv_doc) {
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv.1311.1653v2.xml'))
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
       Arxiv.get('1311.1653v2')
     }
 

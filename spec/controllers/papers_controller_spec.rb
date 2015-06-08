@@ -194,7 +194,7 @@ describe PapersController do
 
     before do
       @arxiv_request = stub_request(:get,  "http://export.arxiv.org/api/query?id_list=1401.0003").
-                                   to_return(body: fixture("arxiv.1401.0003.xml"))
+                                   to_return(body: fixture("arxiv/1401.0003.xml"))
     end
 
     it "should create the paper" do
@@ -328,7 +328,7 @@ describe PapersController do
     it "should create an updated paper" do
       user  = authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv.1311.1653v2.xml'))
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/1311.1653v2.xml'))
 
       expect {
         put :check_for_update, id:'1311.1653'
@@ -367,7 +367,7 @@ describe PapersController do
     it "should fail if there is no new version" do
       user  = authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653', version:2)
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv.1311.1653v2.xml'))
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/1311.1653v2.xml'))
 
       put :check_for_update, id:'1311.1653'
 
@@ -386,7 +386,7 @@ describe PapersController do
     it "should fail if there is no document on Arxiv" do
       user  = authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv.not_found.xml'))
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/not_found.xml'))
 
       put :check_for_update, id:'1311.1653'
 
