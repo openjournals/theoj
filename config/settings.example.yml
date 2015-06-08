@@ -1,0 +1,19 @@
+defaults: &defaults
+
+development:
+  <<: *defaults
+  smtp_settings:
+    address:              smtp.gmail.com
+    port:                 587
+    domain:               gmail.com
+    user_name:            xyz@gmail.com
+    password:             yourpassword
+    authentication:       :plain
+    enable_starttls_auto: true
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
+
