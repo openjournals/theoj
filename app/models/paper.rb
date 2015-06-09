@@ -19,7 +19,8 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where.not(state:'superceded') }
 
-  before_create :set_initial_values, :create_assignments
+  before_create :set_initial_values,
+                :create_assignments
 
   validates :submittor,
             presence: true
@@ -125,12 +126,27 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def draft?
-    submitted?
-  end
-
   def to_param
     sha
+  end
+
+  # Newest version first
+  def all_versions
+    @all_versions ||= Paper.versions_for(arxiv_id)
+  end
+
+  def is_revision?
+    all_versions.length>1 && self != all_versions.last
+  end
+
+  def is_latest_version?
+    # self == all_versions.first
+    # A little more efficient
+    ! superceded?
+  end
+
+  def is_original_version?
+    self == all_versions.last
   end
 
   def user_assignment(user)
