@@ -11,7 +11,7 @@ RSpec.describe ApplicationMailer, type: :mailer do
     end
   end
 
-  let(:user)    { create(:user, name:'Joe Smith', email:'jsmith@example.com') }
+  let(:user) { create(:user, name:'Joe Smith', email:'jsmith@example.com') }
   let(:mail) { TestMailer.test(user) }
 
   it "sets the from and to addresses" do
@@ -39,6 +39,11 @@ RSpec.describe ApplicationMailer, type: :mailer do
     content = mail.parts[1].body.encoded
     expect(content).to match(/<body>\s*<p>Hi Joe Smith,<\/p>/)
     expect(content).to include("[Inserted HTML]")
+  end
+
+  it "handles user's without an email address" do
+    user.email = nil
+    expect( mail.message). to be_a(ActionMailer::Base::NullMail)
   end
 
 end

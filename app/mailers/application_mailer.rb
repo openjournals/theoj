@@ -5,11 +5,13 @@ class ApplicationMailer < ActionMailer::Base
     set_users(headers)
     @subject = headers[:subject] = "[TheOJ] #{headers[:subject]}"
 
-    super
+    if headers[:to].present?
+      super
+    end
   end
 
   def full_email_for_user(user)
-    if user.name.present?
+    if user.name.present? && user.email.present?
       %("#{user.name}" <#{user.email}>)
     else
       user.email
@@ -27,7 +29,7 @@ class ApplicationMailer < ActionMailer::Base
 
     users = users.map do |user|
       user.is_a?(User) ? full_email_for_user(user) : user
-    end
+    end.compact
 
     headers[:to] = users
   end
