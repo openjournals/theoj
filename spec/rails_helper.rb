@@ -20,6 +20,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 ActiveRecord::Migration.maintain_test_schema! if defined?(ActiveRecord::Migration)
 
 RSpec.configure do |config|
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
@@ -48,6 +49,7 @@ RSpec.configure do |config|
   config.include SpecHelpers
   config.include ControllerSpecHelpers, type: :controller
   config.include ActionController::SerializationAssertions, type: :controller
+  config.include Mail::Matchers
 
   config.before(:each) do
     allow(User).to receive(:next_editor).and_return(nil)

@@ -9,6 +9,10 @@ module SpecHelpers
     File.open(filename, 'r')
   end
 
+  def fixture_text(filename)
+    fixture(filename).readlines.join
+  end
+
   def hash_from_json(json)
     return JSON.parse(json)
   end
@@ -21,6 +25,10 @@ module SpecHelpers
     end
     allow(User).to receive(:next_editor).and_return(user)
     user
+  end
+
+  def deliveries
+    ActionMailer::Base.deliveries
   end
 
 end

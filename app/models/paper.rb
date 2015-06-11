@@ -1,8 +1,8 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  ArxivIdRegex = /[0-9]{4}.*[0-9]{4,5}/
-  ArxivIdWithVersionRegex = /[0-9]{4}.*[0-9]{4,5}(v\d+)?/
+  ArxivIdRegex = /\d{4}\.\d{4,5}/
+  ArxivIdWithVersionRegex = /\d{4}\.\d{4,5}(v\d+)?/
 
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
   has_many   :assignments, inverse_of: :paper, dependent: :destroy
@@ -19,7 +19,11 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where.not(state:'superceded') }
 
-  before_create :set_initial_values, :create_assignments
+  before_create :set_initial_values,
+                :create_assignments
+
+  # Using after commit since creating revisions happens in a transaction
+  after_commit  :send_submittor_emails, on: :create
 
   validates :submittor,
             presence: true
@@ -31,7 +35,7 @@ class Paper < ActiveRecord::Base
     state :accepted
     state :rejected
 
-    event :start_review, guard: :has_reviewers? do
+    event :start_review, guard: :has_reviewers?, after_commit: :send_state_change_emails do
       transitions from: :submitted,
                   to:   :under_review
     end
@@ -41,11 +45,11 @@ class Paper < ActiveRecord::Base
                   to:   :superceded
     end
 
-    event :accept, before: :resolve_all_issues do
+    event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
       transitions from: :under_review,
                   to:   :accepted
     end
-    event :reject do
+    event :reject, after_commit: :send_state_change_emails do
       transitions from: :under_review,
                   to:   :rejected
     end
@@ -97,7 +101,7 @@ class Paper < ActiveRecord::Base
       )
 
       original.assignments.each do |a|
-        new_paper.assignments.build(role:a.role, user:a.user)
+        new_paper.assignments.build(role:a.role, user:a.user, updated:true)
       end
 
       new_paper.save!
@@ -125,12 +129,27 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def draft?
-    submitted?
-  end
-
   def to_param
     sha
+  end
+
+  # Newest version first
+  def all_versions
+    @all_versions ||= Paper.versions_for(arxiv_id)
+  end
+
+  def is_revision?
+    all_versions.length>1 && self != all_versions.last
+  end
+
+  def is_latest_version?
+    # self == all_versions.first
+    # A little more efficient
+    ! superceded?
+  end
+
+  def is_original_version?
+    self == all_versions.last
   end
 
   def user_assignment(user)
@@ -159,7 +178,11 @@ class Paper < ActiveRecord::Base
   private
 
   def set_initial_values
-    self.sha = SecureRandom.hex
+    self.sha ||= SecureRandom.hex
+  end
+
+  def has_reviewers?
+    reviewers.any?
   end
 
   def create_assignments
@@ -175,8 +198,31 @@ class Paper < ActiveRecord::Base
 
   end
 
-  def has_reviewers?
-    reviewers.any?
+  def send_submittor_emails
+
+    if is_original_version?
+      NotificationMailer.notification(submittor, self,
+                                      'You have submitted a new paper.',
+                                      'Paper Submitted'
+      ).deliver_later
+
+    else
+      NotificationMailer.notification(submittor, self,
+                                      'You have submitted a new revision of a paper',
+                                      'Paper Revised'
+      ).deliver_later
+
+    end
+
+  end
+
+  def send_state_change_emails
+    state_name = state.titleize
+
+    NotificationMailer.notification(submittor, self,
+                                    "The state of your paper has changed to #{state_name}",
+                                    "Paper #{state_name}"
+    ).deliver_later
   end
 
 end

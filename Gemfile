@@ -28,12 +28,12 @@ gem 'active_model_serializers'
 
 
 gem 'bower-rails'
-# gem 'emcee', git: "git://github.com/openjournals/emcee.git", :branch => 'fix_attempt'
-gem 'emcee', git: "git://github.com/openjournals/emcee.git"
+# gem 'emcee', github: 'openjournals/emcee', branch:'fix_attempt'
+gem 'emcee', github: 'openjournals/emcee'
 gem 'rack-streaming-proxy'
 
 gem 'rails_12factor', group: :production
-gem 'arxiv'
+gem 'arxiv', github:'marcrohloff/arxiv', branch:'cleanup'
 gem 'responders'
 
 group :doc do
@@ -43,15 +43,20 @@ end
 
 # Auth/Users
 gem 'omniauth', '~> 1.2'
-gem 'omniauth-orcid' , :git => 'git://github.com/gthorisson/omniauth-orcid.git'
+gem 'omniauth-orcid' , github:'gthorisson/omniauth-orcid'
 
 gem 'aasm'
 gem 'cancancan', '~> 1.8'
 
 gem 'firebase'
 
-group :test do
+# Needs to be available in development for generators
+group :test, :development do
   gem 'rspec-rails', '~> 3.1'
+end
+
+group :test do
+  gem 'test_after_commit'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
   gem 'webmock', '~> 1.18.0'

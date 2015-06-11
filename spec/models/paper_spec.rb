@@ -2,6 +2,11 @@ require "rails_helper"
 
 describe Paper do
 
+  let(:arxiv_doc) {
+    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
+    Arxiv.get('1311.1653v2')
+  }
+
   it "should initialize properly" do
     paper = create(:paper)
 
@@ -27,7 +32,7 @@ describe Paper do
 
     it "should build a paper from an arxiv document" do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       doc = Arxiv.get('1311.1653')
       p = Paper.new_for_arxiv(doc)
@@ -43,7 +48,7 @@ describe Paper do
     it "should include additional attributes when building a paper from an arxiv document" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       doc = Arxiv.get('1311.1653')
 
@@ -56,7 +61,7 @@ describe Paper do
     it "should build a paper from an arxiv_id" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-                   to_return(fixture("arxiv.1311.1653v2.xml"))
+                   to_return(fixture("arxiv/1311.1653v2.xml"))
 
       p = Paper.new_for_arxiv_id('1311.1653')
 
@@ -71,7 +76,7 @@ describe Paper do
     it "should build a paper from an arxiv_id with a version" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       p = Paper.new_for_arxiv_id('1311.1653v2')
 
@@ -82,7 +87,7 @@ describe Paper do
     it "should include additional attributes when building a paper from an arxiv_id" do
 
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv.1311.1653v2.xml"))
+          to_return(fixture("arxiv/1311.1653v2.xml"))
 
       u = create(:user)
       p = Paper.new_for_arxiv_id('1311.1653', submittor:u)
@@ -92,9 +97,66 @@ describe Paper do
 
     it "should raise an error if the arxiv id is not found" do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=0000.0000").
-          to_return(fixture("arxiv.not_found.xml"))
+          to_return(fixture("arxiv/not_found.xml"))
 
       expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
+    end
+
+  end
+
+  describe "emails" do
+
+    it "sends an email to the submittor" do
+      user = create(:user, name:'John Smith', email:'jsmith@example.com')
+      expect {
+        create(:paper, title:'My Paper', submittor:user)
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/My Paper - Paper Submitted/)
+    end
+
+    it "sends an email to the submittor when it is revised" do
+      user = create(:user, name:'John Smith', email:'jsmith@example.com')
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      deliveries.clear
+
+      expect {
+        Paper.create_updated!(original, arxiv_doc)
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/A photo.* - Paper Revised/)
+    end
+
+    it "sends an email when the state changes" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user, reviewer:true)
+      deliveries.clear
+
+      expect {
+        paper.start_review!
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/Paper Under Review/)
+    end
+
+    it "doesn't send an email when the paper is superceded" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user)
+      deliveries.clear
+
+      expect {
+        paper.supercede!
+      }.not_to change { deliveries.size }
+    end
+
+    it "doesn't send an email when the state doesn't change" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user)
+      deliveries.clear
+
+      expect {
+        paper.update_attributes!(title:'A new title')
+      }.not_to change { deliveries.size }
     end
 
   end
@@ -131,11 +193,6 @@ describe Paper do
   end
 
   describe "::create_updated!" do
-
-    let(:arxiv_doc) {
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv.1311.1653v2.xml'))
-      Arxiv.get('1311.1653v2')
-    }
 
     it "should create a new instance" do
       original  = create(:paper, arxiv_id:'1311.1653')
@@ -186,6 +243,7 @@ describe Paper do
       (0...original.assignments.length).each do |index|
         expect(new_paper.assignments[index].role).to eq(original.assignments[index].role)
         expect(new_paper.assignments[index].user).to eq(original.assignments[index].user)
+        expect(new_paper.assignments[index].updated).to be_truthy
       end
 
     end
@@ -226,6 +284,64 @@ describe Paper do
     it "should raise an error if there is no new arxiv version" do
       original  = create(:paper, arxiv_id:'1311.1653', version:2)
       expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+    end
+
+  end
+
+  context "versioning" do
+
+    def create_papers
+       @paper1 = create(:paper, arxiv_id:'123', version:1, state:'superceded')
+       @paper2 = create(:paper, arxiv_id:'123', version:2, state:'superceded')
+       @paper3 = create(:paper, arxiv_id:'123', version:3)
+    end
+
+    describe "#is_original_version?" do
+
+      it "should work for a single paper" do
+        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        expect(@paper1.is_original_version?).to be_truthy
+      end
+
+      it "should work for multiple papers" do
+        create_papers
+        expect(@paper1.is_original_version?).to be_truthy
+        expect(@paper2.is_original_version?).to be_falsey
+        expect(@paper3.is_original_version?).to be_falsey
+      end
+
+    end
+
+    describe "#is_latest_version?" do
+
+      it "should work for a single paper" do
+        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        expect(@paper1.is_latest_version?).to be_truthy
+      end
+
+      it "should work for multiple papers" do
+        create_papers
+        expect(@paper1.is_latest_version?).to be_falsey
+        expect(@paper2.is_latest_version?).to be_falsey
+        expect(@paper3.is_latest_version?).to be_truthy
+      end
+
+    end
+
+    describe "#is_revision?" do
+
+      it "should work for a single paper" do
+        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        expect(@paper1.is_revision?).to be_falsey
+      end
+
+      it "should work for multiple papers" do
+        create_papers
+        expect(@paper1.is_revision?).to be_falsey
+        expect(@paper2.is_revision?).to be_truthy
+        expect(@paper3.is_revision?).to be_truthy
+      end
+
     end
 
   end

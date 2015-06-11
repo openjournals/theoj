@@ -9,6 +9,13 @@ Bundler.require(:default, Rails.env)
 
 module Theoj
   class Application < Rails::Application
+
+    # Load everything in lib/core-ext
+    Dir[Rails.root.join("lib/extensions/**/*.rb")].each {|f| require f}
+
+    require File.join(Rails.root, 'lib/settings')
+
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -25,5 +32,20 @@ module Theoj
     Rails.application.config.assets.precompile.push( "webcomponentsjs/webcomponents.js" )
     config.i18n.enforce_available_locales = true
 
+    config.active_record.raise_in_transactional_callbacks = true
+
+    config.generators do |g|
+      g.test_framework  :rspec
+      g.integration_tool :rspec
+    end
+
+    Rails.configuration.action_mailer.default_options = {
+        from: '"The OJ Team" <robot@theoj.org>'
+    }
+
+    Rails.configuration.action_mailer.smtp_settings = Settings.smtp_settings if Settings.smtp_settings
+
   end
 end
+
+

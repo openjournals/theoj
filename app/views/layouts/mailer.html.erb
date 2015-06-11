@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title><%= @subject %></title>
+      <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    </head>
+    <body>
+        <p>Hi <%= @user.name %>,</p>
+
+        <%= yield %>
+
+        <p>
+          Thanks<br/>
+          The OJ Team
+        </p>
+    </body>
+</html>
