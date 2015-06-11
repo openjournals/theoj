@@ -7,6 +7,15 @@ GIT
       omniauth-oauth2 (~> 1.1)
 
 GIT
+  remote: git://github.com/marcrohloff/arxiv.git
+  revision: 007b32241401fc6d65b52e8c3eb648af99cd596c
+  branch: cleanup
+  specs:
+    arxiv (0.0.8)
+      happymapper
+      nokogiri
+
+GIT
   remote: git://github.com/openjournals/emcee.git
   revision: 7499e8b7746028d3d1ba044578f7462d45bc894d
   specs:
@@ -58,9 +67,6 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.3.8)
     arel (6.0.0)
-    arxiv (0.0.8)
-      happymapper
-      nokogiri
     bower-rails (0.9.2)
     builder (3.2.2)
     cancancan (1.10.1)
@@ -237,7 +243,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   active_model_serializers
-  arxiv
+  arxiv!
   bower-rails
   cancancan (~> 1.8)
   coffee-rails (~> 4.0.0)
