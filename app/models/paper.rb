@@ -1,8 +1,8 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  ArxivIdRegex = /[0-9]{4}.*[0-9]{4,5}/
-  ArxivIdWithVersionRegex = /[0-9]{4}.*[0-9]{4,5}(v\d+)?/
+  ArxivIdRegex = /\d{4}\.\d{4,5}/
+  ArxivIdWithVersionRegex = /\d{4}\.\d{4,5}(v\d+)?/
 
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
   has_many   :assignments, inverse_of: :paper, dependent: :destroy

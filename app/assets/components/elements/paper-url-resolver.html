@@ -14,7 +14,7 @@
 
       textChanged:function(){
 
-        var arxiv_id_pattern      = '([0-9]{4}\\.[0-9]{4})(v[0-9]+)?';
+        var arxiv_id_pattern      = '(\\d{4}\\.\\d{4,5})(v\\d+)?';
         var regex_flags           = 'i';
         var paper_id_pattern      = new RegExp('^\\s*' + arxiv_id_pattern + '\\s*$', regex_flags);
         var paper_page_pattern    = new RegExp('^\\s*https?:\/\/arxiv\\.org\/abs\/' + arxiv_id_pattern + '(\\.pdf)?\\s*$', regex_flags);
@@ -45,10 +45,20 @@
             this.paperVersion = this.paperVersion.slice(1);
 
         if (this.resolved && this.paperId) {
-            this.paperFullId = this.paperId;
-            if (this.paperVersion)
-                this.paperFullId = this.paperFullId + 'v' + this.paperVersion;
-            this.paperURL    = "http://arxiv.org/pdf/"+this.paperFullId;
+            requiredLength =  parseInt(this.paperId.slice(0,2)) <= 14 ? 9 : 10;
+
+            if (this.paperId.length == requiredLength) {
+
+                this.paperFullId = this.paperId;
+                if (this.paperVersion)
+                    this.paperFullId = this.paperFullId + 'v' + this.paperVersion;
+                this.paperURL    = "http://arxiv.org/pdf/"+this.paperFullId;
+
+            } else {
+              this.resolved = false;
+
+            }
+
         }
       }
 
