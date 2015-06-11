@@ -2,6 +2,11 @@ require "rails_helper"
 
 describe Assignment do
 
+  let(:arxiv_doc) {
+    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
+    Arxiv.get('1311.1653v2')
+  }
+
   it "WITHOUT ROLE: should not be able to assign papers" do
     user_1 = create(:user)
     paper  = create(:paper, :submitted, submittor:user_1)
@@ -79,6 +84,63 @@ describe Assignment do
     expect(a.destroy).to be_falsey
     expect(a.errors).not_to be_empty
     expect(a).not_to be_destroyed
+  end
+
+  describe "emails" do
+
+    it "sends an email to the editor" do
+      user   = create(:user, name:'John Smith', email:'jsmith@example.com')
+      editor = set_paper_editor( create(:user, email:'editor@example.com') )
+      expect {
+        create(:paper, title:'My Paper', submittor:user)
+      }.to change { deliveries.size }.by(2)
+
+      is_expected.to have_sent_email.to('editor@example.com').matching_subject(/Paper Assigned/).matching_body(/as an editor/)
+    end
+
+    it "sends an email when a user is assigned" do
+      user   = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user)
+
+      reviewer = create(:user, email:'reviewer@example.com')
+      expect {
+        paper.add_assignee(reviewer)
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('reviewer@example.com').matching_subject(/Paper Assigned/).matching_body(/as a reviewer/)
+    end
+
+    it "sends emails when a paper is updated" do
+      user     = create(:user, name:'John Smith', email:'jsmith@example.com')
+      editor   = set_paper_editor( create(:user, email:'editor@example.com') )
+      reviewer = create(:user, email:'reviewer@example.com')
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original.add_assignee(reviewer)
+      deliveries.clear
+
+      expect {
+        Paper.create_updated!(original, arxiv_doc)
+      }.to change { deliveries.size }.by(3)
+
+      is_expected.to have_sent_email.to('editor@example.com').matching_subject(/Paper Updated/)
+      is_expected.to have_sent_email.to('reviewer@example.com').matching_subject(/Paper Updated/)
+    end
+
+    it "sends the correct emails when a user is assigned after the paper is updated" do
+      user     = create(:user, name:'John Smith', email:'jsmith@example.com')
+      editor   = set_paper_editor( create(:user, email:'editor@example.com') )
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      updated  = Paper.create_updated!(original, arxiv_doc)
+      deliveries.clear
+
+      reviewer = create(:user, email:'reviewer@example.com')
+      expect {
+        updated.add_assignee(reviewer)
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('reviewer@example.com').matching_subject(/Paper Assigned/)
+    end
+
   end
 
 end

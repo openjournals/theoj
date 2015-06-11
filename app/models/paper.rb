@@ -22,6 +22,9 @@ class Paper < ActiveRecord::Base
   before_create :set_initial_values,
                 :create_assignments
 
+  # Using after commit since creating revisions happens in a transaction
+  after_commit  :send_submittor_emails, on: :create
+
   validates :submittor,
             presence: true
 
@@ -98,7 +101,7 @@ class Paper < ActiveRecord::Base
       )
 
       original.assignments.each do |a|
-        new_paper.assignments.build(role:a.role, user:a.user)
+        new_paper.assignments.build(role:a.role, user:a.user, updated:true)
       end
 
       new_paper.save!
@@ -178,6 +181,10 @@ class Paper < ActiveRecord::Base
     self.sha ||= SecureRandom.hex
   end
 
+  def has_reviewers?
+    reviewers.any?
+  end
+
   def create_assignments
 
     if assignments.none? { |a| a.role=='editor' }
@@ -191,8 +198,22 @@ class Paper < ActiveRecord::Base
 
   end
 
-  def has_reviewers?
-    reviewers.any?
+  def send_submittor_emails
+
+    if is_original_version?
+      NotificationMailer.notification(submittor, self,
+                                      'You have submitted a new paper.',
+                                      'Paper Submitted'
+      ).deliver_later
+
+    else
+      NotificationMailer.notification(submittor, self,
+                                      'You have submitted a new revision of a paper',
+                                      'Paper Revised'
+      ).deliver_later
+
+    end
+
   end
 
 end

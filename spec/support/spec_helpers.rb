@@ -27,4 +27,8 @@ module SpecHelpers
     user
   end
 
+  def deliveries
+    ActionMailer::Base.deliveries
+  end
+
 end

@@ -2,6 +2,11 @@ require "rails_helper"
 
 describe Paper do
 
+  let(:arxiv_doc) {
+    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
+    Arxiv.get('1311.1653v2')
+  }
+
   it "should initialize properly" do
     paper = create(:paper)
 
@@ -97,6 +102,31 @@ describe Paper do
       expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
     end
 
+    describe "emails" do
+
+      it "sends an email to the submittor" do
+        user = create(:user, name:'John Smith', email:'jsmith@example.com')
+        expect {
+          create(:paper, title:'My Paper', submittor:user)
+        }.to change { deliveries.size }.by(1)
+
+        is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/My Paper - Paper Submitted/)
+      end
+
+      it "sends an email to the submittor when it is revised" do
+        user = create(:user, name:'John Smith', email:'jsmith@example.com')
+        original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+        deliveries.clear
+
+        expect {
+          Paper.create_updated!(original, arxiv_doc)
+        }.to change { deliveries.size }.by(1)
+
+        is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/A photo.* - Paper Revised/)
+      end
+
+    end
+
   end
 
   describe "::with_scope" do
@@ -131,11 +161,6 @@ describe Paper do
   end
 
   describe "::create_updated!" do
-
-    let(:arxiv_doc) {
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
-      Arxiv.get('1311.1653v2')
-    }
 
     it "should create a new instance" do
       original  = create(:paper, arxiv_id:'1311.1653')
@@ -186,6 +211,7 @@ describe Paper do
       (0...original.assignments.length).each do |index|
         expect(new_paper.assignments[index].role).to eq(original.assignments[index].role)
         expect(new_paper.assignments[index].user).to eq(original.assignments[index].user)
+        expect(new_paper.assignments[index].updated).to be_truthy
       end
 
     end
