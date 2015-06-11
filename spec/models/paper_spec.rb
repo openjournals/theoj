@@ -102,29 +102,61 @@ describe Paper do
       expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
     end
 
-    describe "emails" do
+  end
 
-      it "sends an email to the submittor" do
-        user = create(:user, name:'John Smith', email:'jsmith@example.com')
-        expect {
-          create(:paper, title:'My Paper', submittor:user)
-        }.to change { deliveries.size }.by(1)
+  describe "emails" do
 
-        is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/My Paper - Paper Submitted/)
-      end
+    it "sends an email to the submittor" do
+      user = create(:user, name:'John Smith', email:'jsmith@example.com')
+      expect {
+        create(:paper, title:'My Paper', submittor:user)
+      }.to change { deliveries.size }.by(1)
 
-      it "sends an email to the submittor when it is revised" do
-        user = create(:user, name:'John Smith', email:'jsmith@example.com')
-        original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
-        deliveries.clear
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/My Paper - Paper Submitted/)
+    end
 
-        expect {
-          Paper.create_updated!(original, arxiv_doc)
-        }.to change { deliveries.size }.by(1)
+    it "sends an email to the submittor when it is revised" do
+      user = create(:user, name:'John Smith', email:'jsmith@example.com')
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      deliveries.clear
 
-        is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/A photo.* - Paper Revised/)
-      end
+      expect {
+        Paper.create_updated!(original, arxiv_doc)
+      }.to change { deliveries.size }.by(1)
 
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/A photo.* - Paper Revised/)
+    end
+
+    it "sends an email when the state changes" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user, reviewer:true)
+      deliveries.clear
+
+      expect {
+        paper.start_review!
+      }.to change { deliveries.size }.by(1)
+
+      is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/Paper Under Review/)
+    end
+
+    it "doesn't send an email when the paper is superceded" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user)
+      deliveries.clear
+
+      expect {
+        paper.supercede!
+      }.not_to change { deliveries.size }
+    end
+
+    it "doesn't send an email when the state doesn't change" do
+      user  = create(:user, name:'John Smith', email:'jsmith@example.com')
+      paper = create(:paper, title:'My Paper', submittor:user)
+      deliveries.clear
+
+      expect {
+        paper.update_attributes!(title:'A new title')
+      }.not_to change { deliveries.size }
     end
 
   end

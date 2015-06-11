@@ -35,7 +35,7 @@ class Paper < ActiveRecord::Base
     state :accepted
     state :rejected
 
-    event :start_review, guard: :has_reviewers? do
+    event :start_review, guard: :has_reviewers?, after_commit: :send_state_change_emails do
       transitions from: :submitted,
                   to:   :under_review
     end
@@ -45,11 +45,11 @@ class Paper < ActiveRecord::Base
                   to:   :superceded
     end
 
-    event :accept, before: :resolve_all_issues do
+    event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
       transitions from: :under_review,
                   to:   :accepted
     end
-    event :reject do
+    event :reject, after_commit: :send_state_change_emails do
       transitions from: :under_review,
                   to:   :rejected
     end
@@ -214,6 +214,15 @@ class Paper < ActiveRecord::Base
 
     end
 
+  end
+
+  def send_state_change_emails
+    state_name = state.titleize
+
+    NotificationMailer.notification(submittor, self,
+                                    "The state of your paper has changed to #{state_name}",
+                                    "Paper #{state_name}"
+    ).deliver_later
   end
 
 end
