@@ -9,7 +9,12 @@ Bundler.require(:default, Rails.env)
 
 module Theoj
   class Application < Rails::Application
+
+    # Load everything in lib/core-ext
+    Dir[Rails.root.join("lib/extensions/**/*.rb")].each {|f| require f}
+
     require File.join(Rails.root, 'lib/settings')
+
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -26,6 +31,8 @@ module Theoj
     config.sass.preferred_syntax = :sass
     Rails.application.config.assets.precompile.push( "webcomponentsjs/webcomponents.js" )
     config.i18n.enforce_available_locales = true
+
+    config.active_record.raise_in_transactional_callbacks = true
 
     config.generators do |g|
       g.test_framework  :rspec
