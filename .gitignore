@@ -20,3 +20,4 @@
 
 # Ignore secure configurations
 # /config/secrets.yml
+/config/settings.yml
