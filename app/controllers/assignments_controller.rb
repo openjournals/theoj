@@ -5,7 +5,7 @@ class AssignmentsController < ApplicationController
 
   def index
     paper = Paper.find_by_sha(params[:paper_id])
-    render json:paper.assignments, status: :ok, location: url_for(paper)
+    render json:paper.assignments, status: :ok, location: paper_review_url(paper)
   end
 
   def create
@@ -17,7 +17,7 @@ class AssignmentsController < ApplicationController
       render :json => 'invalid role', :status => :bad_request
 
     elsif user && paper.add_assignee(user, role)
-      render :json => paper.assignments, :status => :created, :location => url_for(paper)
+      render :json => paper.assignments, :status => :created, :location => paper_review_url(paper)
 
     else
       render :json => paper.errors, :status => :unprocessable_entity
@@ -30,7 +30,7 @@ class AssignmentsController < ApplicationController
     assignment = paper.assignments.find_by_sha(params[:id])
 
     if assignment && assignment.destroy
-      render json:paper.assignments, status: :ok, location: url_for(paper)
+      render json:paper.assignments, status: :ok, location: paper_review_url(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end
