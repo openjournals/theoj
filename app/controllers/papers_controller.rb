@@ -39,7 +39,7 @@ class PapersController < ApplicationController
     authorize! :create, paper
 
     if paper.save
-      render json:paper, status: :created, location:url_for(paper), serializer:FullPaperSerializer
+      render json:paper, status: :created, location:paper_review_url(paper), serializer:FullPaperSerializer
     else
       render json:aper.errors, status: :unprocessable_entity
     end
@@ -52,7 +52,7 @@ class PapersController < ApplicationController
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
     if paper.update_attributes(paper_params)
-      render json:paper, location:url_for(paper), serializer:FullPaperSerializer
+      render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
     else
       render json:paper.errors, status: :unprocessable_entity
     end
@@ -77,7 +77,7 @@ class PapersController < ApplicationController
 
     if paper.aasm.may_fire_event?(transition)
       paper.send("#{transition.to_s}!")
-      render json:paper, location:url_for(paper), serializer:FullPaperSerializer
+      render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
 
     else
       render json:paper.errors, status: :unprocessable_entity

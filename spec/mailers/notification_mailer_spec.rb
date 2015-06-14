@@ -18,6 +18,10 @@ RSpec.describe NotificationMailer, type: :mailer do
       expect(content).to eq( fixture_text('notification_mailer/notification') )
     end
 
+    it "contains a link to the paper" do
+      expect(mail.body.encoded).to include( '<a href="http://test.host/review/abcd"')
+    end
+
   end
 
 end

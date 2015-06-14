@@ -1,16 +1,16 @@
 Theoj::Application.routes.draw do
 
-  scope path:'api' do
+  scope path:'api', as:'api', defaults: { format: 'json' } do
 
     get '/papers/:paper_id/issues', to: "annotations#issues"
 
-    resources :papers, only:[:index, :show, :create], defaults: { format: 'json' } do
+    resources :papers, only:[:index, :show, :create] do
 
       collection do
-        get :as_reviewer,     defaults: { format: 'json' }
-        get :as_editor,       defaults: { format: 'json' }
-        get :as_author,       defaults: { format: 'json' }
-        get :as_collaborator, defaults: { format: 'json' }
+        get :as_reviewer
+        get :as_editor
+        get :as_author
+        get :as_collaborator
       end
 
       member do
@@ -18,13 +18,13 @@ Theoj::Application.routes.draw do
         get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
         get  :versions,         id: Paper::ArxivIdRegex
 
-        get  :state, defaults: { format: 'html' }
-        put  :transition, format: 'json'
+        get  :state
+        put  :transition
       end
 
       resources :assignments, only:[:index, :create, :destroy]
 
-      resources :annotations, only:[:index, :create], defaults: { format: 'json' } do
+      resources :annotations, only:[:index, :create] do
         member do
           # Change status
           put :unresolve
@@ -35,7 +35,7 @@ Theoj::Application.routes.draw do
 
     end
 
-    resource :user, defaults: { format: 'json' }, only: [:show, :update] do
+    resource :user, only: [:show, :update] do
       collection do
         get :lookup
       end
@@ -55,4 +55,12 @@ Theoj::Application.routes.draw do
     get '/*path', to: 'home#index'
   end
   root            to: 'home#index'
+
+  # Helpers for Polymer Routes
+  scope controller:'none', action:'none' do
+
+    get 'review/:sha', as:'paper_review'
+
+  end
+
 end
