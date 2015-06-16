@@ -143,4 +143,15 @@ describe Assignment do
 
   end
 
+  describe "#public" do
+
+    it "should set the initial value based on the role" do
+      expect( create(:assignment, role:'editor').public).to be_truthy
+      expect( create(:assignment, role:'submittor').public).to be_truthy
+      expect( create(:assignment, role:'collaborator').public).to be_truthy
+      expect( create(:assignment, role:'reviewer').public).to be_falsy
+    end
+
+  end
+
 end
