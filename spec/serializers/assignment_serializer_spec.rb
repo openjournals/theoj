@@ -7,7 +7,15 @@ describe AssignmentSerializer do
     serializer = AssignmentSerializer.new(assignment)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash).to include('role', 'sha')
+    expect(hash.keys).to contain_exactly('role', 'sha', 'user')
+  end
+
+  it "A reviewer should include the completed field" do
+    assignment = create(:assignment, :reviewer)
+    serializer = AssignmentSerializer.new(assignment)
+    hash = hash_from_json(serializer.to_json)
+
+    expect(hash.keys).to contain_exactly('role', 'sha', 'completed')
   end
 
   it "should include user info based on the role when no user is logged in" do
