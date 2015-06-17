@@ -8,11 +8,11 @@
                   <core-icon icon=arrow-forward></core-icon>
                   Start Review
               </paper-button>
-              <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
+              <paper-button id=accept raised hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
                   <core-icon icon=thumb-up></core-icon>
                   Accept
               </paper-button>
-              <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
+              <paper-button id=reject raised hidden?="{{paper.state!='under_review' && paper.state!='review_completed'}}" on-tap="{{rejectClick}}" >
                   <core-icon icon=thumb-down></core-icon>
                   Reject
               </paper-button>
