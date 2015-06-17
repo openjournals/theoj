@@ -20,6 +20,8 @@ Theoj::Application.routes.draw do
 
         get  :state
         put  :transition
+
+        post :complete
       end
 
       resources :assignments, only:[:index, :create, :destroy]

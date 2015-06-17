@@ -80,7 +80,19 @@ class PapersController < ApplicationController
       render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
 
     else
-      render json:paper.errors, status: :unprocessable_entity
+      render_errors(paper)
+    end
+  end
+
+  def complete
+    paper = Paper.find_by_sha(params[:id])
+    authorize! :complete, paper
+
+    if paper.mark_review_completed!(current_user)
+      paper.assignments.reload
+      render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
+    else
+      render_errors(paper)
     end
   end
 

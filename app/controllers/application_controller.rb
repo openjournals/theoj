@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_errors(object, status_code=:conflict)
+  def render_errors(object, status_code=:unprocessable_entity)
     render_error(status_code, object.errors.full_messages.join(".\r\n") + "." )
   end
 

@@ -169,7 +169,7 @@ describe PapersController do
     render_views
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code" do
-      paper = create(:paper, :under_review)
+      paper = create(:paper, :review_completed)
       get :state, :id => paper.sha, :format => :html
 
       etag1 = response.header['ETag']
@@ -177,7 +177,7 @@ describe PapersController do
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
       expect(response.content_type).to eq("text/html")
-      assert response.body.include?('review.svg')
+      assert response.body.include?('completed.svg')
 
       paper.accept!
 
@@ -285,7 +285,7 @@ describe PapersController do
 
     it "AS EDITOR responds successfully with a correct status and accept paper" do
       authenticate(:editor)
-      paper = create(:paper, :under_review)
+      paper = create(:paper, :review_completed)
 
       put :transition, :id => paper.sha, :transition => :accept, :format => :json
 
@@ -320,6 +320,48 @@ describe PapersController do
 
       expect(response).to have_http_status(:forbidden)
       expect(response_json).to eq(error_json(:forbidden))
+    end
+
+  end
+
+  describe "POST #complete" do
+
+    it "responds successfully with a correct status and paper" do
+      user = authenticate
+      paper = create(:paper, :under_review, reviewer:user)
+
+      post :complete, id:paper.sha
+
+      expect(response).to have_http_status(:success)
+      expect(response_json["state"]).to eq("review_completed")
+      expect(response_json['assigned_users'].second['completed']).to be_truthy
+    end
+
+    it "updates the assignment and paper" do
+      user = authenticate
+      paper = create(:paper, :under_review, reviewer:user)
+
+      post :complete, id:paper.sha
+
+      expect(paper.reviewer_assignments.reload.first.completed).to be_truthy
+    end
+
+    it "should fail if the user is not authorized" do
+      user = authenticate
+      paper = create(:paper, :under_review, reviewer:true)
+
+      post :complete, id:paper.sha
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "should fail if the paper could not be updated for some reason" do
+      user = authenticate
+      paper = create(:paper, :submitted, reviewer:user)
+
+      post :complete, id:paper.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
   end
@@ -538,7 +580,6 @@ describe PapersController do
       get :as_editor, :format => :json
 
       expect(response).to have_http_status(:success)
-      # puts response_json.pretty_inspect
       expect(response_json.size).to be(1)
       expect(response_json.first['sha']).to eq(p1.sha)
     end

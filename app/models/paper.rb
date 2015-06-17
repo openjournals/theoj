@@ -5,7 +5,15 @@ class Paper < ActiveRecord::Base
   ArxivIdWithVersionRegex = /\d{4}\.\d{4,5}(v\d+)?/
 
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
-  has_many   :assignments, inverse_of: :paper, dependent: :destroy
+  has_many   :assignments, inverse_of: :paper, dependent: :destroy do
+    def for_user(user, role=nil)
+      if role
+        where(user:user, role:role).first
+      else
+        where(user:user).first
+      end
+    end
+  end
 
   has_one   :submittor_assignment,     -> { where('assignments.role = ?', 'submittor') },    class_name:'Assignment'
   has_many  :collaborator_assignments, -> { where('assignments.role = ?', 'collaborator') }, class_name:'Assignment'
@@ -13,9 +21,9 @@ class Paper < ActiveRecord::Base
   has_many  :editor_assignments,       -> { where('assignments.role = ?', 'editor') },       class_name:'Assignment'
 
   belongs_to :submittor,                class_name:'User', inverse_of: :papers_as_submittor
-  has_many  :collaborators,             through: :collaborator_assignments, source: :user
-  has_many  :reviewers,                 through: :reviewer_assignments,     source: :user
-  has_many  :editors,                   through: :editor_assignments,       source: :user
+  has_many   :collaborators,            through: :collaborator_assignments, source: :user
+  has_many   :reviewers,                through: :reviewer_assignments,     source: :user
+  has_many   :editors,                  through: :editor_assignments,       source: :user
 
   scope :active, -> { where.not(state:'superceded') }
 
@@ -31,6 +39,7 @@ class Paper < ActiveRecord::Base
   aasm column: :state do
     state :submitted,          initial:true
     state :under_review
+    state :review_completed
     state :superceded
     state :accepted
     state :rejected
@@ -39,6 +48,10 @@ class Paper < ActiveRecord::Base
       transitions from: :submitted,
                   to:   :under_review
     end
+    event :complete_review, after_commit: [:send_state_change_emails, :send_review_completed_emails] do
+      transitions from: :under_review,
+                  to:   :review_completed
+    end
 
     event :supercede do
       transitions from: [:submitted, :under_review],
@@ -46,11 +59,11 @@ class Paper < ActiveRecord::Base
     end
 
     event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
-      transitions from: :under_review,
+      transitions from: :review_completed,
                   to:   :accepted
     end
     event :reject, after_commit: :send_state_change_emails do
-      transitions from: :under_review,
+      transitions from: [:under_review, :review_completed],
                   to:   :rejected
     end
 
@@ -65,7 +78,11 @@ class Paper < ActiveRecord::Base
   end
 
   def self.versions_for(arxiv_id)
-    where(arxiv_id:arxiv_id).order(version: :desc)
+    if arxiv_id
+      where(arxiv_id:arxiv_id).order(version: :desc)
+    else
+      none
+    end
   end
 
   def self.new_for_arxiv_id(arxiv_id, attributes={})
@@ -149,15 +166,11 @@ class Paper < ActiveRecord::Base
   end
 
   def is_original_version?
-    self == all_versions.last
-  end
-
-  def user_assignment(user)
-    assignments.detect { |a| a.user == user }
+    all_versions.empty? || self == all_versions.last
   end
 
   def add_assignee(user, role='reviewer')
-    can_assign = ! user_assignment(user)
+    can_assign = ! assignments.for_user(user)
 
     if can_assign && a=assignments.create(user: user, role:role)
       true
@@ -165,6 +178,21 @@ class Paper < ActiveRecord::Base
       errors.add(:assignments, 'Unable to assign user')
       false
     end
+  end
+
+  def mark_review_completed!(reviewer)
+    errors.add(:base, 'Review cannot be marked as complete') and return unless may_complete_review?
+    assignment = assignments.for_user(reviewer, :reviewer)
+    errors.add(:base, 'Assignee is not a reviewer') and return unless assignment
+
+    return true if assignment.completed?
+
+    assignment.update_attributes!(completed:true)
+
+    all_reviews_completed = reviewer_assignments.all?(&:completed?)
+    complete_review! if all_reviews_completed
+
+    true
   end
 
   def permissions_for_user(user)
@@ -223,6 +251,15 @@ class Paper < ActiveRecord::Base
                                     "The state of your paper has changed to #{state_name}",
                                     "Paper #{state_name}"
     ).deliver_later
+  end
+
+  def send_review_completed_emails
+    editors.each do |editor|
+      NotificationMailer.notification(editor, self,
+                                      "Reviews have been completed on a paper you are editing",
+                                      "Review Completed"
+      ).deliver_later
+    end
   end
 
 end

@@ -8,6 +8,8 @@ module PapersHelper
         image_tag('badges/submitted.svg')
       when "under_review"
         image_tag('badges/review.svg')
+      when "review_completed"
+        image_tag('badges/completed.svg')
       when "accepted"
         image_tag('badges/accepted.svg')
       when "rejected"

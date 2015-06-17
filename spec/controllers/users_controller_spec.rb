@@ -96,7 +96,7 @@ describe UsersController do
     it "should not change invalid parameters" do
       user = authenticate
       put :update, format: :json, user:{ email: '123' }
-      expect(response).to have_http_status(:conflict)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
   end
