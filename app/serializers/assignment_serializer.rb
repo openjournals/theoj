@@ -10,14 +10,9 @@ class AssignmentSerializer < BaseSerializer
 
   def filter(*)
     results = super
-    results = results - [:user]      if ! make_user_info_public?
-    results = results - [:completed] if object.role != 'reviewer'
+    results = results - [:user]      unless object.make_user_info_public?(current_user)
+    results = results - [:completed] unless object.use_completed?
     results
-  end
-
-  def make_user_info_public?
-    #@todo rename method to inverse
-    object.role!='reviewer' || (current_user==object.user) || (current_user && current_user.editor_of?(object.paper) )
   end
 
 end

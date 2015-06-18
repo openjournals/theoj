@@ -15,6 +15,15 @@ class Assignment < ActiveRecord::Base
   # Using after commit since creating revisions happens in a transaction
   after_commit  :send_emails, on: :create
 
+  def use_completed?
+    role == 'reviewer'
+  end
+
+  #@todo Change to use CanCan?
+  def make_user_info_public?(requesting_user)
+    public? || requesting_user==self.user || (requesting_user && requesting_user.editor_of?(paper) )
+  end
+
   private
 
   def set_initial_values
