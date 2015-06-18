@@ -5,9 +5,7 @@ class ApplicationMailer < ActionMailer::Base
     set_users(headers)
     @subject = headers[:subject] = "[TheOJ] #{headers[:subject]}"
 
-    if headers[:to].present?
-      super
-    end
+    super unless headers[:to].empty?
   end
 
   def full_email_for_user(user)

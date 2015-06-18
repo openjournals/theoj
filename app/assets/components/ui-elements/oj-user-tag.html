@@ -1,10 +1,10 @@
 <polymer-element name='oj-user-tag' attributes='assignment removable showCompleted showColor tagColor' >
 
   <template>
+      <template if={{showCompleted}}><input type=checkbox checked?={{assignment.completed}} onclick="return false;"/></template>
       <span class=name>{{assignment.user.name}}</span>
       <template if={{removable}}><a class='remover' href='#' on-click={{remove}} >&times</a></template>
       <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template>
-      <template if={{showCompleted}}><input type=checkbox checked?={{assignment.completed}} onclick="return false;"/></template>
 
     <style>
 

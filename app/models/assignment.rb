@@ -19,7 +19,7 @@ class Assignment < ActiveRecord::Base
 
   def set_initial_values
     self.sha = SecureRandom.hex
-    self.public = role != 'reviewer'
+    self.public = self.public || role != 'reviewer'
     true
   end
 

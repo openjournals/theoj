@@ -116,6 +116,7 @@ describe Assignment do
       reviewer = create(:user, email:'reviewer@example.com')
       original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
       original.add_assignee(reviewer)
+      original.reload
       deliveries.clear
 
       expect {
