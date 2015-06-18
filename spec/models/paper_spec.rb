@@ -248,7 +248,7 @@ describe Paper do
       (0...original.assignments.length).each do |index|
         expect(new_paper.assignments[index].role).to eq(original.assignments[index].role)
         expect(new_paper.assignments[index].user).to eq(original.assignments[index].user)
-        expect(new_paper.assignments[index].updated).to be_truthy
+        expect(new_paper.assignments[index].copied).to be_truthy
       end
 
     end

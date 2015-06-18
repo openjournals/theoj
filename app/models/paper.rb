@@ -117,9 +117,8 @@ class Paper < ActiveRecord::Base
                                       state:     original.state
       )
 
-      original.assignments.each do |a|
-        attrs = a.attributes.symbolize_keys.slice(:role, :user_id, :public).merge(updated:true)
-        new_paper.assignments.build(attrs)
+      original.assignments.each do |assignment|
+        new_paper.assignments << Assignment.build_copy(assignment)
       end
 
       new_paper.save!

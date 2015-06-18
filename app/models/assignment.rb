@@ -5,7 +5,7 @@ class Assignment < ActiveRecord::Base
   has_many   :annotations, inverse_of: :assignment
 
   # set when the paper is being updated from an original
-  attr_accessor :updated
+  attr_accessor :copied
 
   validates :role, inclusion:{ in:['submittor', 'collaborator', 'reviewer', 'editor'] }
 
@@ -14,6 +14,12 @@ class Assignment < ActiveRecord::Base
 
   # Using after commit since creating revisions happens in a transaction
   after_commit  :send_emails, on: :create
+
+  def self.build_copy(original)
+    # Note we don't copy the 'completed' field
+    attrs = original.attributes.symbolize_keys.slice(:role, :user_id, :public)
+    new attrs.merge(copied:true)
+  end
 
   def use_completed?
     role == 'reviewer'
@@ -28,7 +34,11 @@ class Assignment < ActiveRecord::Base
 
   def set_initial_values
     self.sha = SecureRandom.hex
-    self.public = self.public || role != 'reviewer'
+
+    if ! copied
+      self.public = (role != 'reviewer')
+    end
+
     true
   end
 
@@ -40,19 +50,21 @@ class Assignment < ActiveRecord::Base
   end
 
   def send_emails
-    # submittor emails are sent from Paper
+    # submittor emails are sent from the Paper
     return if role == 'submittor'
 
-    if updated
+    # We need to send the assigned email if the record is not copied
+    #   i.e. the user is assigned after the paper is updated
+    if ! copied
       NotificationMailer.notification(user, paper,
-                                      "A paper that you are assigned to as #{role.a_or_an} #{role} has been updated.",
-                                      'Paper Updated'
+                                      "You have been assigned to a paper as #{role.a_or_an} #{role}.",
+                                      'Paper Assigned'
       ).deliver_later
 
     else
       NotificationMailer.notification(user, paper,
-                                      "You have been assigned to a paper as #{role.a_or_an} #{role}.",
-                                      'Paper Assigned'
+                                      "A paper that you are assigned to as #{role.a_or_an} #{role} has been updated.",
+                                      'Paper Updated'
       ).deliver_later
 
     end
