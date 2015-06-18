@@ -17,6 +17,7 @@
                 <oj-user-tag
                         assignment={{reviewer}}
                         showColor={{!submitted}}
+                        showCompleted={{under_review}}
                         tagColor={{userColor(reviewer)}}
                         removable={{submitted}}
                         on-remove-user={{removeReviewer}}
@@ -68,7 +69,8 @@
   <script>
     Polymer({
       paperChanged: function() {
-        this.submitted = this.paper && this.paper.state == 'submitted';
+          this.submitted    = this.paper && this.paper.state == 'submitted';
+          this.under_review = this.paper && this.paper.state == 'under_review';
       },
       removeReviewer:function(event, assignment){
         this.$.removeReviewer.url = Oj.urls.removeAssigneePath(this.paper, assignment);

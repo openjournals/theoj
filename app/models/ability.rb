@@ -3,12 +3,15 @@ class Ability
 
   def initialize(user, paper=nil, annotation=nil)
     # HEADS UP - ordering matters here because of how CanCan defines abilities
-    initialize_annotation(user, annotation)
-    initialize_author(user, paper)
-    initialize_collaborator(user, paper)
-    initialize_reviewer(user, paper)
-    initialize_editor(user, paper)
-    initialize_privileged(user)
+
+    if user
+      initialize_annotation(user, annotation)
+      initialize_author(user, paper)
+      initialize_collaborator(user, paper)
+      initialize_reviewer(user, paper)
+      initialize_editor(user, paper)
+      initialize_privileged(user)
+    end
   end
   
   def initialize_collaborator(user, paper)
@@ -64,6 +67,8 @@ class Ability
       can :dispute,   Annotation
       can :resolve,   Annotation
     end
+
+    can :complete, Paper, assignments:{user_id:user.id, role:'reviewer'}
   end
 
   def initialize_editor(user, paper)

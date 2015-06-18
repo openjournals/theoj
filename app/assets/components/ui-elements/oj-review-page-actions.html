@@ -8,11 +8,11 @@
                   <core-icon icon=arrow-forward></core-icon>
                   Start Review
               </paper-button>
-              <paper-button id=accept raised hidden?="{{paper.state!='under_review'}}" on-tap="{{acceptClick}}" >
+              <paper-button id=accept raised hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
                   <core-icon icon=thumb-up></core-icon>
                   Accept
               </paper-button>
-              <paper-button id=reject raised hidden?="{{paper.state!='under_review'}}" on-tap="{{rejectClick}}" >
+              <paper-button id=reject raised hidden?="{{paper.state!='under_review' && paper.state!='review_completed'}}" on-tap="{{rejectClick}}" >
                   <core-icon icon=thumb-down></core-icon>
                   Reject
               </paper-button>
@@ -20,8 +20,15 @@
 
           <template if="{{paper.current_role=='submittor'}}">
               <paper-button id=check-for-update raised hidden?="{{paper.state!='submitted' && paper.state!='under_review'}}" on-tap="{{checkForUpdateClick}}" >
-                  <core-icon icon=refresh   ></core-icon>
+                  <core-icon icon=refresh></core-icon>
                   Check for Update
+              </paper-button>
+          </template>
+
+          <template if="{{paper.current_role=='reviewer'}}">
+              <paper-button id=mark-review-complete raised hidden?="{{paper.state!='under_review' ||  paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
+                  <core-icon icon=check></core-icon>
+                  Completed Review
               </paper-button>
           </template>
 
@@ -71,8 +78,9 @@
         <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-    <json-put id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
-    <json-put id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{updateRequestError}}></json-put>
+    <json-put  id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
+    <json-put  id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
+    <json-post id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
 
   </template>
 
@@ -104,6 +112,23 @@
           );
       },
 
+      markReviewCompleteClick: function() {
+          this.showDialog('Do you really want to mark this paper as completed?', 'Mark Completed', function() {
+              var url = Oj.urls.paperCompletePath(this.paper);
+              var $request = this.$.completedRequest;
+
+              $request.url = url;
+              $request.go();
+          });
+      },
+
+        completedRequestSuccess: function(event, detail) {
+          var message = 'You have finished reviewing the paper.';
+          this.fire('notification', message);
+          this.paper = detail;
+//          this.fire('go', '/review/' + paper.sha);
+      },
+
       checkForUpdateClick: function() {
           var $request = this.$.updateRequest;
           $request.url = Oj.urls.paperCheckForUpdatePath(this.paper);
@@ -114,9 +139,6 @@
           var message = 'We have retrieved version ' + detail.version + ' of your document.';
           this.fire('notification', message);
           this.fire('go', '/review/' + detail.sha);
-      },
-      updateRequestError: function(event, detail) {
-          this.fire('notification', Oj.utils.errorMessage(detail) );
       },
 
       showDialog: function(html, buttonText, onSuccess) {
@@ -149,6 +171,10 @@
       statusChangeRequestSuccess: function(event, detail) {
           this.fire('notification', this.successMessage);
           this.fire('go', '/papers');
+      },
+
+      requestError: function(event, detail) {
+          this.fire('notification', Oj.utils.errorMessage(detail) );
       }
 
     })

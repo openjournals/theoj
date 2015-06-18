@@ -137,6 +137,11 @@ describe Paper do
       }.to change { deliveries.size }.by(1)
 
       is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/Paper Under Review/)
+
+      expect {
+        paper.complete_review!
+      }.to change { deliveries.size }.by(1)
+
     end
 
     it "doesn't send an email when the paper is superceded" do
@@ -508,6 +513,37 @@ describe Paper do
 
   end
 
+  describe "#assignments" do
+
+    describe "#for_user" do
+
+      it "should return the assignmnet for a user" do
+        submittor = create(:user)
+        paper     = create(:paper, submittor:submittor)
+
+        assignment = paper.assignments.for_user(submittor)
+        expect(assignment.user).to eq(submittor)
+      end
+
+      it "should return the assignmnet for a user and role" do
+        user   = create(:user)
+        paper  = create(:paper, submittor:user, reviewer:user)
+
+        assignment = paper.assignments.for_user(user, 'submittor')
+        expect(assignment).to be_present
+        expect(assignment.user).to eq(user)
+        expect(assignment.role).to eq('submittor')
+
+        assignment = paper.assignments.for_user(user, 'reviewer')
+        expect(assignment).to be_present
+        expect(assignment.user).to eq(user)
+        expect(assignment.role).to eq('reviewer')
+      end
+
+    end
+
+  end
+
   describe "#add_assignee" do
 
     it "should add the user as a reviewer" do
@@ -547,5 +583,58 @@ describe Paper do
     end
 
   end
+
+  describe "#mark_rebiew_completed!" do
+
+    let(:reviewers) { create_list(:user, 2) }
+
+    it "should return an error if the paper is not in a reviewable state" do
+      paper = create(:paper, reviewer:reviewers)
+
+      expect(paper.mark_review_completed!(reviewers.first)).to be_falsy
+      expect(paper.errors).to be_present
+    end
+
+    it "should return an error if the user is not a reviewer" do
+      paper = create(:paper, :under_review, reviewer:true)
+
+      expect(paper.mark_review_completed!(paper.submittor)).to be_falsy
+      expect(paper.errors).to be_present
+    end
+
+    it "should mark the reviewer as completed" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+
+      expect(paper.mark_review_completed!(reviewers.first)).to be_truthy
+      expect(paper.errors).to be_empty
+
+      expect(paper.reviewer_assignments.first.completed).to be_truthy
+      expect(paper).to be_under_review
+    end
+
+    it "when the last review is completed the state of the paper should change" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.reviewer_assignments.first.update_attributes(completed:true)
+
+      expect(paper.mark_review_completed!(reviewers.second)).to be_truthy
+      expect(paper.reviewer_assignments.second.completed).to be_truthy
+      expect(paper).to be_review_completed
+    end
+
+    it "sends an email to the editor when the review is completed by all reviewers" do
+      set_paper_editor create(:user, email:'editor@example.com')
+
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.reviewer_assignments.first.update_attributes(completed:true)
+
+      expect {
+        paper.mark_review_completed!(reviewers.second)
+      }.to change { deliveries.count }.by(1)
+
+      is_expected.to have_sent_email.to('editor@example.com').matching_subject(/- Review Completed/)
+    end
+
+  end
+
 
 end
