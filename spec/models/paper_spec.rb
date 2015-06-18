@@ -253,6 +253,27 @@ describe Paper do
 
     end
 
+    it "should keep the public attribute on the assignments if it is set on the original paper" do
+      original  = create(:paper, arxiv_id:'1311.1653',
+                         reviewer:[ create(:user), create(:user) ])
+      original.assignments.second.update_attributes!(public:true)
+
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.assignments.second.public).to be_truthy
+      expect(new_paper.assignments.third.public).to be_falsy
+    end
+
+    it "should NOT keep the completed attribute on the assignments if it is set on the original paper" do
+      original  = create(:paper, arxiv_id:'1311.1653',
+                         reviewer:[ create(:user), create(:user) ])
+      original.assignments.second.update_attributes!(completed:true)
+
+      new_paper = Paper.create_updated!(original, arxiv_doc)
+
+      expect(new_paper.assignments.second.public).to be_falsy
+    end
+
     it "should copy the original editor" do
       set_paper_editor
       original  = create(:paper, arxiv_id:'1311.1653',
@@ -584,7 +605,7 @@ describe Paper do
 
   end
 
-  describe "#mark_rebiew_completed!" do
+  describe "#mark_review_completed!" do
 
     let(:reviewers) { create_list(:user, 2) }
 
