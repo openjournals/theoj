@@ -2,6 +2,11 @@ require "rails_helper"
 
 describe PapersController do
 
+  let(:arxiv_doc) {
+    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
+    Arxiv.get('1311.1653v2')
+  }
+
   describe "GET #index" do
 
     it "As a user returns a list of your own papers" do
@@ -280,6 +285,59 @@ describe PapersController do
   #   end
   #
   # end
+
+  describe "DELETE #destroy" do
+
+    it "should delete the paper" do
+      user = authenticate(:editor)
+      paper = create(:paper)
+
+      delete :destroy, id:paper.sha
+
+      expect( Paper.find_by_id(paper.id)).to be_nil
+    end
+
+    it "should return the correct html and status code" do
+      user = authenticate(:editor)
+      paper = create(:paper)
+
+      delete :destroy, id:paper.sha
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it "should delete all versions of the paper" do
+      user = authenticate(:editor)
+      original = create(:paper, arxiv_id:'1311.1653', version:1)
+      updated  = Paper.create_updated!(original, arxiv_doc)
+
+      delete :destroy, id:updated.sha
+
+      expect( Paper.find_by_id(original.id)).to be_nil
+      expect( Paper.find_by_id(updated.id)).to be_nil
+    end
+
+    it "should fail if the paper is not in the submitted state" do
+      user = authenticate(:editor)
+      paper = create(:paper, :under_review)
+
+      delete :destroy, id:paper.sha
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect( Paper.find_by_id(paper.id)).not_to be_nil
+    end
+
+    it "should fail if the user is not an editor" do
+      user = authenticate(:user)
+      paper = create(:paper, submittor:user)
+
+      delete :destroy, id:paper.sha
+
+      expect(response).to have_http_status(:forbidden)
+      expect( Paper.find_by_id(paper.id)).not_to be_nil
+    end
+
+  end
 
   describe "PUT #transition" do
 

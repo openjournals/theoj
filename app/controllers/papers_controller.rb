@@ -1,7 +1,7 @@
 class PapersController < ApplicationController
   respond_to :json
   before_filter :require_user,   except: [ :state, :index, :versions ]
-  before_filter :require_editor, only:   [ :transition ]
+  before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
     if current_user
@@ -14,6 +14,7 @@ class PapersController < ApplicationController
 
   def show
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
     ability = ability_with(current_user, paper)
 
     raise CanCan::AccessDenied if ability.cannot? :show, paper
@@ -47,6 +48,7 @@ class PapersController < ApplicationController
 
   def update
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
     ability = ability_with(current_user, paper)
 
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
@@ -58,8 +60,32 @@ class PapersController < ApplicationController
     end
   end
 
+  def destroy
+    paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
+    render_error(:unprocessable_entity) and return unless paper.can_destroy?
+
+    ActiveRecord::Base.transaction do
+      has_errors = false
+
+      paper.all_versions.each do |p|
+        p.destroy
+        has_errors ||= p.errors.present?
+      end
+
+      if has_errors
+        render_errors paper
+        raise ActiveRecord::Rollback
+      end
+
+      render json:{}
+    end
+
+  end
+
   def state
     @paper = Paper.find_by_sha(params[:id])
+
     if @paper
       etag(params.inspect, @paper.state)
     else
@@ -71,6 +97,7 @@ class PapersController < ApplicationController
 
   def transition
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
     transition = params[:transition].to_sym
 
     authorize! transition, paper
@@ -86,6 +113,7 @@ class PapersController < ApplicationController
 
   def complete
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
     authorize! :complete, paper
 
     if paper.mark_review_completed!(current_user)
@@ -98,6 +126,7 @@ class PapersController < ApplicationController
 
   def public
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) and return unless paper
     authorize! :make_public, paper
 
     case request.method_symbol

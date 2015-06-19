@@ -130,6 +130,10 @@ class Paper < ActiveRecord::Base
 
   end
 
+  def can_destroy?
+    submitted? || superceded?
+  end
+
   def full_arxiv_id
     "#{arxiv_id}v#{version}"
   end

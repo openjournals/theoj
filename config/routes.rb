@@ -4,7 +4,7 @@ Theoj::Application.routes.draw do
 
     get '/papers/:paper_id/issues', to: "annotations#issues"
 
-    resources :papers, only:[:index, :show, :create] do
+    resources :papers, only:[:index, :show, :create, :destroy] do
 
       collection do
         get :as_reviewer
