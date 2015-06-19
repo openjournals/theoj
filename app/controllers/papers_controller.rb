@@ -99,13 +99,12 @@ class PapersController < ApplicationController
   def public
     paper = Paper.find_by_sha(params[:id])
     authorize! :make_public, paper
-    assignment = paper.assignments.for_user(current_user, :reviewer)
 
     case request.method_symbol
 
       when :post, :delete
         public = request.method_symbol != :delete
-        if assignment.update_attributes(public:public)
+        if paper.make_reviewer_public!(current_user, public)
           paper.assignments.reload
           render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
         else

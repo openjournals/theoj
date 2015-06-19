@@ -152,7 +152,7 @@ class Paper < ActiveRecord::Base
 
   # Newest version first
   def all_versions
-    @all_versions ||= Paper.versions_for(arxiv_id)
+    @all_versions ||= (arxiv_id ? Paper.versions_for(arxiv_id) : [self])
   end
 
   def is_revision?
@@ -191,6 +191,19 @@ class Paper < ActiveRecord::Base
 
     all_reviews_completed = reviewer_assignments.all?(&:completed?)
     complete_review! if all_reviews_completed
+
+    true
+  end
+
+  def make_reviewer_public!(reviewer, public=true)
+    errors.add(:base, 'Review cannot be marked as complete') and return unless is_latest_version?
+    assignment = assignments.for_user(reviewer, :reviewer)
+    errors.add(:base, 'Assignee is not a reviewer') and return unless assignment
+
+    all_versions.each do |paper|
+      assignment = paper.assignments.for_user(reviewer, :reviewer)
+      assignment.update_attributes!(public:public) if assignment
+    end
 
     true
   end

@@ -117,7 +117,7 @@ describe Paper do
 
     it "sends an email to the submittor when it is revised" do
       user = create(:user, name:'John Smith', email:'jsmith@example.com')
-      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1)
       deliveries.clear
 
       expect {
@@ -614,6 +614,7 @@ describe Paper do
 
       expect(paper.mark_review_completed!(reviewers.first)).to be_falsy
       expect(paper.errors).to be_present
+      expect(paper.reload.reviewer_assignments.first.completed).to be_falsy
     end
 
     it "should return an error if the user is not a reviewer" do
@@ -621,6 +622,7 @@ describe Paper do
 
       expect(paper.mark_review_completed!(paper.submittor)).to be_falsy
       expect(paper.errors).to be_present
+      expect(paper.reload.submittor_assignment.completed).to be_falsy
     end
 
     it "should mark the reviewer as completed" do
@@ -657,5 +659,74 @@ describe Paper do
 
   end
 
+  describe "#make_reviewer_public!!" do
+
+    let(:reviewers) { create_list(:user, 2) }
+
+    it "should return an error if the user is not a reviewer" do
+      paper = create(:paper, reviewer:true)
+
+      expect(paper.make_reviewer_public!(paper.submittor, false)).to be_falsy
+      expect(paper.errors).to be_present
+      expect(paper.reload.submittor_assignment.public).to be_truthy
+    end
+
+    it "should return an error if the paper is not the latest version" do
+      original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
+      updated  = Paper.create_updated!(original, arxiv_doc)
+
+      expect(original.make_reviewer_public!(reviewers.first, true)).to be_falsy
+      expect(original.errors).to be_present
+      expect(original.reload.reviewer_assignments.first.public).to be_falsy
+      expect(updated.reload.reviewer_assignments.first.public).to be_falsy
+    end
+
+    it "should mark the reviewer as public" do
+      paper = create(:paper, reviewer:reviewers)
+
+      expect(paper.make_reviewer_public!(reviewers.first)).to be_truthy
+      expect(paper.errors).to be_empty
+
+      expect(paper.reload.reviewer_assignments.first.public).to be_truthy
+    end
+
+    it "should mark the reviewer as not public" do
+      paper = create(:paper, reviewer:reviewers)
+      paper.reviewer_assignments.first.update_attributes!(public:true)
+
+      expect(paper.make_reviewer_public!(reviewers.first, false)).to be_truthy
+      expect(paper.errors).to be_empty
+
+      expect(paper.reload.reviewer_assignments.first.public).to be_falsy
+    end
+
+    context "if a user is a reviewer in multiple papers" do
+
+      it "should mark them all as public" do
+        original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
+        updated  = Paper.create_updated!(original, arxiv_doc)
+
+        expect(updated.make_reviewer_public!(reviewers.first, true)).to be_truthy
+        expect(updated.errors).to be_empty
+
+        expect(updated.reload.reviewer_assignments.first.public).to be_truthy
+        expect(original.reload.reviewer_assignments.first.public).to be_truthy
+      end
+
+      it "should mark them all as non-public" do
+        original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
+        original.reviewer_assignments.first.update_attributes!(public:true)
+        updated  = Paper.create_updated!(original, arxiv_doc)
+
+        expect(updated.make_reviewer_public!(reviewers.first, false)).to be_truthy
+        expect(updated.errors).to be_empty
+
+        expect(updated.reload.reviewer_assignments.first.public).to be_falsy
+        expect(original.reload.reviewer_assignments.first.public).to be_falsy
+      end
+
+    end
+
+  end
 
 end
