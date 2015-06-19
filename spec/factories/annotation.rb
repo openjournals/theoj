@@ -24,23 +24,29 @@ FactoryGirl.define do
 
       if factory.user
         assignment = a.paper.assignments.detect { |pa| pa.user == factory.user } if a.paper
-        a.assignment = assignment || create(:assignment, :collaborator, user:factory.user)
+        a.assignment = assignment || factory.association(:assignment, :collaborator, paper:a.paper, user:factory.user)
 
       elsif a.paper
         a.assignment = a.paper.assignments.last
 
       else
         user = create(:user)
-        a.assignment = create(:assignment, :collaborator, user:user)
+        a.assignment = factory.association(:assignment, :collaborator, paper:a.paper, user:user)
 
       end
 
     end
 
+    before(:create) do |a, factory|
+      if factory.user
+        a.paper.assignments.reload
+      end
+    end
+
     factory :root, aliases:[:issue]
 
     factory :reply do
-      association :parent, factory: :root
+      after(:build)   do |a, factory| a.parent = factory.association(:root, paper:a.paper) end
     end
 
   end

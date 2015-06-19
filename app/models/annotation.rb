@@ -9,9 +9,21 @@ class Annotation < ActiveRecord::Base
 
   scope :root_annotations , -> { where(parent_id: nil) }
 
-  after_save :push_to_firebase
+  before_validation :set_defaults
+  after_save        :push_to_firebase
 
-  validates_presence_of :body, :paper_id
+  validates :body,
+            presence:true
+  validates :paper_id,
+            presence:true
+  validates :assignment_id,
+            presence:true
+  validate do
+    errors.add(:assignment, 'must belong to the same paper') unless !paper_id || paper.assignments.include?(assignment)
+  end
+  validate do
+    errors.add(:parent, 'must belong to the same paper') unless parent_id.nil? || parent.paper_id == paper_id
+  end
 
   aasm column: :state, no_direct_assignment:true do
     state :unresolved,       initial:true
@@ -57,6 +69,10 @@ class Annotation < ActiveRecord::Base
 
   def can_change_state?
     is_issue? && paper && paper.under_review?
+  end
+
+  def set_defaults
+    self.paper_id = parent.paper_id if parent_id && !paper_id
   end
 
 end

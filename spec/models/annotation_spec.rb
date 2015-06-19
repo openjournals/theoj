@@ -6,8 +6,8 @@ describe Annotation do
 
     it "should return responses" do
       paper = create(:paper, :submitted)
-      first_annotation = create(:annotation, :paper => paper)
-      second_annotation = create(:annotation, :parent_id => first_annotation.id)
+      first_annotation = create(:annotation,  :paper => paper)
+      second_annotation = create(:annotation, :paper => paper, :parent_id => first_annotation.id)
 
       first_annotation.reload
 
@@ -15,6 +15,14 @@ describe Annotation do
       assert_equal second_annotation.parent, first_annotation
     end
 
+  end
+
+  it "should set the paper from the parent if a parent is provided but no paper" do
+    paper = create(:paper)
+    annotation1 = create(:annotation, paper:paper)
+    annotation2 = Annotation.create!(body:'Second Annotation', parent:annotation1, assignment:paper.assignments.first)
+
+    expect(annotation2.paper).to eq(paper)
   end
 
   describe '#is_issue?' do
@@ -181,11 +189,11 @@ describe Annotation do
 
     it "AS AUTHOR: should not be able to update annotation if there are responses" do
       editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
+      user   = create(:user)
+      paper  = create(:paper, :submitted, submittor:user)
 
-      annotation_1 = create(:annotation, :user => user, :paper => paper)
-      annotation_2 = create(:annotation, :user => editor, :paper => paper, :parent_id => annotation_1.id)
+      annotation_1 = create(:annotation, user:user,   paper:paper)
+      annotation_2 = create(:annotation, user:editor, paper:paper, parent:annotation_1)
 
       annotation_1.reload
 
@@ -366,6 +374,42 @@ describe Annotation do
 
       ability = Ability.new(editor, paper, annotation)
       assert ability.can?(:destroy, annotation)
+    end
+
+  end
+
+  describe 'Validation' do
+
+    it "should validate if the parent is nil" do
+      paper = create(:paper)
+      annotation1 = Annotation.new(paper:paper, body:'Issue 1', assignment:paper.assignments.first)
+
+      expect(annotation1).to be_valid
+    end
+
+    it "should validate if the parent has the same paper" do
+      paper = create(:paper)
+      annotation1 = Annotation.create!(paper:paper, body:'Issue 1', assignment:paper.assignments.first)
+      annotation2 = Annotation.new(paper:paper, body:'Issue 1', parent:annotation1, assignment:paper.assignments.first)
+
+      expect(annotation2).to be_valid
+    end
+
+    it "should not validate if the assignee is not from the same paper" do
+      assignment = create(:assignment)
+      paper = create(:paper)
+      annotation = Annotation.new(paper:paper, body:'Issue 1', assignment:assignment)
+
+      expect(annotation).to be_invalid
+    end
+
+    it "should not validate if the parent annotation is from a different paper" do
+      paper1 = create(:paper)
+      annotation1 = Annotation.create!(paper:paper1, body:'Issue 1', assignment:paper1.assignments.first)
+      paper2 = create(:paper)
+      annotation2 = Annotation.new(paper:paper2, body:'Issue 1', parent:annotation1, assignment:paper2.assignments.first)
+
+      expect(annotation2).to be_invalid
     end
 
   end
