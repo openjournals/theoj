@@ -51,9 +51,7 @@
     Polymer({
 
       onNotification: function(event, text) {
-        console.info('Notification: ', text);
-        this.$.notification.text = text;
-        this.$.notification.show();
+          this.showNotification(text);
       },
 
       onGo: function(event, url) {
@@ -63,7 +61,14 @@
       onPathChanged: function(event, path) {
           var $menu = this.shadowRoot.querySelector('#mainmenu');
           $menu.pathChanged(path);
+      },
+
+      showNotification: function(text) {
+          console.info('Notification: ', text);
+          this.$.notification.text = text;
+          this.$.notification.show();
       }
+
 
     });
   </script>
