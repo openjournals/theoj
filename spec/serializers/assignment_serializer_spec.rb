@@ -7,7 +7,7 @@ describe AssignmentSerializer do
     serializer = AssignmentSerializer.new(assignment)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash.keys).to contain_exactly('role', 'sha', 'user')
+    expect(hash.keys).to contain_exactly('role', 'sha', 'user', 'public')
   end
 
   it "A reviewer should include the completed field" do
@@ -15,7 +15,7 @@ describe AssignmentSerializer do
     serializer = AssignmentSerializer.new(assignment)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash.keys).to contain_exactly('role', 'sha', 'completed')
+    expect(hash.keys).to contain_exactly('role', 'sha', 'completed', 'public')
   end
 
   it "Non-reviewers should not include the completed field" do

@@ -2,6 +2,7 @@ class AssignmentSerializer < BaseSerializer
 
   attributes :sha,
              :role,
+             :public,
              :completed
 
   has_one   :user, serializer:PublicUserSerializer

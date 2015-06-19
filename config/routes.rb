@@ -21,7 +21,8 @@ Theoj::Application.routes.draw do
         get  :state
         put  :transition
 
-        post :complete
+        post  :complete
+        match :public,   via:[:post, :delete]
       end
 
       resources :assignments, only:[:index, :create, :destroy]

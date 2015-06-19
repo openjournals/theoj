@@ -68,7 +68,8 @@ class Ability
       can :resolve,   Annotation
     end
 
-    can :complete, Paper, assignments:{user_id:user.id, role:'reviewer'}
+    can :complete,     Paper, assignments:{user_id:user.id, role:'reviewer'}
+    can :make_public,  Paper, assignments:{user_id:user.id, role:'reviewer'}
   end
 
   def initialize_editor(user, paper)
