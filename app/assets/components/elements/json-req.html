@@ -1,0 +1,36 @@
+<polymer-element name=json-req attributes='method url data auto result'>
+
+    <template>
+        <core-ajax  id='request'
+                    auto={{auto}}
+                    url={{url}}
+                    handleAs="json"
+                    contentType="application/json"
+                    method={{method}}
+                    response={{result}}
+                    body="{{data | json}}"
+                    on-core-response={{success}}
+                    on-core-error={{error}}
+
+                >
+        </core-ajax>
+    </template>
+
+    <script>
+        Polymer({
+            auto:   false,
+            method: 'get',
+            data:   {},
+            go: function(){
+                console.log('-- req go 1');
+                this.$.request.go()
+            },
+            success: function(event,detail){
+                this.fire("success",detail.response );
+            },
+            error: function(event,detail){
+                this.fire("error", detail.xhr.responseText);
+            }
+        })
+    </script>
+</polymer-element>
