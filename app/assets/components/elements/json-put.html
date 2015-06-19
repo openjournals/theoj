@@ -1,34 +1,9 @@
-<polymer-element name="json-put" attributes='result url data auto'>
+<polymer-element name=json-put extends=json-req>
 
-  <template>
-    <core-ajax  id='request'
-                auto={{auto}}
-                url={{url}}
-                handleAs="json"
-                contentType="application/json"
-                method="PUT"
-                response={{result}}
-                body="{{data | json}}"
-                on-core-response={{success}}
-                on-core-error={{error}}
+    <script>
+        Polymer({
+            method: 'put'
+        });
+    </script>
 
-                >
-    </core-ajax>
-  </template>
-
-  <script>
-    Polymer({
-      auto: false,
-      data: {},
-      go:function(){
-        this.$.request.go()
-      },
-      success:function(event,detail){
-        this.fire("success",detail.response );
-      },
-      error:function(event,detail){
-        this.fire("error", detail.xhr.responseText);
-      }
-    })
-  </script>
 </polymer-element>

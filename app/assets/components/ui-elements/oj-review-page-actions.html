@@ -26,9 +26,17 @@
           </template>
 
           <template if="{{paper.current_role=='reviewer'}}">
-              <paper-button id=mark-review-complete raised hidden?="{{paper.state!='under_review' ||  paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
+              <paper-button id=mark-review-complete raised hidden?="{{paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
                   <core-icon icon=check></core-icon>
                   Completed Review
+              </paper-button>
+              <paper-button id=make-name-public raised hidden?="{{paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+                  <core-icon icon=perm-identity></core-icon>
+                  Make Public
+              </paper-button>
+              <paper-button id=hide-name-public raised hidden?="{{paper.state=='superceded' || !paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+                  <core-icon icon=perm-identity></core-icon>
+                  Hide Public
               </paper-button>
           </template>
 
@@ -48,23 +56,18 @@
           margin-bottom: -8px;
           margin-right: 4px;
       }
-      #accept, #start-review {
+      #accept, #start-review, #mark-review-complete {
         background: green;
       }
-      #accept:hover, #start-review:hover {
-        background: #009000;
-      }
-      #reject {
+      #reject, #hide-name-public {
         background: #800000;
       }
-      #reject:hover {
-        background: #c00000;
+      #check-for-update, #make-name-public {
+        background: #000080;
       }
-      #check-for-update {
-          background: #000080;
-      }
-      #check-for-update:hover {
-          background: #0000a0;
+      paper-button:not([disabled]):hover {
+        opacity:    0.8;
+        transition: opacity 0.2s;
       }
       paper-button[disabled] {
         background: gray !important;
@@ -81,6 +84,7 @@
     <json-put  id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
     <json-put  id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
     <json-post id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
+    <json-req  id=publicRequest       on-error={{requestError}}></json-req>
 
   </template>
 
@@ -122,11 +126,32 @@
           });
       },
 
-        completedRequestSuccess: function(event, detail) {
+      completedRequestSuccess: function(event, detail) {
           var message = 'You have finished reviewing the paper.';
           this.fire('notification', message);
           this.paper = detail;
-//          this.fire('go', '/review/' + paper.sha);
+      },
+
+      makePublicClick: function(event, detail, target) {
+          var make_public = target.id=='make-name-public';
+          var html = make_public ? 'Do you really want to make your name public?'
+                                 : 'Do you really want to hide your public name?';
+          var button = make_public ? 'Make Name Public' : 'Hide Name';
+
+
+          this.showDialog(html, button, function() {
+              var $request = this.$.publicRequest;
+              var url = Oj.urls.paperMakePublicPath(this.paper, make_public);
+              $request.url = url;
+              $request.method = make_public ? 'post' : 'delete';
+
+              $request.go(function(event, detail) {
+                  var msg = make_public ? 'Your name has been made public.'
+                                        : 'Your name has now been hidden';
+                  this.fire('notificaion', msg);
+                  this.paper = detail;
+              }.bind(this) );
+          });
       },
 
       checkForUpdateClick: function() {

@@ -366,6 +366,67 @@ describe PapersController do
 
   end
 
+  describe "POST or DELETE #public" do
+
+    context "with a POST" do
+
+      it "it responds successfully with a correct status and paper" do
+        user = authenticate
+        paper = create(:paper, reviewer:user)
+
+        post :public, id:paper.sha
+
+        expect(response).to have_http_status(:success)
+        expect(response_json['assigned_users'].last['public']).to be_truthy
+      end
+
+      it "updates the assignment and paper" do
+        user = authenticate
+        paper = create(:paper, :under_review, reviewer:user)
+
+        post :public, id:paper.sha
+
+        expect(paper.reviewer_assignments.reload.last.public).to be_truthy
+      end
+
+    end
+
+    context "with a DELETE" do
+
+      it "it responds successfully with a correct status and paper" do
+        user = authenticate
+        paper = create(:paper, reviewer:user)
+        paper.reviewer_assignments.last.update_attributes(public:true)
+
+        delete :public, id:paper.sha
+
+        expect(response).to have_http_status(:success)
+        expect(response_json['assigned_users'].last['public']).to be_falsy
+      end
+
+      it "updates the assignment and paper" do
+        user = authenticate
+        paper = create(:paper, :under_review, reviewer:user)
+        paper.reviewer_assignments.last.update_attributes(public:true)
+
+        delete :public, id:paper.sha
+
+        expect(paper.reviewer_assignments.reload.last.public).to be_falsy
+      end
+
+    end
+
+    it "should fail if the user is not authorized" do
+      user = authenticate
+      paper = create(:paper, :under_review, reviewer:true)
+
+      post :public, id:paper.sha
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+  end
+
   describe "PUT #check_for_update" do
 
     it "should create an updated paper" do

@@ -155,4 +155,57 @@ describe Assignment do
 
   end
 
+  describe "#make_user_info_public?" do
+
+    it "should make editor info public" do
+      any_user = create(:user)
+
+      assignment = create(:assignment, role:'editor')
+      expect( assignment.make_user_info_public?(any_user) ).to be_truthy
+    end
+
+    it "should make submittor and collaborator info public" do
+      any_user = create(:user)
+
+      assignment = create(:assignment, role:'submittor')
+      expect( assignment.make_user_info_public?(any_user) ).to be_truthy
+      assignment = create(:assignment, role:'collaborator')
+      expect( assignment.make_user_info_public?(any_user) ).to be_truthy
+    end
+
+    it "reviewer info should not be public" do
+      any_user = create(:user)
+
+      assignment = create(:assignment, role:'reviewer')
+      expect( assignment.make_user_info_public?(any_user) ).to be_falsy
+    end
+
+    it "info should be available to the assigned user" do
+      user = create(:user)
+
+      assignment = create(:assignment, role:'reviewer', user:user)
+      expect( assignment.make_user_info_public?(user) ).to be_truthy
+    end
+
+    it "info should be available to the editor" do
+      editor = create(:editor)
+      assignment = create(:assignment, role:'reviewer')
+      assignment.paper.assignments.create!(user:editor, role:'editor')
+
+      expect( assignment.make_user_info_public?(editor) ).to be_truthy
+    end
+
+  end
+
+  describe "#use_completed?" do
+
+    it "only reviewers should use completed" do
+      expect( create(:assignment, role:'reviewer').use_completed?).to be_truthy
+      expect( create(:assignment, role:'submittor').use_completed?).to be_falsy
+      expect( create(:assignment, role:'collaborator').use_completed?).to be_falsy
+      expect( create(:assignment, role:'editor').use_completed?).to be_falsy
+    end
+
+  end
+
 end

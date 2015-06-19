@@ -96,6 +96,28 @@ class PapersController < ApplicationController
     end
   end
 
+  def public
+    paper = Paper.find_by_sha(params[:id])
+    authorize! :make_public, paper
+
+    case request.method_symbol
+
+      when :post, :delete
+        public = request.method_symbol != :delete
+        if paper.make_reviewer_public!(current_user, public)
+          paper.assignments.reload
+          render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
+        else
+          render_errors(assignment)
+        end
+
+      else
+        raise 'Unsupported method'
+
+    end
+
+  end
+
   def versions
     papers   = Paper.versions_for( params[:id] )
     render json:papers, each_serializer: BasicPaperSerializer
