@@ -59,11 +59,15 @@
         },
 
         paperCompletePath: function(paper){
-            return  paper && "/api/papers/"+paper.sha+"/complete";
+            return  paper && "/api/papers/" + paper.sha + "/complete";
+        },
+
+        paperMakePublicPath: function(paper, make_public){
+            return  paper && "/api/papers/" + paper.sha + "/public";
         },
 
         paperTransitionPath: function(paper, transition){
-          return  paper && "/api/papers/"+paper.sha+"/transition?transition=" + transition;
+          return  paper && "/api/papers/" + paper.sha + "/transition?transition=" + transition;
         }
 
     };

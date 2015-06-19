@@ -21,15 +21,20 @@
             auto:   false,
             method: 'get',
             data:   {},
-            go: function(){
-                console.log('-- req go 1');
-                this.$.request.go()
+
+            go: function( successCallback, errorCallback) {
+                this.successCallback = successCallback;
+                this.errorCallback = errorCallback;
+
+                this.$.request.go();
             },
             success: function(event,detail){
                 this.fire("success",detail.response );
+                if (this.successCallback) this.successCallback(event, detail.response);
             },
             error: function(event,detail){
                 this.fire("error", detail.xhr.responseText);
+                if (this.errorCallback) this.errorCallback(event, detail.xhr.responseText);
             }
         })
     </script>
