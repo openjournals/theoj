@@ -61,11 +61,6 @@ class Ability
       can :read, Paper
 
       can :read, Annotation
-
-      # State changes
-      can :unresolve, Annotation
-      can :dispute,   Annotation
-      can :resolve,   Annotation
     end
 
     can :complete,     Paper, assignments:{user_id:user.id, role:'reviewer'}
@@ -81,15 +76,13 @@ class Ability
 
       can :read, Annotation
 
-      # State changes
-      can :unresolve, Annotation
-      can :dispute,   Annotation
-      can :resolve,   Annotation
-
-      #Ppaer Transitions
+      #Paper Transitions
       can :start_review, Paper
       can :accept,       Paper
       can :reject,       Paper
+
+      # State changes
+      can [:unresolve, :dispute, :resolve], Annotation
     end
   end
 
@@ -117,6 +110,11 @@ class Ability
 
     can :annotate,  Paper, assignments:{user_id:user.id}
     can :comment,   Paper, assignments:{user_id:user.id}
+
+    # State changes
+    can [:unresolve, :dispute, :resolve],
+        Annotation, assignment: { user_id: user.id }
+
   end
 
 end

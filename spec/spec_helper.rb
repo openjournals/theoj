@@ -14,6 +14,9 @@
 # users commonly want.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+require "cancan/matchers"
+
 RSpec.configure do |config|
 
   # These two settings work together to allow you to limit a spec run

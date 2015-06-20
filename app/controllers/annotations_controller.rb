@@ -53,8 +53,10 @@ class AnnotationsController < ApplicationController
     ability = ability_with(current_user, @paper, @annotation)
     ability.authorize!(event, @annotation)
 
+    render_error(:unprocessable_entity) unless @annotation.send("may_#{event}?")
+
     @annotation.send("#{event}!")
-    render :json => @annotation
+    render json:@annotation
 
   rescue AASM::InvalidTransition
     render_error :unprocessable_entity

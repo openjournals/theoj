@@ -65,6 +65,10 @@ class Annotation < ActiveRecord::Base
     parent_id.nil?
   end
 
+  def is_response?
+    parent_id
+  end
+
   def has_responses?
     responses.any?
   end
