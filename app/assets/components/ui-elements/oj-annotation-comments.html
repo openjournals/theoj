@@ -22,7 +22,7 @@
           </div>
       </template>
 
-      <template if={{!newCommentVisible}}>
+      <template if="{{!newCommentVisible && paper.can_annotate}}">
           <div layout horizontal>
               <span flex></span>
               <paper-icon-button on-click= {{showNewComment}} icon='reply'></paper-icon-button>
@@ -50,7 +50,7 @@
           width: 100%;
       }
       markdown-text-area::shadow a.toggle {
-          bottom: -28px;
+          bottom: -24px;
           right:  88px;
           color:  #888;
           text-transform: lowercase;

@@ -48,6 +48,10 @@ class Annotation < ActiveRecord::Base
     parent_id.nil? ? self : parent
   end
 
+  def user
+    assignment.user
+  end
+
   def firebase_key
     "#{paper.firebase_key}/annotations/#{base_annotation.id}"
   end

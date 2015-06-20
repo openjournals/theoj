@@ -13,14 +13,16 @@ class AnnotationsController < ApplicationController
   end
 
   def create
-    assignment = @paper.assignments.for_user(current_user)
-    render :json => {}, :status => :unprocessable_entity and return unless assignment
-    annotation = @paper.annotations.new(annotation_params.merge(assignment: assignment))
+    authorize! :annotate, @paper
+    render_error(:unprocessable_entity) unless @paper.under_review?
 
-    if @paper.annotations << annotation
-      render :json => annotation, :status => :created
+    assignment = @paper.assignments.for_user(current_user)
+    annotation = @paper.annotations.build(annotation_params.merge(assignment: assignment))
+
+    if annotation.save
+      render json:annotation, status: :created
     else
-      render :json => annotation.errors, :status => :unprocessable_entity
+      render_errors(annotation)
     end
   end
 
@@ -64,13 +66,13 @@ class AnnotationsController < ApplicationController
 
   def find_paper
     @paper ||=  Paper.find_by_sha(params[:paper_id])
-    record_not_found unless @paper
+    render_error(:not_found) unless @paper
   end
 
   def find_annotation
     find_paper
     @annotation ||= @paper.annotations.find( params[:id] )
-    record_not_found unless @annotation
+    render_error(:not_found) unless @annotation
   end
 
 end

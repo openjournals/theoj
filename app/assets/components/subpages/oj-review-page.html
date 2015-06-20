@@ -15,11 +15,14 @@
 
         <div layout vertical id=pdf-pane>
 
-          <div id=add-document-issue>
-            <paper-button raised on-tap="{{addDocumentAnnotation}}">
-              <paper-icon-button icon=add></paper-icon-button>Add a comment about the whole document
-            </paper-button>
-          </div>
+          <template if={{paper.can_annotate}}>
+              <div id=add-document-issue>
+                <paper-button raised on-tap="{{addDocumentAnnotation}}">
+                  <paper-icon-button icon=add></paper-icon-button>Add a comment about the whole document
+                </paper-button>
+              </div>
+          </template>
+
           <stacked-pdf-reader src={{paper.location}}
                               annotations={{annotations}}
                               pageOffset={{pageOffset}}
@@ -33,7 +36,7 @@
                             flex
                             paper={{paper}}
                             annotations={{annotations}}
-                            firstPageOffset={{84}}
+                            firstPageOffset="{{ paper.can_annotate ? 84 : 22 }}"
                             pageHeight={{pdfClientHeight}}
                             pageSpacing={{20}}
                             on-annotation-changed={{onChangeAnnotation}}
@@ -91,10 +94,10 @@
       },
       paperChanged: function() {
         if (this.paper) {
-            var current_user_sha = this.user.sha;
-            var index = Oj.utils.indexOf(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-            this.paper.current_assignment = this.paper.assigned_users[index];
-            this.paper.current_role       = this.paper.current_assignment.role;
+            var current_user_sha          = this.user.sha;
+            this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
+            this.paper.current_role       = this.paper.current_assignment && this.paper.current_assignment.role;
+            this.paper.can_annotate       = this.paper.current_role && this.paper.state == 'under_review';
         }
       },
       onChangeAnnotation:function(event, annotation) {
@@ -113,12 +116,17 @@
           return $.extend( {state:'new', new:true, open:true}, properties);
       },
       pageClicked:function(event, position){
-        var annotation = this.newAnnotation( position );
-        this.annotations.push(annotation);
+          var annotation = this.newAnnotation( position );
+          this.addAnnotation(annotation);
       },
       addDocumentAnnotation: function(event) {
-        var annotation = this.newAnnotation();
-        this.annotations.push(annotation);
+          var annotation = this.newAnnotation();
+          this.addAnnotation(annotation);
+      },
+      addAnnotation: function(annotation) {
+          if (this.paper.can_annotate) {
+              this.annotations.push(annotation);
+          }
       }
 
     })

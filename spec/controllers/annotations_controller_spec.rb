@@ -2,6 +2,104 @@ require "rails_helper"
 
 describe AnnotationsController do
 
+  describe "POST #create" do
+
+    it "should succeed" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:created)
+      expect(response_json).to include(
+                                   'paper_id'  => paper.id,
+                                   'body'      => 'An issue',
+                                   'parent_id' => nil,
+                                   'responses' => []            )
+    end
+
+    it "should create a root annotation" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      annotation = paper.annotations.reload.last
+      expect(annotation).to have_attributes(
+                                paper:      paper,
+                                body:       'An issue',
+                                assignment: paper.submittor_assignment,
+                                parent:     nil
+                            )
+    end
+
+    it "should succeed when create a response" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+      root  = create(:annotation, paper:paper)
+
+      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+
+      expect(response).to have_http_status(:created)
+      expect(response_json).to include(
+                                   'paper_id'  => paper.id,
+                                   'body'      => 'A response',
+                                   'parent_id' => root.id          )
+    end
+
+    it "should create a response" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+      root  = create(:annotation, paper:paper)
+
+      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+
+      annotation = paper.annotations.reload.last
+      expect(annotation).to have_attributes(
+                                paper:      paper,
+                                body:       'A response',
+                                assignment: paper.submittor_assignment,
+                                parent:     root
+                            )
+    end
+
+    it "should fail if the paper doesn't exist" do
+      post :create, paper_id:'nonexistant', annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "should fail if no user is logged in" do
+      paper = create(:paper, :under_review, submittor:create(:user))
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+    it "should fail if the user is not assigned to the paper" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:create(:user))
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:forbidden)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+    it "should fail if the paper is not under review" do
+      user  = authenticate
+      paper = create(:paper, :submitted, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+  end
+
   shared_examples "a state change" do
 
     it "AS EDITOR responds successfully with a correct status and changed issue" do

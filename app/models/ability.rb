@@ -114,5 +114,9 @@ class Ability
       # Authors can't destroy annotations
       cannot :destroy, Annotation
     end
+
+    can :annotate,  Paper, assignments:{user_id:user.id}
+    can :comment,   Paper, assignments:{user_id:user.id}
   end
+
 end

@@ -19,10 +19,6 @@
             return "/api/papers/"+paper.sha+"/assignments/" + assignment.sha;
         },
 
-        addIssuePath: function(paper) {
-            return "/api/papers/"+paper.sha+"/annotations";
-        },
-
         getIssuesPath: function(paper) {
             return "/api/papers/"+paper.sha+"/issues";
         },
@@ -49,6 +45,10 @@
 
         paperAnnotationsPath: function(paper){
           return "/api/papers/"+paper.sha+"/annotations";
+        },
+
+        addIssuePath: function(paper) {
+            return "/api/papers/"+paper.sha+"/annotations";
         },
 
         paperAnnotationPath: function(paper, annotation){
