@@ -1,9 +1,9 @@
-<polymer-element name="oj-review-page" attributes='paper_id user'>
+<polymer-element name="oj-review-page" attributes='paper_id currentUser'>
   <template>
 
     <oj-review-page-header
             id=header
-            user={{user}}
+            user={{currentUser}}
             paper={{paper}}
             annotations={{annotations}}
             loadProgress={{loadProgress}}
@@ -94,7 +94,7 @@
       },
       paperChanged: function() {
         if (this.paper) {
-            var current_user_sha          = this.user.sha;
+            var current_user_sha          = this.currentUser.sha;
             this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
             this.paper.current_role       = this.paper.current_assignment && this.paper.current_assignment.role;
             this.paper.can_annotate       = this.paper.current_role && this.paper.state == 'under_review';

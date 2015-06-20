@@ -53,6 +53,21 @@
 
   <script>
     Polymer({
+        paperChanged: function() {
+            if (!this.paper || !this.annotation)
+                return;
+
+            var own_issue = this.paper && this.paper.current_assignment && this.annotation &&
+                            this.paper.current_assignment.sha == this.annotation.assignment;
+
+            var enabled   = (this.paper.state=='under_review') && (own_issue || this.paper.current_role=='editor' );
+
+            enabled ? this.removeAttribute('hidden') : this.setAttribute('hidden','');
+        },
+        annotationChanged: function() {
+            this.paperChanged();
+        },
+
         changeState: function(event) {
             event.preventDefault();
             var target = event.target;

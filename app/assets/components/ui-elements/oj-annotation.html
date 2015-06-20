@@ -3,9 +3,7 @@
 
     <div class='container state-{{annotation.state}} collapsed' >
 
-      <template if="{{paper.state=='under_review' && (role=='editor' || role == 'reviewer' ) }}">
-        <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-      </template>
+      <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
 
       <div on-tap="{{expand}}" class=header layout horizontal>
           <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
@@ -21,9 +19,7 @@
 
       <div class='container state-{{annotation.state}} expanded' >
 
-          <template if="{{paper.state=='under_review' && (role=='editor' || role == 'reviewer' ) }}">
-              <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-          </template>
+          <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
 
           <template if="{{!annotation.new}}">
               <div on-tap="{{collapse}}" class=header layout horizontal>
