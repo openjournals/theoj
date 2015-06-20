@@ -24,6 +24,7 @@ class Paper < ActiveRecord::Base
   has_many   :collaborators,            through: :collaborator_assignments, source: :user
   has_many   :reviewers,                through: :reviewer_assignments,     source: :user
   has_many   :editors,                  through: :editor_assignments,       source: :user
+  has_many   :assignees,                through: :assignments,              source: :user
 
   scope :active, -> { where.not(state:'superceded') }
 
@@ -33,7 +34,7 @@ class Paper < ActiveRecord::Base
   # Using after commit since creating revisions happens in a transaction
   after_commit  :send_submittor_emails, on: :create
 
-  validates :submittor,
+  validates :submittor_id,
             presence: true
 
   aasm column: :state do
@@ -128,6 +129,10 @@ class Paper < ActiveRecord::Base
       new_paper
     end
 
+  end
+
+  def can_destroy?
+    submitted? || superceded?
   end
 
   def full_arxiv_id

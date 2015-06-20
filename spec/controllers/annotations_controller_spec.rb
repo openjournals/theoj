@@ -2,62 +2,182 @@ require "rails_helper"
 
 describe AnnotationsController do
 
+  describe "POST #create" do
+
+    it "should succeed" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:created)
+      expect(response_json).to include(
+                                   'paper_id'  => paper.id,
+                                   'body'      => 'An issue',
+                                   'parent_id' => nil,
+                                   'responses' => []            )
+    end
+
+    it "should create a root annotation" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      annotation = paper.annotations.reload.last
+      expect(annotation).to have_attributes(
+                                paper:      paper,
+                                body:       'An issue',
+                                assignment: paper.submittor_assignment,
+                                parent:     nil
+                            )
+    end
+
+    it "should succeed when create a response" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+      root  = create(:annotation, paper:paper)
+
+      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+
+      expect(response).to have_http_status(:created)
+      expect(response_json).to include(
+                                   'paper_id'  => paper.id,
+                                   'body'      => 'A response',
+                                   'parent_id' => root.id          )
+    end
+
+    it "should create a response" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:user)
+      root  = create(:annotation, paper:paper)
+
+      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+
+      annotation = paper.annotations.reload.last
+      expect(annotation).to have_attributes(
+                                paper:      paper,
+                                body:       'A response',
+                                assignment: paper.submittor_assignment,
+                                parent:     root
+                            )
+    end
+
+    it "should fail if the paper doesn't exist" do
+      post :create, paper_id:'nonexistant', annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "should fail if no user is logged in" do
+      paper = create(:paper, :under_review, submittor:create(:user))
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+    it "should fail if the user is not assigned to the paper" do
+      user  = authenticate
+      paper = create(:paper, :under_review, submittor:create(:user))
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:forbidden)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+    it "should fail if the paper is not under review" do
+      user  = authenticate
+      paper = create(:paper, :submitted, submittor:user)
+
+      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(paper.annotations.reload.count).to eq(0)
+    end
+
+  end
+
   shared_examples "a state change" do
 
     it "AS EDITOR responds successfully with a correct status and changed issue" do
       authenticate(:editor)
+      user = create(:user)
 
-      paper = create(:paper, :under_review)
-      issue = create(:issue, initial_state.to_sym, paper:paper)
+      paper = create(:paper, :under_review, submittor:user)
+      issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
 
-      put method, paper_id:paper.sha, id:issue.id, format:'json'
-
-      expect(response).to have_http_status(:success)
-      expect(response_json).to include('state' => end_state)
-      issue.reload
-      expect(issue.state).to eq(end_state)
-    end
-
-    it "AS REVIEWER responds successfully with a correct status and changed issue" do
-      user = authenticate
-
-      paper = create(:paper, :under_review, reviewer:user)
-      issue = create(:issue, initial_state.to_sym, paper:paper)
-
-      user.reload
-
-      put method, paper_id:paper.sha, id:issue.id, format:'json'
+      put method, paper_id:paper.sha, id:issue.id
 
       expect(response).to have_http_status(:success)
       expect(response_json).to include('state' => end_state)
-      issue.reload
-      expect(issue.state).to eq(end_state)
+      expect(issue.reload.state).to eq(end_state)
     end
 
-    it "AS USER responds successfully with a forbidden status" do
-      authenticate
-
-      paper = create(:paper, :under_review)
-      issue = create(:issue, initial_state.to_sym, paper:paper)
-
-      put method, paper_id:paper.sha, id:issue.id, format:'json'
-
-      expect(response).to have_http_status(:forbidden)
-      issue.reload
-      expect(issue.state).not_to eq(end_state)
-    end
-
-    it "AS AUTHOR responds successfully with a forbidden status" do
+    it "Creating user responds successfully with a correct status and changed issue" do
       user = authenticate
 
       paper = create(:paper, :under_review, submittor:user)
-      issue = create(:issue, initial_state.to_sym, paper:paper)
+      issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
 
-      put method, paper_id:paper.sha, id:issue.id, format:'json'
+      put method, paper_id:paper.sha, id:issue.id
+
+      expect(response).to have_http_status(:success)
+      expect(response_json).to include('state' => end_state)
+      expect(issue.reload.state).to eq(end_state)
+    end
+
+    it "As a different user fails with a forbidden status" do
+      user = authenticate
+      creator = create(:user)
+
+      paper = create(:paper, :under_review, submittor:creator, reviewer:user)
+      issue = create(:issue, initial_state.to_sym, paper:paper, user:creator)
+
+      put method, paper_id:paper.sha, id:issue.id
 
       expect(response).to have_http_status(:forbidden)
-      issue.reload
-      expect(issue.state).not_to eq(end_state)
+      expect(issue.reload.state).to eq(initial_state)
+    end
+
+    it "When not logged in fails with a forbidden status" do
+      creator = create(:user)
+
+      paper = create(:paper, :under_review, submittor:creator)
+      issue = create(:issue, initial_state.to_sym, paper:paper, user:creator)
+
+      put method, paper_id:paper.sha, id:issue.id
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(issue.reload.state).to eq(initial_state)
+    end
+
+    it "When the paper is not under review it fails" do
+      user = authenticate
+
+      paper = create(:paper, :under_review, submittor:user)
+      issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
+      paper.update_attributes!(state: 'submitted')
+
+      put method, paper_id:paper.sha, id:issue.id
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(issue.reload.state).to eq(initial_state)
+    end
+
+    it "fails if the annotation is a response" do
+      user = authenticate
+
+      paper = create(:paper, :under_review, submittor:user)
+      issue = create(:issue, paper:paper)
+      comment = create(:response, initial_state.to_sym, parent:issue, user:user)
+
+      put method, paper_id:paper.sha, id:comment.id
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(comment.reload.state).to eq(initial_state)
     end
 
   end

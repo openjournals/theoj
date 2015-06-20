@@ -1,7 +1,7 @@
 class PapersController < ApplicationController
   respond_to :json
   before_filter :require_user,   except: [ :state, :index, :versions ]
-  before_filter :require_editor, only:   [ :transition ]
+  before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
     if current_user
@@ -14,6 +14,7 @@ class PapersController < ApplicationController
 
   def show
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
     ability = ability_with(current_user, paper)
 
     raise CanCan::AccessDenied if ability.cannot? :show, paper
@@ -47,6 +48,7 @@ class PapersController < ApplicationController
 
   def update
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
     ability = ability_with(current_user, paper)
 
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
@@ -58,8 +60,32 @@ class PapersController < ApplicationController
     end
   end
 
+  def destroy
+    paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
+    render_error(:unprocessable_entity) unless paper.can_destroy?
+
+    ActiveRecord::Base.transaction do
+      has_errors = false
+
+      paper.all_versions.each do |p|
+        p.destroy
+        has_errors ||= p.errors.present?
+      end
+
+      if has_errors
+        render_errors paper
+      else
+        render json:{}
+      end
+
+    end
+
+  end
+
   def state
     @paper = Paper.find_by_sha(params[:id])
+
     if @paper
       etag(params.inspect, @paper.state)
     else
@@ -71,6 +97,7 @@ class PapersController < ApplicationController
 
   def transition
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
     transition = params[:transition].to_sym
 
     authorize! transition, paper
@@ -86,6 +113,7 @@ class PapersController < ApplicationController
 
   def complete
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
     authorize! :complete, paper
 
     if paper.mark_review_completed!(current_user)
@@ -98,6 +126,7 @@ class PapersController < ApplicationController
 
   def public
     paper = Paper.find_by_sha(params[:id])
+    render_error(:not_found) unless paper
     authorize! :make_public, paper
 
     case request.method_symbol
@@ -127,13 +156,13 @@ class PapersController < ApplicationController
     arxiv_id = params[:id]
     latest_paper = Paper.where(arxiv_id:arxiv_id).order(version: :desc).first
 
-    render_error(:not_found)    and return unless latest_paper
-    render_error(:forbidden)    and return unless latest_paper.submittor == current_user
-    render_error(:conflict)     and return unless latest_paper.may_supercede?
+    render_error(:not_found)    unless latest_paper
+    render_error(:forbidden)    unless latest_paper.submittor == current_user
+    render_error(:conflict)     unless latest_paper.may_supercede?
 
     arxiv_doc = Arxiv.get(arxiv_id)
 
-    render_error(:conflict, 'There is no new version of this document.') and return unless arxiv_doc.version > latest_paper.version
+    render_error(:conflict, 'There is no new version of this document.') unless arxiv_doc.version > latest_paper.version
 
     new_paper = Paper.create_updated!(latest_paper, arxiv_doc)
 

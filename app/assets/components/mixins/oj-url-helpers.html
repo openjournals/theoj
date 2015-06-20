@@ -2,8 +2,9 @@
 
     window.Oj.urls = {
 
-        paperPath: function(paper_id) {
-            return "/api/papers/"+paper_id;
+        // Take either a paper object or a plain sha
+        paperPath: function(paper_or_sha) {
+            return paper_or_sha ? "/api/papers/"+ (paper_or_sha.sha || paper_or_sha) : '';
         },
 
         annotationsFirebasePath: function(paper_id){
@@ -16,10 +17,6 @@
 
         removeAssigneePath: function(paper, assignment) {
             return "/api/papers/"+paper.sha+"/assignments/" + assignment.sha;
-        },
-
-        addIssuePath: function(paper) {
-            return "/api/papers/"+paper.sha+"/annotations";
         },
 
         getIssuesPath: function(paper) {
@@ -48,6 +45,10 @@
 
         paperAnnotationsPath: function(paper){
           return "/api/papers/"+paper.sha+"/annotations";
+        },
+
+        addIssuePath: function(paper) {
+            return "/api/papers/"+paper.sha+"/annotations";
         },
 
         paperAnnotationPath: function(paper, annotation){

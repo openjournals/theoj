@@ -5,8 +5,12 @@
 
           <template if="{{paper.current_role=='editor'}}">
               <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
-                  <core-icon icon=arrow-forward></core-icon>
+                  <core-icon icon=delete></core-icon>
                   Start Review
+              </paper-button>
+              <paper-button id=delete raised hidden?="{{paper.state!='submitted'}}" on-tap="{{deleteClick}}" >
+                  <core-icon icon=arrow-forward></core-icon>
+                  Delete Paper
               </paper-button>
               <paper-button id=accept raised hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
                   <core-icon icon=thumb-up></core-icon>
@@ -59,7 +63,7 @@
       #accept, #start-review, #mark-review-complete {
         background: green;
       }
-      #reject, #hide-name-public {
+      #reject, #hide-name-public, #delete {
         background: #800000;
       }
       #check-for-update, #make-name-public {
@@ -81,10 +85,11 @@
         <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-    <json-put  id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
-    <json-put  id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
-    <json-post id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
-    <json-req  id=publicRequest       on-error={{requestError}}></json-req>
+    <json-put    id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
+    <json-put    id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
+    <json-post   id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
+    <json-req    id=publicRequest       on-error={{requestError}}></json-req>
+    <json-delete id=deleteRequest       on-error={{requestError}}></json-delete>
 
   </template>
 
@@ -141,17 +146,31 @@
 
           this.showDialog(html, button, function() {
               var $request = this.$.publicRequest;
-              var url = Oj.urls.paperMakePublicPath(this.paper, make_public);
-              $request.url = url;
+              $request.url = Oj.urls.paperMakePublicPath(this.paper, make_public);
               $request.method = make_public ? 'post' : 'delete';
 
               $request.go(function(event, detail) {
                   var msg = make_public ? 'Your name has been made public.'
                                         : 'Your name has now been hidden';
-                  this.fire('notificaion', msg);
+                  this.fire('notification', msg);
                   this.paper = detail;
               }.bind(this) );
           });
+      },
+
+      deleteClick: function() {
+        this.showDialog('Do you want to delete this paper?<br/>'+
+                        'All versions of the paper will be permanently removed from the system.',
+                        'Delete Paper', function() {
+            var $request = this.$.deleteRequest;
+            $request.url = Oj.urls.paperPath(this.paper);
+
+            $request.go(function(event, detail) {
+                var msg = 'The paper has been deleted';
+                this.fire('notification', msg);
+                this.fire('go', '/');
+            }.bind(this) );
+        });
       },
 
       checkForUpdateClick: function() {

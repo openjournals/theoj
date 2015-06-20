@@ -4,6 +4,13 @@ class ApplicationController < ActionController::Base
   # protect_from_forgery with: :exception
   # before_filter :require_user
 
+  class HttpError < StandardError
+    def initialize(status_code, text)
+      @status_code, @text, @message = status_code, text
+    end
+    attr_reader :status_code, :text
+  end
+
   rescue_from CanCan::AccessDenied do |exception|
     respond_to do |format|
       format.html { redirect_to root_url }
@@ -12,11 +19,10 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
-  rescue_from  Arxiv::Error::ManuscriptNotFound do render_error(:not_found) end
-  rescue_from  ActiveRecord::RecordNotFound     do render_error(:not_found) end
-
-  rescue_from  ActiveRecord::RecordNotUnique do render_error(:conflict) end
-
+  rescue_from  Arxiv::Error::ManuscriptNotFound do render_error_internal(:not_found) end
+  rescue_from  ActiveRecord::RecordNotFound     do render_error_internal(:not_found) end
+  rescue_from  ActiveRecord::RecordNotUnique    do render_error_internal(:conflict) end
+  rescue_from  HttpError                        do |ex| render_error_internal(ex.status_code, ex.text) end
 
   private
 
@@ -43,7 +49,7 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
-  def render_error(status_code, text=nil)
+  def render_error_internal(status_code, text=nil)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
     message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
 
@@ -51,6 +57,11 @@ class ApplicationController < ActionController::Base
       format.html { render plain:text || message, status: status_code }
       format.json { render json: {error:message, text:text, code:code}, status: status_code }
     end
+  end
+
+  def render_error(status_code, text=nil)
+    # raise here so that we break out of any processing
+    raise HttpError.new(status_code, text)
   end
 
   def render_errors(object, status_code=:unprocessable_entity)

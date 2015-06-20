@@ -6,8 +6,8 @@ describe Annotation do
 
     it "should return responses" do
       paper = create(:paper, :submitted)
-      first_annotation = create(:annotation, :paper => paper)
-      second_annotation = create(:annotation, :parent_id => first_annotation.id)
+      first_annotation  = create(:annotation,  paper:paper)
+      second_annotation = create(:annotation,  paper:paper, parent:first_annotation)
 
       first_annotation.reload
 
@@ -15,6 +15,14 @@ describe Annotation do
       assert_equal second_annotation.parent, first_annotation
     end
 
+  end
+
+  it "should set the paper from the parent if a parent is provided but no paper" do
+    paper = create(:paper)
+    annotation1 = create(:annotation, paper:paper)
+    annotation2 = Annotation.create!(body:'Second Annotation', parent:annotation1, assignment:paper.assignments.first)
+
+    expect(annotation2.paper).to eq(paper)
   end
 
   describe '#is_issue?' do
@@ -25,7 +33,7 @@ describe Annotation do
     end
 
     it "should be true false for a reply" do
-      reply_annotation = create(:reply)
+      reply_annotation = create(:response)
       expect(reply_annotation.is_issue?).to be_falsy
     end
 
@@ -67,7 +75,7 @@ describe Annotation do
 
     context "a reply" do
 
-      let (:annotation) { build(:reply) }
+      let (:annotation) { build(:response) }
 
       it "should not be possible to resolve the annotation" do
         expect(annotation.may_resolve?).to eq(false)
@@ -151,221 +159,278 @@ describe Annotation do
 
   describe "Abilities" do
 
-    it "AS AUTHOR: should be able to create an annotation on own paper" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      ability = Ability.new(user, paper)
+    context "creating a new annotation on a paper" do
 
-      assert ability.can?(:create, Annotation.new(:paper_id => paper, :body => "Blah"))
+      it "AS AUTHOR: should be able to create an annotation on own paper" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        ability = Ability.new(user, paper)
+
+        expect(ability).to be_able_to(:create,   Annotation)
+        expect(ability).to be_able_to(:annotate, paper)
+      end
+
+      it "WITHOUT ROLE: should not be possible to annotate someone else's paper" do
+        user = create(:user)
+        paper = create(:paper)
+        ability = Ability.new(user, paper)
+
+        assert ability.cannot?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+      end
+
+      it "AS REVIEWER: should be possible to annotate paper" do
+        user = create(:user)
+        paper = create(:paper)
+        create(:assignment, :reviewer, user:user, paper:paper)
+        ability = Ability.new(user, paper)
+
+        assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+      end
+
+      it "AS EDITOR: should be possible to annotate paper" do
+        user = create(:editor)
+        paper = create(:paper)
+
+        ability = Ability.new(user, paper)
+
+        assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+      end
+
     end
 
-    it "AS AUTHOR: should be possible to read their own annotations on their paper" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      annotation = create(:annotation, paper:paper)
-      ability = Ability.new(user, paper, annotation)
+    context "Reading an annotation" do
 
-      assert ability.can?(:read, annotation)
+      it "AS AUTHOR: should be possible to read their own annotations on their paper" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        annotation = create(:annotation, paper:paper)
+        ability = Ability.new(user, paper, annotation)
+
+        assert ability.can?(:read, annotation)
+      end
+
+      it "AS AUTHOR: should be possible to read someone else's annotations on their paper" do
+        user      = create(:user)
+        paper     = create(:paper, :submitted, submittor:user)
+        commentor = create(:user)
+        assign    = create(:assignment, paper:paper, user:commentor)
+        annotation = create(:annotation, paper:paper, assignment:assign)
+
+        ability = Ability.new(user, paper, annotation)
+        assert ability.can?(:read, annotation)
+      end
+
+      it "WITHOUT ROLE: should not be possible to read annotations on someone else's paper" do
+        user = create(:user)
+        paper = create(:paper) # note user doesn't own paper
+        ability = Ability.new(user, paper)
+        annotation = create(:annotation, :paper => paper)
+
+        assert ability.cannot?(:read, annotation)
+      end
+
+      it "AS EDITOR: should be possible to read annotation on paper" do
+        editor = create(:editor)
+        user   = create(:user)
+        paper  = create(:paper, submittor:user)
+        annotation = create(:annotation, :paper => paper)
+
+        ability = Ability.new(editor, paper, annotation)
+        assert ability.can?(:read, annotation)
+      end
+
     end
 
-    it "AS AUTHOR: should be possible to read someone else's annotations on their paper" do
-      user      = create(:user)
-      paper     = create(:paper, :submitted, submittor:user)
-      commentor = create(:user)
-      assign    = create(:assignment, paper:paper, user:commentor)
-      annotation = create(:annotation, paper:paper, assignment:assign)
+    context "Updating an annotation" do
 
-      ability = Ability.new(user, paper, annotation)
-      assert ability.can?(:read, annotation)
+      it "AS AUTHOR: should not be able to update annotation if there are responses" do
+        editor = create(:editor)
+        user   = create(:user)
+        paper  = create(:paper, :submitted, submittor:user)
+
+        annotation_1 = create(:annotation, user:user,   paper:paper)
+        annotation_2 = create(:annotation, user:editor, paper:paper, parent:annotation_1)
+
+        annotation_1.reload
+
+        ability = Ability.new(user, paper, annotation_1)
+        assert ability.cannot?(:update, annotation_1)
+      end
+
     end
 
-    it "AS AUTHOR: should not be able to update annotation if there are responses" do
-      editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
+    context "Updating an annotation" do
 
-      annotation_1 = create(:annotation, :user => user, :paper => paper)
-      annotation_2 = create(:annotation, :user => editor, :paper => paper, :parent_id => annotation_1.id)
+      it "AS AUTHOR: should not be able to delete own annotations" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        annotation = create(:annotation, :user => user, :paper => paper)
 
-      annotation_1.reload
+        ability = Ability.new(user, paper, annotation)
+        assert ability.cannot?(:destroy, annotation)
+      end
 
-      ability = Ability.new(user, paper, annotation_1)
-      assert ability.cannot?(:update, annotation_1)
+      it "AS EDITOR: should be possible to delete annotations" do
+        editor = create(:editor)
+        user = create(:user)
+        paper = create(:paper, submittor:user)
+        annotation = create(:annotation, paper:paper)
+
+        ability = Ability.new(editor, paper, annotation)
+        assert ability.can?(:destroy, annotation)
+      end
+
     end
 
-    it "AS AUTHOR: should not be able to delete own annotations" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      annotation = create(:annotation, :user => user, :paper => paper)
+    context "Changing the state of an annotation" do
 
-      ability = Ability.new(user, paper, annotation)
-      assert ability.cannot?(:destroy, annotation)
+      it "should be possible to dispute your own annotations" do
+        user       = create(:user)
+        paper      = create(:paper, submittor:user)
+        annotation = build(:annotation, paper:paper, user:user)
+
+        ability = Ability.new(user, paper)
+        assert ability.can?(:dispute, annotation)
+      end
+
+      it "should be possible to resolve your own annotations" do
+        user       = create(:user)
+        paper      = create(:paper, submittor:user)
+        annotation = build(:annotation, paper:paper, user:user)
+
+        ability = Ability.new(user, paper)
+        assert ability.can?(:resolve, annotation)
+      end
+
+      it "should be possible to unresolve your own annotations" do
+        user       = create(:user)
+        paper      = create(:paper, submittor:user)
+        annotation = build(:annotation, paper:paper, user:user)
+
+        ability = Ability.new(user, paper)
+        assert ability.can?(:unresolve, annotation)
+      end
+
+      it "should not be possible to dispute annotations that are not your own" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        annotation = create(:annotation, user:create(:user), paper:paper)
+
+        ability = Ability.new(user, paper, annotation)
+        assert ability.cannot?(:dispute, annotation)
+      end
+
+      it "should not be possible to resolve annotations that are not your own" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        annotation = create(:annotation, user:create(:user), paper:paper)
+
+        ability = Ability.new(user, paper, annotation)
+        assert ability.cannot?(:resolve, annotation)
+      end
+
+      it "should not be possible to unresolve annotations that are not your own" do
+        user = create(:user)
+        paper = create(:paper, :submitted, submittor:user)
+        annotation = create(:annotation, user:create(:user), paper:paper)
+
+        ability = Ability.new(user, paper, annotation)
+        assert ability.cannot?(:unresolve, annotation)
+      end
+
+      it "WITHOUT ROLE: should not be possible to dispute annotations on someone else's paper" do
+        user = create(:user)
+        paper = create(:paper) # note user doesn't own paper
+        ability = Ability.new(user, paper)
+        annotation = create(:annotation, :paper => paper)
+
+        assert ability.cannot?(:dispute, annotation)
+      end
+
+      it "WITHOUT ROLE: should not be possible to resolve annotations on someone else's paper" do
+        user = create(:user)
+        paper = create(:paper) # note user doesn't own paper
+        ability = Ability.new(user, paper)
+        annotation = create(:annotation, :paper => paper)
+
+        assert ability.cannot?(:resolve, annotation)
+      end
+
+      it "WITHOUT ROLE: should not be possible to unresolve annotations on someone else's paper" do
+        user = create(:user)
+        paper = create(:paper) # note user doesn't own paper
+        ability = Ability.new(user, paper)
+        annotation = create(:annotation, :paper => paper)
+
+        assert ability.cannot?(:unresolve, annotation)
+      end
+
+      it "AS EDITOR: should be possible to dispute annotation on paper" do
+        editor = create(:editor)
+        user = create(:user)
+        paper = create(:paper, submittor:user)
+        annotation = create(:annotation, :paper => paper)
+
+        ability = Ability.new(editor, paper, annotation)
+        assert ability.can?(:dispute, annotation)
+      end
+
+      it "AS EDITOR: should be possible to resolve annotation on paper" do
+        editor = create(:editor)
+        user = create(:user)
+        paper = create(:paper, submittor:user)
+        annotation = create(:annotation, paper:paper)
+
+        ability = Ability.new(editor, paper, annotation)
+        assert ability.can?(:resolve, annotation)
+      end
+
+      it "AS EDITOR: should be possible to unresolve annotation on paper" do
+        editor = create(:editor)
+        user = create(:user)
+        paper = create(:paper, submittor:user)
+        annotation = create(:annotation, paper:paper)
+
+        ability = Ability.new(editor, paper, annotation)
+        assert ability.can?(:unresolve, annotation)
+      end
+
     end
 
-    it "AS AUTHOR: should not be able to dispute own annotation" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      annotation = create(:annotation, user:user, paper:paper)
+  end
 
-      ability = Ability.new(user, paper, annotation)
-      assert ability.cannot?(:dispute, annotation)
-    end
+  describe 'Validation' do
 
-    it "AS AUTHOR: should not be able to resolve own annotation" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      annotation = create(:annotation, paper:paper)
-
-      ability = Ability.new(user, paper, annotation)
-      assert ability.cannot?(:resolve, annotation)
-    end
-
-    it "AS AUTHOR: should not be able to unresolve own annotation" do
-      user = create(:user)
-      paper = create(:paper, :submitted, submittor:user)
-      annotation = create(:annotation, :user => user, :paper => paper)
-
-      ability = Ability.new(user, paper, annotation)
-      assert ability.cannot?(:unresolve, annotation)
-    end
-
-    it "WITHOUT ROLE: should not be possible to annotate someone else's paper" do
-      user = create(:user)
+    it "should validate if the parent is nil" do
       paper = create(:paper)
-      ability = Ability.new(user, paper)
+      annotation1 = Annotation.new(paper:paper, body:'Issue 1', assignment:paper.assignments.first)
 
-      assert ability.cannot?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+      expect(annotation1).to be_valid
     end
 
-    it "WITHOUT ROLE: should not be possible to read annotations on someone else's paper" do
-      user = create(:user)
-      paper = create(:paper) # note user doesn't own paper
-      ability = Ability.new(user, paper)
-      annotation = create(:annotation, :paper => paper)
-
-      assert ability.cannot?(:read, annotation)
-    end
-
-    it "WITHOUT ROLE: should not be possible to dispute annotations on someone else's paper" do
-      user = create(:user)
-      paper = create(:paper) # note user doesn't own paper
-      ability = Ability.new(user, paper)
-      annotation = create(:annotation, :paper => paper)
-
-      assert ability.cannot?(:dispute, annotation)
-    end
-
-    it "WITHOUT ROLE: should not be possible to resolve annotations on someone else's paper" do
-      user = create(:user)
-      paper = create(:paper) # note user doesn't own paper
-      ability = Ability.new(user, paper)
-      annotation = create(:annotation, :paper => paper)
-
-      assert ability.cannot?(:resolve, annotation)
-    end
-
-    it "WITHOUT ROLE: should not be possible to unresolve annotations on someone else's paper" do
-      user = create(:user)
-      paper = create(:paper) # note user doesn't own paper
-      ability = Ability.new(user, paper)
-      annotation = create(:annotation, :paper => paper)
-
-      assert ability.cannot?(:unresolve, annotation)
-    end
-
-    it "AS REVIEWER: should be possible to annotate paper" do
-      user = create(:user)
+    it "should validate if the parent has the same paper" do
       paper = create(:paper)
-      create(:assignment, :reviewer, user:user, paper:paper)
-      ability = Ability.new(user, paper)
+      annotation1 = Annotation.create!(paper:paper, body:'Issue 1', assignment:paper.assignments.first)
+      annotation2 = Annotation.new(paper:paper, body:'Issue 1', parent:annotation1, assignment:paper.assignments.first)
 
-      assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+      expect(annotation2).to be_valid
     end
 
-    it "AS REVIEWER: should be possible to dispute annotations" do
-      user = create(:user)
+    it "should not validate if the assignee is not from the same paper" do
+      assignment = create(:assignment)
       paper = create(:paper)
-      create(:assignment, :reviewer, user:user, paper:paper)
-      ability = Ability.new(user, paper)
+      annotation = Annotation.new(paper:paper, body:'Issue 1', assignment:assignment)
 
-      assert ability.can?(:dispute, build(:annotation, paper:paper))
+      expect(annotation).to be_invalid
     end
 
-    it "AS REVIEWER: should be possible to resolve paper" do
-      user = create(:user)
-      paper = create(:paper)
-      create(:assignment, :reviewer, user:user, paper:paper)
-      ability = Ability.new(user, paper)
+    it "should not validate if the parent annotation is from a different paper" do
+      paper1 = create(:paper)
+      annotation1 = Annotation.create!(paper:paper1, body:'Issue 1', assignment:paper1.assignments.first)
+      paper2 = create(:paper)
+      annotation2 = Annotation.new(paper:paper2, body:'Issue 1', parent:annotation1, assignment:paper2.assignments.first)
 
-      assert ability.can?(:resolve, Annotation.new(:paper => paper, :body => "Blah"))
-    end
-
-    it "AS REVIEWER: should be possible to unresolve paper" do
-      user = create(:user)
-      paper = create(:paper)
-      create(:assignment, :reviewer, user:user, paper:paper)
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:unresolve, Annotation.new(:paper => paper, :body => "Blah"))
-    end
-
-    it "AS EDITOR: should be possible to annotate paper" do
-      user = create(:editor)
-      paper = create(:paper)
-
-      ability = Ability.new(user, paper)
-
-      assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
-    end
-
-    it "AS EDITOR: should be possible to read annotation on paper" do
-      editor = create(:editor)
-      user   = create(:user)
-      paper  = create(:paper, submittor:user)
-      annotation = create(:annotation, :paper => paper)
-
-      ability = Ability.new(editor, paper, annotation)
-      assert ability.can?(:read, annotation)
-    end
-
-    it "AS EDITOR: should be possible to dispute annotation on paper" do
-      editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, submittor:user)
-      annotation = create(:annotation, :paper => paper)
-
-      ability = Ability.new(editor, paper, annotation)
-      assert ability.can?(:dispute, annotation)
-    end
-
-    it "AS EDITOR: should be possible to resolve annotation on paper" do
-      editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, submittor:user)
-      annotation = create(:annotation, paper:paper)
-
-      ability = Ability.new(editor, paper, annotation)
-      assert ability.can?(:resolve, annotation)
-    end
-
-    it "AS EDITOR: should be possible to unresolve annotation on paper" do
-      editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, submittor:user)
-      annotation = create(:annotation, paper:paper)
-
-      ability = Ability.new(editor, paper, annotation)
-      assert ability.can?(:unresolve, annotation)
-    end
-
-    it "AS EDITOR: should be possible to delete annotations" do
-      editor = create(:editor)
-      user = create(:user)
-      paper = create(:paper, submittor:user)
-      annotation = create(:annotation, paper:paper)
-
-      ability = Ability.new(editor, paper, annotation)
-      assert ability.can?(:destroy, annotation)
+      expect(annotation2).to be_invalid
     end
 
   end
