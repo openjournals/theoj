@@ -19,8 +19,8 @@
 
       <oj-page-router id=pages
                       currentUserReady={{currentUserReady}}
+                      on-route-changed={{onRouteChanged}}
                       currentUser={{currentUser}}
-                      on-path-changed={{onPathChanged}}
               ></oj-page-router>
 
       <paper-toast id=notification class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
@@ -58,9 +58,9 @@
         this.$.pages.go(url);
       },
 
-      onPathChanged: function(event, path) {
+      onRouteChanged: function(event, detail) {
           var $menu = this.shadowRoot.querySelector('#mainmenu');
-          $menu.pathChanged(path);
+          $menu.routeChanged(detail.path, detail.pageInstance, detail.route);
       },
 
       showNotification: function(text) {
