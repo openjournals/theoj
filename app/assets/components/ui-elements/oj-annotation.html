@@ -9,7 +9,7 @@
           <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
           <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
           <div class=count>{{annotation.responses.length||0}} replies</div>
-      </div>
+      </div>x
 
     </div>
 
@@ -40,8 +40,8 @@
 
               <div layout horizontal>
                   <span flex></span>
-                  <paper-icon-button icon='add'   on-click= {{submitAnnotation}} disabled?={{!text}} ></paper-icon-button>
-                  <paper-icon-button icon='close' on-click= {{close}} ></paper-icon-button>
+                  <paper-icon-button icon='add'   on-click= {{submitAnnotation}} disabled?={{!text||$.saveAnnotationRequest.loading}} ></paper-icon-button>
+                  <paper-icon-button icon='close' on-click= {{close}} disabled?={{$.saveAnnotationRequest.loading}}></paper-icon-button>
               </div>
 
           </template>
@@ -184,6 +184,8 @@
       },
 
       submitAnnotation: function(){
+          if (this.$.saveAnnotationRequest.loading)
+              return;
           if (!this.text)
               return;
           this.$.saveAnnotationRequest.data = this.annotationData();

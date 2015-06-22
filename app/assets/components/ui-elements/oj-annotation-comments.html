@@ -17,8 +17,8 @@
           <markdown-text-area id=replyTextArea placeholder="Add a comment" value="{{text}}"></markdown-text-area>
 
           <div layout horizontal end-justified class='controls'>
-              <paper-icon-button disabled?={{!text}} on-click={{submitComment}}  icon="add"></paper-icon-button>
-              <paper-icon-button on-click={{dismissNewComment}} icon="close"></paper-icon-button>
+              <paper-icon-button disabled?={{!text||$.newCommentRequest.loading}} on-click={{submitComment}}  icon="add"></paper-icon-button>
+              <paper-icon-button disabled?={{$.newCommentRequest.loading}} on-click={{dismissNewComment}} icon="close"></paper-icon-button>
           </div>
       </template>
 
@@ -107,6 +107,8 @@
       },
 
       submitComment:function(){
+        if (this.$.newCommentRequest.loading)
+            return;
         if (!this.text)
             return;
 

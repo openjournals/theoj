@@ -1,4 +1,4 @@
-<polymer-element name=json-req attributes='method url data auto result'>
+<polymer-element name=json-req attributes='method url data auto loading result'>
 
     <template>
         <core-ajax  id='request'
@@ -7,11 +7,11 @@
                     handleAs="json"
                     contentType="application/json"
                     method={{method}}
+                    loading={{loading}}
                     response={{result}}
                     body="{{data | json}}"
                     on-core-response={{success}}
                     on-core-error={{error}}
-
                 >
         </core-ajax>
     </template>
