@@ -60,7 +60,7 @@
 
       onRouteChanged: function(event, detail) {
           var $menu = this.shadowRoot.querySelector('#mainmenu');
-          $menu.routeChanged(detail.path, detail.pageInstance, detail.route);
+          $menu.routeChanged(detail);
       },
 
       showNotification: function(text) {

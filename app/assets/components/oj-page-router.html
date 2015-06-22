@@ -108,14 +108,15 @@
             },
 
             activateRouteEnd: function (event, detail) {
-                var path         = detail.path;
-                var route        = detail.route;
-                var pageInstance = this.pageInstanceForRoute(route);
+                var path      = detail.path;
+                var route     = detail.route;
+                var instance  = this.pageInstanceForRoute(route);
+                route.activeInstance = instance;
 
                 this.fire('route-changed', {
-                    path:         path,
-                    route:        route,
-                    pageInstance: pageInstance
+                    path:     path,
+                    route:    route,
+                    instance: instance
                 });
 
             }

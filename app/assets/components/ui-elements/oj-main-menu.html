@@ -60,16 +60,37 @@
 
         // External API
 
-        routeChanged: function(path, pageInstance, route) {
-            if (path=='/')
-                var page='home';
-            else
-                var page = path.split("/")[1];
+        routeChanged: function(detail) {
+            var section;
+
+            if ($.isPlainObject(detail) ) {
+                section = detail.instance && detail.instance.getSectionName && detail.instance.getSectionName();
+
+                if (!section)
+                    section = this.sectionFromPath(detail.path);
+
+            } else {
+                section = this.sectionFromPath(detail);
+            }
 
             // Make sure any other menu tap events are handled first
-            this.async( function() {
-                this.selectedMenuItem = page;
-            });
+            if (section && section != 'none') {
+                this.async( function() {
+                    this.selectedMenuItem = section;
+                });
+            }
+        },
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        sectionFromPath: function(path) {
+            if (path=='/')
+                return 'home';
+            else if (path)
+                return path.split("/")[1] || path;
+            else
+                return undefined;
         }
 
     })
