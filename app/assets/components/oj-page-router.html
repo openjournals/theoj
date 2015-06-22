@@ -1,7 +1,8 @@
-<polymer-element name="oj-page-router" attributes='currentUserReady currentUser'>
+<polymer-element name="oj-page-router" attributes='currentUser'>
     <template>
 
         <app-router id=router
+                    init=manual
                     mode=pushstate
                     on-activate-route-start={{activateRouteStart}}
                     on-before-data-binding={{beforeDataBinding}}
@@ -14,7 +15,7 @@
             <app-route path='/submit' element='oj-submit-page'></app-route>
             <app-route path='/papers'>
                 <template>
-                    <oj-papers-page src='/api/papers' header="Your submissions"></oj-papers-page>
+                    <oj-papers-page src='/api/papers' header="Papers you submitted"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/review'>
@@ -42,26 +43,44 @@
 
             // Public API
 
+            init: function() {
+                this.$.router.init();
+            },
+
             go: function (url) {
                 this.$.router.go(url);
             },
 
             /////////////////////////////////////////////////////
 
-            validateOrRedirectUser: function (event, path, route) {
+
+            getInitialPath: function(user) {
+                if (!user)
+                    return '/';
+                else if (user.has_papers_as_editor)
+                    return '/editing';
+                else if (user.has_papers_as_reviewer)
+                    return '/review';
+                else if (user.has_papers_as_reviewer)
+                    return '/papers';
+                else
+                    return '/submit';
+            },
+
+            validateOrRedirectUser: function (event, path, route, initialRequest) {
+
+                if (path=='/' && this.currentUser && initialRequest) {
+                    var newPath = this.getInitialPath(this.currentUser);
+                    if (newPath && newPath != path) {
+                        event.preventDefault();
+                        this.$.router.go( newPath );
+                        return false;
+                    }
+                }
 
                 // Login not required
                 if (!this.loginRequired(route)) {
                     return true;
-                }
-
-                // Waiting for current user
-                if (!this.currentUserReady) {
-                    event.preventDefault();
-                    this.async(function () {
-                        this.$.router.go(path, {replace: true});
-                    }.bind(this));
-                    return false;
                 }
 
                 // User not logged in
@@ -100,7 +119,8 @@
             activateRouteStart: function (event, detail) {
                 var path = event.detail.path;
                 var route = event.detail.route;
-                return this.validateOrRedirectUser(event, path, route);
+                var initialRequest = ! detail.oldRoute;
+                return this.validateOrRedirectUser(event, path, route, initialRequest);
             },
 
             beforeDataBinding: function(event, detail) {
@@ -114,9 +134,10 @@
                 route.activeInstance = instance;
 
                 this.fire('route-changed', {
-                    path:     path,
-                    route:    route,
-                    instance: instance
+                    path:         path,
+                    route:        route,
+                    instance:     instance,
+                    firstRequest: ! detail.oldRoute // First page requested
                 });
 
             }

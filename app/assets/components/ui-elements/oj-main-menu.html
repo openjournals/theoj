@@ -74,9 +74,9 @@
             }
 
             // Make sure any other menu tap events are handled first
-            if (section && section != 'none') {
+            if (section != 'none') {
                 this.async( function() {
-                    this.selectedMenuItem = section;
+                    this.selectedMenuItem = section || 'home';
                 });
             }
         },
@@ -86,7 +86,7 @@
 
         sectionFromPath: function(path) {
             if (path=='/')
-                return 'home';
+                return '';
             else if (path)
                 return path.split("/")[1] || path;
             else
