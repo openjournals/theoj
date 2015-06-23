@@ -93,6 +93,7 @@
                 var edit = this.shadowRoot.querySelector('#replyTextArea');
                 edit.focus();
                 edit.select();
+                this.asyncFire('new-comment-shown');
             });
       },
 
