@@ -14,13 +14,12 @@
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login user={{currentUser}} userReady={{currentUserReady}}></oj-user-login>
+        <oj-user-login on-user={{onUser}}></oj-user-login>
       </core-toolbar>
 
       <oj-page-router id=pages
-                      currentUserReady={{currentUserReady}}
+                      on-route-changed={{onRouteChanged}}
                       currentUser={{currentUser}}
-                      on-path-changed={{onPathChanged}}
               ></oj-page-router>
 
       <paper-toast id=notification class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
@@ -58,9 +57,14 @@
         this.$.pages.go(url);
       },
 
-      onPathChanged: function(event, path) {
+      onUser: function(event, user) {
+        this.currentUser = user;
+          this.$.pages.init();
+      },
+
+      onRouteChanged: function(event, detail) {
           var $menu = this.shadowRoot.querySelector('#mainmenu');
-          $menu.pathChanged(path);
+          $menu.routeChanged(detail);
       },
 
       showNotification: function(text) {
@@ -68,7 +72,6 @@
           this.$.notification.text = text;
           this.$.notification.show();
       }
-
 
     });
   </script>

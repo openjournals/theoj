@@ -86,19 +86,40 @@
   <script>
     Polymer({
 
+      /**** external API *********/
+
+      getSectionName: function() {
+          return 'none';
+      },
+
+      /*** Polymer callbacks *****/
+
       created: function() {
         this.annotations = [];
       },
+
+      paperChanged: function() {
+          if (this.paper) {
+              var current_user_sha          = this.currentUser.sha;
+              this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
+              this.paper.current_role       = this.paper.current_assignment && this.paper.current_assignment.role;
+              this.paper.can_annotate       = this.paper.current_role && this.paper.state == 'under_review';
+
+              this.fire('route-changed', this.menuSectionForRole(this.paper.current_role) );
+          }
+      },
+
+     /******************************/
+
+        menuSectionForRole: function(role) {
+          switch (role) {
+              case 'editor':   return 'editing';
+              case 'reviewer': return 'review';
+              default:         return 'papers';
+          }
+      },
       pdfClientChanged: function(event, detail) {
         this.pdfClientHeight = detail.clientHeight;
-      },
-      paperChanged: function() {
-        if (this.paper) {
-            var current_user_sha          = this.currentUser.sha;
-            this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-            this.paper.current_role       = this.paper.current_assignment && this.paper.current_assignment.role;
-            this.paper.can_annotate       = this.paper.current_role && this.paper.state == 'under_review';
-        }
       },
       onChangeAnnotation:function(event, annotation) {
         this.$.header.updateCounts();

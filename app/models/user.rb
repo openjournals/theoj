@@ -1,11 +1,14 @@
 class User < ActiveRecord::Base
   has_many :assignments, inverse_of: :user
+  has_many :assignments_as_collaborator, -> { where(role:'collaborator') }, class_name:'Assignment', inverse_of: :user
+  has_many :assignments_as_reviewer,     -> { where(role:'reviewer') },     class_name:'Assignment', inverse_of: :user
+  has_many :assignments_as_editor,       -> { where(role:'editor') },       class_name:'Assignment', inverse_of: :user
 
   # # Submitting author relationship with paper
   has_many :papers_as_submittor,    class_name:'Paper', inverse_of: :submittor, foreign_key:'submittor_id'
-  has_many :papers_as_collaborator, -> { where('assignments.role = ?', 'collaborator') }, through: :assignments, source: :paper
-  has_many :papers_as_reviewer,     -> { where('assignments.role = ?', 'reviewer') },     through: :assignments, source: :paper
-  has_many :papers_as_editor,       -> { where('assignments.role = ?', 'editor') },       through: :assignments, source: :paper
+  has_many :papers_as_collaborator, through: :assignments_as_collaborator, source: :paper
+  has_many :papers_as_reviewer,     through: :assignments_as_reviewer,     source: :paper
+  has_many :papers_as_editor,       through: :assignments_as_editor,       source: :paper
 
   serialize :extra
 
