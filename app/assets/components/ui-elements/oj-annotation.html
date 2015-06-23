@@ -147,19 +147,16 @@
           if (!this.annotation.open)
               return;
 
-          var spacing = 10 /*px*/ ;
-
-          var top     = this.offsetTop;
-          var height  = this.$.collapsible.offsetHeight;
-
           var list = this.offsetParent;
           if (list.tagName != 'OJ-ANNOTATION-LIST') console.error('annotation parent is not the oj-annotation-list');
-            console.log('>>>>>', top, height, list.offsetTop);
-          top = top + list.offsetTop;
 
           var container = list.offsetParent;
           if (container.id != 'mainContainer') console.error('annotation-list parent is not the #mainContainer');
 
+          var spacing = 10 /*px*/ ;
+          var top     = this.offsetTop;
+          var height  = this.$.collapsible.offsetHeight;
+          top = top + list.offsetTop;
 
           if (prioritize_top && top < container.scrollTop) {
               $(container).animate({scrollTop: top - spacing}, 500);
