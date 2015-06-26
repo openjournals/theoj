@@ -8,7 +8,7 @@
                   <core-icon icon=delete></core-icon>
                   Start Review
               </paper-button>
-              <paper-button id=delete raised hidden?="{{ptrue || paper.state=='submitted'}}" on-tap="{{deleteClick}}" >
+              <paper-button id=delete raised hidden?="{{ptrue || paper.state!='submitted'}}" on-tap="{{deleteClick}}" >
                   <core-icon icon=arrow-forward></core-icon>
                   Delete Paper
               </paper-button>
