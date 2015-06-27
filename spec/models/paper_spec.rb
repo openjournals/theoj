@@ -8,10 +8,12 @@ describe Paper do
   }
 
   it "should initialize properly" do
-    paper = create(:paper)
+    user  = create(:user)
+    paper = Paper.create!(provider_type:'something', provider_id:'1234abcd', version:7, submittor:user)
 
-    assert !paper.sha.nil?
-    expect(paper.sha.length).to eq(32)
+    expect(paper.provider_type).to eq('something')
+    expect(paper.provider_id).to eq('1234abcd')
+    expect(paper.version).to eq(7)
     expect(paper.state).to eq("submitted")
   end
 
@@ -37,7 +39,8 @@ describe Paper do
       doc = Arxiv.get('1311.1653')
       p = Paper.new_for_arxiv(doc)
 
-      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.provider_type).to eq('arxiv')
+      expect(p.provider_id).to eq('1311.1653')
       expect(p.version).to eq(2)
       expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(p.summary).to match /^We present.*paper.$/
@@ -65,7 +68,8 @@ describe Paper do
 
       p = Paper.new_for_arxiv_id('1311.1653')
 
-      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.provider_type).to eq('arxiv')
+      expect(p.provider_id).to eq('1311.1653')
       expect(p.version).to eq(2)
       expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(p.summary).to match /^We present.*paper.$/
@@ -80,7 +84,8 @@ describe Paper do
 
       p = Paper.new_for_arxiv_id('1311.1653v2')
 
-      expect(p.arxiv_id).to eq('1311.1653')
+      expect(p.provider_type).to eq('arxiv')
+      expect(p.provider_id).to eq('1311.1653')
       expect(p.version).to eq(2)
     end
 
@@ -187,7 +192,7 @@ describe Paper do
       create(:paper, arxiv_id:'1234.5678', version:3)
       create(:paper, arxiv_id:'1234.5678', version:4)
 
-      papers = Paper.versions_for('1234.5678')
+      papers = Paper.versions_for(:arxiv, '1234.5678')
 
       expect(papers[0]['version']).to eq(4)
       expect(papers[1]['version']).to eq(3)
@@ -228,7 +233,8 @@ describe Paper do
       original  = create(:paper, arxiv_id:'1311.1653')
       new_paper = Paper.create_updated!(original, arxiv_doc)
 
-      expect(new_paper.arxiv_id).to eq('1311.1653')
+      expect(new_paper.provider_type).to eq('arxiv')
+      expect(new_paper.provider_id).to eq('1311.1653')
       expect(new_paper.version).to eq(2)
       expect(new_paper.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(new_paper.summary).to match /^We present.*paper.$/
@@ -411,7 +417,7 @@ describe Paper do
       user = create(:user)
       ability = Ability.new(user)
 
-      assert ability.can?(:create, Paper.create!(submittor:user))
+      assert ability.can?(:create, create(:paper, submittor:user, arxiv_id:'1234.5678'))
     end
 
     it "should allow a user to read a Paper as author" do

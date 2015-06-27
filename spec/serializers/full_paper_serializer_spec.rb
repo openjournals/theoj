@@ -9,12 +9,13 @@ describe FullPaperSerializer do
     serializer = FullPaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash.keys).to contain_exactly("id", "arxiv_id", "version",
-                                        "user_permissions", "location", "state",
-                                        "submitted_at", "title",
-                                        "pending_issues_count",
-                                        "sha", "submittor",
-                                        "assigned_users", "versions")
+    expect(hash.keys).to contain_exactly("paper_id",
+                                         "provider_type", "provider_id", "version",
+                                         "user_permissions", "location", "state",
+                                         "submitted_at", "title",
+                                         "pending_issues_count",
+                                          "submittor",
+                                         "assigned_users", "versions")
   end
 
   it "should serialize a list of assignments" do

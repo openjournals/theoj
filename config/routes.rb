@@ -62,7 +62,7 @@ Theoj::Application.routes.draw do
   # Helpers for Polymer Routes
   scope controller:'none', action:'none' do
 
-    get 'review/:sha', as:'paper_review'
+    get 'review/:param', as:'paper_review'
 
   end
 

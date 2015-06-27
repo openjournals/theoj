@@ -4,9 +4,10 @@ FactoryGirl.define do
     state          "submitted"
     title          "My awesome paper"
     summary        "Summary of my awesome paper"
-    # sha          "1234abcd" * 8
     author_list    "John Smith, Paul Adams, Ella Fitzgerald"
     association    :submittor, factory: :user
+    provider_type  'a-source'
+    provider_id    { SecureRandom.hex }
     version        1
     created_at     { Time.now }
     updated_at     { Time.now }
@@ -18,9 +19,15 @@ FactoryGirl.define do
     ignore do
       reviewer     nil
       collaborator nil
+      arxiv_id     nil
     end
 
     after(:build) do |paper, factory|
+      if factory.arxiv_id
+        paper.provider_type = 'arxiv'
+        paper.provider_id   = factory.arxiv_id
+      end
+
       paper.send(:create_assignments) if paper.submittor
 
       if factory.collaborator

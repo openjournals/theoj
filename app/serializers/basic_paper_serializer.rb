@@ -1,7 +1,7 @@
 class BasicPaperSerializer < BaseSerializer
 
-  attributes :arxiv_id,
-             :version,
-             :sha
+  attributes :provider_type,
+             :provider_id,
+             :version
 
 end

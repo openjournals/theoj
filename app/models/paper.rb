@@ -28,14 +28,16 @@ class Paper < ActiveRecord::Base
 
   scope :active, -> { where.not(state:'superceded') }
 
-  before_create :set_initial_values,
-                :create_assignments
+  before_create :create_assignments
 
   # Using after commit since creating revisions happens in a transaction
   after_commit  :send_submittor_emails, on: :create
 
   validates :submittor_id,
-            presence: true
+            :provider_type,
+            :provider_id,
+            :version,
+             presence: true
 
   aasm column: :state do
     state :submitted,          initial:true
@@ -78,9 +80,9 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def self.versions_for(arxiv_id)
-    if arxiv_id
-      where(arxiv_id:arxiv_id).order(version: :desc)
+  def self.versions_for(provider_type, provider_id)
+    if provider_id
+      where(provider_type:provider_type, provider_id:provider_id).order(version: :desc)
     else
       none
     end
@@ -94,13 +96,14 @@ class Paper < ActiveRecord::Base
   def self.new_for_arxiv(arxiv_doc, attributes={})
 
     attributes = attributes.merge(
-        arxiv_id:    arxiv_doc.arxiv_id,
-        version:     arxiv_doc.version,
+        provider_type: 'arxiv', #@mro, #@todo set from doc
+        provider_id:   arxiv_doc.arxiv_id,
+        version:       arxiv_doc.version,
 
-        title:       arxiv_doc.title,
-        summary:     arxiv_doc.summary,
-        location:    arxiv_doc.pdf_url,
-        author_list: arxiv_doc.authors.collect{|a| a.name}.join(", ")
+        title:         arxiv_doc.title,
+        summary:       arxiv_doc.summary,
+        location:      arxiv_doc.pdf_url,
+        author_list:   arxiv_doc.authors.collect{|a| a.name}.join(", ")
     )
 
     new(attributes)
@@ -108,7 +111,8 @@ class Paper < ActiveRecord::Base
 
   def self.create_updated!(original, arxiv_doc)
 
-    raise 'Arxiv IDs do not match'            unless original.arxiv_id == arxiv_doc.arxiv_id
+    raise 'Providers do not match'            unless original.provider_type == 'arxiv' #@mro #@todo test this, add to controller
+    raise 'Provider IDs do not match'         unless original.provider_id == arxiv_doc.arxiv_id
     raise 'Cannot update superceded original' unless original.may_supercede?
     raise 'No new version available'          unless arxiv_doc.version > original.version
 
@@ -135,8 +139,9 @@ class Paper < ActiveRecord::Base
     submitted? || superceded?
   end
 
-  def full_arxiv_id
-    "#{arxiv_id}v#{version}"
+  #@mro #@todo - delegate to parser
+  def full_provider_id
+    "#{provider_id}v#{version}"
   end
 
   def issues
@@ -152,12 +157,12 @@ class Paper < ActiveRecord::Base
   end
 
   def to_param
-    sha
+    "#{provider_type}:#{provider_id}"
   end
 
   # Newest version first
   def all_versions
-    @all_versions ||= (arxiv_id ? Paper.versions_for(arxiv_id) : [self])
+    @all_versions ||= (provider_id ? Paper.versions_for(provider_type, provider_id) : [self])
   end
 
   def is_revision?
@@ -222,10 +227,6 @@ class Paper < ActiveRecord::Base
   end
 
   private
-
-  def set_initial_values
-    self.sha ||= SecureRandom.hex
-  end
 
   def has_reviewers?
     reviewers.any?

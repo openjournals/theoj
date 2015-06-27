@@ -22,6 +22,7 @@ class PapersController < ApplicationController
     respond_with paper, serializer:FullPaperSerializer
   end
 
+  #@mro #@todo
   def arxiv_details
     id = params[:id]
     existing = Paper.find_by_arxiv_id(id)

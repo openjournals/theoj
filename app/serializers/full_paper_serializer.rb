@@ -6,7 +6,7 @@ class FullPaperSerializer < PaperSerializer
   has_many :versions,       each_serialzier: BasicPaperSerializer
 
   def versions
-    Paper.versions_for(object.arxiv_id)
+    object.all_versions
   end
 
   def assigned_users

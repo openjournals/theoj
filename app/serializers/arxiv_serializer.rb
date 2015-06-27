@@ -1,5 +1,6 @@
 # Serialize a Paper in the Arxiv format
 
+#@todo #@mro
 class ArxivSerializer < BaseSerializer
 
   attributes :arxiv_url,
@@ -15,6 +16,10 @@ class ArxivSerializer < BaseSerializer
 
   def arxiv_url
     object.location.sub(/\.pdf$/,'')
+  end
+
+  def arxiv_id
+    object.full_provider_id;
   end
 
   def links

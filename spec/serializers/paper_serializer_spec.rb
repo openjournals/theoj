@@ -9,12 +9,13 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash.keys).to contain_exactly("id", "arxiv_id", "version",
-                                          "user_permissions", "state",
-                                          "submitted_at", "title",
-                                          "pending_issues_count",
-                                         "submittor",
-                                          "sha")
+    expect(hash.keys).to contain_exactly("paper_id",
+                                         "provider_type", "provider_id", "version",
+                                         "user_permissions", "state",
+                                         "submitted_at", "title",
+                                         "pending_issues_count",
+                                         "submittor"
+                         )
   end
 
   it "should serialize the submittor properly" do

@@ -7,7 +7,7 @@ describe BasicPaperSerializer do
     serializer = BasicPaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash).to include("arxiv_id", "version", "sha")
+    expect(hash.keys).to contain_exactly("provider_type", "provider_id", "version")
   end
 
 end
