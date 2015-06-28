@@ -1,6 +1,6 @@
 # Serialize a Paper in the Arxiv format
 
-#@todo #@mro
+#@todo #@mro - we should remove this and the underlying actions completely in favor of something generalized
 class ArxivSerializer < BaseSerializer
 
   attributes :arxiv_url,

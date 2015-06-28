@@ -6,7 +6,7 @@ Hi Joe Smith,
 
 Here is the content
 
-A Paper Title: http://test.host/review/abcd
+A Paper Title: http://test.host/review/arxiv:1234.5678v9
 
 Thanks
 The OJ Team
@@ -27,7 +27,7 @@ Content-Transfer-Encoding: 7bit
         <p>
   Here is the content
   <br/><br/>
-  <a href="http://test.host/review/abcd">A Paper Title</a>
+  <a href="http://test.host/review/arxiv:1234.5678v9">A Paper Title</a>
 </p>
 
 

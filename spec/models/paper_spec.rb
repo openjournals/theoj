@@ -2,16 +2,23 @@ require "rails_helper"
 
 describe Paper do
 
-  let(:arxiv_doc) {
-    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
-    Arxiv.get('1311.1653v2')
-  }
+  let(:arxiv_doc) do
+    {
+        provider_type: :arxiv,
+        provider_id:   "1311.1653",
+        version:       2,
+        author_list:   "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        location:      "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:         "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:       "We present photometry.*in a second paper."
+    }
+  end
 
   it "should initialize properly" do
     user  = create(:user)
-    paper = Paper.create!(provider_type:'something', provider_id:'1234abcd', version:7, submittor:user)
+    paper = Paper.create!(provider_type:'test', provider_id:'1234abcd', version:7, submittor:user)
 
-    expect(paper.provider_type).to eq('something')
+    expect(paper.provider_type).to eq('test')
     expect(paper.provider_id).to eq('1234abcd')
     expect(paper.version).to eq(7)
     expect(paper.state).to eq("submitted")
@@ -30,81 +37,6 @@ describe Paper do
       expect(p.assignments.first.user).to  eq(editor)
       expect(p.assignments.second.role).to eq('submittor')
       expect(p.assignments.second.user).to eq(submittor)
-    end
-
-    it "should build a paper from an arxiv document" do
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv/1311.1653v2.xml"))
-
-      doc = Arxiv.get('1311.1653')
-      p = Paper.new_for_arxiv(doc)
-
-      expect(p.provider_type).to eq('arxiv')
-      expect(p.provider_id).to eq('1311.1653')
-      expect(p.version).to eq(2)
-      expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
-      expect(p.summary).to match /^We present.*paper.$/
-      expect(p.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
-      expect(p.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
-    end
-
-    it "should include additional attributes when building a paper from an arxiv document" do
-
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv/1311.1653v2.xml"))
-
-      doc = Arxiv.get('1311.1653')
-
-      u = create(:user)
-      p = Paper.new_for_arxiv(doc, submittor:u)
-
-      expect(p.submittor).to eq(u)
-    end
-
-    it "should build a paper from an arxiv_id" do
-
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-                   to_return(fixture("arxiv/1311.1653v2.xml"))
-
-      p = Paper.new_for_arxiv_id('1311.1653')
-
-      expect(p.provider_type).to eq('arxiv')
-      expect(p.provider_id).to eq('1311.1653')
-      expect(p.version).to eq(2)
-      expect(p.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
-      expect(p.summary).to match /^We present.*paper.$/
-      expect(p.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
-      expect(p.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
-    end
-
-    it "should build a paper from an arxiv_id with a version" do
-
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").
-          to_return(fixture("arxiv/1311.1653v2.xml"))
-
-      p = Paper.new_for_arxiv_id('1311.1653v2')
-
-      expect(p.provider_type).to eq('arxiv')
-      expect(p.provider_id).to eq('1311.1653')
-      expect(p.version).to eq(2)
-    end
-
-    it "should include additional attributes when building a paper from an arxiv_id" do
-
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").
-          to_return(fixture("arxiv/1311.1653v2.xml"))
-
-      u = create(:user)
-      p = Paper.new_for_arxiv_id('1311.1653', submittor:u)
-
-      expect(p.submittor).to eq(u)
-    end
-
-    it "should raise an error if the arxiv id is not found" do
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=0000.0000").
-          to_return(fixture("arxiv/not_found.xml"))
-
-      expect { Paper.new_for_arxiv_id('0000.0000') }.to raise_exception(Arxiv::Error::ManuscriptNotFound)
     end
 
   end
@@ -126,7 +58,7 @@ describe Paper do
       deliveries.clear
 
       expect {
-        Paper.create_updated!(original, arxiv_doc)
+        original.create_updated!(arxiv_doc)
       }.to change { deliveries.size }.by(1)
 
       is_expected.to have_sent_email.to('jsmith@example.com').matching_subject(/A photo.* - Paper Revised/)
@@ -174,11 +106,72 @@ describe Paper do
   describe "::with_scope" do
 
     it "should return properly scoped records" do
-      paper = create(:paper, :submitted)
-      create(:paper)
+      paper1 = create(:paper, :submitted)
+      paper2 = create(:paper, :submitted)
+      papers = Paper.with_state('submitted')
 
-      assert_equal Paper.count, 2
-      assert_includes Paper.with_state('submitted'), paper
+      expect(papers.count).to eq(2)
+      expect( papers ).to  include(paper1)
+    end
+
+    it "should ignore improperly scoped records" do
+      paper1 = create(:paper, :under_review)
+      paper2 = create(:paper, :submitted)
+      papers = Paper.with_state('submitted')
+
+      expect(papers.count).to eq(1)
+      expect( papers ).not_to  include(paper1)
+    end
+
+    it "should return all papers if no state is given" do
+      paper1 = create(:paper, :under_review)
+      paper2 = create(:paper, :submitted)
+      papers = Paper.with_state('')
+
+      expect(papers.count).to eq(2)
+      expect( papers ).to  include(paper1)
+    end
+
+  end
+
+  describe "::for_identifier" do
+
+    it "should find a paper using an identifier and version" do
+      paper = create(:paper, provider_id:'1234', version:9)
+      expect(Paper.for_identifier('test:1234-9')).to eq(paper)
+    end
+
+    it "should find the correct paper amongst multiple versions" do
+      paper1 = create(:paper, provider_id:'1234', version:7)
+      paper2 = create(:paper, provider_id:'1234', version:8)
+      paper3 = create(:paper, provider_id:'1234', version:9)
+      expect(Paper.for_identifier('test:1234-8')).to eq(paper2)
+    end
+
+    it "should find a paper using an identifier and no version" do
+      paper = create(:paper, provider_id:'1234', version:9)
+      expect(Paper.for_identifier('test:1234')).to eq(paper)
+    end
+
+    it "should find the latest paper amongst multiple versions" do
+      paper1 = create(:paper, provider_id:'1234', version:7)
+      paper2 = create(:paper, provider_id:'1234', version:9)
+      paper3 = create(:paper, provider_id:'1234', version:8)
+      expect(Paper.for_identifier('test:1234')).to eq(paper2)
+    end
+
+    it "should raise an error if no identifier is provided" do
+      expect{Paper.for_identifier('')  }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect{Paper.for_identifier(nil) }.to raise_exception(ActiveRecord::RecordNotFound)
+    end
+
+    it "should raise an error if the provider is not found" do
+      expect{Paper.for_identifier('unknown:1234') }.to raise_exception(Provider::Error::ProviderNotFound)
+    end
+
+    it "should raise an error if the record is not found" do
+      expect{Paper.for_identifier('test:1234-9') }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect{Paper.for_identifier('test:1234')   }.to raise_exception(ActiveRecord::RecordNotFound)
     end
 
   end
@@ -202,13 +195,13 @@ describe Paper do
 
   end
 
-  describe "::create_updated!" do
+  describe "#create_updated!" do
 
     it "should create a new instance" do
       original  = create(:paper, arxiv_id:'1311.1653')
       new_paper = nil
       expect {
-        new_paper = Paper.create_updated!(original, arxiv_doc)
+        new_paper = original.create_updated!(arxiv_doc)
       }.to change{Paper.count}.by(1)
 
       expect(new_paper).to be_persisted
@@ -216,14 +209,14 @@ describe Paper do
 
     it "should change the state of the original instance to superceded" do
       original  = create(:paper, arxiv_id:'1311.1653')
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(original).to be_superceded
     end
 
     it "should copy the attributes from the original paper" do
       original  = create(:paper, :under_review, arxiv_id:'1311.1653')
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.submittor).to eq(original.submittor)
       expect(new_paper.state).to     eq('under_review')
@@ -231,7 +224,7 @@ describe Paper do
 
     it "should set the arxiv attributes on the new paper" do
       original  = create(:paper, arxiv_id:'1311.1653')
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.provider_type).to eq('arxiv')
       expect(new_paper.provider_id).to eq('1311.1653')
@@ -248,7 +241,7 @@ describe Paper do
                          reviewer:[ create(:user), create(:user) ])
       expect(original.assignments.length).to eq(4)
 
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.assignments.length).to eq(original.assignments.length)
       (0...original.assignments.length).each do |index|
@@ -264,7 +257,7 @@ describe Paper do
                          reviewer:[ create(:user), create(:user) ])
       original.assignments.second.update_attributes!(public:true)
 
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.assignments.second.public).to be_truthy
       expect(new_paper.assignments.third.public).to be_falsy
@@ -275,7 +268,7 @@ describe Paper do
                          reviewer:[ create(:user), create(:user) ])
       original.assignments.second.update_attributes!(completed:true)
 
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.assignments.second.public).to be_falsy
     end
@@ -287,7 +280,7 @@ describe Paper do
       expect(original.assignments.length).to eq(4)
 
       set_paper_editor
-      new_paper = Paper.create_updated!(original, arxiv_doc)
+      new_paper = original.create_updated!(arxiv_doc)
 
       expect(new_paper.assignments.length).to eq(original.assignments.length)
       (0...original.assignments.length).each do |index|
@@ -299,23 +292,23 @@ describe Paper do
 
     it "should raise an error if the arxiv_ids are different" do
       original  = create(:paper, arxiv_id:'9999.9999')
-      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+      expect { original.create_updated!(arxiv_doc) }.to raise_exception
     end
 
     it "should raise an error if the original cannot be superceded" do
       original  = create(:paper, arxiv_id:'1311.1653')
 
-      expect { Paper.create_updated!(original, arxiv_doc) }.not_to raise_exception
+      expect { original.create_updated!(arxiv_doc) }.not_to raise_exception
 
       original.state = 'superceded'
-      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+      expect { original.create_updated!(arxiv_doc) }.to raise_exception
       original.state = 'resolved'
-      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+      expect { original.create_updated!(arxiv_doc) }.to raise_exception
     end
 
     it "should raise an error if there is no new arxiv version" do
       original  = create(:paper, arxiv_id:'1311.1653', version:2)
-      expect { Paper.create_updated!(original, arxiv_doc) }.to raise_exception
+      expect { original.create_updated!(arxiv_doc) }.to raise_exception
     end
 
   end
@@ -679,7 +672,7 @@ describe Paper do
 
     it "should return an error if the paper is not the latest version" do
       original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
-      updated  = Paper.create_updated!(original, arxiv_doc)
+      updated  = original.create_updated!(arxiv_doc)
 
       expect(original.make_reviewer_public!(reviewers.first, true)).to be_falsy
       expect(original.errors).to be_present
@@ -710,7 +703,7 @@ describe Paper do
 
       it "should mark them all as public" do
         original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
-        updated  = Paper.create_updated!(original, arxiv_doc)
+        updated  = original.create_updated!(arxiv_doc)
 
         expect(updated.make_reviewer_public!(reviewers.first, true)).to be_truthy
         expect(updated.errors).to be_empty
@@ -722,7 +715,7 @@ describe Paper do
       it "should mark them all as non-public" do
         original = create(:paper, reviewer:reviewers, arxiv_id:'1311.1653', version:1)
         original.reviewer_assignments.first.update_attributes!(public:true)
-        updated  = Paper.create_updated!(original, arxiv_doc)
+        updated  = original.create_updated!(arxiv_doc)
 
         expect(updated.make_reviewer_public!(reviewers.first, false)).to be_truthy
         expect(updated.errors).to be_empty

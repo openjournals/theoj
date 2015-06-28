@@ -1,10 +1,11 @@
 Theoj::Application.routes.draw do
 
-  scope path:'api', as:'api', defaults: { format: 'json' } do
+  scope path:'api', as:'api', format: 'json'do
 
+    #@todo #@mro - do we still use this?
     get '/papers/:paper_id/issues', to: "annotations#issues"
 
-    resources :papers, only:[:index, :show, :create, :destroy] do
+    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /\.+/ do
 
       collection do
         get :as_reviewer
@@ -14,12 +15,12 @@ Theoj::Application.routes.draw do
       end
 
       member do
-        put  :check_for_update, id: Paper::ArxivIdRegex
-        get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
-        get  :versions,         id: Paper::ArxivIdRegex
+        put   :check_for_update
+        get   :arxiv_details #@mro #@todo this action needs to be generalized
+        get   :versions
 
-        get  :state
-        put  :transition
+        get   :state
+        put   :transition
 
         post  :complete
         match :public,   via:[:post, :delete]
@@ -62,7 +63,7 @@ Theoj::Application.routes.draw do
   # Helpers for Polymer Routes
   scope controller:'none', action:'none' do
 
-    get 'review/:param', as:'paper_review'
+    get 'review/:identifier', as:'paper_review'
 
   end
 

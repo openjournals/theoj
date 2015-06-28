@@ -1,9 +1,6 @@
 class Paper < ActiveRecord::Base
   include AASM
 
-  ArxivIdRegex = /\d{4}\.\d{4,5}/
-  ArxivIdWithVersionRegex = /\d{4}\.\d{4,5}(v\d+)?/
-
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
   has_many   :assignments, inverse_of: :paper, dependent: :destroy do
     def for_user(user, role=nil)
@@ -26,7 +23,8 @@ class Paper < ActiveRecord::Base
   has_many   :editors,                  through: :editor_assignments,       source: :user
   has_many   :assignees,                through: :assignments,              source: :user
 
-  scope :active, -> { where.not(state:'superceded') }
+  scope :active,     -> { where.not(state:'superceded') }
+  scope :with_state, ->(state=nil) { state.present? ?  where(state:state) : all }
 
   before_create :create_assignments
 
@@ -72,12 +70,20 @@ class Paper < ActiveRecord::Base
 
   end
 
-  def self.with_state(state = nil)
-    if state
-      where(state:state)
-    else
-      all
+  def self.for_identifier(identifier)
+    raise ActiveRecord::RecordNotFound unless identifier.present?
+    provider_type, provider_id = identifier.split(':', 2)
+    provider = Provider[provider_type]
+    provider_id, version = provider.parse_identifier(provider_id)
+
+    if version
+      where(provider_id:provider_id, version:version).first!
+
+    else # get the most recent version if none is provided
+      where(provider_id:provider_id).order(version: :desc).first!
+
     end
+
   end
 
   def self.versions_for(provider_type, provider_id)
@@ -88,39 +94,18 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def self.new_for_arxiv_id(arxiv_id, attributes={})
-    arxiv_doc = Arxiv.get(arxiv_id.to_s)
-    new_for_arxiv(arxiv_doc, attributes)
-  end
+  def create_updated!(attributes)
+    original = self
 
-  def self.new_for_arxiv(arxiv_doc, attributes={})
-
-    attributes = attributes.merge(
-        provider_type: 'arxiv', #@mro, #@todo set from doc
-        provider_id:   arxiv_doc.arxiv_id,
-        version:       arxiv_doc.version,
-
-        title:         arxiv_doc.title,
-        summary:       arxiv_doc.summary,
-        location:      arxiv_doc.pdf_url,
-        author_list:   arxiv_doc.authors.collect{|a| a.name}.join(", ")
-    )
-
-    new(attributes)
-  end
-
-  def self.create_updated!(original, arxiv_doc)
-
-    raise 'Providers do not match'            unless original.provider_type == 'arxiv' #@mro #@todo test this, add to controller
-    raise 'Provider IDs do not match'         unless original.provider_id == arxiv_doc.arxiv_id
+    #@todo test this, add to controller
+    raise 'Providers do not match'            unless original.provider_type.to_sym == attributes[:provider_type]
+    raise 'Provider IDs do not match'         unless original.provider_id          == attributes[:provider_id]
     raise 'Cannot update superceded original' unless original.may_supercede?
-    raise 'No new version available'          unless arxiv_doc.version > original.version
+    raise 'No new version available'          unless original.version              <  attributes[:version]
 
     ActiveRecord::Base.transaction do
-      new_paper = Paper.new_for_arxiv(arxiv_doc,
-                                      submittor: original.submittor,
-                                      state:     original.state
-      )
+      attributes = attributes.merge(submittor: original.submittor, state: original.state)
+      new_paper = Paper.new(attributes)
 
       original.assignments.each do |assignment|
         new_paper.assignments << Assignment.build_copy(assignment)
@@ -139,9 +124,8 @@ class Paper < ActiveRecord::Base
     submitted? || superceded?
   end
 
-  #@mro #@todo - delegate to parser
   def full_provider_id
-    "#{provider_id}v#{version}"
+    provider.full_identifier(self)
   end
 
   def issues
@@ -157,7 +141,7 @@ class Paper < ActiveRecord::Base
   end
 
   def to_param
-    "#{provider_type}:#{provider_id}"
+    "#{provider_type}:#{full_provider_id}"
   end
 
   # Newest version first
@@ -227,6 +211,10 @@ class Paper < ActiveRecord::Base
   end
 
   private
+
+  def provider
+    @provider ||= Provider[provider_type]
+  end
 
   def has_reviewers?
     reviewers.any?
