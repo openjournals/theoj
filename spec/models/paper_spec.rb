@@ -136,6 +136,16 @@ describe Paper do
 
   describe "::for_identifier" do
 
+    it "should find a paper using an integer id" do
+      paper = create(:paper, provider_id:'1234', version:9)
+      expect(Paper.for_identifier(paper.id)).to eq(paper)
+    end
+
+    it "should find a paper using an integer string id" do
+      paper = create(:paper, provider_id:'1234', version:9)
+      expect(Paper.for_identifier(paper.id.to_s)).to eq(paper)
+    end
+
     it "should find a paper using an identifier and version" do
       paper = create(:paper, provider_id:'1234', version:9)
       expect(Paper.for_identifier('test:1234-9')).to eq(paper)
@@ -161,8 +171,13 @@ describe Paper do
     end
 
     it "should raise an error if no identifier is provided" do
-      expect{Paper.for_identifier('')  }.to raise_exception(ActiveRecord::RecordNotFound)
-      expect{Paper.for_identifier(nil) }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect{Paper.for_identifier('')  }.to raise_exception(Provider::Error::InvalidIdentifier)
+      expect{Paper.for_identifier(nil) }.to raise_exception(Provider::Error::InvalidIdentifier)
+    end
+
+    it "should raise an error if a type but no id is provided" do
+      expect{Paper.for_identifier('test')  }.to raise_exception(Provider::Error::InvalidIdentifier)
+      expect{Paper.for_identifier('test:') }.to raise_exception(Provider::Error::InvalidIdentifier)
     end
 
     it "should raise an error if the provider is not found" do

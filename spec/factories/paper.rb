@@ -23,12 +23,12 @@ FactoryGirl.define do
     end
 
     after(:build) do |paper, factory|
+
       if factory.arxiv_id
-        paper.provider_type = 'arxiv'
-        paper.provider_id   = factory.arxiv_id.split('v',2).first
-        #@todo #@mro - change to use the Provider methods
-        version = factory.arxiv_id.split('v',2).second
-        paper.version       = version if version.present?
+        provider_id, version = ArxivProvider.parse_identifier(factory.arxiv_id)
+        paper.provider_type  = 'arxiv'
+        paper.provider_id    = provider_id
+        paper.version        = version if version.present?
       end
 
       paper.send(:create_assignments) if paper.submittor

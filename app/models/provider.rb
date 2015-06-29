@@ -2,7 +2,24 @@
 
 class Provider
 
+  SEPARATOR = ':'
+
   class << self
+
+    def parse_identifier(identifier)
+      raise Error::InvalidIdentifier.new unless identifier.present?
+      provider_type, provider_id = identifier.split(':', 2)
+      raise Error::InvalidIdentifier.new unless provider_id.present?
+
+      provider = self[provider_type]
+      provider_id, version = provider.parse_identifier(provider_id)
+
+      if version
+        [provider_type, provider_id, version.to_i]
+      else
+        [provider_type, provider_id]
+      end
+    end
 
     def [](type)
       get(type) || raise( Error::ProviderNotFound.new("Provider not found for '#{type}'") )
@@ -42,8 +59,9 @@ class Provider
   end
 
   module Error
-    class ProviderNotFound < StandardError; end
-    class DocumentNotFound < StandardError; end
+    class ProviderNotFound  < StandardError; end
+    class DocumentNotFound  < StandardError; end
+    class InvalidIdentifier < StandardError; end
   end
 
 end

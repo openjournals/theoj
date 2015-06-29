@@ -71,19 +71,16 @@ class Paper < ActiveRecord::Base
   end
 
   def self.for_identifier(identifier)
-    raise ActiveRecord::RecordNotFound unless identifier.present?
-    provider_type, provider_id = identifier.split(':', 2)
-    provider = Provider[provider_type]
-    provider_id, version = provider.parse_identifier(provider_id)
+    if identifier.is_a?(Integer) || identifier =~ /^\d+$/
+      where(id:identifier).first!
 
-    if version
-      where(provider_id:provider_id, version:version).first!
+    else
+      provider_type, provider_id, version = Provider.parse_identifier(identifier)
 
-    else # get the most recent version if none is provided
-      where(provider_id:provider_id).order(version: :desc).first!
-
+      relation = where(provider_type:provider_type, provider_id:provider_id)
+      relation = version ? relation.where(version:version) : relation.order(version: :desc)
+      relation.first!
     end
-
   end
 
   def self.versions_for(provider_type, provider_id)
@@ -97,7 +94,6 @@ class Paper < ActiveRecord::Base
   def create_updated!(attributes)
     original = self
 
-    #@todo test this, add to controller
     raise 'Providers do not match'            unless original.provider_type.to_sym == attributes[:provider_type]
     raise 'Provider IDs do not match'         unless original.provider_id          == attributes[:provider_id]
     raise 'Cannot update superceded original' unless original.may_supercede?
@@ -141,7 +137,7 @@ class Paper < ActiveRecord::Base
   end
 
   def to_param
-    "#{provider_type}:#{full_provider_id}"
+    "#{provider_type}#{Provider::SEPARATOR}#{full_provider_id}"
   end
 
   # Newest version first

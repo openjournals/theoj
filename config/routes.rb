@@ -5,7 +5,7 @@ Theoj::Application.routes.draw do
     #@todo #@mro - do we still use this?
     get '/papers/:paper_id/issues', to: "annotations#issues"
 
-    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /\.+/ do
+    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
 
       collection do
         get :as_reviewer
