@@ -158,9 +158,10 @@
         },
 
         versionSelected: function(event, detail) {
-            var sha = this.$.versionMenu.selectedModel.version.sha;
+            //#@mro
+            var id = this.$.versionMenu.selectedModel.version.sha;
             if (sha != this.paper.sha)
-                this.fire('go', '/review/'+sha);
+                this.fire('review', this.paper);
         }
 
     })

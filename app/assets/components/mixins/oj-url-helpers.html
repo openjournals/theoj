@@ -3,8 +3,8 @@
     window.Oj.urls = {
 
         // Take either a paper object or a plain sha
-        paperPath: function(paper_or_sha) {
-            return paper_or_sha ? "/api/papers/"+ (paper_or_sha.sha || paper_or_sha) : '';
+        paperPath: function(paper_or_id) {
+            return paper_or_id ? "/api/papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
         },
 
         annotationsFirebasePath: function(paper_id){
@@ -12,63 +12,60 @@
         },
 
         addAssigneePath: function(paper, user) {
-            return "/api/papers/"+paper.sha+"/assignments?user=" + user.sha ;
+            return "/api/papers/"+paper.typed_provider_id+"/assignments?user=" + user.sha ;
         },
 
         removeAssigneePath: function(paper, assignment) {
-            return "/api/papers/"+paper.sha+"/assignments/" + assignment.sha;
+            return "/api/papers/"+paper.typed_provider_id+"/assignments/" + assignment.sha;
         },
 
         getIssuesPath: function(paper) {
-            return "/api/papers/"+paper.sha+"/issues";
+            return "/api/papers/"+paper.typed_provider_id+"/issues";
         },
 
-        arxiv_lookup_url: function(paper_id){
-          return "/api/papers/"+paper_id+"/arxiv_details";
+        previewPath: function(paper) {
+          return paper ? "/api/papers/"+ (paper.typed_provider_id || paper) + "/preview" : '';
         },
 
         paperVersionsPath: function(paper) {
-            return paper && "/api/papers/"+paper.arxiv_id+"/versions" ;
+            return paper && "/api/papers/"+paper.typed_provider_id+"/versions" ;
         },
 
         paperCheckForUpdatePath: function(paper) {
-            return "/api/papers/"+paper.arxiv_id+"/check_for_update";
+            return "/api/papers/"+paper.typed_provider_id+"/check_for_update";
         },
 
-        google_preview_lookup: function(paper){
-          var link = paper.links.filter(function(link){return link.content_type=="application/pdf"})[0].url;
-          if(link.indexOf(".pdf")==-1){
-              link+=".pdf";
-          }
+        googlePrreviewPath: function(paper){
+          var link = paper.document_location;
           return "http://docs.google.com/gview?url=" + link + "&embedded=true";
         },
 
         paperAnnotationsPath: function(paper){
-          return "/api/papers/"+paper.sha+"/annotations";
+          return "/api/papers/"+paper.typed_provider_id+"/annotations";
         },
 
         addIssuePath: function(paper) {
-            return "/api/papers/"+paper.sha+"/annotations";
+            return "/api/papers/"+paper.paper_id+"/annotations";
         },
 
         paperAnnotationPath: function(paper, annotation){
-            return "/api/papers/"+paper.sha+"/annotations/" + annotation.id;
+            return "/api/papers/"+paper.paper_id+"/annotations/" + annotation.id;
         },
 
         paperAnnotationStateChangePath: function(paper, annotation, state){
-            return "/api/papers/"+paper.sha+"/annotations/" + annotation.id + "/" + state;
+            return "/api/papers/"+paper.paper_id+"/annotations/" + annotation.id + "/" + state;
         },
 
         paperCompletePath: function(paper){
-            return  paper && "/api/papers/" + paper.sha + "/complete";
+            return  paper && "/api/papers/" + paper.typed_provider_id + "/complete";
         },
 
         paperMakePublicPath: function(paper, make_public){
-            return  paper && "/api/papers/" + paper.sha + "/public";
+            return  paper && "/api/papers/" + paper.typed_provider_id + "/public";
         },
 
         paperTransitionPath: function(paper, transition){
-          return  paper && "/api/papers/" + paper.sha + "/transition?transition=" + transition;
+          return  paper && "/api/papers/" + paper.typed_provider_id + "/transition?transition=" + transition;
         }
 
     };

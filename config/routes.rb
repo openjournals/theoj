@@ -12,6 +12,7 @@ Theoj::Application.routes.draw do
       end
 
       member do
+        get   :preview, action: :new
         get   :new
         post  action:'create'
         put   :check_for_update

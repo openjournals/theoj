@@ -182,7 +182,7 @@
       updateRequestSuccess: function(event, detail) {
           var message = 'We have retrieved version ' + detail.version + ' of your document.';
           this.fire('notification', message);
-          this.fire('go', '/review/' + detail.sha);
+          this.fire('review', detail);
       },
 
       showDialog: function(html, buttonText, onSuccess) {

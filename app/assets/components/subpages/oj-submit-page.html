@@ -20,6 +20,7 @@
         <paper-url-resolver       text={{paperIdentifier}}
                                   paperId={{paperId}}
                                   paperFullId={{paperFullId}}
+                                  paperTypedId={{paperTypedId}}
                                   paperVersion={{paperVersion}}
                                   paperURL={{paperURL}}
                                   resolved={{paperValid}}>
@@ -55,7 +56,7 @@
 
       submit:function(){
         if (this.paperValid)
-            this.fire('go', '/papers/' + this.paperId + '/preview');
+            this.fire('go', '/papers/' + this.paperTypedId + '/preview');
       }
 
     })
