@@ -12,6 +12,7 @@
             <app-route path='/' element='oj-home-page' noAuth></app-route>
             <app-route path='/about' element='oj-about-page' noAuth></app-route>
 
+            <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
             <app-route path='/submit' element='oj-submit-page'></app-route>
             <app-route path='/papers'>
                 <template>
@@ -31,7 +32,6 @@
             <app-route path='/settings' element=oj-settings-page></app-route>
 
             <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
-            <app-route path='/papers/:paper_id/preview' element='oj-paper-preview'></app-route>
 
             <app-route path='*' element='oj-404-page'></app-route>
         </app-router>
