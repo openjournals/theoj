@@ -4,13 +4,13 @@ describe PapersController do
 
   let(:arxiv_doc) {
     {
-        provider_type: :arxiv,
-        provider_id:   "1311.1653",
-        version:       2,
-        author_list:   "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        location:      "http://arxiv.org/pdf/1311.1653v2.pdf",
-        title:         "A photometric comprehensive study of circumnuclear star forming rings: the sample",
-        summary:       "We present photometry.*in a second paper."
+        provider_type:     :arxiv,
+        provider_id:       "1311.1653",
+        version:            2,
+        authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:           "We present photometry.*in a second paper."
     }
   }
 
@@ -90,30 +90,12 @@ describe PapersController do
 
   end
 
-  xdescribe "GET #arxiv_details" do
-
-    let(:arxiv_response) do
-      {
-          "arxiv_url"        => "http://arxiv.org/abs/1111.1111v1",
-          "created_at"       => "2011-11-04T12:50:44.000+00:00",
-          "updated_at"       => "2011-11-04T12:50:44.000+00:00",
-          "title"            => "Electronic structure of nickelates: From two-dimensional heterostructures to three-dimensional bulk materials",
-          "summary"          => "Reduced dimensionality and strong electronic correlations, which are among the most important ...",
-          "comment"          => "8 pages, 9 figures",
-          "primary_category" => {"abbreviation" => "cond-mat.str-el"},
-          "categories"       => [ {"abbreviation" => "cond-mat.str-el"} ],
-          "authors"          => [ {"name" => "P. Hansmann", "affiliations" => []},
-                                  {"name" => "K. Held",     "affiliations" => []}  ],
-          "links"            => [ {"url"  => "http://dx.doi.org/10.1103/PhysRevB.82.235123", "content_type" => ""},
-                                  {"url"  => "http://arxiv.org/abs/1111.1111v1",             "content_type" => "text/html"},
-                                  {"url"  => "http://arxiv.org/pdf/1111.1111v1",             "content_type" => "application/pdf"} ]
-      }
-    end
+  describe "GET #new" do
 
     it "should fail if no user is logged in" do
-      expect(Arxiv).not_to receive(:get)
+      expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :new, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:unauthorized)
       expect(response_json).to eq(error_json(:unauthorized))
@@ -121,55 +103,90 @@ describe PapersController do
 
     it "should attempt to fetch the response from the database" do
       authenticate
-      paper = build(:paper, sha:'1234abcd'*8)
-      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( paper )
-      expect(Arxiv).not_to receive(:get)
+      paper = build(:paper, provider_id:'6fd60602a51d2b16b8a3c9cd33d2d22b')
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return( paper )
+      expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :new, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
-      expect(response_json).to include("arxiv_url"   => "http://example.com/1234",
-                                       "authors"     => "John Smith, Paul Adams, Ella Fitzgerald",
-                                       "links"       => [{"url"=>"http://example.com/1234", "content_type"=>"application/pdf"}],
-                                       "sha"         => '1234abcd'*8,
-                                       "summary"     => "Summary of my awesome paper",
-                                       "title"       => "My awesome paper"
+      assert_serializer NewPaperSerializer
+      expect(response_json).to include("typed_provider_id" => "test:6fd60602a51d2b16b8a3c9cd33d2d22b-1",
+                                       "document_location" => "http://example.com/1234",
+                                       "authors"           => "John Smith, Paul Adams, Ella Fitzgerald",
+                                       "summary"           => "Summary of my awesome paper",
+                                       "title"             => "My awesome paper"
                                )
     end
 
-    it "should return a source field if the response is from the database" do
+    it "should return a true is_existing field if the response is from the database" do
       authenticate
-      paper = build(:paper)
-      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return(paper)
+      paper = create(:paper)
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :new, identifier:'test:1234.5678'
 
-      expect(response_json).to include("source" => "theoj")
+      expect(response_json).to include("is_existing" => true)
     end
 
-    it "should fetch the paper from Arxiv if it is not in the database" do
-      authenticate
-      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
-      expect(Arxiv).to receive(:get).with('1234.5678').and_return(arxiv_response)
+    it "should return a true self_owned field if you are the submittor" do
+      user = authenticate
+      paper = create(:paper, submittor:user )
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :new, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_self_owned" => true)
+    end
+
+    it "should return a false self_owned field if you are not the submittor" do
+      user = authenticate
+      paper = create(:paper, submittor:create(:user) )
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
+
+      get :new, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_self_owned" => false)
+    end
+
+    it "should fetch the paper if it is not in the database" do
+      authenticate
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::ArxivProvider).to receive(:get_attributes).with('1311.1653').and_return(arxiv_doc)
+
+      get :new, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
 
-      expect(response_json).to eq(arxiv_response)
-      expect(response_json).not_to include('source')
-      expect(response_json).not_to include('self_owned')
+      assert_serializer NewPaperSerializer
+
+      expect(response_json).to include("typed_provider_id" => "arxiv:1311.1653v2",
+                                       "document_location" => "http://arxiv.org/pdf/1311.1653v2.pdf",
+                                       "authors"           => "Mar Álvarez-Álvarez, Angeles I. Díaz",
+                                       "summary"           => "We present photometry.*in a second paper.",
+                                       "title"             => "A photometric comprehensive study of circumnuclear star forming rings: the sample"
+                               )
+    end
+
+    it "should return a false is_existing field if the response is not from the database" do
+      authenticate
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::TestProvider).to receive(:get_attributes).with('1234.5678').and_return(arxiv_doc)
+
+      get :new, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_existing" => false)
     end
 
     it "should return a 404 if the paper is not found on Arxiv or the DB" do
       authenticate
 
-      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
-      expect(Arxiv).to receive(:get).and_raise(Arxiv::Error::ManuscriptNotFound)
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::TestProvider).to receive(:get_attributes).and_raise(Provider::Error::DocumentNotFound)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :new, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:not_found)
     end
@@ -222,38 +239,37 @@ describe PapersController do
 
   end
 
-  xdescribe "POST #create" do
+  describe "POST #create" do
 
     before do
-      @arxiv_request = stub_request(:get,  "http://export.arxiv.org/api/query?id_list=1401.0003").
-                                   to_return(body: fixture("arxiv/1401.0003.xml"))
+      allow(Provider).to receive(:get_attributes).with('arxiv:1311.1653').and_return(arxiv_doc)
     end
 
     it "should create the paper" do
       authenticate
 
       expect {
-        post :create, :format => :json, arxiv_id: '1401.0003'
+        post :create, identifier:'arxiv:1311.1653'
       }.to change{Paper.count}.by(1)
 
       new = Paper.last
-      expect( new.arxiv_id ).to eq('1401.0003')
+      expect( new.typed_provider_id ).to eq('arxiv:1311.1653v2')
     end
 
     it "should retrieve the Arxiv data" do
+      expect(Provider).to receive(:get_attributes).with('arxiv:1311.1653').and_return(arxiv_doc)
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
-      expect(@arxiv_request).to have_been_made
       new = Paper.last
-      expect( new.title    ).to start_with('Serendipitous')
+      expect( new.title).to start_with('A photometric comprehensive study')
     end
 
     it "should set the papers submittor" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       new = Paper.last
       expect( new.submittor ).to eq(current_user)
@@ -262,26 +278,26 @@ describe PapersController do
     it "should return a created status code" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:created)
     end
 
-    it "should return a created status code" do
+    it "should return a created document" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
-      assert_serializer FullPaperSerializer
+      assert_serializer PaperSerializer
 
       expect(response_json).to include(
-                                   "location" => "http://arxiv.org/pdf/1401.0003v1.pdf",
-                                   "sha"       => Paper.last.sha
+                                   "typed_provider_id" => "arxiv:1311.1653v2",
+                                   "state" => "submitted"
                                )
     end
 
     it "should fail if the user is not authenticated" do
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -525,8 +541,7 @@ describe PapersController do
       expect(response).to have_http_status(:created)
       expect(response.content_type).to eq("application/json")
       assert_serializer PaperSerializer
-      expect(response_json['provider_id']).to eq('1311.1653')
-      expect(response_json['version']).to eq(2)
+      expect(response_json['typed_provider_id']).to eq('arxiv:1311.1653v2')
     end
 
     it "should fail if the user is not authenticated" do
@@ -593,9 +608,9 @@ describe PapersController do
 
       expect(response).to have_http_status(:ok)
       expect(response.content_type).to eq("application/json")
-      assert_serializer BasicPaperSerializer
 
       expect(response_json.length).to eq(2)
+      assert_serializer BasicPaperSerializer
     end
 
   end
@@ -721,11 +736,11 @@ describe PapersController do
       p1 = create(:paper, :under_review) # should be returned
       p2 = create(:paper, :superceded)   # should not be returned
 
-      get :as_editor, :format => :json
+      get :as_editor
 
       expect(response).to have_http_status(:success)
       expect(response_json.size).to be(1)
-      expect(response_json.first['sha']).to eq(p1.sha)
+      expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
     end
 
   end

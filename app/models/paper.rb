@@ -74,15 +74,19 @@ class Paper < ActiveRecord::Base
 
   def self.for_identifier(identifier)
     if identifier.is_a?(Integer) || identifier =~ /^\d+$/
-      where(id:identifier).first!
+      where(id:identifier).first
 
     else
-      provider_type, provider_id, version = Provider.parse_identifier(identifier)
+      parsed = Provider.parse_identifier(identifier)
 
-      relation = where(provider_type:provider_type, provider_id:provider_id)
-      relation = version ? relation.where(version:version) : relation.order(version: :desc)
-      relation.first!
+      relation = where(provider_type:parsed[:provider_type], provider_id:parsed[:provider_id] )
+      relation = parsed[:version] ? relation.where(version: parsed[:version] ) : relation.order(version: :desc)
+      relation.first
     end
+  end
+
+  def self.for_identifier!(identifier)
+    for_identifier(identifier) or raise ActiveRecord::RecordNotFound.new
   end
 
   def self.versions_for(provider_type, provider_id)
@@ -127,7 +131,7 @@ class Paper < ActiveRecord::Base
   end
 
   def full_provider_id
-    provider.full_identifier(self)
+    provider.full_identifier(provider_id:provider_id, version:version)
   end
 
   def typed_provider_id
@@ -211,7 +215,7 @@ class Paper < ActiveRecord::Base
   alias to_param typed_provider_id
 
   def firebase_key
-    "/papers/#{sha}"
+    "/papers/#{typed_provider_id}"
   end
 
   private

@@ -22,26 +22,28 @@ class PapersController < ApplicationController
   end
 
   #@mro #@todo n- rename this in Polymer
-  def arxiv_details
-    begin
-      existing = paper
-      respond_with existing, serializer:ArxivSerializer
+  # Get the details for a new submission
+  def new
+    paper = Paper.for_identifier( params[:identifier] )
 
-    rescue ActiveRecord::RecordNotFound
-
-      data = Arxiv.get(id)
-      respond_with data
-
+    if !paper
+      document_attributes = Provider.get_attributes( params[:identifier] )
+      # Don't save this, just use it to generate some JSON
+      paper = Paper.new(document_attributes)
     end
+
+    respond_with paper, serializer:NewPaperSerializer
   end
 
   #@mro #@todo rewrite this to use full ids
   def create
-    paper = Paper.new_for_arxiv_id(params[:arxiv_id], submittor:current_user)
+    document_attributes = Provider.get_attributes( params[:identifier] )
+    document_attributes.merge!(submittor:current_user)
+    paper = Paper.new(document_attributes)
     authorize! :create, paper
 
     if paper.save
-      render json:paper, status: :created, location:paper_review_url(paper), serializer:FullPaperSerializer
+      render json:paper, status: :created, location:paper_review_url(paper), serializer:PaperSerializer
     else
       render json:aper.errors, status: :unprocessable_entity
     end
@@ -136,8 +138,8 @@ class PapersController < ApplicationController
   end
 
   def versions
-    provider_type, provider_id, version = Provider.parse_identifier( params[:identifier] )
-    papers   = Paper.versions_for( provider_type, provider_id )
+    parts = Provider.parse_identifier( params[:identifier] )
+    papers   = Paper.versions_for( parts[:provider_type], parts[:provider_id] )
     render json:papers, each_serializer: BasicPaperSerializer
   end
 
@@ -181,11 +183,11 @@ class PapersController < ApplicationController
   private
 
   def paper_params
-    params.require(:paper).permit(:title, :location)
+    params.require(:paper).permit(:title, :document_location)
   end
 
   def paper
-    @paper ||= Paper.for_identifier( params[:identifier] )
+    @paper ||= Paper.for_identifier!( params[:identifier] )
   end
 
 end

@@ -24,16 +24,16 @@ describe Provider  do
 
   describe "::parse_identifier" do
 
-    it "should split the identifier into 3 correct parts" do
+    it "should split the identifier into correct parts" do
       result = Provider.parse_identifier('test:1234-9')
       expect(result.length).to eq(3)
-      expect(result).to eq(['test', '1234', 9])
+      expect(result).to eq({provider_type:'test', provider_id:'1234', version:9})
     end
 
     it "should split an identifier without version info into 2 correct parts" do
       result = Provider.parse_identifier('test:1234')
       expect(result.length).to eq(2)
-      expect(result).to eq(['test', '1234'])
+      expect(result).to eq({provider_type:'test', provider_id:'1234'})
     end
 
     it "should raise an exception if the identifier is blank" do
@@ -49,6 +49,28 @@ describe Provider  do
 
     it "should raise an exception if the provider is not known" do
       expect{ Provider.parse_identifier('unknown:1234') }.to raise_exception(Provider::Error::ProviderNotFound)
+    end
+
+  end
+
+  describe "::get_attributes" do
+
+    it "should return attributes" do
+      attributes = Provider.get_attributes('test:1234-5')
+      expect(attributes).to be_a(Hash)
+    end
+
+    it "should return the attributes" do
+      expect(Provider.get_attributes('test:1234-5')).to match(
+                                                              provider_type:    :test,
+                                                              provider_id:      '1234',
+                                                              version:           5,
+                                                              authors:           an_instance_of(String),
+                                                              document_location: an_instance_of(String),
+                                                              title:             an_instance_of(String),
+                                                              summary:           an_instance_of(String),
+                                                           )
+
     end
 
   end

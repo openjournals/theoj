@@ -5,16 +5,16 @@ describe FullPaperSerializer do
   it "should initialize properly" do
     user = create(:user)
 
-    paper = Paper.new(location:"http://example.com", title:"Teh awesomeness", submittor:user)
+    paper = create(:paper, document_location:"http://example.com", title:"Teh awesomeness", submittor:user)
     serializer = FullPaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
     expect(hash.keys).to contain_exactly("paper_id",
-                                         "provider_type", "provider_id", "version",
-                                         "user_permissions", "location", "state",
+                                         "typed_provider_id",
+                                         "user_permissions", "document_location", "state",
                                          "submitted_at", "title",
                                          "pending_issues_count",
-                                          "submittor",
+                                         "submittor",
                                          "assigned_users", "versions")
   end
 
@@ -41,9 +41,9 @@ describe FullPaperSerializer do
     serializer = FullPaperSerializer.new(paper2)
     versions = hash_from_json(serializer.to_json)['versions']
 
-    expect(versions[0]['version']).to eq(3)
-    expect(versions[1]['version']).to eq(2)
-    expect(versions[2]['version']).to eq(1)
+    expect(versions[0]['typed_provider_id']).to eq('arxiv:1111.2222v3')
+    expect(versions[1]['typed_provider_id']).to eq('arxiv:1111.2222v2')
+    expect(versions[2]['typed_provider_id']).to eq('arxiv:1111.2222v1')
   end
 
 end

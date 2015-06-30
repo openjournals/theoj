@@ -7,6 +7,8 @@ shared_examples 'All providers' do
   it "should have the required class interface" do
     expect(provider).to respond_to(:type).with(0).arguments
     expect(provider).to respond_to(:get_attributes).with(1).argument
+    expect(provider).to respond_to(:full_identifier).with(0).arguments
+    expect(provider).to respond_to(:parse_identifier).with(1).argument
   end
 
   it "should have a symbolic name" do
@@ -26,6 +28,13 @@ shared_examples 'All providers' do
         stub_document
         attributes = provider.get_attributes(id_to_get)
         expect(attributes).to be_a(Hash)
+      end
+
+      it "should be able to create a paper" do
+        stub_document
+        attributes = provider.get_attributes(id_to_get)
+        attributes = attributes.merge( submittor: create(:user) )
+        expect{ Paper.create(attributes) }.not_to raise_exception
       end
 
       it "should have the key attributes" do
@@ -62,8 +71,8 @@ shared_examples 'All providers' do
       it "should have the secondary attributes" do
         stub_document
         expect(provider.get_attributes(id_to_get)).to include(
-                                                                   :author_list,
-                                                                   :location,
+                                                                   :authors,
+                                                                   :document_location,
                                                                    :title,
                                                                    :summary
                                                                )
@@ -103,14 +112,24 @@ shared_examples 'All providers' do
 
   describe "::full_identifier" do
 
-    it "should create a matching full id from the paper" do
+    it "should create a matching full id" do
       paper = Paper.new(
           provider_type: provider.type,
           provider_id:   document_id_without_version,
           version:       version
       )
 
-      expect(provider.full_identifier(paper)).to eq(document_id)
+      expect(provider.full_identifier(provider_id:document_id_without_version, version:version)).to eq(document_id)
+    end
+
+    it "should create a matching full id without a version" do
+      paper = Paper.new(
+          provider_type: provider.type,
+          provider_id:   document_id_without_version,
+          version:       version
+      )
+
+      expect(provider.full_identifier(provider_id:document_id_without_version)).to eq(document_id_without_version)
     end
 
   end
@@ -119,14 +138,13 @@ shared_examples 'All providers' do
 
     it "should split the identifier into 2 correct parts" do
       result = provider.parse_identifier(document_id)
-      expect(result.length).to eq(2)
-      expect(result).to eq([document_id_without_version, version])
+      expect(result).to eq({provider_id:document_id_without_version, version:version})
     end
 
     it "should split an identifier without version info into 1 correct part" do
       result = provider.parse_identifier(document_id_without_version)
       expect(result.length).to eq(1)
-      expect(result).to eq([document_id_without_version])
+      expect(result).to eq({provider_id:document_id_without_version})
     end
 
   end

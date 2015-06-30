@@ -1,9 +1,15 @@
 class FullPaperSerializer < PaperSerializer
 
-  attributes :location
+  attributes :paper_id,
+             :document_location
 
   has_many :assigned_users
   has_many :versions,       each_serialzier: BasicPaperSerializer
+
+  #@mro #@todo - change references to this in Polymer annotations
+  def paper_id
+    object.id
+  end
 
   def versions
     object.all_versions

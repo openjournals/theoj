@@ -1,9 +1,6 @@
 class PaperSerializer < BaseSerializer
 
-  attributes :paper_id,
-             :provider_type,
-             :provider_id,
-             :version,
+  attributes :typed_provider_id,
              :user_permissions,
              :state,
              :submitted_at,
@@ -11,11 +8,6 @@ class PaperSerializer < BaseSerializer
              :pending_issues_count
 
   has_one    :submittor, serializer:BasicUserSerializer
-
-  #@mro #@todo - change references to this in Polymer annotations
-  def paper_id
-    object.id
-  end
 
   def submitted_at
     object.created_at

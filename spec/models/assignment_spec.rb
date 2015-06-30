@@ -4,13 +4,13 @@ describe Assignment do
 
   let(:arxiv_doc) do
     {
-        provider_type: :arxiv,
-        provider_id:   "1311.1653",
-        version:       2,
-        author_list:   "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        location:      "http://arxiv.org/pdf/1311.1653v2.pdf",
-        title:         "A photometric comprehensive study of circumnuclear star forming rings: the sample",
-        summary:       "We present photometry.*in a second paper."
+        provider_type:     :arxiv,
+        provider_id:       "1311.1653",
+        version:           2,
+        authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:           "We present photometry.*in a second paper."
     }
   end
 

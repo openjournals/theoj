@@ -2,9 +2,6 @@ Theoj::Application.routes.draw do
 
   scope path:'api', as:'api', format: 'json'do
 
-    #@todo #@mro - do we still use this?
-    get '/papers/:paper_id/issues', to: "annotations#issues"
-
     resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
 
       collection do
@@ -15,9 +12,13 @@ Theoj::Application.routes.draw do
       end
 
       member do
+        get   :new
+        post  action:'create'
         put   :check_for_update
-        get   :arxiv_details #@mro #@todo this action needs to be generalized
         get   :versions
+
+        #@todo #@mro - do we still use this? Move it to /index
+        get   :issues, to: "annotations#issues"
 
         get   :state
         put   :transition

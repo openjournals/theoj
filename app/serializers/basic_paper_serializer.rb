@@ -1,7 +1,5 @@
 class BasicPaperSerializer < BaseSerializer
 
-  attributes :provider_type,
-             :provider_id,
-             :version
+  attributes :typed_provider_id
 
 end

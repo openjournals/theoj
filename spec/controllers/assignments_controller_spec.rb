@@ -7,7 +7,7 @@ describe AssignmentsController do
     it "should return the list of reviewers" do
       paper = create(:paper)
 
-      get :index, paper_id:paper.sha, format: :json
+      get :index, paper_identifier:paper.typed_provider_id, format: :json
 
       expect(response.content_type).to eq("application/json")
       expect(response_json.length).to eq(1)
@@ -20,7 +20,7 @@ describe AssignmentsController do
     it "an unauthenticated user should be forbidden" do
       paper = create(:paper)
 
-      post :create, paper_id:paper.sha, format: :json, user:'abcd'
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:'abcd'
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -29,7 +29,7 @@ describe AssignmentsController do
       authenticate
       paper = create(:paper)
 
-      post :create, paper_id:paper.sha, format: :json, user:'abcd'
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -38,7 +38,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, submittor:user)
 
-      post :create, paper_id:paper.sha, format: :json, user:'abcd'
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -47,7 +47,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, collaborator:user)
 
-      post :create, paper_id:paper.sha, format: :json, user:'abcd'
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -56,7 +56,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, reviewer:user)
 
-      post :create, paper_id:paper.sha, format: :json, user:'abcd'
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -67,7 +67,7 @@ describe AssignmentsController do
       paper = create(:paper)
 
       reviewer = create(:user)
-      post :create, paper_id:paper.sha, format: :json, user:reviewer.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
 
       expect(response).to have_http_status(:success)
     end
@@ -78,7 +78,7 @@ describe AssignmentsController do
       paper = create(:paper)
 
       reviewer = create(:user)
-      post :create, paper_id:paper.sha, format: :json, user:reviewer.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
 
       expect(paper.reviewers.length).to eq(1)
       expect(paper.reviewers.first).to eq(reviewer)
@@ -90,7 +90,7 @@ describe AssignmentsController do
       paper = create(:paper)
 
       reviewer = create(:user)
-      post :create, paper_id:paper.sha, format: :json, user:reviewer.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
 
       expect(response.content_type).to eq("application/json")
       expect(response_json.length).to eq(3)
@@ -103,7 +103,7 @@ describe AssignmentsController do
       submittor = create(:user)
       paper = create(:paper, submittor:submittor)
 
-      post :create, paper_id:paper.sha, format: :json, user:submittor.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:submittor.sha
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -114,7 +114,7 @@ describe AssignmentsController do
       collaborator = create(:user)
       paper = create(:paper, collaborator:collaborator)
 
-      post :create, paper_id:paper.sha, format: :json, user:collaborator.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:collaborator.sha
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -125,7 +125,7 @@ describe AssignmentsController do
       reviewer = create(:user)
       paper = create(:paper, reviewer:reviewer)
 
-      post :create, paper_id:paper.sha, format: :json, user:reviewer.sha
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -137,7 +137,7 @@ describe AssignmentsController do
     it "an unauthenticated user should be forbidden" do
       paper = create(:paper)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'abcd'
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -146,7 +146,7 @@ describe AssignmentsController do
       authenticate
       paper = create(:paper)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -155,7 +155,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, submittor:user)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -164,7 +164,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, collaborator:user)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -173,7 +173,7 @@ describe AssignmentsController do
       user = authenticate
       paper = create(:paper, reviewer:user)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'abcd'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'abcd'
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -184,7 +184,7 @@ describe AssignmentsController do
       reviewer = create(:user)
       paper = create(:paper, reviewer:reviewer)
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:paper.reviewer_assignments.first.sha
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:paper.reviewer_assignments.first.sha
 
       expect(response).to have_http_status(:success)
     end
@@ -196,7 +196,7 @@ describe AssignmentsController do
       reviewer2 = create(:user)
       paper = create(:paper, reviewer:[reviewer1,reviewer2])
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:paper.reviewer_assignments.first.sha
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:paper.reviewer_assignments.first.sha
 
       expect(paper.reviewers.length).to eq(1)
       expect(paper.reviewers.first).to eq(reviewer2)
@@ -209,7 +209,7 @@ describe AssignmentsController do
       reviewer2 = create(:user)
       paper = create(:paper, reviewer:[reviewer1,reviewer2])
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:paper.reviewer_assignments.first.sha
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:paper.reviewer_assignments.first.sha
 
       expect(response.content_type).to eq("application/json")
       expect(response_json.length).to eq(3)
@@ -221,7 +221,7 @@ describe AssignmentsController do
       reviewer1 = create(:user)
       paper = create(:paper, reviewer:[reviewer1])
 
-      delete :destroy, paper_id:paper.sha, format: :json, id:'some random sha'
+      delete :destroy, paper_identifier:paper.typed_provider_id, format: :json, id:'some random sha'
 
       expect(response).to have_http_status(:unprocessable_entity)
     end

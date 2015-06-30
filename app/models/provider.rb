@@ -8,17 +8,23 @@ class Provider
 
     def parse_identifier(identifier)
       raise Error::InvalidIdentifier.new unless identifier.present?
-      provider_type, provider_id = identifier.split(SEPARATOR, 2)
-      raise Error::InvalidIdentifier.new unless provider_id.present?
+      provider_type, identifier = identifier.split(SEPARATOR, 2)
+      raise Error::InvalidIdentifier.new unless identifier.present?
 
       provider = self[provider_type]
-      provider_id, version = provider.parse_identifier(provider_id)
+      parsed   = provider.parse_identifier(identifier)
+      parsed.merge(
+          provider_type:   provider_type
+      )
+    end
 
-      if version
-        [provider_type, provider_id, version.to_i]
-      else
-        [provider_type, provider_id]
-      end
+    def get_attributes(identifier)
+      raise Error::InvalidIdentifier.new unless identifier.present?
+      provider_type,identifier = identifier.split(SEPARATOR, 2)
+      raise Error::InvalidIdentifier.new unless identifier.present?
+
+      provider = self[provider_type]
+      provider.get_attributes(identifier)
     end
 
     def [](type)
@@ -26,7 +32,7 @@ class Provider
     end
 
     def get(type)
-      providers[ type.downcase.to_sym ]
+      providers[ type && type.downcase.to_sym ]
     end
 
     def providers
@@ -50,8 +56,10 @@ class Provider
 
       path = File.join( File.dirname(__FILE__), 'provider', '*_provider.rb')
       Dir[path].each do |file|
-        klass_name  = 'Provider::' + File.basename(file,'.rb').camelize
-        add( klass_name.constantize )
+        klass_name = File.basename(file,'.rb').camelize
+        next if klass_name == 'BaseProvider'
+        klass  = "Provider::#{klass_name}".constantize
+        add( klass)
       end
 
     end

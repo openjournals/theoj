@@ -4,13 +4,13 @@ describe Paper do
 
   let(:arxiv_doc) do
     {
-        provider_type: :arxiv,
-        provider_id:   "1311.1653",
-        version:       2,
-        author_list:   "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        location:      "http://arxiv.org/pdf/1311.1653v2.pdf",
-        title:         "A photometric comprehensive study of circumnuclear star forming rings: the sample",
-        summary:       "We present photometry.*in a second paper."
+        provider_type:     :arxiv,
+        provider_id:       "1311.1653",
+        version:           2,
+        authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:           "We present photometry.*in a second paper."
     }
   end
 
@@ -184,9 +184,14 @@ describe Paper do
       expect{Paper.for_identifier('unknown:1234') }.to raise_exception(Provider::Error::ProviderNotFound)
     end
 
+    it "should return nil if the record is not found" do
+      expect(Paper.for_identifier('test:1234-9') ).to be_nil
+      expect(Paper.for_identifier('test:1234')   ).to be_nil
+    end
+
     it "should raise an error if the record is not found" do
-      expect{Paper.for_identifier('test:1234-9') }.to raise_exception(ActiveRecord::RecordNotFound)
-      expect{Paper.for_identifier('test:1234')   }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect{Paper.for_identifier!('test:1234-9') }.to raise_exception(ActiveRecord::RecordNotFound)
+      expect{Paper.for_identifier!('test:1234')   }.to raise_exception(ActiveRecord::RecordNotFound)
     end
 
   end
@@ -246,8 +251,8 @@ describe Paper do
       expect(new_paper.version).to eq(2)
       expect(new_paper.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(new_paper.summary).to match /^We present.*paper.$/
-      expect(new_paper.location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
-      expect(new_paper.author_list).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
+      expect(new_paper.document_location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(new_paper.authors).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
     end
 
     it "should copy the assignments from the original paper" do

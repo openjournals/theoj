@@ -4,12 +4,10 @@ class AssignmentsController < ApplicationController
   before_filter :require_editor, only:   [ :create, :destroy ]
 
   def index
-    paper = Paper.find_by_sha(params[:paper_id])
     render json:paper.assignments, status: :ok, location: paper_review_url(paper)
   end
 
   def create
-    paper = Paper.find_by_sha(params[:paper_id])
     user  = User.find_by_sha(params[:user])
     role  = params[:role] || 'reviewer'
 
@@ -26,14 +24,21 @@ class AssignmentsController < ApplicationController
   end
 
   def destroy
-    paper = Paper.find_by_sha(params[:paper_id])
-    assignment = paper.assignments.find_by_sha(params[:id])
-
     if assignment && assignment.destroy
       render json:paper.assignments, status: :ok, location: paper_review_url(paper)
     else
       render :json => paper.errors, :status => :unprocessable_entity
     end
+  end
+
+  private
+
+  def assignment
+    @annotation ||= paper.assignments.find_by_sha(params[:id])
+  end
+
+  def paper
+    @paper ||= Paper.for_identifier!( params[:paper_identifier] )
   end
 
 end

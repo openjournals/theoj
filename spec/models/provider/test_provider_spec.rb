@@ -25,13 +25,13 @@ describe Provider::TestProvider do
 
   def expected_attributes
     {
-        provider_type: :test,
-        provider_id:   "123",
-        version:       9,
-        author_list:   "author list",
-        location:      "http://example.com/document/123-9.pdf",
-        title:         "title",
-        summary:       "summary"
+        provider_type:     :test,
+        provider_id:       "123",
+        version:           9,
+        authors:           "author list",
+        document_location: "http://example.com/document/123-9.pdf",
+        title:             "title",
+        summary:           "summary"
     }
   end
 
