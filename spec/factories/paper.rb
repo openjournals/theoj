@@ -25,7 +25,7 @@ FactoryGirl.define do
     after(:build) do |paper, factory|
 
       if factory.arxiv_id
-        provider_id, version = ArxivProvider.parse_identifier(factory.arxiv_id)
+        provider_id, version = Provider::ArxivProvider.parse_identifier(factory.arxiv_id)
         paper.provider_type  = 'arxiv'
         paper.provider_id    = provider_id
         paper.version        = version if version.present?

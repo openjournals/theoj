@@ -8,7 +8,7 @@ class Provider
 
     def parse_identifier(identifier)
       raise Error::InvalidIdentifier.new unless identifier.present?
-      provider_type, provider_id = identifier.split(':', 2)
+      provider_type, provider_id = identifier.split(SEPARATOR, 2)
       raise Error::InvalidIdentifier.new unless provider_id.present?
 
       provider = self[provider_type]

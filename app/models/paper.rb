@@ -1,3 +1,5 @@
+#@mro #@todo - rename location
+
 class Paper < ActiveRecord::Base
   include AASM
 
@@ -120,8 +122,16 @@ class Paper < ActiveRecord::Base
     submitted? || superceded?
   end
 
+  def provider
+    @provider ||= Provider[provider_type]
+  end
+
   def full_provider_id
     provider.full_identifier(self)
+  end
+
+  def typed_provider_id
+    "#{provider_type}#{Provider::SEPARATOR}#{full_provider_id}"
   end
 
   def issues
@@ -134,10 +144,6 @@ class Paper < ActiveRecord::Base
 
   def resolve_all_issues
     issues.each(&:resolve!)
-  end
-
-  def to_param
-    "#{provider_type}#{Provider::SEPARATOR}#{full_provider_id}"
   end
 
   # Newest version first
@@ -202,15 +208,13 @@ class Paper < ActiveRecord::Base
     assignments.where(user_id:user.id).pluck(:role)
   end
 
+  alias to_param typed_provider_id
+
   def firebase_key
     "/papers/#{sha}"
   end
 
   private
-
-  def provider
-    @provider ||= Provider[provider_type]
-  end
 
   def has_reviewers?
     reviewers.any?

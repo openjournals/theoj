@@ -1,3 +1,5 @@
+#@toto #@mro - Validate format of identifiers
+
 class PapersController < ApplicationController
   respond_to :json
   before_filter :require_user,   except: [ :state, :index, :versions ]
@@ -13,29 +15,27 @@ class PapersController < ApplicationController
   end
 
   def show
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     ability = ability_with(current_user, paper)
-
     raise CanCan::AccessDenied if ability.cannot? :show, paper
 
     respond_with paper, serializer:FullPaperSerializer
   end
 
-  #@mro #@todo
+  #@mro #@todo n- rename this in Polymer
   def arxiv_details
-    id = params[:id]
-    existing = Paper.find_by_arxiv_id(id)
-
-    if existing
+    begin
+      existing = paper
       respond_with existing, serializer:ArxivSerializer
 
-    else
+    rescue ActiveRecord::RecordNotFound
+
       data = Arxiv.get(id)
       respond_with data
+
     end
   end
 
+  #@mro #@todo rewrite this to use full ids
   def create
     paper = Paper.new_for_arxiv_id(params[:arxiv_id], submittor:current_user)
     authorize! :create, paper
@@ -48,10 +48,7 @@ class PapersController < ApplicationController
   end
 
   def update
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     ability = ability_with(current_user, paper)
-
     raise CanCan::AccessDenied if ability.cannot?(:update, paper)
 
     if paper.update_attributes(paper_params)
@@ -62,8 +59,6 @@ class PapersController < ApplicationController
   end
 
   def destroy
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     render_error(:unprocessable_entity) unless paper.can_destroy?
 
     ActiveRecord::Base.transaction do
@@ -85,22 +80,18 @@ class PapersController < ApplicationController
   end
 
   def state
-    @paper = Paper.find_by_sha(params[:id])
+    if stale?(paper)
 
-    if @paper
-      etag(params.inspect, @paper.state)
-    else
-      etag(params.inspect, "unknown")
+      respond_to do |format|
+        format.html { @paper = paper; render layout:false }
+        format.json { render json: {  state: paper.state } }
+      end
+
     end
-
-    render :layout => false
   end
 
   def transition
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     transition = params[:transition].to_sym
-
     authorize! transition, paper
 
     if paper.aasm.may_fire_event?(transition)
@@ -113,8 +104,6 @@ class PapersController < ApplicationController
   end
 
   def complete
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     authorize! :complete, paper
 
     if paper.mark_review_completed!(current_user)
@@ -126,8 +115,6 @@ class PapersController < ApplicationController
   end
 
   def public
-    paper = Paper.find_by_sha(params[:id])
-    render_error(:not_found) unless paper
     authorize! :make_public, paper
 
     case request.method_symbol
@@ -149,23 +136,24 @@ class PapersController < ApplicationController
   end
 
   def versions
-    papers   = Paper.versions_for( params[:id] )
+    provider_type, provider_id, version = Provider.parse_identifier( params[:identifier] )
+    papers   = Paper.versions_for( provider_type, provider_id )
     render json:papers, each_serializer: BasicPaperSerializer
   end
 
   def check_for_update
-    arxiv_id = params[:id]
-    latest_paper = Paper.where(arxiv_id:arxiv_id).order(version: :desc).first
+    latest_paper = paper
 
     render_error(:not_found)    unless latest_paper
     render_error(:forbidden)    unless latest_paper.submittor == current_user
     render_error(:conflict)     unless latest_paper.may_supercede?
 
-    arxiv_doc = Arxiv.get(arxiv_id)
+    provider = latest_paper.provider
+    document_attributes = provider.get_attributes(latest_paper.provider_id)
 
-    render_error(:conflict, 'There is no new version of this document.') unless arxiv_doc.version > latest_paper.version
+    render_error(:conflict, 'There is no new version of this document.') unless document_attributes[:version] > latest_paper.version
 
-    new_paper = Paper.create_updated!(latest_paper, arxiv_doc)
+    new_paper = latest_paper.create_updated!(document_attributes)
 
     render json:new_paper, status: :created
   end
@@ -194,6 +182,10 @@ class PapersController < ApplicationController
 
   def paper_params
     params.require(:paper).permit(:title, :location)
+  end
+
+  def paper
+    @paper ||= Paper.for_identifier( params[:identifier] )
   end
 
 end
