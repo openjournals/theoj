@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150616041205) do
+ActiveRecord::Schema.define(version: 20150630032056) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "assignment_id", limit: 4
@@ -50,21 +50,20 @@ ActiveRecord::Schema.define(version: 20150616041205) do
   add_index "assignments", ["user_id"], name: "index_assignment_user_id", using: :btree
 
   create_table "papers", force: :cascade do |t|
-    t.integer  "submittor_id", limit: 4
-    t.string   "location",     limit: 255
-    t.string   "state",        limit: 255
-    t.string   "title",        limit: 255
-    t.integer  "version",      limit: 4,     default: 1
+    t.integer  "submittor_id",      limit: 4
+    t.string   "document_location", limit: 255
+    t.string   "state",             limit: 255
+    t.string   "title",             limit: 255
+    t.integer  "version",           limit: 4,     default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "sha",          limit: 255
-    t.string   "arxiv_id",     limit: 255
-    t.text     "summary",      limit: 65535
-    t.text     "author_list",  limit: 65535
+    t.string   "provider_id",       limit: 255,               null: false
+    t.text     "summary",           limit: 65535
+    t.text     "authors",           limit: 65535
+    t.string   "provider_type",     limit: 10,                null: false
   end
 
-  add_index "papers", ["arxiv_id", "version"], name: "index_papers_on_arxiv_id_and_version", unique: true, using: :btree
-  add_index "papers", ["sha"], name: "index_papers_on_sha", unique: true, using: :btree
+  add_index "papers", ["provider_type", "provider_id", "version"], name: "index_papers_on_provider_type_and_provider_id_and_version", unique: true, using: :btree
   add_index "papers", ["state"], name: "index_paper_state", using: :btree
   add_index "papers", ["submittor_id"], name: "index_papers_on_submittor_id", using: :btree
 

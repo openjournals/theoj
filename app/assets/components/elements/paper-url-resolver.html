@@ -1,4 +1,4 @@
-<polymer-element name="paper-url-resolver" attributes='text resolved paperId paperFullId paperVersion paperURL'>
+<polymer-element name="paper-url-resolver" attributes='text resolved paperType, paperId paperFullId paperTypedId paperVersion paperURL'>
 
   <template>
 
@@ -6,11 +6,13 @@
   <script>
     Polymer({
 
-      paperId      : null,
-      paperVersion : null,
-      paperFullId  : null,
-      paperURL     : null,
-      resolved     : false,
+      paperType      : 'arxiv',
+      paperId        : null,
+      paperVersion   : null,
+      paperFullId    : null,
+      paperTypedId   : null,
+      paperURL       : null,
+      resolved       : false,
 
       textChanged:function(){
 
@@ -44,22 +46,22 @@
         if (this.paperVersion && this.paperVersion[0] == 'v')
             this.paperVersion = this.paperVersion.slice(1);
 
-        if (this.resolved && this.paperId) {
-            requiredLength =  parseInt(this.paperId.slice(0,2)) <= 14 ? 9 : 10;
+        if (!this.resolved || !this.paperId)
+            return;
 
-            if (this.paperId.length == requiredLength) {
+        requiredLength =  parseInt(this.paperId.slice(0,2)) <= 14 ? 9 : 10;
 
-                this.paperFullId = this.paperId;
-                if (this.paperVersion)
-                    this.paperFullId = this.paperFullId + 'v' + this.paperVersion;
-                this.paperURL    = "http://arxiv.org/pdf/"+this.paperFullId;
-
-            } else {
-              this.resolved = false;
-
-            }
-
+        if (this.paperId.length != requiredLength) {
+            this.resolved = false;
+            return;
         }
+
+        this.paperFullId = this.paperId;
+        this.paperTypedId = this.paperType + ':' + this.paperId;
+        if (this.paperVersion)
+            this.paperFullId = this.paperFullId + 'v' + this.paperVersion;
+        this.paperURL    = "http://arxiv.org/pdf/"+this.paperFullId;
+
       }
 
     })

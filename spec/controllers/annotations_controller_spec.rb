@@ -8,7 +8,8 @@ describe AnnotationsController do
       user  = authenticate
       paper = create(:paper, :under_review, submittor:user)
 
-      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       expect(response).to have_http_status(:created)
       expect(response_json).to include(
@@ -22,7 +23,8 @@ describe AnnotationsController do
       user  = authenticate
       paper = create(:paper, :under_review, submittor:user)
 
-      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       annotation = paper.annotations.reload.last
       expect(annotation).to have_attributes(
@@ -38,7 +40,8 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:user)
       root  = create(:annotation, paper:paper)
 
-      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { parent_id:root.id, body:'A response' }
 
       expect(response).to have_http_status(:created)
       expect(response_json).to include(
@@ -52,7 +55,8 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:user)
       root  = create(:annotation, paper:paper)
 
-      post :create, paper_id:paper.sha, annotation: { parent_id:root.id, body:'A response' }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { parent_id:root.id, body:'A response' }
 
       annotation = paper.annotations.reload.last
       expect(annotation).to have_attributes(
@@ -64,7 +68,9 @@ describe AnnotationsController do
     end
 
     it "should fail if the paper doesn't exist" do
-      post :create, paper_id:'nonexistant', annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      authenticate
+      post :create, paper_identifier:'test:nonexistant',
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       expect(response).to have_http_status(:not_found)
     end
@@ -72,7 +78,8 @@ describe AnnotationsController do
     it "should fail if no user is logged in" do
       paper = create(:paper, :under_review, submittor:create(:user))
 
-      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       expect(response).to have_http_status(:unauthorized)
       expect(paper.annotations.reload.count).to eq(0)
@@ -82,7 +89,8 @@ describe AnnotationsController do
       user  = authenticate
       paper = create(:paper, :under_review, submittor:create(:user))
 
-      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       expect(response).to have_http_status(:forbidden)
       expect(paper.annotations.reload.count).to eq(0)
@@ -92,7 +100,8 @@ describe AnnotationsController do
       user  = authenticate
       paper = create(:paper, :submitted, submittor:user)
 
-      post :create, paper_id:paper.sha, annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
+      post :create, paper_identifier:paper.typed_provider_id,
+                    annotation: { body:'An issue', page:1, xStart:0, yStart:0, xEnd:99, yEnd:99 }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(paper.annotations.reload.count).to eq(0)
@@ -109,7 +118,7 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:user)
       issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
 
-      put method, paper_id:paper.sha, id:issue.id
+      put method, paper_identifier:paper.typed_provider_id, id:issue.id
 
       expect(response).to have_http_status(:success)
       expect(response_json).to include('state' => end_state)
@@ -122,7 +131,7 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:user)
       issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
 
-      put method, paper_id:paper.sha, id:issue.id
+      put method, paper_identifier:paper.typed_provider_id, id:issue.id
 
       expect(response).to have_http_status(:success)
       expect(response_json).to include('state' => end_state)
@@ -136,7 +145,7 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:creator, reviewer:user)
       issue = create(:issue, initial_state.to_sym, paper:paper, user:creator)
 
-      put method, paper_id:paper.sha, id:issue.id
+      put method, paper_identifier:paper.typed_provider_id, id:issue.id
 
       expect(response).to have_http_status(:forbidden)
       expect(issue.reload.state).to eq(initial_state)
@@ -148,7 +157,7 @@ describe AnnotationsController do
       paper = create(:paper, :under_review, submittor:creator)
       issue = create(:issue, initial_state.to_sym, paper:paper, user:creator)
 
-      put method, paper_id:paper.sha, id:issue.id
+      put method, paper_identifier:paper.typed_provider_id, id:issue.id
 
       expect(response).to have_http_status(:unauthorized)
       expect(issue.reload.state).to eq(initial_state)
@@ -161,7 +170,7 @@ describe AnnotationsController do
       issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
       paper.update_attributes!(state: 'submitted')
 
-      put method, paper_id:paper.sha, id:issue.id
+      put method, paper_identifier:paper.typed_provider_id, id:issue.id
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(issue.reload.state).to eq(initial_state)
@@ -174,7 +183,7 @@ describe AnnotationsController do
       issue = create(:issue, paper:paper)
       comment = create(:response, initial_state.to_sym, parent:issue, user:user)
 
-      put method, paper_id:paper.sha, id:comment.id
+      put method, paper_identifier:paper.typed_provider_id, id:comment.id
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(comment.reload.state).to eq(initial_state)

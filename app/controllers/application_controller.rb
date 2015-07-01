@@ -19,10 +19,12 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
-  rescue_from  Arxiv::Error::ManuscriptNotFound do render_error_internal(:not_found) end
-  rescue_from  ActiveRecord::RecordNotFound     do render_error_internal(:not_found) end
-  rescue_from  ActiveRecord::RecordNotUnique    do render_error_internal(:conflict) end
-  rescue_from  HttpError                        do |ex| render_error_internal(ex.status_code, ex.text) end
+  rescue_from  Provider::Error::ProviderNotFound  do render_error_internal(:not_found) end
+  rescue_from  Provider::Error::DocumentNotFound  do render_error_internal(:not_found) end
+  rescue_from  Provider::Error::InvalidIdentifier do render_error_internal(:bad_request) end
+  rescue_from  ActiveRecord::RecordNotFound       do render_error_internal(:not_found) end
+  rescue_from  ActiveRecord::RecordNotUnique      do render_error_internal(:conflict) end
+  rescue_from  HttpError                          do |ex| render_error_internal(ex.status_code, ex.text) end
 
   private
 
@@ -30,16 +32,11 @@ class ApplicationController < ActionController::Base
     Ability.new(user, paper, annotation)
   end
 
-  def etag(params, state)
-    etag = Digest::MD5.hexdigest(TheOJVersion + params.inspect + state)
-    headers['ETag'] = etag
-  end
-
   def require_user
     render_error :unauthorized unless current_user
   end
 
-  #@mro - needs to be rewritten (should be editor of Paper)
+  #@mro, @todo - needs to be rewritten (should be editor of Paper)
   def require_editor
     render_error :forbidden unless (current_user && current_user.editor?)
   end

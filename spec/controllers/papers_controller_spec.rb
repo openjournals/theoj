@@ -3,8 +3,15 @@ require "rails_helper"
 describe PapersController do
 
   let(:arxiv_doc) {
-    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
-    Arxiv.get('1311.1653v2')
+    {
+        provider_type:     :arxiv,
+        provider_id:       "1311.1653",
+        version:            2,
+        authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:           "We present photometry.*in a second paper."
+    }
   }
 
   describe "GET #index" do
@@ -38,7 +45,7 @@ describe PapersController do
       authenticate
       paper = create(:paper)
 
-      get :show, :id => paper.sha, :format => :json
+      get :show, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -48,7 +55,7 @@ describe PapersController do
       paper = create(:paper, :under_review)
       create(:assignment, :reviewer, paper:paper, user:user)
 
-      get :show, :id => paper.sha, :format => :json
+      get :show, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
@@ -61,7 +68,7 @@ describe PapersController do
       paper = create(:paper, :under_review)
       create(:assignment, :collaborator, paper:paper, user:user)
 
-      get :show, :id => paper.sha, :format => :json
+      get :show, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
@@ -73,7 +80,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, submittor:user)
 
-      get :show, :id => paper.sha, :format => :json
+      get :show, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:success)
       expect(response.status).to eq(200)
@@ -83,30 +90,12 @@ describe PapersController do
 
   end
 
-  describe "GET #arxiv_details" do
-
-    let(:arxiv_response) do
-      {
-          "arxiv_url"        => "http://arxiv.org/abs/1111.1111v1",
-          "created_at"       => "2011-11-04T12:50:44.000+00:00",
-          "updated_at"       => "2011-11-04T12:50:44.000+00:00",
-          "title"            => "Electronic structure of nickelates: From two-dimensional heterostructures to three-dimensional bulk materials",
-          "summary"          => "Reduced dimensionality and strong electronic correlations, which are among the most important ...",
-          "comment"          => "8 pages, 9 figures",
-          "primary_category" => {"abbreviation" => "cond-mat.str-el"},
-          "categories"       => [ {"abbreviation" => "cond-mat.str-el"} ],
-          "authors"          => [ {"name" => "P. Hansmann", "affiliations" => []},
-                                  {"name" => "K. Held",     "affiliations" => []}  ],
-          "links"            => [ {"url"  => "http://dx.doi.org/10.1103/PhysRevB.82.235123", "content_type" => ""},
-                                  {"url"  => "http://arxiv.org/abs/1111.1111v1",             "content_type" => "text/html"},
-                                  {"url"  => "http://arxiv.org/pdf/1111.1111v1",             "content_type" => "application/pdf"} ]
-      }
-    end
+  describe "GET #preview" do
 
     it "should fail if no user is logged in" do
-      expect(Arxiv).not_to receive(:get)
+      expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:unauthorized)
       expect(response_json).to eq(error_json(:unauthorized))
@@ -114,55 +103,90 @@ describe PapersController do
 
     it "should attempt to fetch the response from the database" do
       authenticate
-      paper = build(:paper, sha:'1234abcd'*8)
-      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return( paper )
-      expect(Arxiv).not_to receive(:get)
+      paper = build(:paper, provider_id:'6fd60602a51d2b16b8a3c9cd33d2d22b')
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return( paper )
+      expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
-      expect(response_json).to include("arxiv_url"   => "http://example.com/1234",
-                                       "authors"     => "John Smith, Paul Adams, Ella Fitzgerald",
-                                       "links"       => [{"url"=>"http://example.com/1234", "content_type"=>"application/pdf"}],
-                                       "sha"         => '1234abcd'*8,
-                                       "summary"     => "Summary of my awesome paper",
-                                       "title"       => "My awesome paper"
+      assert_serializer PreviewPaperSerializer
+      expect(response_json).to include("typed_provider_id" => "test:6fd60602a51d2b16b8a3c9cd33d2d22b-1",
+                                       "document_location" => "http://example.com/1234",
+                                       "authors"           => "John Smith, Paul Adams, Ella Fitzgerald",
+                                       "summary"           => "Summary of my awesome paper",
+                                       "title"             => "My awesome paper"
                                )
     end
 
-    it "should return a source field if the response is from the database" do
+    it "should return a true is_existing field if the response is from the database" do
       authenticate
-      paper = build(:paper)
-      expect(Paper).to receive(:find_by_arxiv_id).with('1234.5678').and_return(paper)
+      paper = create(:paper)
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :preview, identifier:'test:1234.5678'
 
-      expect(response_json).to include("source" => "theoj")
+      expect(response_json).to include("is_existing" => true)
     end
 
-    it "should fetch the paper from Arxiv if it is not in the database" do
-      authenticate
-      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
-      expect(Arxiv).to receive(:get).with('1234.5678').and_return(arxiv_response)
+    it "should return a true self_owned field if you are the submittor" do
+      user = authenticate
+      paper = create(:paper, submittor:user )
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :preview, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_self_owned" => true)
+    end
+
+    it "should return a false self_owned field if you are not the submittor" do
+      user = authenticate
+      paper = create(:paper, submittor:create(:user) )
+      expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
+
+      get :preview, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_self_owned" => false)
+    end
+
+    it "should fetch the paper if it is not in the database" do
+      authenticate
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::ArxivProvider).to receive(:get_attributes).with('1311.1653').and_return(arxiv_doc)
+
+      get :preview, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
 
-      expect(response_json).to eq(arxiv_response)
-      expect(response_json).not_to include('source')
-      expect(response_json).not_to include('self_owned')
+      assert_serializer PreviewPaperSerializer
+
+      expect(response_json).to include("typed_provider_id" => "arxiv:1311.1653v2",
+                                       "document_location" => "http://arxiv.org/pdf/1311.1653v2.pdf",
+                                       "authors"           => "Mar Álvarez-Álvarez, Angeles I. Díaz",
+                                       "summary"           => "We present photometry.*in a second paper.",
+                                       "title"             => "A photometric comprehensive study of circumnuclear star forming rings: the sample"
+                               )
+    end
+
+    it "should return a false is_existing field if the response is not from the database" do
+      authenticate
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::TestProvider).to receive(:get_attributes).with('1234.5678').and_return(arxiv_doc)
+
+      get :preview, identifier:'test:1234.5678'
+
+      expect(response_json).to include("is_existing" => false)
     end
 
     it "should return a 404 if the paper is not found on Arxiv or the DB" do
       authenticate
 
-      expect(Paper).to receive(:find_by_arxiv_id).and_return(nil)
-      expect(Arxiv).to receive(:get).and_raise(Arxiv::Error::ManuscriptNotFound)
+      expect(Paper).to receive(:for_identifier).and_return(nil)
+      expect(Provider::TestProvider).to receive(:get_attributes).and_raise(Provider::Error::DocumentNotFound)
 
-      get :arxiv_details, :id => '1234.5678', :format => :json
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:not_found)
     end
@@ -173,25 +197,44 @@ describe PapersController do
 
     render_views
 
-    it "WITHOUT USER responds successfully with an HTTP 200 status code" do
+    it "WITHOUT USER responds successfully with an HTTP 200 status code and response" do
       paper = create(:paper, :review_completed)
-      get :state, :id => paper.sha, :format => :html
-
-      etag1 = response.header['ETag']
+      get :state, identifier:paper.typed_provider_id, format:'html'
 
       expect(response).to have_http_status(:success)
-      expect(response.status).to eq(200)
       expect(response.content_type).to eq("text/html")
-      assert response.body.include?('completed.svg')
+      expect(response.body).to include('completed.svg')
+    end
 
-      paper.accept!
+    it "WITHOUT USER responds successfully with an HTTP 200 status code and JSON response" do
+      paper = create(:paper, :review_completed)
+      get :state, identifier:paper.typed_provider_id, format:'json'
 
-      get :state, :id => paper.sha, :format => :html
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq("application/json")
+      expect(response_json).to eq('state'=>'review_completed')
+    end
 
-      etag2 = response.header['ETag']
+    it "Sets an eTag" do
+      paper = create(:paper, :review_completed)
+      get :state, identifier:paper.typed_provider_id
 
-      assert etag1 != etag2
-      assert response.body.include?('accepted.svg')
+      expect( response.header['ETag'] ).to be_present
+    end
+
+    it "Returns 304 if an etag is set" do
+      paper = create(:paper, :review_completed)
+      get :state, identifier:paper.typed_provider_id
+
+      etag1 = response['ETag']
+
+      request.headers['If-None-Match'] = etag1
+
+      get :state, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:not_modified)
+      expect(response.content_type).to eq("application/json")
+      expect(response.body).to be_blank
     end
 
   end
@@ -199,35 +242,34 @@ describe PapersController do
   describe "POST #create" do
 
     before do
-      @arxiv_request = stub_request(:get,  "http://export.arxiv.org/api/query?id_list=1401.0003").
-                                   to_return(body: fixture("arxiv/1401.0003.xml"))
+      allow(Provider).to receive(:get_attributes).with('arxiv:1311.1653').and_return(arxiv_doc)
     end
 
     it "should create the paper" do
       authenticate
 
       expect {
-        post :create, :format => :json, arxiv_id: '1401.0003'
+        post :create, identifier:'arxiv:1311.1653'
       }.to change{Paper.count}.by(1)
 
       new = Paper.last
-      expect( new.arxiv_id ).to eq('1401.0003')
+      expect( new.typed_provider_id ).to eq('arxiv:1311.1653v2')
     end
 
     it "should retrieve the Arxiv data" do
+      expect(Provider).to receive(:get_attributes).with('arxiv:1311.1653').and_return(arxiv_doc)
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
-      expect(@arxiv_request).to have_been_made
       new = Paper.last
-      expect( new.title    ).to start_with('Serendipitous')
+      expect( new.title).to start_with('A photometric comprehensive study')
     end
 
     it "should set the papers submittor" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       new = Paper.last
       expect( new.submittor ).to eq(current_user)
@@ -236,26 +278,26 @@ describe PapersController do
     it "should return a created status code" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:created)
     end
 
-    it "should return a created status code" do
+    it "should return a created document" do
       authenticate
 
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
-      assert_serializer FullPaperSerializer
+      assert_serializer PaperSerializer
 
       expect(response_json).to include(
-                                   "location" => "http://arxiv.org/pdf/1401.0003v1.pdf",
-                                   "sha"       => Paper.last.sha
+                                   "typed_provider_id" => "arxiv:1311.1653v2",
+                                   "state" => "submitted"
                                )
     end
 
     it "should fail if the user is not authenticated" do
-      post :create, :format => :json, arxiv_id: '1401.0003'
+      post :create, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -268,7 +310,7 @@ describe PapersController do
   #     user = authenticate
   #     paper = create(:paper, submittor:user)
   #
-  #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
+  #     put :update, identifier:paper.typed_provider_id, paper:{ title:"Boo ya!"}
   #
   #     expect(response).to have_http_status(:success)
   #     assert_equal response_json["title"], "Boo ya!"
@@ -278,7 +320,7 @@ describe PapersController do
   #     user = authenticate
   #     paper = create(:paper, :submitted, submittor:user, title:'Hello space')
   #
-  #     put :update, :id => paper.sha, :format => :json, :paper => { :title => "Boo ya!"}
+  #     put :update, identifier:paper.typed_provider_id, paper:{ title:"Boo ya!"}
   #
   #     expect(response.status).to eq(:forbidden)
   #     assert_equal "Hello space", paper.title
@@ -292,7 +334,7 @@ describe PapersController do
       user = authenticate(:editor)
       paper = create(:paper)
 
-      delete :destroy, id:paper.sha
+      delete :destroy, identifier:paper.typed_provider_id
 
       expect( Paper.find_by_id(paper.id)).to be_nil
     end
@@ -301,7 +343,7 @@ describe PapersController do
       user = authenticate(:editor)
       paper = create(:paper)
 
-      delete :destroy, id:paper.sha
+      delete :destroy, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:success)
     end
@@ -309,9 +351,9 @@ describe PapersController do
     it "should delete all versions of the paper" do
       user = authenticate(:editor)
       original = create(:paper, arxiv_id:'1311.1653', version:1)
-      updated  = Paper.create_updated!(original, arxiv_doc)
+      updated  = original.create_updated!(arxiv_doc)
 
-      delete :destroy, id:updated.sha
+      delete :destroy, identifier:updated.typed_provider_id
 
       expect( Paper.find_by_id(original.id)).to be_nil
       expect( Paper.find_by_id(updated.id)).to be_nil
@@ -321,7 +363,7 @@ describe PapersController do
       user = authenticate(:editor)
       paper = create(:paper, :under_review)
 
-      delete :destroy, id:paper.sha
+      delete :destroy, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect( Paper.find_by_id(paper.id)).not_to be_nil
@@ -331,7 +373,7 @@ describe PapersController do
       user = authenticate(:user)
       paper = create(:paper, submittor:user)
 
-      delete :destroy, id:paper.sha
+      delete :destroy, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:forbidden)
       expect( Paper.find_by_id(paper.id)).not_to be_nil
@@ -345,7 +387,7 @@ describe PapersController do
       authenticate(:editor)
       paper = create(:paper, :review_completed)
 
-      put :transition, :id => paper.sha, :transition => :accept, :format => :json
+      put :transition, identifier:paper.typed_provider_id, transition: :accept
 
       expect(response).to have_http_status(:success)
       assert_equal response_json["state"], "accepted"
@@ -355,7 +397,7 @@ describe PapersController do
       authenticate(:editor)
       paper = create(:paper, :submitted)
 
-      put :transition, :id => paper.sha, :transition => :accept, :format => :json
+      put :transition, identifier:paper.typed_provider_id, transition: :accept
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -364,7 +406,7 @@ describe PapersController do
       authenticate
       paper = create(:paper, :under_review)
 
-      put :transition, :id => paper.sha, :transition => :accept, :format => :json
+      put :transition, identifier:paper.typed_provider_id, transition: :accept
 
       # Should be redirected
       expect(response).to have_http_status(:forbidden)
@@ -374,7 +416,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, submittor:user)
 
-      put :transition, :id => paper.sha, :transition => :accept, :format => :json
+      put :transition, identifier:paper.typed_provider_id, transition: :accept
 
       expect(response).to have_http_status(:forbidden)
       expect(response_json).to eq(error_json(:forbidden))
@@ -388,7 +430,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, id:paper.sha
+      post :complete, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:success)
       expect(response_json["state"]).to eq("review_completed")
@@ -399,7 +441,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, id:paper.sha
+      post :complete, identifier:paper.typed_provider_id
 
       expect(paper.reviewer_assignments.reload.first.completed).to be_truthy
     end
@@ -408,7 +450,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:true)
 
-      post :complete, id:paper.sha
+      post :complete, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -417,7 +459,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :submitted, reviewer:user)
 
-      post :complete, id:paper.sha
+      post :complete, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -432,7 +474,7 @@ describe PapersController do
         user = authenticate
         paper = create(:paper, reviewer:user)
 
-        post :public, id:paper.sha
+        post :public, identifier:paper.typed_provider_id
 
         expect(response).to have_http_status(:success)
         expect(response_json['assigned_users'].last['public']).to be_truthy
@@ -442,7 +484,7 @@ describe PapersController do
         user = authenticate
         paper = create(:paper, :under_review, reviewer:user)
 
-        post :public, id:paper.sha
+        post :public, identifier:paper.typed_provider_id
 
         expect(paper.reviewer_assignments.reload.last.public).to be_truthy
       end
@@ -456,7 +498,7 @@ describe PapersController do
         paper = create(:paper, reviewer:user)
         paper.reviewer_assignments.last.update_attributes(public:true)
 
-        delete :public, id:paper.sha
+        delete :public, identifier:paper.typed_provider_id
 
         expect(response).to have_http_status(:success)
         expect(response_json['assigned_users'].last['public']).to be_falsy
@@ -467,7 +509,7 @@ describe PapersController do
         paper = create(:paper, :under_review, reviewer:user)
         paper.reviewer_assignments.last.update_attributes(public:true)
 
-        delete :public, id:paper.sha
+        delete :public, identifier:paper.typed_provider_id
 
         expect(paper.reviewer_assignments.reload.last.public).to be_falsy
       end
@@ -478,7 +520,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:true)
 
-      post :public, id:paper.sha
+      post :public, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -493,18 +535,17 @@ describe PapersController do
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/1311.1653v2.xml'))
 
       expect {
-        put :check_for_update, id:'1311.1653'
+        put :check_for_update, identifier:paper.typed_provider_id
       }.to change{Paper.count}.by(1)
 
       expect(response).to have_http_status(:created)
       expect(response.content_type).to eq("application/json")
       assert_serializer PaperSerializer
-      expect(response_json['arxiv_id']).to eq('1311.1653')
-      expect(response_json['version']).to eq(2)
+      expect(response_json['typed_provider_id']).to eq('arxiv:1311.1653v2')
     end
 
     it "should fail if the user is not authenticated" do
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:'arxiv:0000.0000'
       expect(response).to have_http_status(:unauthorized)
     end
 
@@ -513,7 +554,7 @@ describe PapersController do
       authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
 
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -521,7 +562,7 @@ describe PapersController do
     it "should fail if there is no original paper" do
       user  = authenticate
 
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:'arxiv:0000.0000'
 
       expect(response).to have_http_status(:not_found)
     end
@@ -531,7 +572,7 @@ describe PapersController do
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653', version:2)
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/1311.1653v2.xml'))
 
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:conflict)
     end
@@ -540,7 +581,7 @@ describe PapersController do
       user  = authenticate
       paper = create(:paper, :accepted, submittor:user, arxiv_id:'1311.1653')
 
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:conflict)
     end
@@ -550,7 +591,7 @@ describe PapersController do
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
       stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/not_found.xml'))
 
-      put :check_for_update, id:'1311.1653'
+      put :check_for_update, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:not_found)
     end
@@ -563,13 +604,13 @@ describe PapersController do
       create(:paper, arxiv_id:'1234.5678', version:1)
       create(:paper, arxiv_id:'1234.5678', version:2)
 
-      get :versions, id:'1234.5678'
+      get :versions, identifier:'arxiv:1234.5678'
 
       expect(response).to have_http_status(:ok)
       expect(response.content_type).to eq("application/json")
-      assert_serializer BasicPaperSerializer
 
       expect(response_json.length).to eq(2)
+      assert_serializer BasicPaperSerializer
     end
 
   end
@@ -654,9 +695,9 @@ describe PapersController do
 
     it "should return papers" do
       user  = authenticate
-      paper = create(:paper, :under_review, reviewer:user)
+      paper1 = create(:paper, :under_review, reviewer:user)
       # This is the one that should be returned
-      paper = create(:paper, :under_review, submittor:user)
+      paper2 = create(:paper, :under_review, submittor:user)
 
       get :as_author, :format => :json
 
@@ -666,9 +707,8 @@ describe PapersController do
 
     it "should not return inactive papers" do
       user  = authenticate
-      paper = create(:paper, :under_review, reviewer:user)
-      # This is the one that should be returned
-      paper = create(:paper, :superceded,   submittor:user)
+      paper1 = create(:paper, :under_review, reviewer:user)
+      paper2 = create(:paper, :superceded,   submittor:user)
 
       get :as_author, :format => :json
 
@@ -683,7 +723,7 @@ describe PapersController do
     it "should return papers" do
       user = set_paper_editor( authenticate(:editor) )
       create(:paper, :under_review) # should be returned
-      create(:paper, :submitted) # should be returned
+      create(:paper, :submitted)    # should be returned
 
       get :as_editor, :format => :json
 
@@ -696,11 +736,11 @@ describe PapersController do
       p1 = create(:paper, :under_review) # should be returned
       p2 = create(:paper, :superceded)   # should not be returned
 
-      get :as_editor, :format => :json
+      get :as_editor
 
       expect(response).to have_http_status(:success)
       expect(response_json.size).to be(1)
-      expect(response_json.first['sha']).to eq(p1.sha)
+      expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
     end
 
   end

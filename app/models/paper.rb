@@ -1,8 +1,6 @@
+
 class Paper < ActiveRecord::Base
   include AASM
-
-  ArxivIdRegex = /\d{4}\.\d{4,5}/
-  ArxivIdWithVersionRegex = /\d{4}\.\d{4,5}(v\d+)?/
 
   has_many   :annotations, inverse_of: :paper, dependent: :destroy
   has_many   :assignments, inverse_of: :paper, dependent: :destroy do
@@ -26,16 +24,19 @@ class Paper < ActiveRecord::Base
   has_many   :editors,                  through: :editor_assignments,       source: :user
   has_many   :assignees,                through: :assignments,              source: :user
 
-  scope :active, -> { where.not(state:'superceded') }
+  scope :active,     -> { where.not(state:'superceded') }
+  scope :with_state, ->(state=nil) { state.present? ?  where(state:state) : all }
 
-  before_create :set_initial_values,
-                :create_assignments
+  before_create :create_assignments
 
   # Using after commit since creating revisions happens in a transaction
   after_commit  :send_submittor_emails, on: :create
 
   validates :submittor_id,
-            presence: true
+            :provider_type,
+            :provider_id,
+            :version,
+             presence: true
 
   aasm column: :state do
     state :submitted,          initial:true
@@ -70,53 +71,42 @@ class Paper < ActiveRecord::Base
 
   end
 
-  def self.with_state(state = nil)
-    if state
-      where(state:state)
+  def self.for_identifier(identifier)
+    if identifier.is_a?(Integer) || identifier =~ /^\d+$/
+      where(id:identifier).first
+
     else
-      all
+      parsed = Provider.parse_identifier(identifier)
+
+      relation = where(provider_type:parsed[:provider_type], provider_id:parsed[:provider_id] )
+      relation = parsed[:version] ? relation.where(version: parsed[:version] ) : relation.order(version: :desc)
+      relation.first
     end
   end
 
-  def self.versions_for(arxiv_id)
-    if arxiv_id
-      where(arxiv_id:arxiv_id).order(version: :desc)
+  def self.for_identifier!(identifier)
+    for_identifier(identifier) or raise ActiveRecord::RecordNotFound.new
+  end
+
+  def self.versions_for(provider_type, provider_id)
+    if provider_id
+      where(provider_type:provider_type, provider_id:provider_id).order(version: :desc)
     else
       none
     end
   end
 
-  def self.new_for_arxiv_id(arxiv_id, attributes={})
-    arxiv_doc = Arxiv.get(arxiv_id.to_s)
-    new_for_arxiv(arxiv_doc, attributes)
-  end
+  def create_updated!(attributes)
+    original = self
 
-  def self.new_for_arxiv(arxiv_doc, attributes={})
-
-    attributes = attributes.merge(
-        arxiv_id:    arxiv_doc.arxiv_id,
-        version:     arxiv_doc.version,
-
-        title:       arxiv_doc.title,
-        summary:     arxiv_doc.summary,
-        location:    arxiv_doc.pdf_url,
-        author_list: arxiv_doc.authors.collect{|a| a.name}.join(", ")
-    )
-
-    new(attributes)
-  end
-
-  def self.create_updated!(original, arxiv_doc)
-
-    raise 'Arxiv IDs do not match'            unless original.arxiv_id == arxiv_doc.arxiv_id
+    raise 'Providers do not match'            unless original.provider_type.to_sym == attributes[:provider_type]
+    raise 'Provider IDs do not match'         unless original.provider_id          == attributes[:provider_id]
     raise 'Cannot update superceded original' unless original.may_supercede?
-    raise 'No new version available'          unless arxiv_doc.version > original.version
+    raise 'No new version available'          unless original.version              <  attributes[:version]
 
     ActiveRecord::Base.transaction do
-      new_paper = Paper.new_for_arxiv(arxiv_doc,
-                                      submittor: original.submittor,
-                                      state:     original.state
-      )
+      attributes = attributes.merge(submittor: original.submittor, state: original.state)
+      new_paper = Paper.new(attributes)
 
       original.assignments.each do |assignment|
         new_paper.assignments << Assignment.build_copy(assignment)
@@ -135,8 +125,16 @@ class Paper < ActiveRecord::Base
     submitted? || superceded?
   end
 
-  def full_arxiv_id
-    "#{arxiv_id}v#{version}"
+  def provider
+    @provider ||= Provider[provider_type]
+  end
+
+  def full_provider_id
+    provider.full_identifier(provider_id:provider_id, version:version)
+  end
+
+  def typed_provider_id
+    "#{provider_type}#{Provider::SEPARATOR}#{full_provider_id}"
   end
 
   def issues
@@ -151,13 +149,9 @@ class Paper < ActiveRecord::Base
     issues.each(&:resolve!)
   end
 
-  def to_param
-    sha
-  end
-
   # Newest version first
   def all_versions
-    @all_versions ||= (arxiv_id ? Paper.versions_for(arxiv_id) : [self])
+    @all_versions ||= (provider_id ? Paper.versions_for(provider_type, provider_id) : [self])
   end
 
   def is_revision?
@@ -217,15 +211,14 @@ class Paper < ActiveRecord::Base
     assignments.where(user_id:user.id).pluck(:role)
   end
 
+  alias to_param typed_provider_id
+
   def firebase_key
-    "/papers/#{sha}"
+    key = Firebase.clean_key(typed_provider_id)
+    "/papers/#{key}"
   end
 
   private
-
-  def set_initial_values
-    self.sha ||= SecureRandom.hex
-  end
 
   def has_reviewers?
     reviewers.any?

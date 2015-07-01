@@ -37,8 +37,7 @@
     Polymer({
 
       selectPaper: function(e){
-          var url = '/review/'+ e.detail.data.sha;
-          this.fire('go', url);
+          this.fire('review', e.detail.data);
       },
 
       filtered: function(array, key, desc) {

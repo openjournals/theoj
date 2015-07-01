@@ -25,7 +25,7 @@ class Assignment < ActiveRecord::Base
     role == 'reviewer'
   end
 
-  #@todo Change to use CanCan?
+  #@mro, @todo Change to use CanCan?
   def make_user_info_public?(requesting_user)
     public? || requesting_user==self.user || (requesting_user && requesting_user.editor_of?(paper) )
   end

@@ -58,6 +58,7 @@ class Annotation < ActiveRecord::Base
 
   def push_to_firebase
     # Note this must be anonymized user data
+    Rails.logger.debug("PUSHING TO FIREBASE: #{firebase_key}:: #{base_annotation.inspect}")
     FirebaseClient.set firebase_key, AnnotationSerializer.new(base_annotation).as_json
   end
 

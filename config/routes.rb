@@ -1,10 +1,9 @@
+
 Theoj::Application.routes.draw do
 
-  scope path:'api', as:'api', defaults: { format: 'json' } do
+  scope path:'api', as:'api', format: 'json'do
 
-    get '/papers/:paper_id/issues', to: "annotations#issues"
-
-    resources :papers, only:[:index, :show, :create, :destroy] do
+    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
 
       collection do
         get :as_reviewer
@@ -14,12 +13,13 @@ Theoj::Application.routes.draw do
       end
 
       member do
-        put  :check_for_update, id: Paper::ArxivIdRegex
-        get  :arxiv_details,    id: Paper::ArxivIdWithVersionRegex
-        get  :versions,         id: Paper::ArxivIdRegex
+        get   :preview
+        post  action:'create'
+        put   :check_for_update
+        get   :versions
 
-        get  :state
-        put  :transition
+        get   :state
+        put   :transition
 
         post  :complete
         match :public,   via:[:post, :delete]
@@ -28,12 +28,18 @@ Theoj::Application.routes.draw do
       resources :assignments, only:[:index, :create, :destroy]
 
       resources :annotations, only:[:index, :create] do
+
+        collection do
+          get :all
+        end
+
         member do
           # Change status
           put :unresolve
           put :dispute
           put :resolve
         end
+
       end
 
     end
@@ -62,7 +68,7 @@ Theoj::Application.routes.draw do
   # Helpers for Polymer Routes
   scope controller:'none', action:'none' do
 
-    get 'review/:sha', as:'paper_review'
+    get 'review/:identifier', as:'paper_review'
 
   end
 

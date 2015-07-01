@@ -1,12 +1,12 @@
 <polymer-element name='oj-paper-preview' attributes='user paper_id'>
   <template>
 
-    <template if="{{paper_details && !paper_details.source}}">
+    <template if="{{paper_details && !paper_details.is_existing}}">
 
       <div layout horizontal flex>
         <template if={{hidePDF}}>
           <div flex id='preview'>
-            <iframe id='pfd_preview' src="{{paper_details | google_preview_lookup}}"  frameborder="0"></iframe>
+            <iframe id='pdf_preview' src="{{paper_details | googlePrreviewPath}}"  frameborder="0"></iframe>
           </div>
         </template>
 
@@ -36,15 +36,13 @@
     </template>
 
     <json-post id=postRequest
-               data="{{ paper_id | postQueryParams }}"
-               url='/api/papers'
                on-success={{onPostRepsonse}}
                on-error={{onPostError}}>
     </json-post>
 
     <json-get  id=detailsRequest
                auto=true
-               url="{{paper_id | arxiv_lookup_url}}"
+               url="{{paper_id | previewPath}}"
                result={{paper_details}}
                on-success={{onDetailsResponse}}
                on-error={{onDetailsError}}
@@ -72,17 +70,17 @@
 
       #authors{
         list-style: none;
-        margin-left: 0px;
-        padding: 0px
+        margin-left: 0;
+        padding: 0;
       }
 
       #authors li{
         display: inline;
-        padding-left: 0px;
+        padding-left: 0;
       }
 
       p#summary{
-        font-size: 0.9em
+        font-size: 0.9em;
       }
 
     </style>
@@ -92,16 +90,13 @@
   <script>
     Polymer({
 
-      postQueryParams:function(paper_id){
-        return {arxiv_id : paper_id}
-      },
       onDetailsResponse: function(event) {
-          if (this.paper_details.source) {
+          if (this.paper_details.is_existing) {
               event.preventDefault();
               this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
 
-              if (this.paper_details.self_owned)
-                  this.fire('go', "/review/"+this.paper_details.sha);
+              if (this.paper_details.is_self_owned)
+                  this.fire('review', this.paper_details);
               else
                   this.fire('go', "/submit");
           }
@@ -117,11 +112,12 @@
           this.fire("notification", message);
           this.fire('go', "/submit");
       },
-      submitForReview:function(event){
+      submitForReview:function(event) {
+          this.$.postRequest.url = Oj.urls.paperPath(this.paper_details);
           this.$.postRequest.go()
       },
       onPostRepsonse:function(response){
-        this.fire("notification", "Paper "+this.paper_details.title+" submitted");
+          this.fire("notification", "Paper "+this.paper_details.title+" submitted");
           this.fire('go', "/papers")
       },
       onPostError: function(event) {

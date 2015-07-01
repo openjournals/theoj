@@ -6,11 +6,6 @@ namespace :firebase do
     Annotation.root_annotations.each{|a| a.push_to_firebase}
   end
 
-  desc 'Clear objects in Firebase (this includes (dev, test & prod data)'
-  task :clear => :environment do
-    FirebaseClient.delete("/")
-  end
-
   desc 'Clear and then update Firebase data'
   task :sync => [:update, :clear]
 

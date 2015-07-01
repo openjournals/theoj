@@ -2,7 +2,9 @@
   <template>
     <core-scaffold id='scaffold'
                    on-notification={{onNotification}}
-                   on-go={{onGo}}>
+                   on-go={{onGo}}
+                   on-go-home={{onGoHome}}
+                   on-review={{onReview}}>
       <nav>
         <core-toolbar>
           <span class="title">The Open Journal</span>
@@ -54,7 +56,17 @@
       },
 
       onGo: function(event, url) {
-        this.$.pages.go(url);
+          this.$.pages.go(url);
+      },
+
+      onGoHome: function(event) {
+          this.$.pages.go('/');
+      },
+
+      onReview: function(event, paper_or_id) {
+          var id = paper.typed_provider_id || paper_or_id;
+          var url = '/review/' + id;
+          this.$.pages.go(url);
       },
 
       onUser: function(event, user) {

@@ -6,9 +6,9 @@
 
                   <paper-dropdown-menu on-core-activate={{versionSelected}}>
                       <paper-dropdown class=dropdown>
-                          <core-menu id=versionMenu valueattr=version selected={{paper.version}}>
+                          <core-menu id=versionMenu valueAttr=version selected={{paper.typed_provider_id}}>
                               <template repeat="{{version in paper.versions}}">
-                                <paper-item version={{version.version}}>{{version.arxiv_id}} v{{version.version}}</paper-item>
+                                <paper-item version={{version.typed_provider_id}}>{{version.typed_provider_id | providerPart}}</paper-item>
                               </template>
                           </core-menu>
                       </paper-dropdown>
@@ -158,9 +158,9 @@
         },
 
         versionSelected: function(event, detail) {
-            var sha = this.$.versionMenu.selectedModel.version.sha;
-            if (sha != this.paper.sha)
-                this.fire('go', '/review/'+sha);
+            var id = this.$.versionMenu.selectedModel.version.typed_provider_id;
+            if (id != this.paper.typed_provider_id)
+                this.fire('review', id);
         }
 
     })

@@ -32,8 +32,15 @@
                 return error.message.slice(4);
             else
                 return (error && error.toString()) || 'An error occurred.'
-        }
+        },
 
+        INVALID_FIREBASE_CHARS: /[~\.\$\#\[\]]/gi, // Added ~ since we use it as an escape, Also '/' but we don't worry about that
+
+        clean_firebase_key: function(key) {
+            return key.toString().replace(this.INVALID_FIREBASE_CHARS, function(c) {
+                return '~' + c.charCodeAt(0).toString(16);
+            });
+        }
 
     };
 

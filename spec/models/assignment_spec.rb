@@ -2,10 +2,17 @@ require "rails_helper"
 
 describe Assignment do
 
-  let(:arxiv_doc) {
-    stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653v2").to_return(fixture('arxiv/1311.1653v2.xml'))
-    Arxiv.get('1311.1653v2')
-  }
+  let(:arxiv_doc) do
+    {
+        provider_type:     :arxiv,
+        provider_id:       "1311.1653",
+        version:           2,
+        authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
+        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
+        summary:           "We present photometry.*in a second paper."
+    }
+  end
 
   it "WITHOUT ROLE: should not be able to assign papers" do
     user_1 = create(:user)
@@ -120,7 +127,7 @@ describe Assignment do
       deliveries.clear
 
       expect {
-        Paper.create_updated!(original, arxiv_doc)
+        original.create_updated!(arxiv_doc)
       }.to change { deliveries.size }.by(3)
 
       is_expected.to have_sent_email.to('editor@example.com').matching_subject(/Paper Updated/)
@@ -131,7 +138,7 @@ describe Assignment do
       user     = create(:user, name:'John Smith', email:'jsmith@example.com')
       editor   = set_paper_editor( create(:user, email:'editor@example.com') )
       original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
-      updated  = Paper.create_updated!(original, arxiv_doc)
+      updated  = original.create_updated!(arxiv_doc)
       deliveries.clear
 
       reviewer = create(:user, email:'reviewer@example.com')
