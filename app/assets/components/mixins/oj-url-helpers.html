@@ -2,13 +2,15 @@
 
     window.Oj.urls = {
 
-        // Take either a paper object or a plain sha
+        // Take either a paper object or a typed id
         paperPath: function(paper_or_id) {
             return paper_or_id ? "/api/papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
         },
 
-        annotationsFirebasePath: function(paper_id){
-            return "https://theoj.firebaseio.com/papers/"+paper_id+"/annotations/";
+        annotationsFirebasePath: function(paper_or_id) {
+            var id = paper_or_id ? (paper_or_id.typed_provider_id || paper_or_id) : '';
+            id = Oj.utils.clean_firebase_key(id);
+            return "https://theoj.firebaseio.com/papers/" + id + "/annotations/";
         },
 
         addAssigneePath: function(paper, user) {
