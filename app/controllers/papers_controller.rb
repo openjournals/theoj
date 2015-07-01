@@ -21,9 +21,8 @@ class PapersController < ApplicationController
     respond_with paper, serializer:FullPaperSerializer
   end
 
-  #@mro #@todo n- rename this in Polymer
   # Get the details for a new submission
-  def new
+  def preview
     paper = Paper.for_identifier( params[:identifier] )
 
     if !paper
@@ -32,7 +31,7 @@ class PapersController < ApplicationController
       paper = Paper.new(document_attributes)
     end
 
-    respond_with paper, serializer:NewPaperSerializer
+    respond_with paper, serializer:PreviewPaperSerializer
   end
 
   #@mro #@todo rewrite this to use full ids

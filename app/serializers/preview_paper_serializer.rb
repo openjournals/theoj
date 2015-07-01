@@ -1,6 +1,6 @@
-# Serialize a Paper in the format for new documents
+# Serialize a Paper in the format for previewing documents
 
-class NewPaperSerializer < BaseSerializer
+class PreviewPaperSerializer < BaseSerializer
 
   attributes :typed_provider_id,
              :title,

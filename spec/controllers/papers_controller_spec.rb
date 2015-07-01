@@ -90,12 +90,12 @@ describe PapersController do
 
   end
 
-  describe "GET #new" do
+  describe "GET #preview" do
 
     it "should fail if no user is logged in" do
       expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:unauthorized)
       expect(response_json).to eq(error_json(:unauthorized))
@@ -107,11 +107,11 @@ describe PapersController do
       expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return( paper )
       expect(Provider::TestProvider).not_to receive(:get_attributes)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
-      assert_serializer NewPaperSerializer
+      assert_serializer PreviewPaperSerializer
       expect(response_json).to include("typed_provider_id" => "test:6fd60602a51d2b16b8a3c9cd33d2d22b-1",
                                        "document_location" => "http://example.com/1234",
                                        "authors"           => "John Smith, Paul Adams, Ella Fitzgerald",
@@ -125,7 +125,7 @@ describe PapersController do
       paper = create(:paper)
       expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response_json).to include("is_existing" => true)
     end
@@ -135,7 +135,7 @@ describe PapersController do
       paper = create(:paper, submittor:user )
       expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response_json).to include("is_self_owned" => true)
     end
@@ -145,7 +145,7 @@ describe PapersController do
       paper = create(:paper, submittor:create(:user) )
       expect(Paper).to receive(:for_identifier).with('test:1234.5678').and_return(paper)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response_json).to include("is_self_owned" => false)
     end
@@ -155,12 +155,12 @@ describe PapersController do
       expect(Paper).to receive(:for_identifier).and_return(nil)
       expect(Provider::ArxivProvider).to receive(:get_attributes).with('1311.1653').and_return(arxiv_doc)
 
-      get :new, identifier:'arxiv:1311.1653'
+      get :preview, identifier:'arxiv:1311.1653'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
 
-      assert_serializer NewPaperSerializer
+      assert_serializer PreviewPaperSerializer
 
       expect(response_json).to include("typed_provider_id" => "arxiv:1311.1653v2",
                                        "document_location" => "http://arxiv.org/pdf/1311.1653v2.pdf",
@@ -175,7 +175,7 @@ describe PapersController do
       expect(Paper).to receive(:for_identifier).and_return(nil)
       expect(Provider::TestProvider).to receive(:get_attributes).with('1234.5678').and_return(arxiv_doc)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response_json).to include("is_existing" => false)
     end
@@ -186,7 +186,7 @@ describe PapersController do
       expect(Paper).to receive(:for_identifier).and_return(nil)
       expect(Provider::TestProvider).to receive(:get_attributes).and_raise(Provider::Error::DocumentNotFound)
 
-      get :new, identifier:'test:1234.5678'
+      get :preview, identifier:'test:1234.5678'
 
       expect(response).to have_http_status(:not_found)
     end

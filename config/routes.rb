@@ -1,3 +1,7 @@
+##@mro #@todo
+# Fix Firebase issues
+# Check for invalid ids
+
 Theoj::Application.routes.draw do
 
   scope path:'api', as:'api', format: 'json'do
@@ -12,8 +16,7 @@ Theoj::Application.routes.draw do
       end
 
       member do
-        get   :preview, action: :new
-        get   :new
+        get   :preview
         post  action:'create'
         put   :check_for_update
         get   :versions

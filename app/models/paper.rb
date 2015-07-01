@@ -215,7 +215,8 @@ class Paper < ActiveRecord::Base
   alias to_param typed_provider_id
 
   def firebase_key
-    "/papers/#{typed_provider_id}"
+    key = Firebase.clean_key(typed_provider_id)
+    "/papers/#{key}"
   end
 
   private

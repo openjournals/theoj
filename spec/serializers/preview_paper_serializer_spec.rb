@@ -1,13 +1,13 @@
 require "rails_helper"
 
-describe NewPaperSerializer do
+describe PreviewPaperSerializer do
 
   it "should initialize properly" do
     current_user = create(:user)
     user  = create(:user)
 
     paper = build(:paper, document_location:"http://example.com", title:"Teh awesomeness", submittor:user)
-    serializer = NewPaperSerializer.new(paper, scope:current_user)
+    serializer = PreviewPaperSerializer.new(paper, scope:current_user)
     hash = hash_from_json(serializer.to_json)
 
     expect(hash.keys).to contain_exactly("typed_provider_id",
@@ -26,7 +26,7 @@ describe NewPaperSerializer do
       user  = create(:user)
 
       paper = create(:paper, submittor:user)
-      serializer = NewPaperSerializer.new(paper, scope:current_user)
+      serializer = PreviewPaperSerializer.new(paper, scope:current_user)
       hash = hash_from_json(serializer.to_json)
 
       expect(hash['is_self_owned']).to eq(false)
@@ -36,7 +36,7 @@ describe NewPaperSerializer do
       current_user = create(:user)
 
       paper = create(:paper, submittor:current_user)
-      serializer = NewPaperSerializer.new(paper, scope:current_user)
+      serializer = PreviewPaperSerializer.new(paper, scope:current_user)
       hash = hash_from_json(serializer.to_json)
 
       expect(hash['is_self_owned']).to eq(true)
@@ -48,7 +48,7 @@ describe NewPaperSerializer do
 
     it "should be true if the paper is saved" do
       paper = create(:paper)
-      serializer = NewPaperSerializer.new(paper)
+      serializer = PreviewPaperSerializer.new(paper)
       hash = hash_from_json(serializer.to_json)
 
       expect(hash['is_existing']).to eq(true)
@@ -56,7 +56,7 @@ describe NewPaperSerializer do
 
     it "should be false if the paper is not saved" do
       paper = build(:paper)
-      serializer = NewPaperSerializer.new(paper)
+      serializer = PreviewPaperSerializer.new(paper)
       hash = hash_from_json(serializer.to_json)
 
       expect(hash['is_existing']).to eq(false)
