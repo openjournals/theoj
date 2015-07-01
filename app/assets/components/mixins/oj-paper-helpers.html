@@ -64,6 +64,10 @@
             }
 
             return paper.assignmentsBySha[assignment_sha];
+        },
+
+        providerPart: function(typed_provider_id) {
+            return typed_provider_id.split(':').pop();
         }
 
     };

@@ -13,6 +13,7 @@ class Provider
       end
 
       def parse_identifier(identifier)
+        raise Error::InvalidIdentifier unless identifier_valid?(identifier)
         parts = identifier.split(version_separator, 2)
         {
             provider_id: parts[0],

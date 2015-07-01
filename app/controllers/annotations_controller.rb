@@ -2,12 +2,13 @@ class AnnotationsController < ApplicationController
   before_filter :require_user
   before_filter :require_editor,   only:[:update]
 
+  # Root issues
   def index
-    render json: paper.annotations
+    render json: paper.issues
   end
 
-  def issues
-    render json: paper.issues
+  def all
+    render json: paper.annotations
   end
 
   def create

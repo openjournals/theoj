@@ -30,6 +30,12 @@ class Provider
         }
       end
 
+      private
+
+      def identifier_valid?(identifier)
+        Arxiv::ID_FORMAT === identifier
+      end
+
     end
 
   end

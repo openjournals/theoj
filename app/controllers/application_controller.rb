@@ -19,8 +19,6 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
   end
 
-  #@todo #@mro - Remove this and replace with Provider::DocumentNotFound
-  rescue_from  Arxiv::Error::ManuscriptNotFound   do render_error_internal(:not_found) end
   rescue_from  Provider::Error::ProviderNotFound  do render_error_internal(:not_found) end
   rescue_from  Provider::Error::DocumentNotFound  do render_error_internal(:not_found) end
   rescue_from  Provider::Error::InvalidIdentifier do render_error_internal(:bad_request) end
@@ -38,7 +36,7 @@ class ApplicationController < ActionController::Base
     render_error :unauthorized unless current_user
   end
 
-  #@mro - needs to be rewritten (should be editor of Paper)
+  #@mro, @todo - needs to be rewritten (should be editor of Paper)
   def require_editor
     render_error :forbidden unless (current_user && current_user.editor?)
   end

@@ -1,4 +1,3 @@
-#@toto #@mro - Validate format of identifiers
 
 class PapersController < ApplicationController
   respond_to :json
@@ -34,7 +33,6 @@ class PapersController < ApplicationController
     respond_with paper, serializer:PreviewPaperSerializer
   end
 
-  #@mro #@todo rewrite this to use full ids
   def create
     document_attributes = Provider.get_attributes( params[:identifier] )
     document_attributes.merge!(submittor:current_user)

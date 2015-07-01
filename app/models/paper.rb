@@ -1,4 +1,3 @@
-#@mro #@todo - rename location
 
 class Paper < ActiveRecord::Base
   include AASM

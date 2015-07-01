@@ -147,6 +147,12 @@ shared_examples 'All providers' do
       expect(result).to eq({provider_id:document_id_without_version})
     end
 
+    it "should fail for an invalid identifier" do
+      expect {
+         provider.parse_identifier('~!@#$%^&*()')
+      }.to raise_exception(Provider::Error::InvalidIdentifier)
+    end
+
   end
 
 end

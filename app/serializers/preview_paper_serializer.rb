@@ -7,8 +7,8 @@ class PreviewPaperSerializer < BaseSerializer
              :summary,
              :document_location,
              :authors,
-             :is_existing, #@mro #@todo - rename in Polymer
-             :is_self_owned #@mro #@todo - rename in Polymer
+             :is_existing,
+             :is_self_owned
 
   def is_self_owned
     current_user && current_user == object.submittor

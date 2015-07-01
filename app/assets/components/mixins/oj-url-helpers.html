@@ -22,7 +22,11 @@
         },
 
         getIssuesPath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/issues";
+            return "/api/papers/"+paper.typed_provider_id+"/annotations";
+        },
+
+        getAllIssuesPath: function(paper) {
+            return "/api/papers/"+paper.typed_provider_id+"/annotations/all";
         },
 
         previewPath: function(paper) {

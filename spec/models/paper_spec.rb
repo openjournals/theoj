@@ -336,15 +336,15 @@ describe Paper do
   context "versioning" do
 
     def create_papers
-       @paper1 = create(:paper, arxiv_id:'123', version:1, state:'superceded')
-       @paper2 = create(:paper, arxiv_id:'123', version:2, state:'superceded')
-       @paper3 = create(:paper, arxiv_id:'123', version:3)
+       @paper1 = create(:paper, arxiv_id:'1234.5678', version:1, state:'superceded')
+       @paper2 = create(:paper, arxiv_id:'1234.5678', version:2, state:'superceded')
+       @paper3 = create(:paper, arxiv_id:'1234.5678', version:3)
     end
 
     describe "#is_original_version?" do
 
       it "should work for a single paper" do
-        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        @paper1 = create(:paper, arxiv_id:'1234.5678', version:2)
         expect(@paper1.is_original_version?).to be_truthy
       end
 
@@ -360,7 +360,7 @@ describe Paper do
     describe "#is_latest_version?" do
 
       it "should work for a single paper" do
-        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        @paper1 = create(:paper, arxiv_id:'1234.5678', version:2)
         expect(@paper1.is_latest_version?).to be_truthy
       end
 
@@ -376,7 +376,7 @@ describe Paper do
     describe "#is_revision?" do
 
       it "should work for a single paper" do
-        @paper1 = create(:paper, arxiv_id:'123', version:2)
+        @paper1 = create(:paper, arxiv_id:'1234.5678', version:2)
         expect(@paper1.is_revision?).to be_falsey
       end
 

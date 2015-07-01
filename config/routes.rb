@@ -1,6 +1,3 @@
-##@mro #@todo
-# Fix Firebase issues
-# Check for invalid ids
 
 Theoj::Application.routes.draw do
 
@@ -21,9 +18,6 @@ Theoj::Application.routes.draw do
         put   :check_for_update
         get   :versions
 
-        #@todo #@mro - do we still use this? Move it to /index
-        get   :issues, to: "annotations#issues"
-
         get   :state
         put   :transition
 
@@ -34,12 +28,18 @@ Theoj::Application.routes.draw do
       resources :assignments, only:[:index, :create, :destroy]
 
       resources :annotations, only:[:index, :create] do
+
+        collection do
+          get :all
+        end
+
         member do
           # Change status
           put :unresolve
           put :dispute
           put :resolve
         end
+
       end
 
     end

@@ -6,7 +6,6 @@ class FullPaperSerializer < PaperSerializer
   has_many :assigned_users
   has_many :versions,       each_serialzier: BasicPaperSerializer
 
-  #@mro #@todo - change references to this in Polymer annotations
   def paper_id
     object.id
   end
