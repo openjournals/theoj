@@ -1,21 +1,15 @@
-<polymer-element name="oj-user-login">
+<polymer-element name="oj-user-login" attributes="currentUser">
   <template>
 
-    <template if="{{userReady}}">
-
-        <template if={{user.name}}>
-          <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >
-              {{user.name}}{{user|roles}}</a>
-          <a class='link signout' href='/signout'>Sign Out</a>
-        </template>
-
-        <template if={{!user.name}}>
-          <a class='link' href='/auth/orcid'>Sign In</a>
-        </template>
-
+    <template if={{currentUser}}>
+      <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >
+          {{currentUser.name}}{{currentUser|roles}}</a>
+      <a class='link signout' href='/signout'>Sign Out</a>
     </template>
 
-    <core-ajax auto url='/api/user' handleAs="json"  on-core-response={{isReady}}></core-ajax>
+    <template if={{!currentUser}}>
+      <a class='link' href='/auth/orcid'>Sign In</a>
+    </template>
 
     <style>
       a {
@@ -44,21 +38,6 @@
 
   <script>
     Polymer({
-      userReady: false,
-
-      isReady:function(event){
-        if(event.detail.response.name){
-          this.user = event.detail.response;
-          window.current_user = this.user;
-          this.asyncFire('user-logged-in', this.user);
-        }
-        else{
-          this.user = null;
-          this.asyncFire('user-logged-out');
-        }
-        this.asyncFire('user', this.user);
-        this.userReady = true;
-      },
 
       roles: function(user) {
           if (!user)

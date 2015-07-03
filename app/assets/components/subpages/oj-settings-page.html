@@ -64,7 +64,7 @@
             updateSuccess: function(event, detail) {
                 this.fire('notification', 'Your e-mail address has been updated');
                 $.extend(this.currentUser, detail);
-                this.fire('go-home');
+                this.fire('go-default');
             },
 
             updateError: function(event, detail) {

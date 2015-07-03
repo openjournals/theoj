@@ -15,6 +15,11 @@ module ControllerSpecHelpers
     @current_user = user
   end
 
+  def not_authenticated!
+    allow(controller).to receive(:current_user).and_return(nil)
+    @current_user = nil
+  end
+
   def response_json
     @response_json ||= JSON.parse( response.body )
   end

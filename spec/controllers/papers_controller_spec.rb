@@ -14,41 +14,7 @@ describe PapersController do
     }
   }
 
-  describe "GET #index" do
-
-    it "As a user returns a list of your own papers" do
-      user = authenticate
-      create(:paper, submittor:user)
-
-      get :index, :format => :json
-
-      expect(response).to have_http_status(:success)
-      expect(response.content_type).to eq("application/json")
-      expect(response_json.size).to be(1)
-    end
-
-    it "AS NO USER responds successfully with an HTTP 200 status code but an empty body" do
-      create(:paper)
-
-      get :index, :format => :json
-
-      expect(response).to have_http_status(:success)
-      expect(response.content_type).to eq("application/json")
-      expect(response_json.size).to be(0)
-    end
-
-  end
-
   describe "GET #show" do
-
-    it "AS USER without permissions" do
-      authenticate
-      paper = create(:paper)
-
-      get :show, identifier:paper.typed_provider_id
-
-      expect(response).to have_http_status(:forbidden)
-    end
 
     it "AS REVIEWER (with permissions)" do
       user = authenticate
@@ -79,6 +45,29 @@ describe PapersController do
     it "AS AUTHOR (with permissions)" do
       user = authenticate
       paper = create(:paper, :under_review, submittor:user)
+
+      get :show, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:success)
+      expect(response.status).to eq(200)
+      expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
+    end
+
+    it "AS USER (without permissions)" do
+      user = authenticate
+      paper = create(:paper, :under_review)
+
+      get :show, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:success)
+      expect(response.status).to eq(200)
+      expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
+    end
+
+    it "AS UNAUTHENTICATED USER" do
+      paper = create(:paper, :under_review)
 
       get :show, identifier:paper.typed_provider_id
 
@@ -742,6 +731,58 @@ describe PapersController do
       expect(response_json.size).to be(1)
       expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
     end
+
+  end
+
+  shared_examples_for "#recent" do |action_name|
+
+    it "should return papers" do
+      user1 = authenticate
+      user2 = create(:user)
+      create(:paper, :under_review, submittor:user1)
+      create(:paper, :submitted,    submittor:user2)
+
+      get action_name
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(2)
+    end
+
+    it "should return papers even if you are not authenticated" do
+      user1 = create(:user)
+      user2 = create(:user)
+      not_authenticated!
+      create(:paper, :under_review, submittor:user1)
+      create(:paper, :submitted,    submittor:user2)
+
+      get action_name
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(2)
+    end
+
+    it "should not return inactive papers" do
+      p1 = create(:paper, :under_review) # should be returned
+      p2 = create(:paper, :superceded)   # should not be returned
+
+      get action_name
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(1)
+      expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
+    end
+
+  end
+
+  describe "GET #recent" do
+
+    it_should_behave_like "#recent", :recent
+
+  end
+
+  describe "GET #index" do
+
+    it_should_behave_like "#recent", :index
 
   end
 

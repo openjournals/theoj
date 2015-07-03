@@ -3,7 +3,7 @@
     <core-scaffold id='scaffold'
                    on-notification={{onNotification}}
                    on-go={{onGo}}
-                   on-go-home={{onGoHome}}
+                   on-go-default={{onGoDefault}}
                    on-review={{onReview}}>
       <nav>
         <core-toolbar>
@@ -16,7 +16,7 @@
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login on-user={{onUser}}></oj-user-login>
+        <oj-user-login currentUser={{currentUser}}></oj-user-login>
       </core-toolbar>
 
       <oj-page-router id=pages
@@ -46,6 +46,9 @@
       }
 
     </style>
+
+    <oj-current-user on-user={{onUser}}></oj-current-user>
+
   </template>
 
   <script>
@@ -59,18 +62,18 @@
           this.$.pages.go(url);
       },
 
-      onGoHome: function(event) {
-          this.$.pages.go('/');
+      onGoDefault: function(event) {
+          this.$.pages.gotoDefault();
       },
 
       onReview: function(event, paper_or_id) {
-          var id = paper.typed_provider_id || paper_or_id;
+          var id = paper_or_id.typed_provider_id || paper_or_id;
           var url = '/review/' + id;
           this.$.pages.go(url);
       },
 
       onUser: function(event, user) {
-        this.currentUser = user;
+          this.currentUser = user && user.name ? user : null;
           this.$.pages.init();
       },
 

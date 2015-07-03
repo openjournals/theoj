@@ -1,21 +1,17 @@
 
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :state, :index, :versions ]
+  before_filter :require_user,   except: [ :recent, :index, :show, :state, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
-    if current_user
-      as_author
-    else
-      papers = []
-      respond_with papers
-    end
+    recent
   end
 
   def show
-    ability = ability_with(current_user, paper)
-    raise CanCan::AccessDenied if ability.cannot? :show, paper
+    #@todo
+    # ability = ability_with(current_user, paper)
+    # raise CanCan::AccessDenied if ability.cannot? :show, paper
 
     respond_with paper, serializer:FullPaperSerializer
   end
@@ -157,30 +153,35 @@ class PapersController < ApplicationController
     render json:new_paper, status: :created
   end
 
+  def recent
+    respond_with_papers Paper.recent
+  end
+
   def as_reviewer
-    papers = current_user.papers_as_reviewer.active.with_state(params[:state])
-    respond_with papers
+    respond_with_papers current_user.papers_as_reviewer
   end
 
   def as_editor
-    papers = current_user.papers_as_editor.active.with_state(params[:state])
-    respond_with papers
+    respond_with_papers current_user.papers_as_editor
   end
 
   def as_author
-    papers = current_user.papers_as_submittor.active.with_state(params[:state])
-    respond_with papers
+    respond_with_papers current_user.papers_as_submittor
   end
 
   def as_collaborator
-    papers = current_user.papers_as_collaborator.active.with_state(params[:state])
-    respond_with papers
+    respond_with_papers current_user.papers_as_collaborator
   end
 
   private
 
   def paper_params
     params.require(:paper).permit(:title, :document_location)
+  end
+
+  def respond_with_papers(root_relation)
+    papers = root_relation.active.with_state(params[:state])
+    respond_with papers
   end
 
   def paper

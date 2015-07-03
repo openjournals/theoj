@@ -25,6 +25,7 @@ class Paper < ActiveRecord::Base
   has_many   :assignees,                through: :assignments,              source: :user
 
   scope :active,     -> { where.not(state:'superceded') }
+  scope :recent,     -> { order(created_at: :desc).limit(20) }
   scope :with_state, ->(state=nil) { state.present? ?  where(state:state) : all }
 
   before_create :create_assignments

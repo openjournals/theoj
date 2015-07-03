@@ -36,8 +36,8 @@
   <script>
     Polymer({
 
-      selectPaper: function(e){
-          this.fire('review', e.detail.data);
+      selectPaper: function(e, detail){
+          this.fire('review', detail.data);
       },
 
       filtered: function(array, key, desc) {

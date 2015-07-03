@@ -7,7 +7,7 @@ class UsersController < ApplicationController
     if current_user
       respond_with current_user, serializer:AuthenticatedUserSerializer
     else
-      render :json => {}
+      render json:{}
     end
   end
 
