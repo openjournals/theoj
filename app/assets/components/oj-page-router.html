@@ -9,16 +9,19 @@
                     on-activate-route-end={{activateRouteEnd}}
                     >
 
-            <app-route path='/' element='oj-home-page' noAuth></app-route>
-            <app-route path='/about' element='oj-about-page' noAuth></app-route>
-
-            <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
-            <app-route path='/submit' element='oj-submit-page'></app-route>
-            <app-route path='/recent' noAuth>
+            <app-route path='/' noAuth>
                 <template>
                     <oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>
                 </template>
             </app-route>
+
+            <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
+            <app-route path='/submit' element='oj-submit-page'></app-route>
+            <!--<app-route path='/recent' noAuth>-->
+                <!--<template>-->
+                    <!--<oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>-->
+                <!--</template>-->
+            <!--</app-route>-->
             <app-route path='/submitted'>
                 <template>
                     <oj-papers-page src='/api/papers/as_author' header="Papers you submitted"></oj-papers-page>
@@ -38,7 +41,8 @@
 
             <app-route path="/review/:paper_id" element='oj-review-page' noAuth></app-route>
 
-            <app-route path='*' element='oj-404-page'></app-route>
+            <app-route path='/about' element=oj-about-page noAuth></app-route>
+            <app-route path='*' element='oj-404-page' noAuth></app-route>
         </app-router>
 
     </template>
@@ -56,12 +60,17 @@
                 this.$.router.go(url);
             },
 
+            gotoDefault: function() {
+                var newPath = this.getDefaultPath(this.currentUser);
+                if (newPath)
+                    this.$.router.go( newPath );
+            },
+
             /////////////////////////////////////////////////////
 
-
-            getInitialPath: function(user) {
+            getDefaultPath: function(user) {
                 if (!user)
-                    return '/';
+                    return '/'; //recent
                 else if (user.has_papers_as_editor)
                     return '/editing';
                 else if (user.has_papers_as_reviewer)
@@ -74,8 +83,8 @@
 
             validateOrRedirectUser: function (event, path, route, initialRequest) {
 
-                if (path=='/' && this.currentUser && initialRequest) {
-                    var newPath = this.getInitialPath(this.currentUser);
+                if (initialRequest && path=='/') {
+                    var newPath = this.getDefaultPath(this.currentUser);
                     if (newPath && newPath != path) {
                         event.preventDefault();
                         this.$.router.go( newPath );

@@ -3,7 +3,7 @@
     <core-scaffold id='scaffold'
                    on-notification={{onNotification}}
                    on-go={{onGo}}
-                   on-go-home={{onGoHome}}
+                   on-go-default={{onGoDefault}}
                    on-review={{onReview}}>
       <nav>
         <core-toolbar>
@@ -62,8 +62,8 @@
           this.$.pages.go(url);
       },
 
-      onGoHome: function(event) {
-          this.$.pages.go('/');
+      onGoDefault: function(event) {
+          this.$.pages.gotoDefault();
       },
 
       onReview: function(event, paper_or_id) {

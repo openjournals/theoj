@@ -3,12 +3,8 @@
 
         <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
 
-            <core-item id=home icon="home" label="Home">
+            <core-item id='recent' icon="home" label="Recent Papers">
                 <a is='pushstate-anchor' href="/" target="_self"></a>
-            </core-item>
-
-            <core-item id='recent' icon="receipt" label="Recent Papers">
-                <a is='pushstate-anchor' href="/recent" target="_self"></a>
             </core-item>
 
             <template if={{currentUser}}>
@@ -80,7 +76,7 @@
             // Make sure any other menu tap events are handled first
             if (section != 'none') {
                 this.async( function() {
-                    this.selectedMenuItem = section || 'home';
+                    this.selectedMenuItem = section || 'recent';
                 });
             }
         },
