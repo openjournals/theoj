@@ -315,6 +315,11 @@ describe Paper do
       expect { original.create_updated!(arxiv_doc) }.to raise_exception
     end
 
+    it "should raise an error if the provider's are different" do
+      original  = create(:paper, provider_id:'1311.1653')
+      expect { original.create_updated!(arxiv_doc) }.to raise_exception
+    end
+
     it "should raise an error if the original cannot be superceded" do
       original  = create(:paper, arxiv_id:'1311.1653')
 
