@@ -33,6 +33,7 @@ $oj-paper-actions-bg: (
 
 // User roles
 $oj-paper-roles-bg: (
+        none:         white,
         author:       #ffffa5,  // yellow
         submittor:    #ffffa5,  // yellow
         collaborator: #ff87f8,  // purple
@@ -40,6 +41,7 @@ $oj-paper-roles-bg: (
         editor:       #fdc086,  // orange-red
 );
 $oj-paper-roles-fg: (
+        none:         black,
         author:       #e4e400,    // yellow
         submittor:    #e4e400,    // yellow
         collaborator: purple,     // purple

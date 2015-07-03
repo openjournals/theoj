@@ -16,15 +16,6 @@ describe PapersController do
 
   describe "GET #show" do
 
-    it "AS USER without permissions" do
-      authenticate
-      paper = create(:paper)
-
-      get :show, identifier:paper.typed_provider_id
-
-      expect(response).to have_http_status(:forbidden)
-    end
-
     it "AS REVIEWER (with permissions)" do
       user = authenticate
       paper = create(:paper, :under_review)
@@ -54,6 +45,29 @@ describe PapersController do
     it "AS AUTHOR (with permissions)" do
       user = authenticate
       paper = create(:paper, :under_review, submittor:user)
+
+      get :show, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:success)
+      expect(response.status).to eq(200)
+      expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
+    end
+
+    it "AS USER (without permissions)" do
+      user = authenticate
+      paper = create(:paper, :under_review)
+
+      get :show, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:success)
+      expect(response.status).to eq(200)
+      expect(response.content_type).to eq("application/json")
+      assert_serializer FullPaperSerializer
+    end
+
+    it "AS UNAUTHENTICATED USER" do
+      paper = create(:paper, :under_review)
 
       get :show, identifier:paper.typed_provider_id
 

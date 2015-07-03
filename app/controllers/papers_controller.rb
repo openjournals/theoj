@@ -1,7 +1,7 @@
 
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :recent, :index, :state, :versions ]
+  before_filter :require_user,   except: [ :recent, :index, :show, :state, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
@@ -9,8 +9,9 @@ class PapersController < ApplicationController
   end
 
   def show
-    ability = ability_with(current_user, paper)
-    raise CanCan::AccessDenied if ability.cannot? :show, paper
+    #@todo
+    # ability = ability_with(current_user, paper)
+    # raise CanCan::AccessDenied if ability.cannot? :show, paper
 
     respond_with paper, serializer:FullPaperSerializer
   end

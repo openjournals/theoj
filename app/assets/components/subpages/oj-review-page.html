@@ -100,10 +100,10 @@
 
       paperChanged: function() {
           if (this.paper) {
-              var current_user_sha          = this.currentUser.sha;
+              var current_user_sha          = this.current_user && this.currentUser.sha;
               this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-              this.paper.current_role       = this.paper.current_assignment && this.paper.current_assignment.role;
-              this.paper.can_annotate       = this.paper.current_role && this.paper.state == 'under_review';
+              this.paper.current_role       = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
+              this.paper.can_annotate       = this.paper.current_assignment && this.paper.state == 'under_review';
 
               this.fire('route-changed', this.menuSectionForRole(this.paper.current_role) );
           }
