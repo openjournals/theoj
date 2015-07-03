@@ -14,9 +14,14 @@
 
             <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
             <app-route path='/submit' element='oj-submit-page'></app-route>
-            <app-route path='/papers'>
+            <app-route path='/recent' noAuth>
                 <template>
-                    <oj-papers-page src='/api/papers' header="Papers you submitted"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>
+                </template>
+            </app-route>
+            <app-route path='/submitted'>
+                <template>
+                    <oj-papers-page src='/api/papers/as_author' header="Papers you submitted"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/review'>
@@ -31,7 +36,7 @@
             </app-route>
             <app-route path='/settings' element=oj-settings-page></app-route>
 
-            <app-route path="/review/:paper_id" element='oj-review-page'></app-route>
+            <app-route path="/review/:paper_id" element='oj-review-page' noAuth></app-route>
 
             <app-route path='*' element='oj-404-page'></app-route>
         </app-router>

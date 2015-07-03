@@ -7,10 +7,14 @@
                 <a is='pushstate-anchor' href="/" target="_self"></a>
             </core-item>
 
+            <core-item id='recent' icon="receipt" label="Recent Papers">
+                <a is='pushstate-anchor' href="/recent" target="_self"></a>
+            </core-item>
+
             <template if={{currentUser}}>
 
-                <core-item id='papers' icon="receipt" label="Your Papers">
-                    <a is='pushstate-anchor' href="/papers" target="_self"></a>
+                <core-item id='submitted' icon="receipt" label="Your Papers">
+                    <a is='pushstate-anchor' href="/submitted" target="_self"></a>
                 </core-item>
 
                 <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing">

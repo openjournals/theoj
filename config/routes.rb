@@ -6,10 +6,11 @@ Theoj::Application.routes.draw do
     resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
 
       collection do
-        get :as_reviewer
-        get :as_editor
+        get :recent
         get :as_author
         get :as_collaborator
+        get :as_reviewer
+        get :as_editor
       end
 
       member do

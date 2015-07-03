@@ -67,7 +67,7 @@
       },
 
       onReview: function(event, paper_or_id) {
-          var id = paper.typed_provider_id || paper_or_id;
+          var id = paper_or_id.typed_provider_id || paper_or_id;
           var url = '/review/' + id;
           this.$.pages.go(url);
       },
