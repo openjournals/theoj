@@ -100,7 +100,7 @@
 
       paperChanged: function() {
           if (this.paper) {
-              var current_user_sha          = this.current_user && this.currentUser.sha;
+              var current_user_sha          = this.currentUser && this.currentUser.sha;
               this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
               this.paper.current_role       = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
               this.paper.can_annotate       = this.paper.current_assignment && this.paper.state == 'under_review';
@@ -113,9 +113,11 @@
 
         menuSectionForRole: function(role) {
           switch (role) {
-              case 'editor':   return 'editing';
-              case 'reviewer': return 'review';
-              default:         return 'submitted';
+              case     'editor':       return 'editing';
+              case     'reviewer':     return 'review';
+              case     'submittor':    return 'submitted';
+              case     'collaborator': return 'submitted';
+              default:                 return '';
           }
       },
       pdfClientChanged: function(event, detail) {
