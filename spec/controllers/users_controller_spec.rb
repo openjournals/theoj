@@ -9,8 +9,7 @@ describe UsersController do
       it "responds successfully with an HTTP 200 status code" do
         get :show, :format => :json
 
-        expect(response).to have_http_status(:success)
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it "should return an empty object" do
@@ -27,8 +26,7 @@ describe UsersController do
         user = authenticate
         get :show, :format => :json
 
-        expect(response).to have_http_status(:success)
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it "should return the users details" do

@@ -25,7 +25,7 @@ class Provider
       private
 
       def identifier_valid?(identifier)
-        /^(\w|-)+$/ === identifier
+        /^[\w.-]+$/ === identifier
       end
 
     end

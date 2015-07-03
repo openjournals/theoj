@@ -16,7 +16,7 @@
 
       <core-toolbar tool flex>
         <div flex></div>
-        <oj-user-login on-user={{onUser}}></oj-user-login>
+        <oj-user-login currentUser={{currentUser}}></oj-user-login>
       </core-toolbar>
 
       <oj-page-router id=pages
@@ -46,6 +46,9 @@
       }
 
     </style>
+
+    <oj-current-user on-user={{onUser}}></oj-current-user>
+
   </template>
 
   <script>
@@ -70,7 +73,7 @@
       },
 
       onUser: function(event, user) {
-        this.currentUser = user;
+          this.currentUser = user && user.name ? user : null;
           this.$.pages.init();
       },
 

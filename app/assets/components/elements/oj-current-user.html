@@ -1,0 +1,28 @@
+<polymer-element name="oj-current-user">
+  <template>
+
+    <json-get auto url='/api/user' handleAs="json"  on-core-response={{isReady}}></json-get>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      isReady:function(event){
+        var user;
+        if (event.detail.response && event.detail.response.name){
+            user = event.detail.response;
+            window.current_user = this.user;
+            this.asyncFire('user-logged-in', user);
+        }
+        else{
+            user = null;
+            this.asyncFire('user-logged-out');
+        }
+        this.asyncFire('user', user);
+      }
+
+    })
+  </script>
+
+</polymer-element>
