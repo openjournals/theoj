@@ -11,6 +11,7 @@ Theoj::Application.routes.draw do
         get :as_collaborator
         get :as_reviewer
         get :as_editor
+        get :search
       end
 
       member do

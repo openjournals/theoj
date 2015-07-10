@@ -41,6 +41,51 @@ describe Paper do
 
   end
 
+  describe "::search" do
+
+    it "should find papers containing the text in the title" do
+      p = create(:paper, title:'This paper has a title')
+
+      results = Paper.search('has a t')
+      expect(results.length).to eq(1)
+      expect(results.first).to eq(p)
+    end
+
+    it "should find papers containing the text in the summary" do
+      p = create(:paper, summary:'This paper has a summary')
+
+      results = Paper.search('has a s')
+      expect(results.length).to eq(1)
+      expect(results.first).to eq(p)
+    end
+
+    it "should find papers containing the text in the authors" do
+      p = create(:paper, authors:'J. Doe, W. Smith')
+
+      results = Paper.search('Doe')
+      expect(results.length).to eq(1)
+      expect(results.first).to eq(p)
+    end
+
+    it "should find papers from the submittor" do
+      s = create(:user, name:'John Doe')
+      p = create(:paper, submittor:s)
+
+      results = Paper.search('n Doe')
+      expect(results.length).to eq(1)
+      expect(results.first).to eq(p)
+    end
+
+    it "should be case-insensitive" do
+      p = create(:paper, title:'This paper has a title')
+
+      results = Paper.search('hAs a T')
+      expect(results.length).to eq(1)
+      expect(results.first).to eq(p)
+    end
+
+  end
+
   describe "emails" do
 
     it "sends an email to the submittor" do

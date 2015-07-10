@@ -15,6 +15,12 @@
                 </template>
             </app-route>
 
+            <app-route path='/search' noAuth>
+                <template>
+                    <oj-papers-page src='/api/papers/search?q={{q}}' header="Search Results for {{q}}"></oj-papers-page>
+                </template>
+            </app-route>
+
             <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
             <app-route path='/submit' element='oj-submit-page'></app-route>
             <!--<app-route path='/recent' noAuth>-->

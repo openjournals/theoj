@@ -734,6 +734,53 @@ describe PapersController do
 
   end
 
+
+  describe "GET #search" do
+
+    it "should return papers" do
+      user1 = authenticate
+      user2 = create(:user)
+      create(:paper, :under_review, submittor:user1, title:'something')
+      create(:paper, :submitted,    submittor:user2, title:'something')
+
+      get :search, q:'something'
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(2)
+    end
+
+    it "should return papers even if you are not authenticated" do
+      user1 = create(:user)
+      user2 = create(:user)
+      not_authenticated!
+      create(:paper, :under_review, submittor:user1, title:'something')
+      create(:paper, :submitted,    submittor:user2, title:'something')
+
+      get :search, q:'something'
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(2)
+    end
+
+    it "should not return inactive papers" do
+      p1 = create(:paper, :under_review, title:'something') # should be returned
+      p2 = create(:paper, :superceded)   # should not be returned
+
+      get :search, q:'something'
+
+      expect(response).to have_http_status(:success)
+      expect(response_json.size).to be(1)
+      expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
+    end
+
+    it "should fail if you do not pass a query string" do
+      get :search, q:''
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+  end
+
   shared_examples_for "#recent" do |action_name|
 
     it "should return papers" do
