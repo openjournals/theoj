@@ -2,6 +2,7 @@
   <template>
       
     <section layout vertical class="boiler-plate">
+
       <div layout horizontal>
           <h1 flex>{{header}}</h1>
           <paper-dropdown-menu on-core-select={{changeSortOrder}} label="Submitted Date">
@@ -15,11 +16,13 @@
               </paper-dropdown>
           </paper-dropdown-menu>
       </div>
+
       <oj-paper-collection
               src={{src}}
               sortKey={{sortKey}}
               sortDesc={{sortDesc}}
               ></oj-paper-collection>
+
     </section>
 
     <style>
