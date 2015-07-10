@@ -25,7 +25,8 @@ class Paper < ActiveRecord::Base
   has_many   :assignees,                through: :assignments,              source: :user
 
   scope :active,     -> { where.not(state:'superceded') }
-  scope :recent,     -> { order(created_at: :desc).limit(20) }
+  scope :recent,     -> { order(created_at: :desc).limit(50) }
+  scope :search,     ->(term) { term="%#{term}%"; joins(:submittor).where('title like ? OR summary like ? OR authors like ? OR users.name like ?', term, term, term, term) }
   scope :with_state, ->(state=nil) { state.present? ?  where(state:state) : all }
 
   before_create :create_assignments

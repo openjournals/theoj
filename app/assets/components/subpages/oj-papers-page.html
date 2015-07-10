@@ -2,24 +2,27 @@
   <template>
       
     <section layout vertical class="boiler-plate">
+
       <div layout horizontal>
           <h1 flex>{{header}}</h1>
-          <paper-dropdown-menu on-core-select={{changeSortOrder}}>
+          <paper-dropdown-menu on-core-select={{changeSortOrder}} label="Submitted Date">
               <paper-dropdown class="dropdown">
                   <core-menu class="menu" selected=3>
                       <paper-item key=title>Article Title</paper-item>
                       <paper-item key=author.name>Author</paper-item>
                       <paper-item key=state>State</paper-item>
-                      <paper-item key=created_at desc>Submitted Date</paper-item>
+                      <paper-item key=submitted_at desc>Submitted Date</paper-item>
                   </core-menu>
               </paper-dropdown>
           </paper-dropdown-menu>
       </div>
+
       <oj-paper-collection
               src={{src}}
               sortKey={{sortKey}}
               sortDesc={{sortDesc}}
               ></oj-paper-collection>
+
     </section>
 
     <style>
@@ -35,7 +38,7 @@
   <script>
     Polymer({
 
-        sortKey:  'created_at',
+        sortKey:  'submitted_at',
         sortDesc: true,
 
         changeSortOrder: function(event, detail) {

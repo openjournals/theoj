@@ -1,7 +1,7 @@
 
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :recent, :index, :show, :state, :versions ]
+  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
@@ -155,6 +155,13 @@ class PapersController < ApplicationController
 
   def recent
     respond_with_papers Paper.recent
+  end
+
+  def search
+    query = params[:q]
+    render_error(:bad_request) unless query.present?
+
+    respond_with_papers Paper.search(query)
   end
 
   def as_reviewer
