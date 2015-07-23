@@ -1,7 +1,7 @@
 <polymer-element name='oj-papers-page' attributes='src header' fit>
   <template>
       
-    <section layout vertical class=boiler-plate fit>
+    <section id=scroller layout vertical class=boiler-plate>
 
       <div layout horizontal>
           <h1 flex>{{header}}</h1>
@@ -17,11 +17,31 @@
           </paper-dropdown-menu>
       </div>
 
-      <oj-paper-collection flex
-              src={{src}}
-              sortKey={{sortKey}}
-              sortDesc={{sortDesc}}
-              ></oj-paper-collection>
+      <div layout vertical flex>
+          <paper-shadow>
+
+              <template if="{{papers && papers.length>0}}">
+                  <core-list scrollTarget={{$.scroller}}
+                             on-core-activate={{selectPaper}}
+                             data="{{papers | filtered(sortKey, sortDesc) }}" >
+
+                      <template>
+                          <div class='item {{ {selected: selected} | tokenList }}'>
+                              <oj-paper-row paper={{model}}></oj-paper-row>
+                          </div>
+                      </template>
+
+                  </core-list>
+              </template>
+
+              <template if="{{papers && papers.length==0}}">
+                  <div id=empty>
+                      There are no papers to view.
+                  </div>
+              </template>
+
+          </paper-shadow>
+      </div>
 
     </section>
 
@@ -31,7 +51,33 @@
             width: 200px;
         }
 
+        paper-shadow{
+            width:         100%;
+            margin-bottom: 12px;
+        }
+
+        #scroller {
+            position:   relative;
+            overflow-y: auto;
+            height:     100%;
+        }
+        core-list{
+            width: 100%;
+        }
+        #empty {
+            font-weight: 500;
+            font-size: 18px;
+            padding: 20px 10px;
+        }
+        .item {
+            border-bottom: 1px #efefef solid;
+            box-sizing: border-box;
+            padding:    0 0 0 20px;
+        }
+
     </style>
+
+    <core-ajax auto url={{src}} handleAs="json" response={{papers}}></core-ajax>
 
   </template>
 
@@ -44,6 +90,33 @@
         changeSortOrder: function(event, detail) {
             this.sortKey  = detail.item.getAttribute('key');
             this.sortDesc = detail.item.hasAttribute('desc');
+        },
+
+        selectPaper: function(e, detail){
+            this.fire('review', detail.data);
+        },
+
+        filtered: function(array, key, desc) {
+            if (!array)
+                return array;
+
+            var keys = key.split('.');
+            var sortFunction = function(a, b) {
+                var x = a;
+                keys.forEach( function(key) { x = x && x[key] } );
+                var y = b;
+                keys.forEach( function(key) { y = y && y[key] } );
+
+                if (typeof x == "string"){
+                    x = x.toLowerCase();
+                    y = y.toLowerCase();
+                }
+
+                var order = ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                return desc ? -order : order;
+            };
+
+            return array.sort(sortFunction);
         }
 
     })
