@@ -9,10 +9,15 @@
     <core-header-panel border=true>
 
         <core-toolbar>
-            <oj-toolbar currentUser={{currentUser}} narrow={{narrow}}></oj-toolbar>
+            <oj-toolbar
+                    currentUser={{currentUser}}
+                    narrow={{narrow}}
+                    on-toggle-drawer={{toggleDrawer}}
+                    ></oj-toolbar>
         </core-toolbar>
 
         <core-drawer-panel id=drawerPanel
+                           drawerWidth=280px
                            narrow={{narrow}}>
 
             <oj-main-menu drawer
@@ -112,7 +117,7 @@
       },
 
       toggleDrawer: function() {
-          this.$.drawerPanel.toggle();
+          this.$.drawerPanel.togglePanel();
       }
 
     });

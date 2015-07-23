@@ -90,6 +90,10 @@
               if (value)
                 this.fire('go', '/search?q=' + encodeURIComponent(value) );
           }
+      },
+
+      toggleDrawer: function() {
+          this.fire('toggle-drawer');
       }
 
     });
