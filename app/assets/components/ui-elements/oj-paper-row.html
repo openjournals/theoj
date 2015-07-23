@@ -1,65 +1,65 @@
 <polymer-element name='oj-paper-row' attributes='paper'>
 <template>
-  <div class='row {{paper | actionForPaper}}' flex layout horizontal>
-    <summary flex>
-      <div class=title>{{paper.title}}</div>
-      <div class=submitted> - submitted by <span class=author>{{paper.submittor.name}}</span> on <span class=date>{{ paper.submitted_at | date }}</span></div>
-    </summary>
-    <div class='status action-{{paper | actionForPaper}}'>
-      <div class="state">State: <span>{{paper.state | capitalize}}</span></div>
-      <div class="issues">Issues: <span>{{paper.pending_issues_count}}</span></div>
-    </div>
+  <div class='row {{paper | actionForPaper}}' flex>
+      <div class=inner layout horizontal>
+          <div class=lhs flex>
+              <div class=title>{{paper.title}}</div>
+              <div class=detail>
+                  Submitted by <span class=highlight>{{paper.submittor.name}}</span>
+                  on <span class=highlight>{{ paper.submitted_at | date }}</span>
+                  |
+                  Comments: <span class=highlight>{{paper.pending_issues_count}}</span>
+              </div>
+          </div>
+          <div class='rhs action-{{paper | actionForPaper}}' self-end>
+              <div class="status">Status: <span class=highlight>{{paper.state | capitalize}}</span></div>
+          </div>
+      </div>
   </div>
 
   <style>
-    ::host {
-        margin: 0;
-    }
-
-    h3 {
-    }
 
     .row {
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
+      padding:       0;
+      cursor:        pointer;
+      border-bottom: 1px solid #c2c2c2;
+      color:         black;
+    }
+    .inner {
+        width:       100%;
+        margin:      10px 0;
+    }
+    .inner:hover {
+        background-color: #fcfcfc;
     }
 
-    summary .title {
-        font-weight: bold;
+    .title {
+        font-size:    18px;
+        font-weight:  700;
+        line-height:  24px;
     }
 
-    summary .submitted {
-        font-size: 80%;
-        font-style: italic;
+    .detail {
+        font-size:    12px;
+        color:        rgb(125, 125, 125);
     }
 
-    summary .author, summary .date {
-        font-weight: bold;
+    .highlight {
+        font-weight: 700;
+        color:       rgb(81, 81, 81);
+    }
+
+    .rhs {
+        width:        140px;
+        height:       100%;
+        text-align:   left;
+        position:     relative;
+        font-size:    12px;
     }
 
     .status {
-      float:        right;
-      width:        170px;
-      border-left:  4px solid #c0c0c0;
-    }
-
-    .status div {
-      font-size:     1em;
-      font-weight:   bolder;
-      padding-left:  8px;
-      padding-right: 8px;
-    }
-
-    .status .state {
-        margin-top:     8px;
-    }
-    .status .issues {
-        margin-bottom:  8px;
-    }
-
-    .status div span {
-      font-weight: normal;
+        left:   0;
+        bottom: 0;
     }
 
   </style>

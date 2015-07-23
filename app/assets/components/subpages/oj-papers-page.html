@@ -1,65 +1,87 @@
 <polymer-element name='oj-papers-page' attributes='src header' fit>
   <template>
       
-    <section id=scroller layout vertical class=boiler-plate>
+    <section id=scroller layout vertical>
 
-      <div layout horizontal>
+      <div id=top layout horizontal>
           <h1 flex>{{header}}</h1>
           <paper-dropdown-menu on-core-select={{changeSortOrder}} label="Submitted Date">
               <paper-dropdown class="dropdown">
                   <core-menu class="menu" selected=3>
-                      <paper-item key=title>Article Title</paper-item>
-                      <paper-item key=author.name>Author</paper-item>
-                      <paper-item key=state>State</paper-item>
-                      <paper-item key=submitted_at desc>Submitted Date</paper-item>
+                      <paper-item key=title>Sort By Article Title</paper-item>
+                      <paper-item key=author.name>Sort By Author</paper-item>
+                      <paper-item key=state>Sort By State</paper-item>
+                      <paper-item key=submitted_at desc>Sort By Submitted Date</paper-item>
                   </core-menu>
               </paper-dropdown>
           </paper-dropdown-menu>
       </div>
 
-      <div layout vertical flex>
-          <paper-shadow>
+      <div id=list layout vertical flex>
 
-              <template if="{{papers && papers.length>0}}">
-                  <core-list scrollTarget={{$.scroller}}
-                             on-core-activate={{selectPaper}}
-                             data="{{papers | filtered(sortKey, sortDesc) }}" >
+          <template if="{{papers && papers.length>0}}">
+              <core-list scrollTarget={{$.scroller}}
+                         on-core-activate={{selectPaper}}
+                         data="{{papers | filtered(sortKey, sortDesc) }}" >
 
-                      <template>
-                          <div class='item {{ {selected: selected} | tokenList }}'>
-                              <oj-paper-row paper={{model}}></oj-paper-row>
-                          </div>
-                      </template>
+                  <template>
+                      <div class='item {{ {selected: selected} | tokenList }}'>
+                          <oj-paper-row paper={{model}}></oj-paper-row>
+                      </div>
+                  </template>
 
-                  </core-list>
-              </template>
+              </core-list>
+          </template>
 
-              <template if="{{papers && papers.length==0}}">
-                  <div id=empty>
-                      There are no papers to view.
-                  </div>
-              </template>
+          <template if="{{papers && papers.length==0}}">
+              <div id=empty>
+                  There are no papers to view.
+              </div>
+          </template>
 
-          </paper-shadow>
       </div>
 
     </section>
 
     <style>
 
-        paper-dropdown-menu {
-            width: 200px;
+        #top {
+            background: #eee;
+            padding:    0 30px;
         }
 
-        paper-shadow{
-            width:         100%;
-            margin-bottom: 12px;
+        #list {
+            padding: 0 30px 12px;
+        }
+
+        paper-dropdown-menu {
+            font-size: 12px;
+            width:     180px;
+            border:    none;
+        }
+        paper-item {
+            font-size: 12px;
+            margin:    0;
+            padding:   0;
+        }
+
+        paper-dropdown-menu::shadow #arrow {
+            position: absolute;
+            left:     0;
+            top:      16px;
+        }
+
+        paper-dropdown-menu::shadow #label {
+            position: absolute;
+            left:     20px;
+            top:      20px;
         }
 
         #scroller {
-            position:   relative;
-            overflow-y: auto;
-            height:     100%;
+            position:      relative;
+            overflow-y:    auto;
+            height:        100%;
+            margin-bottom: 18px;
         }
         core-list{
             width: 100%;
@@ -70,9 +92,7 @@
             padding: 20px 10px;
         }
         .item {
-            border-bottom: 1px #efefef solid;
-            box-sizing: border-box;
-            padding:    0 0 0 20px;
+            padding:       0;
         }
 
     </style>
