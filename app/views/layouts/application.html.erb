@@ -6,6 +6,7 @@
     <%= javascript_include_tag "webcomponentsjs/webcomponents" unless Rails.env.test? %>
     <%= javascript_include_tag "application" %>
 
+    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     <%= stylesheet_link_tag    "application", media: "all", :'shim-shadowdom'=>'' %>
     <%= html_import_tag "application" %>
 
