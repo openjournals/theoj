@@ -1,14 +1,14 @@
 <polymer-element name='oj-paper-row' attributes='paper'>
 <template>
   <div class='row {{paper | actionForPaper}}' flex layout horizontal>
-    <summary>
+    <summary flex>
       <div class=title>{{paper.title}}</div>
       <div class=submitted> - submitted by <span class=author>{{paper.submittor.name}}</span> on <span class=date>{{ paper.submitted_at | date }}</span></div>
     </summary>
-    <status class='action-{{paper | actionForPaper}}'>
+    <div class='status action-{{paper | actionForPaper}}'>
       <div class="state">State: <span>{{paper.state | capitalize}}</span></div>
       <div class="issues">Issues: <span>{{paper.pending_issues_count}}</span></div>
-    </status>
+    </div>
   </div>
 
   <style>
@@ -25,10 +25,6 @@
       cursor: pointer;
     }
 
-    summary {
-      width: 80%;
-    }
-
     summary .title {
         font-weight: bold;
     }
@@ -42,27 +38,27 @@
         font-weight: bold;
     }
 
-    status {
+    .status {
       float:        right;
-      width:        20%;
+      width:        170px;
       border-left:  4px solid #c0c0c0;
     }
 
-    status div {
-      font-size:   1em;
-      font-weight: bolder;
+    .status div {
+      font-size:     1em;
+      font-weight:   bolder;
       padding-left:  8px;
       padding-right: 8px;
     }
 
-    status .state {
+    .status .state {
         margin-top:     8px;
     }
-    status .issues {
+    .status .issues {
         margin-bottom:  8px;
     }
 
-    status div span {
+    .status div span {
       font-weight: normal;
     }
 

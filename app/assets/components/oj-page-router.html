@@ -1,9 +1,10 @@
-<polymer-element name="oj-page-router" attributes='currentUser'>
+<polymer-element name="oj-page-router" attributes='currentUser' flex>
     <template>
 
         <app-router id=router
                     init=manual
                     mode=pushstate
+                    flex
                     on-activate-route-start={{activateRouteStart}}
                     on-before-data-binding={{beforeDataBinding}}
                     on-activate-route-end={{activateRouteEnd}}
@@ -40,7 +41,7 @@
             </app-route>
             <app-route path='/editing'>
                 <template>
-                    <oj-papers-page src='/api/papers/as_editor' header="Papers you are editing"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_editor' header="Papers you are editing" flex></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/settings' element=oj-settings-page></app-route>

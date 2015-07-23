@@ -1,7 +1,7 @@
-<polymer-element name='oj-papers-page' attributes='src header'>
+<polymer-element name='oj-papers-page' attributes='src header' fit>
   <template>
       
-    <section layout vertical class="boiler-plate">
+    <section layout vertical class=boiler-plate fit>
 
       <div layout horizontal>
           <h1 flex>{{header}}</h1>
@@ -17,7 +17,7 @@
           </paper-dropdown-menu>
       </div>
 
-      <oj-paper-collection
+      <oj-paper-collection flex
               src={{src}}
               sortKey={{sortKey}}
               sortDesc={{sortDesc}}
