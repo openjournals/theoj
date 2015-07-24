@@ -80,20 +80,6 @@ body /deep/ {
 
   }
 
-  oj-paper-row {
-
-    &::shadow {
-
-      @each $action, $bg in $oj-paper-actions-bg {
-        .action-#{$action} {
-          background-color: $bg;
-        }
-      }
-
-    }
-
-  }
-
   oj-review-page-header {
 
     &::shadow {

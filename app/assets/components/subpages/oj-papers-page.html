@@ -1,37 +1,103 @@
-<polymer-element name='oj-papers-page' attributes='src header'>
+<polymer-element name='oj-papers-page' attributes='src header' fit>
   <template>
       
-    <section layout vertical class="boiler-plate">
+    <section id=scroller layout vertical>
 
-      <div layout horizontal>
+      <div id=top layout horizontal>
           <h1 flex>{{header}}</h1>
           <paper-dropdown-menu on-core-select={{changeSortOrder}} label="Submitted Date">
               <paper-dropdown class="dropdown">
                   <core-menu class="menu" selected=3>
-                      <paper-item key=title>Article Title</paper-item>
-                      <paper-item key=author.name>Author</paper-item>
-                      <paper-item key=state>State</paper-item>
-                      <paper-item key=submitted_at desc>Submitted Date</paper-item>
+                      <paper-item key=title>Sort By Article Title</paper-item>
+                      <paper-item key=author.name>Sort By Author</paper-item>
+                      <paper-item key=state>Sort By State</paper-item>
+                      <paper-item key=submitted_at desc>Sort By Submitted Date</paper-item>
                   </core-menu>
               </paper-dropdown>
           </paper-dropdown-menu>
       </div>
 
-      <oj-paper-collection
-              src={{src}}
-              sortKey={{sortKey}}
-              sortDesc={{sortDesc}}
-              ></oj-paper-collection>
+      <div id=list layout vertical flex>
+
+          <template if="{{papers && papers.length>0}}">
+              <core-list scrollTarget={{$.scroller}}
+                         on-core-activate={{selectPaper}}
+                         data="{{papers | filtered(sortKey, sortDesc) }}" >
+
+                  <template>
+                      <div class='item {{ {selected: selected} | tokenList }}'>
+                          <oj-paper-row paper={{model}}></oj-paper-row>
+                      </div>
+                  </template>
+
+              </core-list>
+          </template>
+
+          <template if="{{papers && papers.length==0}}">
+              <div id=empty>
+                  There are no papers to view.
+              </div>
+          </template>
+
+      </div>
 
     </section>
 
     <style>
 
+        #top {
+            background: #eee;
+            padding:    0 30px;
+        }
+
+        #list {
+            padding: 0 30px 12px;
+        }
+
         paper-dropdown-menu {
-            width: 200px;
+            font-size: 12px;
+            width:     180px;
+            border:    none;
+        }
+        paper-item {
+            font-size: 12px;
+            margin:    0;
+            padding:   0;
+        }
+
+        paper-dropdown-menu::shadow #arrow {
+            position: absolute;
+            left:     0;
+            top:      16px;
+        }
+
+        paper-dropdown-menu::shadow #label {
+            position: absolute;
+            left:     20px;
+            top:      20px;
+        }
+
+        #scroller {
+            position:      relative;
+            overflow-y:    auto;
+            height:        100%;
+            margin-bottom: 18px;
+        }
+        core-list{
+            width: 100%;
+        }
+        #empty {
+            font-weight: 500;
+            font-size: 18px;
+            padding: 20px 10px;
+        }
+        .item {
+            padding:       0;
         }
 
     </style>
+
+    <core-ajax auto url={{src}} handleAs="json" response={{papers}}></core-ajax>
 
   </template>
 
@@ -44,6 +110,33 @@
         changeSortOrder: function(event, detail) {
             this.sortKey  = detail.item.getAttribute('key');
             this.sortDesc = detail.item.hasAttribute('desc');
+        },
+
+        selectPaper: function(e, detail){
+            this.fire('review', detail.data);
+        },
+
+        filtered: function(array, key, desc) {
+            if (!array)
+                return array;
+
+            var keys = key.split('.');
+            var sortFunction = function(a, b) {
+                var x = a;
+                keys.forEach( function(key) { x = x && x[key] } );
+                var y = b;
+                keys.forEach( function(key) { y = y && y[key] } );
+
+                if (typeof x == "string"){
+                    x = x.toLowerCase();
+                    y = y.toLowerCase();
+                }
+
+                var order = ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                return desc ? -order : order;
+            };
+
+            return array.sort(sortFunction);
         }
 
     })

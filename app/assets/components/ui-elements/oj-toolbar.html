@@ -1,0 +1,102 @@
+<polymer-element name="oj-toolbar" attributes="currentUser narrow">
+
+  <template>
+
+        <div tool flex layout horizontal>
+            <core-icon-button icon="menu" on-tap={{toggleDrawer}} hidden?="{{!narrow}}"></core-icon-button>
+            <span flex class=title>The Open Journal</span>
+            <core-icon id=search-icon icon=search></core-icon>
+            <input id=search is="core-input"
+                   placeholder="Search"
+                   on-keyup={{onSearchKeyUp}}
+                    >
+            <oj-user-login currentUser={{currentUser}}></oj-user-login>
+        </div>
+
+    <style>
+
+      [tool] {
+        height: 100%;
+      }
+
+      core-icon-button {
+          margin-top:  6px;
+      }
+
+      .title {
+          color:          #fff;
+          font-size:      25px;
+          white-space:    nowrap;
+          height:         25px;
+          margin-top:     10px;
+          text-transform: uppercase;
+      }
+
+      #search {
+          background: rgb(67, 111, 153);
+          border:         solid 1px #ccc;
+          border-radius:  32px;
+          color:          white;
+          font-size:      16px;
+          padding-left:   16px;
+          padding-top:    4px;
+          padding-bottom: 4px;
+          height:         25px;
+          margin-top:     8px;
+          margin-right:   18px;
+      }
+      #search:hover, #search:focus {
+          background: rgb(73, 121, 167);
+      }
+
+      ::-webkit-input-placeholder {
+          color: silver;
+      }
+      :-moz-placeholder { /* Firefox 18- */
+          color: silver;
+      }
+      ::-moz-placeholder {  /* Firefox 19+ */
+          color: silver;
+      }
+      :-ms-input-placeholder {
+          color: silver;
+      }
+
+      #search-icon {
+          position: relative;
+          left:     334px;
+          top:      14px;
+          color:    #ccc;
+      }
+
+      oj-user-login {
+          margin-top: 10px;
+      }
+
+    </style>
+
+    <oj-current-user on-user={{onUser}}></oj-current-user>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      onSearchKeyUp: function(event) {
+          if (event.keyCode==13) {
+              event.preventDefault();
+              var value = this.$.search.value;
+              value = value && $.trim(value);
+              if (value)
+                this.fire('go', '/search?q=' + encodeURIComponent(value) );
+          }
+      },
+
+      toggleDrawer: function() {
+          this.fire('toggle-drawer');
+      }
+
+    });
+  </script>
+
+</polymer-element>

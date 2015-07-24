@@ -9,7 +9,7 @@
 
             <template if={{currentUser}}>
 
-                <core-item id='submitted' icon="receipt" label="Your Papers">
+                <core-item id='submitted' icon="receipt" label="Papers You Submitted">
                     <a is='pushstate-anchor' href="/submitted" target="_self"></a>
                 </core-item>
 
@@ -42,6 +42,10 @@
         </core-menu>
 
         <style>
+
+            :host {
+                background-color: white;
+            }
 
             core-menu {
                 font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;

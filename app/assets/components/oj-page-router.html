@@ -1,9 +1,10 @@
-<polymer-element name="oj-page-router" attributes='currentUser'>
+<polymer-element name="oj-page-router" attributes='currentUser' flex>
     <template>
 
         <app-router id=router
                     init=manual
                     mode=pushstate
+                    flex
                     on-activate-route-start={{activateRouteStart}}
                     on-before-data-binding={{beforeDataBinding}}
                     on-activate-route-end={{activateRouteEnd}}
@@ -17,7 +18,7 @@
 
             <app-route path='/search' noAuth>
                 <template>
-                    <oj-papers-page src='/api/papers/search?q={{q}}' header="Search Results for {{q}}"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/search?q={{q}}' header="Search Results For {{q}}"></oj-papers-page>
                 </template>
             </app-route>
 
@@ -30,17 +31,17 @@
             <!--</app-route>-->
             <app-route path='/submitted'>
                 <template>
-                    <oj-papers-page src='/api/papers/as_author' header="Papers you submitted"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_author' header="Papers You Submitted"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/review'>
                 <template>
-                    <oj-papers-page src='/api/papers/as_reviewer' header="Papers you are reviewing"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_reviewer' header="Papers You Are Reviewing"></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/editing'>
                 <template>
-                    <oj-papers-page src='/api/papers/as_editor' header="Papers you are editing"></oj-papers-page>
+                    <oj-papers-page src='/api/papers/as_editor' header="Papers You Are Editing" flex></oj-papers-page>
                 </template>
             </app-route>
             <app-route path='/settings' element=oj-settings-page></app-route>
