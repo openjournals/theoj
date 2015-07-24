@@ -41,9 +41,9 @@
             return "/api/papers/"+paper.typed_provider_id+"/check_for_update";
         },
 
-        googlePrreviewPath: function(paper){
+        googlePreviewPath: function(paper){
           var link = paper.document_location;
-          return "http://docs.google.com/gview?url=" + link + "&embedded=true";
+          return "http://docs.google.com/gview?embedded=true&url=" + link;
         },
 
         paperAnnotationsPath: function(paper){
