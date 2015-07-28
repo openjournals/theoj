@@ -43,8 +43,9 @@ body /deep/ {
       border-color: silver;
     }
 
-    &[dismissive] {
-      background: grey;
+    &[dismissive]:not(:hover) {
+      border-color: silver;
+      color: silver;
     }
 
   }

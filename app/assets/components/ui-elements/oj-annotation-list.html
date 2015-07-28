@@ -69,6 +69,7 @@
           for (var i=0; i < annotations.length; i++) {
               var a = annotations[i];
               var top = this.topForAnnotation(a);
+              console.log('calc', i, a, top);
 
               if (!a.new) {
                   if (top < last) top = last;

@@ -28,7 +28,7 @@
         <oj-annotation-list id=annotation_list
                             paper={{paper}}
                             annotations={{annotations}}
-                            firstPageOffset=22
+                            firstPageOffset={{20}}
                             pageHeight={{pdfClientHeight}}
                             pageSpacing={{20}}
                             on-annotation-changed={{onChangeAnnotation}}
@@ -102,7 +102,7 @@
 
      /******************************/
 
-        menuSectionForRole: function(role) {
+     menuSectionForRole: function(role) {
           switch (role) {
               case     'editor':       return 'editing';
               case     'reviewer':     return 'review';
@@ -130,10 +130,11 @@
           return $.extend( {state:'new', new:true, open:true}, properties);
       },
       pageClicked:function(event, position){
+          console.log('position', position);
           var annotation = this.newAnnotation( position );
           this.addAnnotation(annotation);
       },
-        addPaperAnnotation: function(event) {
+      addPaperAnnotation: function(event) {
           var annotation = this.newAnnotation();
           this.addAnnotation(annotation);
       },
