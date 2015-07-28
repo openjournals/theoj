@@ -33,20 +33,20 @@ $oj-paper-actions-bg: (
 
 // User roles
 $oj-paper-roles-bg: (
-        none:         white,
-        author:       #ffffa5,  // yellow
-        submittor:    #ffffa5,  // yellow
-        collaborator: #ff87f8,  // purple
-        reviewer:     #7fc97f,  // green
-        editor:       #fdc086,  // orange-red
+        none:         black,
+        author:       #f3003e,  // red
+        submittor:    #fe003e,  // red
+        collaborator: #f0790d,  // orange
+        reviewer:     #b90731,  // green
+        editor:       #981503,  // purple
 );
 $oj-paper-roles-fg: (
         none:         black,
-        author:       #e4e400,    // yellow
-        submittor:    #e4e400,    // yellow
-        collaborator: purple,     // purple
-        reviewer:     green,      // green
-        editor:       orangered,  // orange-red
+        author:       #f3003e,  // red
+        submittor:    #f3003e,  // red
+        collaborator: #f0790d,  // orange
+        reviewer:     #b9d731,  // green
+        editor:       #9C15D3,  // purple
 );
 
 body /deep/ {

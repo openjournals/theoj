@@ -1,56 +1,56 @@
-<polymer-element name="oj-review-page-actions" attributes='user paper' layout vertical>
+<polymer-element name="oj-review-page-actions" attributes='user paper' layout horizontal>
   <template>
 
-      <div layout horizontal>
+      <template if="{{paper.current_role=='editor'}}">
+          <paper-button id=start-review hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
+              <core-icon icon=delete></core-icon>
+              Start Review
+          </paper-button>
+          <paper-button id=accept hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
+              <core-icon icon=thumb-up></core-icon>
+              Accept
+          </paper-button>
+          <div flex></div>
+          <paper-button id=reject hidden?="{{paper.state!='under_review' && paper.state!='review_completed'}}" on-tap="{{rejectClick}}" >
+              <core-icon icon=thumb-down></core-icon>
+              Reject
+          </paper-button>
+          <paper-button id=delete hidden?="{{paper.state!='submitted'}}" on-tap="{{deleteClick}}" >
+              <core-icon icon=arrow-forward></core-icon>
+              Delete Paper
+          </paper-button>
+      </template>
 
-          <template if="{{paper.current_role=='editor'}}">
-              <paper-button id=start-review raised hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
-                  <core-icon icon=delete></core-icon>
-                  Start Review
-              </paper-button>
-              <paper-button id=delete raised hidden?="{{paper.state!='submitted'}}" on-tap="{{deleteClick}}" >
-                  <core-icon icon=arrow-forward></core-icon>
-                  Delete Paper
-              </paper-button>
-              <paper-button id=accept raised hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
-                  <core-icon icon=thumb-up></core-icon>
-                  Accept
-              </paper-button>
-              <paper-button id=reject raised hidden?="{{paper.state!='under_review' && paper.state!='review_completed'}}" on-tap="{{rejectClick}}" >
-                  <core-icon icon=thumb-down></core-icon>
-                  Reject
-              </paper-button>
-          </template>
+      <template if="{{paper.current_role=='submittor'}}">
+          <div flex></div>
+          <paper-button id=check-for-update hidden?="{{paper.state!='submitted' && paper.state!='under_review'}}" on-tap="{{checkForUpdateClick}}" >
+              <core-icon icon=refresh></core-icon>
+              Check for Update
+          </paper-button>
+      </template>
 
-          <template if="{{paper.current_role=='submittor'}}">
-              <paper-button id=check-for-update raised hidden?="{{paper.state!='submitted' && paper.state!='under_review'}}" on-tap="{{checkForUpdateClick}}" >
-                  <core-icon icon=refresh></core-icon>
-                  Check for Update
-              </paper-button>
-          </template>
-
-          <template if="{{ paper.current_role=='reviewer'}}">
-              <paper-button id=mark-review-complete raised hidden?="{{false && paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
-                  <core-icon icon=check></core-icon>
-                  Completed Review
-              </paper-button>
-              <paper-button id=make-name-public raised hidden?="{{paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
-                  <core-icon icon=perm-identity></core-icon>
-                  Make Public
-              </paper-button>
-              <paper-button id=hide-name-public raised hidden?="{{paper.state=='superceded' || !paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
-                  <core-icon icon=perm-identity></core-icon>
-                  Hide Public
-              </paper-button>
-          </template>
-
-      </div>
+      <template if="{{ paper.current_role=='reviewer'}}">
+          <paper-button id=mark-review-complete hidden?="{{false && paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
+              <core-icon icon=check></core-icon>
+              Completed Review
+          </paper-button>
+          <div flex></div>
+          <paper-button id=make-name-public hidden?="{{paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+              <core-icon icon=perm-identity></core-icon>
+              Make Public
+          </paper-button>
+          <paper-button id=hide-name-public hidden?="{{paper.state=='superceded' || !paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+              <core-icon icon=perm-identity></core-icon>
+              Hide Public
+          </paper-button>
+      </template>
 
     <style>
-      paper-button {
-          margin-top: 5px;
-          line-height: 0;
-          padding 1px 0 2px 0;
+      :host /deep/ paper-button {
+          color:         #bbb !important;
+          border:        1px solid transparent !important;
+          box-shadow:    none !important;
+          padding-top:   1px !important;
       }
       paper-button core-icon {
           width: 16px !important;
@@ -60,22 +60,13 @@
           margin-bottom: -8px;
           margin-right: 4px;
       }
-      #accept, #start-review, #mark-review-complete {
-        background: green;
-      }
-      #reject, #hide-name-public, #delete {
-        background: #800000;
-      }
-      #check-for-update, #make-name-public {
-        background: #000080;
-      }
-      paper-button:not([disabled]):hover {
-        opacity:    0.8;
-        transition: opacity 0.2s;
+      paper-button:not([disabled]):hover, paper-button:not([disabled]):active {
+          color:   rgb(120, 120, 120) !important;
+          border:  1px solid rgb(120, 120, 120) !important;
+          box-shadow: 0 4px 0 0 rgba(218, 218, 218, 0.3) !important;
       }
       paper-button[disabled] {
-        background: gray !important;
-        color:      white;
+        color:      rgb(180,180,180) !important;
       }
     </style>
 

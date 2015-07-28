@@ -1,0 +1,34 @@
+<polymer-element name="oj-assigned-users-list" attributes='paper'>
+  <template>
+
+      <template repeat="{{assignment in paper.assigned_users | sortAssignments}}" >
+          <oj-user-tag assignment={{assignment}}
+                       showColor={{!submitted}}
+                       tagColor={{userColor(assignment)}}
+                  ></oj-user-tag>
+      </template>
+
+    <style>
+        oj-user-tag {
+            margin-top: 8px;
+        }
+    </style>
+
+  </template>
+
+  <script>
+    Polymer({
+
+        paperChanged: function() {
+            this.submitted = this.paper && this.paper.state == 'submitted';
+        },
+
+        userColor: function(assignment) {
+            assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
+            return Oj.colors.userColor(assignment);
+        }
+
+    })
+  </script>
+
+</polymer-element>

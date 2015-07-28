@@ -7,21 +7,14 @@
             paper={{paper}}
             annotations={{annotations}}
             loadProgress={{loadProgress}}
+            on-add-paper-annotation={{addPaperAnnotation}}
             ></oj-review-page-header>
 
 
     <template if="{{paper}}">
       <div id=main layout horizontal>
 
-        <div layout vertical id=pdf-pane>
-
-          <template if={{paper.can_annotate}}>
-              <div id=add-document-issue>
-                <paper-button raised on-tap="{{addDocumentAnnotation}}">
-                  <paper-icon-button icon=add></paper-icon-button>Add a comment about the whole document
-                </paper-button>
-              </div>
-          </template>
+        <div layout vertical id=pdf-pane flex>
 
           <stacked-pdf-reader src={{paper.document_location}}
                               annotations={{annotations}}
@@ -33,10 +26,9 @@
         </div>
 
         <oj-annotation-list id=annotation_list
-                            flex
                             paper={{paper}}
                             annotations={{annotations}}
-                            firstPageOffset="{{ paper.can_annotate ? 84 : 22 }}"
+                            firstPageOffset=22
                             pageHeight={{pdfClientHeight}}
                             pageSpacing={{20}}
                             on-annotation-changed={{onChangeAnnotation}}
@@ -47,7 +39,6 @@
     <style>
 
       oj-review-page-header {
-          margin-bottom: 20px;
       }
 
       #pdf-pane {
@@ -55,15 +46,15 @@
           width: 65%;
           margin-right: 4px;
       }
-      #add-document-issue {
-          margin-right: 6px;
-      }
       #add-document-issue paper-button {
           box-sizing: border-box;
           width: 100%;
       }
       #main {
-          margin-top: 5px;
+      }
+
+      oj-annotation-list {
+          width: 350px;
       }
 
     </style>
@@ -142,7 +133,7 @@
           var annotation = this.newAnnotation( position );
           this.addAnnotation(annotation);
       },
-      addDocumentAnnotation: function(event) {
+        addPaperAnnotation: function(event) {
           var annotation = this.newAnnotation();
           this.addAnnotation(annotation);
       },
