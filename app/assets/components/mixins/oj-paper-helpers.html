@@ -2,6 +2,8 @@
 
     window.Oj.paperHelpers = {
 
+        ASSIGNMENT_ORDER: [ 'submittor', 'collaborator', 'editor', 'reviewer' ],
+
         actionForPaper: function(paper){
             if (!paper) return;
 
@@ -64,6 +66,21 @@
             }
 
             return paper.assignmentsBySha[assignment_sha];
+        },
+
+        sortAssignments: function(assignments) {
+            return assignments && assignments.sort( function(a,b) {
+                        var ai = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(a.role),
+                            bi = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(b.role);
+                        if (ai != bi)
+                            return ai-bi;
+                        var an = (a.user && a.user.name) || '',
+                            bn = (b.user && b.user.name) || '';
+                        if (an > bn)
+                            return 1;
+                        else
+                            return -1;
+                    });
         },
 
         providerPart: function(typed_provider_id) {

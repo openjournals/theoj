@@ -1,0 +1,79 @@
+<polymer-element name="oj-assigned-users-list" attributes='paper'>
+  <template>
+
+      <template repeat="{{assignment in paper.assigned_users | sortAssignments}}" >
+          <oj-user-tag assignment={{assignment}}
+                       showColor={{!submitted}}
+                       tagColor={{userColor(assignment)}}
+                       showCompleted={{under_review}}
+                       removable={{editable}}
+                       on-remove-user={{removeReviewer}}
+                  ></oj-user-tag>
+      </template>
+
+      <template if="{{editable}}">
+          <oj-user-lookup placeholder="Add Reviewer"
+                          on-user-selected={{addReviewer}}
+                          on-filter-suggestions={{filterReviewerList}}
+                  ></oj-user-lookup>
+      </template>
+
+
+    <style>
+        oj-user-tag, oj-user-lookup {
+            margin-top: 8px;
+        }
+
+    </style>
+
+    <json-post   id=addReviewer    on-success={{updateReviewers}} ></json-post>
+    <json-delete id=removeReviewer on-success={{updateReviewers}} ></json-delete>
+
+  </template>
+
+  <script>
+    Polymer({
+
+        paperChanged: function() {
+            this.submitted    = this.paper && this.paper.state == 'submitted';
+            this.under_review = this.paper && this.paper.state == 'under_review';
+            this.editable     = this.submitted && this.current_role=='editor';
+        },
+
+        userColor: function(assignment) {
+            assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
+            return Oj.colors.userColor(assignment);
+        },
+
+        removeReviewer:function(event, assignment) {
+            this.$.removeReviewer.url = Oj.urls.removeAssigneePath(this.paper, assignment);
+            this.$.removeReviewer.go();
+        },
+        addReviewer:function(event, user) {
+            this.$.addReviewer.url = Oj.urls.addAssigneePath(this.paper, user);
+            this.$.addReviewer.go();
+        },
+        updateReviewers: function(event, detail) {
+            this.paper.assigned_users = detail;
+        },
+
+        filterReviewerList: function(event, suggestions) {
+            var paper = this.paper;
+
+            event.result = suggestions.filter( function(item) {
+
+                for (var i=0; i < paper.assigned_users.length; i++) {
+                    var assignment = paper.assigned_users[i];
+                    var user = assignment.user;
+                    if (user.sha == item.sha)
+                        return false;
+                }
+
+                return true;
+            });
+        }
+
+    })
+  </script>
+
+</polymer-element>

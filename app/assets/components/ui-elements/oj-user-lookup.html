@@ -12,7 +12,6 @@
     </core-dropdown>
 
     <json-get  id=lookUpSearch
-               url='/api/user/lookup'
                on-success={{lookupSuccess}}
                ></json-get>
 
@@ -42,13 +41,16 @@
       core-item {
         box-sizing: border-box;
         padding:    5px 10px;
-        background-color: #e7e7e7;
+        background-color: #f8f8f8;
         color:black;
         border-bottom: 1px solid black;
         cursor: pointer;
       }
       core-item:hover {
-          background-color: #d0d0d0;
+          background-color: #ffffff;
+      }
+      core-item:last-child {
+          border-bottom: none;
       }
       core-item.core-selected {
           font-weight: normal;
@@ -72,7 +74,7 @@
       searchChanged:function(){
        this.job('user_search', function() {
           if (this.search.length > 2) {
-            this.$.lookUpSearch.data = {guess: this.search};
+            this.$.lookUpSearch.url = '/api/user/lookup?guess=' + encodeURIComponent(this.search);
             this.$.lookUpSearch.go();
           }
        }, 300);

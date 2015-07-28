@@ -1,128 +1,204 @@
-<polymer-element name="oj-review-page-header" attributes='user paper annotations loadProgress'>
+<polymer-element name="oj-review-page-header" attributes='user paper annotations loadProgress' relative layout horizontal>
   <template>
-      <div class=top-header flex layout horizontal >
-          <div  class=left flex>
-              <div class=left-top>
 
+      <div  class=left flex layout vertical>
+          <div class=title-row layout horizontal>
+
+              <div flex class=title>{{paper.title}}</div>
+
+              <div self-start>
                   <paper-dropdown-menu on-core-activate={{versionSelected}}>
                       <paper-dropdown class=dropdown>
                           <core-menu id=versionMenu valueAttr=version selected={{paper.typed_provider_id}}>
                               <template repeat="{{version in paper.versions}}">
-                                <paper-item version={{version.typed_provider_id}}>{{version.typed_provider_id | providerPart}}</paper-item>
+                                  <paper-item version={{version.typed_provider_id}}>{{version.typed_provider_id | providerPart}}</paper-item>
                               </template>
                           </core-menu>
                       </paper-dropdown>
                   </paper-dropdown-menu>
-
-                  <span class=title>{{paper.title}}</span>
-                  <template repeat="{{assignment in paper.assigned_users | exceptReviewers}}" >
-                      <oj-user-tag assignment={{assignment}}
-                                   showColor={{!submitted}}
-                                   tagColor={{userColor(assignment)}}
-                              ></oj-user-tag>
-                  </template>
               </div>
 
-              <template if="{{paper.current_role=='editor'}}">
-                  <oj-editor-paper-controls flex paper={{paper}}></oj-editor-paper-controls>
-              </template>
           </div>
 
-          <div class=right layout vertical>
-              <div class='role role-{{paper.current_role}}'><span class=label>Role: </span>{{paper.current_role | capitalize}}</div>
-              <div flex class="state state-{{paper.state}}">
-                  <div><span class=label>Status: </span>{{paper.state | capitalize}}</div>
+          <div id=assignments-row>
+              <oj-assigned-users-list paper={{paper}}></oj-assigned-users-list>
+          </div>
 
-                  <template if="{{paper.state=='under_review' && annotations}}">
-                      <div>
-                          <span class="issue-summary"> <core-icon id='closedIcon' icon='check'></core-icon> {{ countClosed }} <span>Closed<br/>Issues</span></span>
-                          <span class="issue-summary"> <core-icon id='openIcon'   icon='error'></core-icon> {{ countOpen }} <span>Open<br/>Issues</span></span>
-                      </div>
-                  </template>
+          <div id=status-row layout horizontal>
 
-                  <oj-review-page-actions
-                          user={{user}}
-                          paper={{paper}}
+              <div class=status-block>
+                  <div class=label>Status:</div>
+                  <div class=status>{{paper.state | capitalize}}</div>
+              </div>
+
+              <div class=count-block>
+                  <div class=count>{{countOpen}}</div>
+                  <div class=label>Open<br/>Issues</div>
+              </div>
+
+              <oj-review-page-actions
+                      flex
+                      user={{user}}
+                      paper={{paper}}
                       ></oj-review-page-actions>
 
-              </div>
           </div>
+
       </div>
 
-      <template if='{{loadProgress < 100}}'>
+      <template if={{paper.can_annotate}}>
+          <div class=right layout vertical self-stretch>
+
+              <div id=add-paper-annotation>
+                  <paper-button raised on-tap="{{addPaperAnnotation}}">
+                      <div class=icon-wrapper><core-icon icon=add></core-icon></div>
+                      <div class=text-wrapper>Add a comment about the entire paper</div>
+                  </paper-button>
+              </div>
+
+          </div>
+      </template>
+
+      <template if={{loadProgress < 100}}'>
           <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
       </template>
 
-
     <style>
+
         :host {
-            display: block;
-        }
-        .top-header {
-            box-sizing: border-box;;
-            border-top: solid 2px #4f5783;
-            border-bottom: solid 2px #4f5783;
-            background: #5C6BC0;
+            box-sizing:    border-box;;
         }
 
-        .left-top {
-            padding:   4px;
+        .left {
+            background:    rgb(230, 230, 230);;
+            padding:       12px 12px 6px 12px;
+        }
+
+        #title-row {
         }
         .title {
-            color:     white;
-            font-size: 1.3em;
+            color:     #222;
+            font-size: 18px;
         }
 
-        .label {
-            font-weight: bold;
+        paper-dropdown-menu {
+            font-size:    12px;
+            border:       none;
+            padding:      0;
+            margin:       0;
+            padding-left: 4px;
+            width:        90px;
+            color:        #222;
+            top:          -14px;
+        }
+        paper-item {
+            font-size: 12px;
+            margin:    0;
+            padding:   0;
+        }
+        paper-item::shadow .button-content {
+            padding: 0 0 0 4px;
+        }
+        paper-dropdown-menu::shadow core-icon {
+            margin: -4px;
+        }
+        paper-dropdown-menu::shadow #arrow {
+            position:  absolute;
+            left:      0;
+            top:       3px;
+        }
+        paper-dropdown-menu::shadow #label {
+            position:  absolute;
+            left:      16px;
+            top:       4px;
+        }
+        core-menu {
+            margin: 0;
         }
 
-        .role, .state {
-            padding-left:  2px;
-            padding-right: 6px;
-            flex: 1 0 auto !important;
+        #assignments-row {
+            margin-top: 4px;
+        }
+
+        #status-row {
+            margin-top: 12px;
+        }
+
+        .status-block {
+            border-right: solid 1px #bbb;
+            padding: 0 8px 0 0;
+        }
+        .status-block .label {
+            font-size: 12px;
+        }
+        .status-block .status {
+            font-size:   12px;
+            font-weight: 700;
+        }
+
+        .count-block {
+            border-right: solid 1px #bbb;
+            padding: 0 8px;
+        }
+        .count-block .count {
+            font-size:    30px;
+            float:        left;
+            margin:       -1px 4px 0 0;
+        }
+        .count-block .label {
+            font-size: 12px;
+            float:     left;
+        }
+
+        oj-review-page-actions {
+            margin-left: 8px;
         }
 
         .progress {
             position: absolute;
             width:    100%;
+            left:     0;
+            right:    0;
+            bottom:   0;
         }
 
-        paper-dropdown-menu {
-            background: #d0d0d0;
-            padding: 0;
-            margin:  0;
-            padding-left: 4px;
-            width: 125px;
-        }
-        paper-dropdown-menu::shadow core-icon {
-            margin: -4px;
-        }
-        paper-dropdown {
-        }
-        core-menu {
-            margin: 0;
-        }
-        paper-item {
-        }
-        paper-item::shadow .button-content {
-            padding: 0 0 0 4px;
+        .right {
+            background: white;
+            width:      350px; /* Match width of annoations list */
         }
 
-        span.issue-summary {
-            font-size:    0.8em;
-            text-align:   right;
-            margin-right: 12px;
+        #add-paper-annotation {
+            box-sizing:    border-box;
+            margin:        12px 18px 0 12px;
+            height:        60px;
+            border-bottom: solid 2px #eee;
         }
-
-        span.issue-summary span {
-            display:        inline-block;
-            vertical-align: middle;
-            font-size:      0.6em;
+        #add-paper-annotation paper-button {
+            font-size:     10px;
+            color:         #295675;
+            line-height:   20px;
+            text-align:    center;
+            border:        1px solid #295675;
+            border-radius: 5px;
+            background:    white;
+            box-shadow:    0 4px 0 0 rgba(218, 218, 218, 0.1);
+            overflow:      hidden;
+            width:         100%;
         }
-
-        oj-review-page-actions {
-            margin-bottom: 6px;
+        #add-paper-annotation .icon-wrapper {
+            position:   absolute;
+            top:        0;
+            left:       0;
+            height:     40px;
+            width:      40px;
+            background: #295675;
+        }
+        #add-paper-annotation .text-wrapper {
+            margin-left: 40px;
+        }
+        #add-paper-annotation paper-button core-icon {
+            color:    white;
+            margin:   4px 0 0 2px;
         }
 
     </style>
@@ -131,10 +207,6 @@
 
   <script>
     Polymer({
-
-        paperChanged: function() {
-            this.submitted = this.paper && this.paper.state == 'submitted';
-        },
 
         annotationsChanged: function(){
             this.updateCounts();
@@ -148,19 +220,14 @@
             this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
         },
 
-        exceptReviewers: function(list) {
-            return list && list.filter( function(a) { return a.role != 'reviewer' });
-        },
-
-        userColor: function(assignment) {
-            assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
-            return Oj.colors.userColor(assignment);
-        },
-
         versionSelected: function(event, detail) {
             var id = this.$.versionMenu.selectedModel.version.typed_provider_id;
             if (id != this.paper.typed_provider_id)
                 this.fire('review', id);
+        },
+
+        addPaperAnnotation: function(event, detail) {
+            this.fire('add-paper-annotation');
         }
 
     })
