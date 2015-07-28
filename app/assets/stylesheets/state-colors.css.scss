@@ -71,7 +71,7 @@ body /deep/ {
     &::shadow .container {
 
       @each $state, $fg in $oj-issue-states-fg {
-        &.state-#{$state} {
+        &.state-#{$state} .container-inner {
           border-top-color: $fg;
         }
       }

@@ -47,8 +47,8 @@
 
                   <div layout horizontal>
                       <span flex></span>
-                      <paper-icon-button icon='add'   on-click= {{submitAnnotation}} disabled?={{!text||$.saveAnnotationRequest.loading}} ></paper-icon-button>
-                      <paper-icon-button icon='close' on-click= {{close}} disabled?={{$.saveAnnotationRequest.loading}}></paper-icon-button>
+                      <paper-button on-click={{submitAnnotation}} disabled?={{!text||$.saveAnnotationRequest.loading}} >Add</paper-button>
+                      <paper-button on-click={{close}} disabled?={{$.saveAnnotationRequest.loading}}>Cancel</paper-button>
                   </div>
 
               </template>
@@ -68,7 +68,7 @@
           border-bottom: solid 2px white;
       }
       .container-inner {
-          padding: 10px;
+          padding: 10px 10px 4px;
           border-bottom: solid 1px #888;
           box-sizing: border-box;
           border-top: 7px solid;
@@ -110,8 +110,29 @@
           margin-left: 12px;
       }
 
-      paper-icon-button {
+      :host .container /deep/ paper-button {
+          padding-top:    0;
           padding-bottom: 0;
+          margin:         4px 0 0 4px;
+          color:          rgb(120, 120, 120);
+          border:         1px solid rgb(120, 120, 120);
+          box-shadow:     0 4px 0 0 rgba(218, 218, 218, 0.3);
+          height:         28px;
+          line-height:    11px;
+      }
+      :host .container /deep/ paper-button core-icon {
+          width:         16px;
+          height:        16px;
+          padding:       0;
+          margin:        -8px 4px 8px;
+      }
+      :host .container /deep/ paper-button:not([disabled]):hover, paper-button:not([disabled]):active {
+          color:        rgb( 90,  90,  90);
+          border-color: rgb( 90,  90,  90);
+      }
+      :host .container /deep/ paper-button[disabled] {
+          border-color:  rgb(200,200,200);
+          color:         rgb(200,200,200);
       }
 
       oj-reviewer-annotation-controls {
@@ -124,8 +145,8 @@
           width: 100%;
       }
       markdown-text-area::shadow a.toggle {
-          bottom: -28px;
-          right:  88px;
+          bottom: -26px;
+          right:  154px;
           color:  #888;
           text-transform: lowercase;
       }
