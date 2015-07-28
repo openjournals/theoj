@@ -1,42 +1,51 @@
-<polymer-element name="oj-review-page" attributes='paper_id currentUser'>
+<polymer-element name="oj-review-page" attributes='paper_id currentUser' fit>
   <template>
 
-    <oj-review-page-header
-            id=header
-            user={{currentUser}}
-            paper={{paper}}
-            annotations={{annotations}}
-            loadProgress={{loadProgress}}
-            on-add-paper-annotation={{addPaperAnnotation}}
-            ></oj-review-page-header>
+    <div id=scroller layout vertical>
 
+        <oj-review-page-header
+                id=header
+                user={{currentUser}}
+                paper={{paper}}
+                annotations={{annotations}}
+                loadProgress={{loadProgress}}
+                on-add-paper-annotation={{addPaperAnnotation}}
+                ></oj-review-page-header>
 
-    <template if="{{paper}}">
-      <div id=main layout horizontal>
+        <template if="{{paper}}">
+          <div id=main layout horizontal>
 
-        <div layout vertical id=pdf-pane flex>
+            <div layout vertical id=pdf-pane flex>
 
-          <stacked-pdf-reader src={{paper.document_location}}
-                              annotations={{annotations}}
-                              pageOffset={{pageOffset}}
-                              loadProgress={{loadProgress}}
-                              on-page-clicked={{pageClicked}}
-                              on-pdf-client-changed={{pdfClientChanged}}
-                  ></stacked-pdf-reader>
-        </div>
+              <stacked-pdf-reader src={{paper.document_location}}
+                                  annotations={{annotations}}
+                                  pageOffset={{pageOffset}}
+                                  loadProgress={{loadProgress}}
+                                  on-page-clicked={{pageClicked}}
+                                  on-pdf-client-changed={{pdfClientChanged}}
+                      ></stacked-pdf-reader>
+            </div>
 
-        <oj-annotation-list id=annotation_list
-                            paper={{paper}}
-                            annotations={{annotations}}
-                            firstPageOffset={{20}}
-                            pageHeight={{pdfClientHeight}}
-                            pageSpacing={{20}}
-                            on-annotation-changed={{onChangeAnnotation}}
-                ></oj-annotation-list>
-        </div>
-      </template>
+            <oj-annotation-list id=annotation_list
+                                paper={{paper}}
+                                annotations={{annotations}}
+                                firstPageOffset={{20}}
+                                pageHeight={{pdfClientHeight}}
+                                pageSpacing={{20}}
+                                on-annotation-changed={{onChangeAnnotation}}
+                    ></oj-annotation-list>
+            </div>
+          </template>
+
+    </div>
 
     <style>
+        #scroller {
+            position:      relative;
+            overflow-y:    auto;
+            height:        100%;
+            margin-bottom: 18px;
+        }
 
       oj-review-page-header {
       }
