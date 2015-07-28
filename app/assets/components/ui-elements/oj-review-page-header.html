@@ -20,10 +20,6 @@
 
           </div>
 
-          <template if="{{paper.current_role=='editor'}}">
-              <oj-editor-paper-controls flex paper={{paper}}></oj-editor-paper-controls>
-          </template>
-
           <div id=assignments-row>
               <oj-assigned-users-list paper={{paper}}></oj-assigned-users-list>
           </div>
@@ -36,7 +32,7 @@
               </div>
 
               <div class=count-block>
-                  <div class=count>{{countOpen}}{{countOpen}}</div>
+                  <div class=count>{{countOpen}}</div>
                   <div class=label>Open<br/>Issues</div>
               </div>
 
