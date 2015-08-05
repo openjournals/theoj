@@ -145,7 +145,7 @@
       },
       onPostRepsonse:function(response){
           this.fire("notification", "Paper "+this.paper_details.title+" submitted");
-          this.fire('go', "/papers")
+          this.fire('go', "/submitted")
       },
       onPostError: function(event) {
         var xhr = event.detail.xhr;
