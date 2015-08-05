@@ -37,7 +37,7 @@
         paperChanged: function() {
             this.submitted    = this.paper && this.paper.state == 'submitted';
             this.under_review = this.paper && this.paper.state == 'under_review';
-            this.editable     = this.submitted && this.current_role=='editor';
+            this.editable     = this.under_review && this.paper.current_role=='editor';
         },
 
         userColor: function(assignment) {
