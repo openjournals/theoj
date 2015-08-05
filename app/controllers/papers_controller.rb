@@ -154,7 +154,7 @@ class PapersController < ApplicationController
   end
 
   def recent
-    respond_with_papers Paper.recent
+    respond_with_papers Paper.recent.accepted
   end
 
   def search
