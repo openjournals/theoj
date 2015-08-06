@@ -82,6 +82,10 @@ body /deep/ {
 
   oj-review-page-header {
 
+    width: -moz-calc(100% - 353px) !important;
+    width: -webkit-calc(100% - 353px) !important;
+    width: calc(100% - 353px) !important;
+
     &::shadow {
 
       @each $role, $bg in $oj-paper-roles-bg {
