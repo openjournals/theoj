@@ -59,7 +59,7 @@
           </div>
       </template>
 
-      <template if={{loadProgress < 100}}'>
+      <template if={{loadProgress < 100}}>
           <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
       </template>
 
@@ -71,14 +71,14 @@
 
         .left {
             background:    rgb(230, 230, 230);;
-            padding:       12px 12px 6px 12px;
+            padding:       20px 20px 0px 20px;
         }
 
         #title-row {
         }
         .title {
-            color:     #222;
-            font-size: 18px;
+            color:     #7d7d7d;
+            font-size: 20px;
         }
 
         paper-dropdown-menu {
@@ -88,7 +88,7 @@
             margin:       0;
             padding-left: 4px;
             width:        90px;
-            color:        #222;
+            color:        #9a9a9a;
             top:          -14px;
         }
         paper-item {
@@ -106,6 +106,7 @@
             position:  absolute;
             left:      0;
             top:       3px;
+            color: #9a9a9a;
         }
         paper-dropdown-menu::shadow #label {
             position:  absolute;
@@ -117,7 +118,7 @@
         }
 
         #assignments-row {
-            margin-top: 4px;
+            margin: 8px 0px;
         }
 
         #status-row {
@@ -126,27 +127,31 @@
 
         .status-block {
             border-right: solid 1px #bbb;
-            padding: 0 8px 0 0;
+            padding: 0 20px 0 0;
+            color: #7d7d7d;
         }
         .status-block .label {
             font-size: 12px;
+            font-weight: 700;
         }
         .status-block .status {
-            font-size:   12px;
-            font-weight: 700;
+            font-size:   14px;
+            font-weight: 400;
         }
 
         .count-block {
             border-right: solid 1px #bbb;
-            padding: 0 8px;
+            padding: 0 20px;
+            color: #7d7d7d;
         }
         .count-block .count {
-            font-size:    30px;
+            font-size:    36px;
             float:        left;
-            margin:       -1px 4px 0 0;
+            margin:       -4px 4px 0 0;
         }
         .count-block .label {
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 400;
             float:     left;
         }
 
