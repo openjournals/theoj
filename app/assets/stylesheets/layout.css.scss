@@ -12,10 +12,13 @@ body /deep/ {
     font-family: $default_font;
   }
 
+  core-toolbar {
+    height: 70px;
+  }
+
   paper-button {
 
     text-transform: lowercase;
-
     font-size: 14px;
     color: rgb(51, 85, 117);
     text-align: center;
