@@ -115,6 +115,10 @@ body /deep/ {
     @each $role, $color in $oj-paper-roles-fg {
       &.role-#{$role} {
         background-color: $color !important;
+        font-size: 12px;
+        padding: 5px 10px;
+        font-weight: 400;
+        border-radius: 3px;
       }
     }
 
