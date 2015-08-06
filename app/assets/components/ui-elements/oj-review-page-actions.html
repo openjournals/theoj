@@ -2,7 +2,7 @@
   <template>
 
       <template if="{{paper.current_role=='editor'}}">
-          <paper-button id=start-review hidden?="{{paper.state!='submitted'}}" disabled?={{paper.reviewers.length==0}} on-tap="{{startReviewClick}}" >
+          <paper-button id=start-review hidden?="{{paper.state!='submitted'}}" disabled?="{{ paper.assigned_users | hasNoReviewers }}" on-tap="{{startReviewClick}}" >
               <core-icon icon=delete></core-icon>
               Start Review
           </paper-button>
@@ -75,17 +75,26 @@
         <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
-    <json-put  id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
-    <json-put  id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
-    <json-post id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
-    <json-req  id=publicRequest       on-error={{requestError}}></json-req>
+    <json-put    id=statusChangeRequest on-success={{statusChangeRequestSuccess}}></json-put>
+    <json-put    id=updateRequest       on-success={{updateRequestSuccess}}  on-error={{requestError}}></json-put>
+    <json-post   id=completedRequest    on-success={{completedRequestSuccess}}  on-error={{requestError}}></json-post>
+    <json-delete id=deleteRequest       on-error={{requestError}}></json-delete>
+    <json-req    id=publicRequest       on-error={{requestError}}></json-req>
 
   </template>
 
   <script>
     Polymer({
+
       paperChanged: function() {
         this.submitted = this.paper && this.paper.state == 'submitted';
+      },
+
+      hasNoReviewers: function(assigned_users) {
+        for (var i=0; i<assigned_users.length; i++)
+            if ( assigned_users[i].role=='reviewer' )
+                return false;
+        return true;
       },
 
       startReviewClick:function() {
@@ -148,7 +157,7 @@
           });
       },
 
-      makePublicClick: function() {
+      deleteClick: function() {
         this.showDialog('Do you want to delete this paper?<br/>'+
                         'All versions of the paper will be permanently removed from the system.',
                         'Delete Paper', function() {
@@ -158,7 +167,7 @@
             $request.go(function(event, detail) {
                 var msg = 'The paper has been deleted';
                 this.fire('notificaion', msg);
-                this.go('/');
+                this.fire('go-default');
             }.bind(this) );
         });
       },
@@ -204,7 +213,7 @@
 
       statusChangeRequestSuccess: function(event, detail) {
           this.fire('notification', this.successMessage);
-          this.fire('go', '/papers');
+          this.fire('go-default');
       },
 
       requestError: function(event, detail) {
