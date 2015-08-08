@@ -375,6 +375,9 @@ describe PapersController do
     it "AS EDITOR responds successfully with a correct status and accept paper" do
       authenticate(:editor)
       paper = create(:paper, :review_completed)
+      2.times do
+        create(:annotation, paper:paper)
+      end
 
       put :transition, identifier:paper.typed_provider_id, transition: :accept
 
