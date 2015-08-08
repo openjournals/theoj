@@ -5,7 +5,7 @@
           <oj-user-tag assignment={{assignment}}
                        showColor={{!submitted}}
                        tagColor={{userColor(assignment)}}
-                       showCompleted={{under_review}}
+                       showCompleted={{show_completed}}
                        removable={{editable}}
                        on-remove-user={{removeReviewer}}
                   ></oj-user-tag>
@@ -35,9 +35,11 @@
     Polymer({
 
         paperChanged: function() {
-            this.submitted    = this.paper && this.paper.state == 'submitted';
-            this.under_review = this.paper && this.paper.state == 'under_review';
-            this.editable     = this.submitted && this.paper.current_role=='editor';
+            this.submitted      = this.paper && this.paper.state == 'submitted';
+            this.under_review   = this.paper && this.paper.state == 'under_review';
+            this.show_completed = this.paper && this.paper.current_role=='editor'
+                                && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
+            this.editable       = this.submitted && this.paper.current_role=='editor';
         },
 
         userColor: function(assignment) {
