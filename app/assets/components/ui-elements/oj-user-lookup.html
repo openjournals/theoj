@@ -94,10 +94,10 @@
 
       selectUser:function(event, detail, sender){
           var user = event.target.templateInstance.model.suggestion;
-          this.fire("user-selected", user);
           this.$.suggestions.opened = false;
           this.search = "";
           this.suggestions = [];
+          this.fire("user-selected", user);
       }
 
     })

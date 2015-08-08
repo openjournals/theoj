@@ -77,7 +77,12 @@ class Annotation < ActiveRecord::Base
   private
 
   def can_change_state?
-    is_issue? && paper && paper.under_review?
+    return false unless is_issue? && paper
+    return true if paper.under_review?
+
+    # Can resolve while paper is being accepted
+    return true if paper.aasm.current_event.in?([:accept, :accept!]) && aasm.to_state==:resolved
+    return false
   end
 
   def set_defaults

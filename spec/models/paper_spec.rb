@@ -457,6 +457,19 @@ describe Paper do
 
     end
 
+    context "accept event" do
+
+      it "should resolve all issues" do
+        paper = create(:paper, :review_completed)
+        create_list(:annotation, 2, paper:paper)
+
+        paper.accept!
+
+        expect(paper.annotations.reload).to all( have_attributes(state:'resolved') )
+      end
+
+    end
+
   end
 
   describe "#resolve_all_issues" do
