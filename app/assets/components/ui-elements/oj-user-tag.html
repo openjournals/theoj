@@ -15,7 +15,7 @@
           </template>
       </span>
 
-      <template if={{removable}}><a class='remover' href='#' on-click={{remove}} >&times</a></template>
+      <template if="{{removable && assignment.role=='reviewer' && assignment.user}}"><a class='remover' href='#' on-click={{remove}} >&times</a></template>
       <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template>
 
     <style>
