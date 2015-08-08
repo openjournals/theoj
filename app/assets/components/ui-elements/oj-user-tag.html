@@ -1,7 +1,11 @@
 <polymer-element name='oj-user-tag' attributes='assignment removable showCompleted showColor tagColor' >
 
   <template>
-      <template if="{{showCompleted && assignment.role=='reviewer'}}"><input type=checkbox checked?={{assignment.completed}} onclick="return false;"/></template>
+      <template if="{{showCompleted && assignment.role=='reviewer' && assignment.user}}">
+          <core-icon icon="{{assignment | getCompletionIcon }}"
+                     title="{{assignment | getCompletionTip }}"
+                  ></core-icon>
+      </template>
       <span class=name>
           <template if={{assignment.user}}>
               {{assignment.role|capitalize}}: {{assignment.user.name}}
@@ -45,6 +49,14 @@
           vertical-align: middle;
       }
 
+      core-icon {
+          width:          16px !important;
+          height:         16px !important;
+          vertical-align: -2px !important;
+          background:     #e4e4e4;
+          color:          black;
+      }
+
     </style>
   </template>
 
@@ -64,6 +76,21 @@
             if (this.assignment.user && this.assignment.user.email)
                 this.title = this.assignment.user.email;
         }
+      },
+
+      getCompletionIcon: function(assignment) {
+          switch (assignment.reviewer_accept) {
+              case true:  return 'done';
+              case false: return 'clear';
+              default:    return '';
+          }
+      },
+      getCompletionTip: function(assignment) {
+          switch (assignment.reviewer_accept) {
+              case true:  return 'Recommended Acceptance';
+              case false: return 'Recommended Rejection';
+              default:    return 'Review Not Complete';
+          }
       },
 
       remove: function(event){
