@@ -11,13 +11,15 @@
                   ></oj-user-tag>
       </template>
 
+      <oj-user-tag assignment="{{paper.assigned_users | anonymousReviewersTag}}"
+              ></oj-user-tag>
+
       <template if="{{editable}}">
           <oj-user-lookup placeholder="Add Reviewer"
                           on-user-selected={{addReviewer}}
                           on-filter-suggestions={{filterReviewerList}}
                   ></oj-user-lookup>
       </template>
-
 
     <style>
         oj-user-tag, oj-user-lookup {
@@ -73,6 +75,38 @@
 
                 return true;
             });
+        },
+
+        anonymousReviewersTag: function(assigned_users) {
+            if (!assigned_users)
+                return {};
+
+            var total_reviewers= 0, anonymous_reviewers=0;
+            for (var i=0; i < assigned_users.length; i++) {
+                var assignment = assigned_users[i];
+                if (assignment.role=='reviewer') {
+                    total_reviewers = total_reviewers + 1;
+                    if (!assignment.user)
+                        anonymous_reviewers = anonymous_reviewers + 1;
+                }
+            }
+
+            if (anonymous_reviewers) {
+
+                var text = 'and ' + anonymous_reviewers.toString();
+                if (total_reviewers > anonymous_reviewers) text = text + ' more';
+                text = text + ' Reviewer';
+                if (anonymous_reviewers > 1) text = text + 's';
+
+                return {
+                    role:   'reviewer',
+                    text:   text
+                };
+
+            } else {
+                return {};
+
+            }
         }
 
     })

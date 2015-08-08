@@ -3,11 +3,14 @@
   <template>
       <template if="{{showCompleted && assignment.role=='reviewer'}}"><input type=checkbox checked?={{assignment.completed}} onclick="return false;"/></template>
       <span class=name>
-          {{assignment.role|capitalize}}
           <template if={{assignment.user}}>
-          : {{assignment.user.name}}
+              {{assignment.role|capitalize}}: {{assignment.user.name}}
+          </template>
+          <template if={{assignment.text}}>
+              {{assignment.text}}
           </template>
       </span>
+
       <template if={{removable}}><a class='remover' href='#' on-click={{remove}} >&times</a></template>
       <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template>
 
@@ -47,19 +50,28 @@
 
   <script>
     Polymer({
-        assignmentChanged: function() {
+
+      removable:false,
+
+      assignmentChanged: function() {
         if (this.assignment ) {
+            if (!this.assignment.user && !this.assignment.text)
+                this.setAttribute('hidden', '');
+            else
+                this.removeAttribute('hidden');
+
             this.className = this.className + ' role-'+this.assignment.role;
             if (this.assignment.user && this.assignment.user.email)
                 this.title = this.assignment.user.email;
         }
       },
 
-      removable:false,
       remove: function(event){
         event.preventDefault();
-        this.fire("remove-user", this.assignment)
+          if (this.removable)
+            this.fire("remove-user", this.assignment)
       }
+
     })
   </script>
 
