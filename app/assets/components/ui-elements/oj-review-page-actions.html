@@ -30,12 +30,12 @@
       </template>
 
       <template if="{{ paper.current_role=='reviewer'}}">
-          <paper-button id=mark-review-complete hidden?="{{false && paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
+          <paper-button id=mark-review-complete hidden?="{{paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
               <core-icon icon=check></core-icon>
               Completed Review
           </paper-button>
           <div flex></div>
-          <paper-button id=make-name-public hidden?="{{paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+          <paper-button id=make-name-public hidden?="{{true || paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
               <core-icon icon=perm-identity></core-icon>
               Make Public
           </paper-button>
