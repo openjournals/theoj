@@ -18,6 +18,14 @@ describe AssignmentSerializer do
     expect(hash.keys).to contain_exactly('role', 'sha', 'completed', 'public')
   end
 
+  it "A reviewer should include the reviewer_accept field when completed" do
+    assignment = create(:assignment, :reviewer, completed:true, reviewer_accept:false)
+    serializer = AssignmentSerializer.new(assignment)
+    hash = hash_from_json(serializer.to_json)
+
+    expect(hash.keys).to include('reviewer_accept')
+  end
+
   it "Non-reviewers should not include the completed field" do
     assignment = create(:assignment, :editor)
     serializer = AssignmentSerializer.new(assignment)

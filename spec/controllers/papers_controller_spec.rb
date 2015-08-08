@@ -419,7 +419,7 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id
+      post :complete, identifier:paper.typed_provider_id, accept:'t'
 
       expect(response).to have_http_status(:success)
       expect(response_json["state"]).to eq("review_completed")
@@ -430,25 +430,49 @@ describe PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id
+      post :complete, identifier:paper.typed_provider_id, accept:'t'
 
       expect(paper.reviewer_assignments.reload.first.completed).to be_truthy
+    end
+
+    context "updates the reviewer_accept field correctly" do
+
+      def test(accept_value)
+        user = authenticate
+
+        paper = create(:paper, :under_review, reviewer:user)
+        post :complete, identifier:paper.typed_provider_id, accept:accept_value
+        expect(paper.reviewer_assignments.reload.first.reviewer_accept).to be(accept_value)
+      end
+
+      it "should work for true"  do test(true)  end
+      it "should work for false" do test(false) end
     end
 
     it "should fail if the user is not authorized" do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:true)
 
-      post :complete, identifier:paper.typed_provider_id
+      post :complete, identifier:paper.typed_provider_id, accept:true
 
       expect(response).to have_http_status(:forbidden)
+    end
+
+    it "should fail if the accept field isn't provided" do
+      user = authenticate
+      paper = create(:paper, :submitted, reviewer:user)
+
+      post :complete, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:bad_request)
+      expect(response_json['text']).to eq('accept parameter not supplied')
     end
 
     it "should fail if the paper could not be updated for some reason" do
       user = authenticate
       paper = create(:paper, :submitted, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id
+      post :complete, identifier:paper.typed_provider_id, accept:true
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -733,7 +757,6 @@ describe PapersController do
     end
 
   end
-
 
   describe "GET #search" do
 
