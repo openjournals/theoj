@@ -155,6 +155,20 @@ describe Annotation do
 
     end
 
+    context "if the paper is being accepted" do
+
+      it "should be possible to resolve the annotation" do
+        paper = create(:paper, :review_completed)
+        annotation = create(:issue, paper:paper)
+        expect(annotation).not_to be_resolved
+
+        paper.accept!
+
+        expect(annotation.reload).to be_resolved
+      end
+
+    end
+
   end
 
   describe "Abilities" do
