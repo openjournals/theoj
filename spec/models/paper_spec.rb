@@ -681,7 +681,7 @@ describe Paper do
     it "should return an error if the paper is not in a reviewable state" do
       paper = create(:paper, reviewer:reviewers)
 
-      expect(paper.mark_review_completed!(reviewers.first)).to be_falsy
+      expect(paper.mark_review_completed!(reviewers.first, false)).to be_falsy
       expect(paper.errors).to be_present
       expect(paper.reload.reviewer_assignments.first.completed).to be_falsy
     end
@@ -689,7 +689,7 @@ describe Paper do
     it "should return an error if the user is not a reviewer" do
       paper = create(:paper, :under_review, reviewer:true)
 
-      expect(paper.mark_review_completed!(paper.submittor)).to be_falsy
+      expect(paper.mark_review_completed!(paper.submittor, false)).to be_falsy
       expect(paper.errors).to be_present
       expect(paper.reload.submittor_assignment.completed).to be_falsy
     end
@@ -697,18 +697,24 @@ describe Paper do
     it "should mark the reviewer as completed" do
       paper = create(:paper, :under_review, reviewer:reviewers)
 
-      expect(paper.mark_review_completed!(reviewers.first)).to be_truthy
+      expect(paper.mark_review_completed!(reviewers.first, false)).to be_truthy
       expect(paper.errors).to be_empty
 
       expect(paper.reviewer_assignments.first.completed).to be_truthy
       expect(paper).to be_under_review
     end
 
+    it "should set the reviewer_accept attribute" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.mark_review_completed!(reviewers.first, false)
+      expect(paper.reviewer_assignments.first.reviewer_accept).to be(false)
+    end
+
     it "when the last review is completed the state of the paper should change" do
       paper = create(:paper, :under_review, reviewer:reviewers)
       paper.reviewer_assignments.first.update_attributes(completed:true)
 
-      expect(paper.mark_review_completed!(reviewers.second)).to be_truthy
+      expect(paper.mark_review_completed!(reviewers.second, false)).to be_truthy
       expect(paper.reviewer_assignments.second.completed).to be_truthy
       expect(paper).to be_review_completed
     end
@@ -720,7 +726,7 @@ describe Paper do
       paper.reviewer_assignments.first.update_attributes(completed:true)
 
       expect {
-        paper.mark_review_completed!(reviewers.second)
+        paper.mark_review_completed!(reviewers.second, false)
       }.to change { deliveries.count }.by(1)
 
       is_expected.to have_sent_email.to('editor@example.com').matching_subject(/- Review Completed/)

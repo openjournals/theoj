@@ -6,11 +6,11 @@
               <core-icon icon=delete></core-icon>
               Start Review
           </paper-button>
+          <div flex></div>
           <paper-button id=accept hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
               <core-icon icon=thumb-up></core-icon>
               Accept
           </paper-button>
-          <div flex></div>
           <paper-button id=reject hidden?="{{paper.state!='under_review' && paper.state!='review_completed'}}" on-tap="{{rejectClick}}" >
               <core-icon icon=thumb-down></core-icon>
               Reject
@@ -30,12 +30,12 @@
       </template>
 
       <template if="{{ paper.current_role=='reviewer'}}">
-          <paper-button id=mark-review-complete hidden?="{{false && paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
+          <paper-button id=mark-review-complete hidden?="{{paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
               <core-icon icon=check></core-icon>
               Completed Review
           </paper-button>
           <div flex></div>
-          <paper-button id=make-name-public hidden?="{{paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
+          <paper-button id=make-name-public hidden?="{{true || paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
               <core-icon icon=perm-identity></core-icon>
               Make Public
           </paper-button>
@@ -71,7 +71,8 @@
 
     <paper-action-dialog id=dialog backdrop layered=false>
         <p></p>
-        <paper-button affirmative></paper-button>
+        <paper-button class=first  affirmative></paper-button>
+        <paper-button class=second affirmative></paper-button>
         <paper-button dismissive autofocus>Cancel</paper-button>
     </paper-action-dialog>
 
@@ -120,12 +121,15 @@
       },
 
       markReviewCompleteClick: function() {
-          this.showDialog('Do you really want to mark this paper as completed?', 'Mark Completed', function() {
-              var url = Oj.urls.paperCompletePath(this.paper);
-              var $request = this.$.completedRequest;
-
-              $request.url = url;
-              $request.go();
+          this.showDialog('Do you really want to mark this paper as completed?',
+                          'Recommend Acceptance',
+                          'Recommend Rejection',
+                          function(event) {
+                                  var accept    = event.target.className == 'first';
+                                  var $request  = this.$.completedRequest;
+                                  $request.url  = Oj.urls.paperCompletePath(this.paper);
+                                  $request.data = { accept: accept };
+                                  $request.go();
           });
       },
 
@@ -184,15 +188,26 @@
           this.fire('review', detail);
       },
 
-      showDialog: function(html, buttonText, onSuccess) {
+      showDialog: function(html, button1Text, button2Text, onSuccess) {
+          if ($.isFunction(button2Text)) {
+              onSuccess   = button2Text;
+              button2Text = undefined;
+          };
+
           var $dialog = this.$.dialog;
           var $content = $dialog.querySelector('p');
           $content.innerHTML = html;
 
-          var $button = $dialog.querySelector('paper-button[affirmative]');
-          $button.innerHTML = buttonText;
-          $($button).off('tap');
-          $($button).on('tap', onSuccess.bind(this) );
+          var $button1 = $dialog.querySelector('.first');
+          $button1.innerHTML = button1Text;
+          $($button1).off('tap');
+          $($button1).on('tap', onSuccess.bind(this) );
+
+          var $button2 = $dialog.querySelector('.second');
+          $button2.innerHTML = button2Text;
+          $button2.setAttribute('style', button2Text ? '' : 'display:none');
+          $($button2).off('tap');
+          $($button2).on('tap', onSuccess.bind(this) );
 
           $dialog.open();
       },

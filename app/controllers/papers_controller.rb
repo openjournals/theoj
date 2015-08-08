@@ -101,7 +101,9 @@ class PapersController < ApplicationController
   def complete
     authorize! :complete, paper
 
-    if paper.mark_review_completed!(current_user)
+    render_error(:bad_request, 'accept parameter not supplied') if params[:accept].nil?
+
+    if paper.mark_review_completed!(current_user, params[:accept])
       paper.assignments.reload
       render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
     else
