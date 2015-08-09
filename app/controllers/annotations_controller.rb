@@ -1,14 +1,23 @@
 class AnnotationsController < ApplicationController
-  before_filter :require_user
-  before_filter :require_editor,   only:[:update]
+  before_filter :require_user,     except: [:index, :all]
+  before_filter :require_editor,   only:   [:update]
 
   # Root issues
   def index
-    render json: paper.issues
+    if can? :view_annotations, paper
+      render json: paper.issues
+    else
+      render json: [], status: :no_content
+    end
   end
 
+  # All issues
   def all
-    render json: paper.annotations
+    if can? :view_annotations, paper
+      render json: paper.annotations
+    else
+      render json: [], status: :no_content
+    end
   end
 
   def create
@@ -25,14 +34,14 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  def update
-    # There is no update code here!
-    if annotation.save
-      render :json => annotation, :status => :created
-    else
-      render :json => annotation.errors, :status => :unprocessable_entity
-    end
-  end
+  # def update
+  #   # There is no update code here!
+  #   if annotation.save
+  #     render :json => annotation, :status => :created
+  #   else
+  #     render :json => annotation.errors, :status => :unprocessable_entity
+  #   end
+  # end
 
   def unresolve
     change_state(:unresolve)
