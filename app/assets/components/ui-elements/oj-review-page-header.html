@@ -4,7 +4,12 @@
       <div  class=left flex layout vertical>
           <div class=title-row layout horizontal>
 
-              <div flex class=title>{{paper.title}}</div>
+              <div flex class=title>
+                  {{paper.title}}
+                  <template if="{{!show_bottom && paper.state != 'accepted'}}">
+                      <span class=inline-status>&nbsp;({{paper.state | capitalize}})</span>
+                  </template>
+              </div>
 
               <div self-start>
                   <paper-dropdown-menu on-core-activate={{versionSelected}}>
@@ -24,29 +29,33 @@
               <oj-assigned-users-list paper={{paper}}></oj-assigned-users-list>
           </div>
 
-          <div id=status-row layout horizontal>
+          <template if={{show_bottom}}>
+              <div id=status-row layout horizontal>
 
-              <div class=status-block>
-                  <div class=label>Status:</div>
-                  <div class=status>{{paper.state | capitalize}}</div>
+                  <div class=status-block>
+                      <div class=label>Status:</div>
+                      <div class=status>{{paper.state | capitalize}}</div>
+                  </div>
+
+                  <template if="{{ppaper.state != 'submitted' }}">
+                      <div class=count-block>
+                          <div class=count>{{countOpen}}</div>
+                          <div class=label>Open<br/>Issues</div>
+                      </div>
+                  </template>
+
+                  <oj-review-page-actions
+                          flex
+                          user={{user}}
+                          paper={{paper}}
+                          ></oj-review-page-actions>
+
               </div>
-
-              <div class=count-block>
-                  <div class=count>{{countOpen}}</div>
-                  <div class=label>Open<br/>Issues</div>
-              </div>
-
-              <oj-review-page-actions
-                      flex
-                      user={{user}}
-                      paper={{paper}}
-                      ></oj-review-page-actions>
-
-          </div>
+          </template>
 
       </div>
 
-      <template if={{paper.can_annotate}}>
+      <template if={{paper.can_edit_annotations}}>
           <div class=right layout vertical self-stretch>
 
               <div id=add-paper-annotation>
@@ -79,6 +88,11 @@
         .title {
             color:     #222;
             font-size: 18px;
+        }
+        .inline-status {
+            color:       #888;
+            font-size:   14px;
+            font-weight: 400;
         }
 
         paper-dropdown-menu {
@@ -207,6 +221,10 @@
 
   <script>
     Polymer({
+
+        computed: {
+            show_bottom: "paper.can_view_annotations && paper.state != 'accepted' "
+        },
 
         annotationsChanged: function(){
             this.updateCounts();
