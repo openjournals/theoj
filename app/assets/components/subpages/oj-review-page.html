@@ -26,16 +26,18 @@
                       ></stacked-pdf-reader>
             </div>
 
-            <oj-annotation-list id=annotation_list
-                                paper={{paper}}
-                                annotations={{annotations}}
-                                firstPageOffset={{20}}
-                                pageHeight={{pdfClientHeight}}
-                                pageSpacing={{20}}
-                                on-annotation-changed={{onChangeAnnotation}}
-                    ></oj-annotation-list>
-            </div>
-          </template>
+            <template if={{paper.can_view_annotations}}>
+                <oj-annotation-list id=annotation_list
+                                    paper={{paper}}
+                                    annotations={{annotations}}
+                                    firstPageOffset={{20}}
+                                    pageHeight={{pdfClientHeight}}
+                                    pageSpacing={{20}}
+                                    on-annotation-changed={{onChangeAnnotation}}
+                        ></oj-annotation-list>
+            </template>
+          </div>
+        </template>
 
     </div>
 
@@ -71,7 +73,7 @@
 
     <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
 
-    <template if={{paper}}>
+    <template if={{paper.can_view_annotations}}>
       <firebase-element
         id=annotation-firebase
         location="{{paper_id | annotationsFirebasePath }}"
@@ -101,10 +103,11 @@
 
       paperChanged: function() {
           if (this.paper) {
-              var current_user_sha          = this.currentUser && this.currentUser.sha;
-              this.paper.current_assignment = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-              this.paper.current_role       = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
-              this.paper.can_annotate       = this.paper.current_assignment && this.paper.state == 'under_review';
+              var current_user_sha            = this.currentUser && this.currentUser.sha;
+              this.paper.current_assignment   = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
+              this.paper.current_role         = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
+              this.paper.can_view_annotations = this.paper.current_assignment;
+              this.paper.can_edit_annotations = this.paper.can_view_annotations && this.paper.state == 'under_review';
 
               this.fire('route-changed', this.menuSectionForRole(this.paper.current_role) );
           }
@@ -149,7 +152,7 @@
           this.addAnnotation(annotation);
       },
       addAnnotation: function(annotation) {
-          if (this.paper.can_annotate) {
+          if (this.paper.can_edit_annotations) {
               this.annotations.push(annotation);
           }
       }

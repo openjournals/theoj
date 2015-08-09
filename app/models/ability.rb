@@ -108,8 +108,9 @@ class Ability
       cannot :destroy, Annotation
     end
 
-    can :annotate,  Paper, assignments:{user_id:user.id}
-    can :comment,   Paper, assignments:{user_id:user.id}
+    can :view_annotations,  Paper, assignments:{user_id:user.id}
+    can :annotate,          Paper, assignments:{user_id:user.id}
+    can :comment,           Paper, assignments:{user_id:user.id}
 
     # State changes
     can [:unresolve, :dispute, :resolve],

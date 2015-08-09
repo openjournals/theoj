@@ -37,9 +37,11 @@ FactoryGirl.define do
       end
 
       case factory.state
+        when nil         then ;
         when :unresolved then a.unresolve
         when :resolved   then a.resolve
         when :disputed   then a.dispute
+        else             raise "Missing state in factory"
       end
 
       # Do this after setting the state

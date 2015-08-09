@@ -212,4 +212,80 @@ describe AnnotationsController do
     it_behaves_like "a state change"
   end
 
+  describe "GET #index" do
+
+    it "only gets the issues" do
+      submittor = authenticate
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :index, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:ok)
+      expect(response_json.length).to eq(2)
+    end
+
+    it "returns nothing if the user is not assigned" do
+      user = authenticate
+      submittor = create(:user)
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :index, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:no_content)
+      expect(response_json).to eq([])
+    end
+
+    it "returns nothing if the user is not authenticated" do
+      submittor = create(:user)
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :index, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:no_content)
+      expect(response_json).to eq([])
+    end
+
+  end
+
+  describe "GET #all" do
+
+    it "only gets the issues" do
+      submittor = authenticate
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :all, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:ok)
+      expect(response_json.length).to eq(4)
+    end
+
+    it "returns nothing if the user is not assigned" do
+      user = authenticate
+      submittor = create(:user)
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :all, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:no_content)
+      expect(response_json).to eq([])
+    end
+
+    it "returns nothing if the user is not authenticated" do
+      submittor = create(:user)
+      paper = create(:paper, submittor:submittor)
+      create_list(:response, 2, paper:paper)
+
+      get :all, paper_identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:no_content)
+      expect(response_json).to eq([])
+    end
+
+  end
+
 end

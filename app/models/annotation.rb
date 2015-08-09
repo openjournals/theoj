@@ -62,6 +62,7 @@ class Annotation < ActiveRecord::Base
     FirebaseClient.set firebase_key, AnnotationSerializer.new(base_annotation).as_json
   end
 
+  # Is this a root issue?
   def is_issue?
     parent_id.nil?
   end

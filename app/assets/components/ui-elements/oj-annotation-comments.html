@@ -24,7 +24,7 @@
           </div>
       </template>
 
-      <template if="{{!newCommentVisible && paper.can_annotate}}">
+      <template if="{{!newCommentVisible && paper.can_edit_annotations}}">
           <div layout horizontal>
               <span flex></span>
               <paper-button on-click= {{showNewComment}} icon='reply'>Reply</paper-button>
