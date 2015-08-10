@@ -1,7 +1,6 @@
 
 Theoj::Application.routes.draw do
-
-  scope path:'api', as:'api', format: 'json'do
+  scope path:'api', as:'api', format: 'json' do
 
     resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
 
@@ -58,6 +57,10 @@ Theoj::Application.routes.draw do
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure',            to: 'sessions#failure'
   get "/signout",                 to: "sessions#destroy"
+
+  # Add custom review badge URL for now
+
+  get '/papers/:identifier/status', to: 'papers#state', param: :identifier, identifier: /[^\/]+/
 
   # Make all other routes get the SPA page
   if Rails.env.development?

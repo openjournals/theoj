@@ -1,8 +1,6 @@
 
 class PapersController < ApplicationController
   respond_to :json
-  respond_to :html, :only => [:state]
-  
   before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
