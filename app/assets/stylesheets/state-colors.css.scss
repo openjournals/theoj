@@ -57,8 +57,8 @@ body /deep/ {
 
       @each $state, $fg in $oj-issue-states-fg {
         &.state-#{$state} {
-          stroke: map-get($oj-issue-states-fg, $state);
-          fill:   map-get($oj-issue-states-bg, $state);
+          // stroke: map-get($oj-issue-states-fg, $state);
+          // fill:   map-get($oj-issue-states-bg, $state);
         }
       }
 
@@ -67,7 +67,7 @@ body /deep/ {
   }
 
   oj-annotation {
-    
+
     &::shadow .container {
 
       @each $state, $fg in $oj-issue-states-fg {
