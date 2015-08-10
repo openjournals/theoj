@@ -67,7 +67,7 @@ body /deep/ {
   }
 
   oj-annotation {
-
+    
     &::shadow .container {
 
       @each $state, $fg in $oj-issue-states-fg {
@@ -104,6 +104,7 @@ body /deep/ {
       @each $role, $color in $oj-paper-roles-fg {
         &.role-#{$role} {
           border-top-color: $color;
+          background-color: $color !important;
         }
       }
 

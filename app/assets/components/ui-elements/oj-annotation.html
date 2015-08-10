@@ -68,12 +68,12 @@
           border-bottom: solid 2px white;
       }
       .container-inner {
-          padding: 10px 10px 4px;
-          border-bottom: solid 1px #888;
+          padding: 10px 10px 10px;
           box-sizing: border-box;
-          border-top: 7px solid;
           background-color: #efefef;
-          color: black;
+          color: #7d7d7d;
+          font-weight: 400;
+          min-height: 40px;
       }
       .container-inner.expanded {
           padding-bottom: 6px;
@@ -90,6 +90,8 @@
       .issue {
         cursor: pointer;
         font-size: 0.9em;
+        height: 25px;
+        padding: 10px 5px 5px 5px;
       }
 
       .collapsed .header {
@@ -97,7 +99,7 @@
       }
 
       .collapsed .issue {
-          height: 1.5em;
+          height: 25px;
       }
       .collapsed .issue::shadow #renderedContent {
           white-space: nowrap;
@@ -148,11 +150,10 @@
           bottom: -26px;
           right:  154px;
           color:  #888;
-          text-transform: lowercase;
+          text-transform: capitalize;
       }
       markdown-text-area::shadow markdown-content::shadow #renderedContent {
           padding: 4px;
-          min-height: 40px;
       }
 
     </style>
