@@ -3,7 +3,7 @@
 
       <template if="{{paper.current_role=='editor'}}">
           <paper-button id=start-review hidden?="{{paper.state!='submitted'}}" disabled?="{{ paper.assigned_users | hasNoReviewers }}" on-tap="{{startReviewClick}}" >
-              <core-icon icon=delete></core-icon>
+              <core-icon icon=arrow-forward></core-icon>
               Start Review
           </paper-button>
           <div flex></div>
@@ -16,7 +16,7 @@
               Reject
           </paper-button>
           <paper-button id=delete hidden?="{{paper.state!='submitted'}}" on-tap="{{deleteClick}}" >
-              <core-icon icon=arrow-forward></core-icon>
+              <core-icon icon=delete></core-icon>
               Delete Paper
           </paper-button>
       </template>
