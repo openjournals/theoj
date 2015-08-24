@@ -42,7 +42,11 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    if !defined?(@current_user) && session[:user_id] && session[:user_sha]
+      user = User.find(session[:user_id])
+      @current_user = user.sha == session[:user_sha] ? user : nil
+    end
+    @current_user
   end
   helper_method :current_user
 
