@@ -5,18 +5,21 @@ class SessionsController < ApplicationController
   end
 
   def create
+    logger.debug("#create")
     user = User.from_omniauth(env["omniauth.auth"])
 
     #FIXME this needs to go in a worker (or better still, come back in the OAuth hash...)
     name = orcid_name_for(user.uid)
     user.update_attributes(:name => name)
 
-    session[:user_id] = user.id
+    session[:user_id]  = user.id
+    session[:user_sha] = user.sha
     redirect_to root_url, :notice => "Signed in!"
   end
   
   def destroy
-    session[:user_id] = nil
+    session[:user_id]  = nil
+    session[:user_sha] = nil
     redirect_to root_url, :notice => "Signed out!"
   end
 
