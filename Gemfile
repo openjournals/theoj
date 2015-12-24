@@ -35,7 +35,8 @@ gem 'emcee', github: 'openjournals/emcee'
 gem 'rack-streaming-proxy'
 
 gem 'rails_12factor', group: :production
-gem 'arxiv', github:'marcrohloff/arxiv', branch:'cleanup'
+
+gem 'arxiv', :git => "git://github.com/marcrohloff/arxiv.git", :branch => "cleanup"
 gem 'responders'
 
 group :doc do
@@ -45,8 +46,8 @@ end
 
 # Auth/Users
 gem 'omniauth', '~> 1.2'
-gem 'omniauth-orcid' , github:'gthorisson/omniauth-orcid'
 
+gem 'omniauth-orcid', :git => "git://github.com/gthorisson/omniauth-orcid.git"
 gem 'aasm'
 gem 'cancancan', '~> 1.8'
 
