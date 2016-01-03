@@ -4,7 +4,7 @@
       <template if="{{paper.current_role=='editor'}}">
           <paper-button id=start-review hidden?="{{paper.state!='submitted'}}" disabled?="{{ paper.assigned_users | hasNoReviewers }}" on-tap="{{startReviewClick}}" >
               <core-icon icon=arrow-forward></core-icon>
-              Start Review
+              Reviewer Selection Complete
           </paper-button>
           <div flex></div>
           <paper-button id=accept hidden?="{{paper.state!='review_completed'}}" on-tap="{{acceptClick}}" >
@@ -32,7 +32,7 @@
       <template if="{{ paper.current_role=='reviewer'}}">
           <paper-button id=mark-review-complete hidden?="{{paper.state!='under_review' || paper.current_assignment.completed}}" on-tap="{{markReviewCompleteClick}}" >
               <core-icon icon=check></core-icon>
-              Completed Review
+              Make Publication Recommendation
           </paper-button>
           <div flex></div>
           <paper-button id=make-name-public hidden?="{{true || paper.state=='superceded' || paper.current_assignment.public}}" on-tap="{{makePublicClick}}" >
