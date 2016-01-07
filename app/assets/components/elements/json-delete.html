@@ -1,9 +1,18 @@
-<polymer-element name=json-delete extends=json-req>
-
-    <script>
-        Polymer({
-            method: 'delete'
-        });
-    </script>
-
-</polymer-element>
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="json-delete">
+  <script>
+    Polymer({
+      is: 'json-delete',
+      properties: {
+        method: {
+          type: String,
+          value: 'delete'
+        }
+      },
+      extends: 'json-req'
+    });
+  </script>
+</dom-module>

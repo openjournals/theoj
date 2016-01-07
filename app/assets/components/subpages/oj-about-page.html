@@ -1,6 +1,24 @@
-<polymer-element name="oj-about-page">
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-about-page">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+  </style>
+  <style>
+    </style>
   <template>
-      <section layout vertical class="boiler-plate">
+      <section layout="" vertical="" class="boiler-plate">
 
           <h1>Welcome to the Open Journal</h1>
           <p>
@@ -45,7 +63,7 @@
           <div class="answer">
             <p>
               <strong>Editorial Board</strong>
-              <ul>
+              </p><ul>
                 <li><a href="http://www.sussex.ac.uk/profiles/533">Peter Coles</a> (Editor in Chief)</li>
                 <li><a href="http://freelanceastro.com/about">Adam Becker</a> (Managing Editor)</li>
                 <li><a href="https://www2.physics.ox.ac.uk/contacts/people/lintott">Chris Lintott</a> (Editor)</li>
@@ -66,7 +84,7 @@
                 <li><a href="https://github.com/marcrohloff">Marc Rohloff</a> (Developer)</li>
                 <li><a href="https://twitter.com/orbitingfrog">Rob Simpson</a> (Developer)</li>
               </ul>
-            </p>
+            <p></p>
           </div>
 
 
@@ -102,12 +120,8 @@
 
     </section>
 
-    <style>
-    </style>
-
   </template>
-
   <script>
-    Polymer({})
+    Polymer({ is: 'oj-about-page' });
   </script>
-</polymer-element>
+</dom-module>

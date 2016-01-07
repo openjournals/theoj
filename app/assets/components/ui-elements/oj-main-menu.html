@@ -1,47 +1,5 @@
-<polymer-element name="oj-main-menu" attributes="currentUser" >
-    <template>
-
-        <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
-
-            <core-item id='recent' icon="home" label="Recent Papers">
-                <a is='pushstate-anchor' href="/" target="_self"></a>
-            </core-item>
-
-            <template if={{currentUser}}>
-
-                <core-item id='submitted' icon="receipt" label="Papers You Submitted">
-                    <a is='pushstate-anchor' href="/submitted" target="_self"></a>
-                </core-item>
-
-                <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing">
-                    <a is='pushstate-anchor' href="/review" target="_self"></a>
-                </core-item>
-
-                <template if={{currentUser.editor}}>
-
-                    <core-item id=editing icon="speaker-notes" label="Papers You Are Editing">
-                        <a is='pushstate-anchor' href="/editing" target="_self"></a>
-                    </core-item>
-
-                </template>
-
-                <core-item id='submit' icon="send" label="Submit">
-                    <a is='pushstate-anchor' href="/submit" target="_self"></a>
-                </core-item>
-
-                <core-item id=settings icon="settings" label="Settings">
-                    <a is='pushstate-anchor' href="/settings" target="_self"></a>
-                </core-item>
-
-            </template>
-
-            <core-item id='about' icon="info-outline" label="About">
-                <a is='pushstate-anchor' href="/about" target="_self"></a>
-            </core-item>
-
-        </core-menu>
-
-        <style>
+<dom-module id="oj-main-menu">
+  <style>
 
             :host {
                 background-color: white;
@@ -56,48 +14,82 @@
             }
 
         </style>
+  <template>
+
+        <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" valueattr="id" class="main-menu">
+
+            <paper-item id="recent" undefined="Recent Papers">
+                <a is="pushstate-anchor" href="/" target="_self"></a>
+            </paper-item>
+
+            <template is="dom-if" if="{{currentUser}}">
+
+                <paper-item id="submitted" undefined="Papers You Submitted">
+                    <a is="pushstate-anchor" href="/submitted" target="_self"></a>
+                </paper-item>
+
+                <paper-item id="review" undefined="Papers You Are Reviewing">
+                    <a is="pushstate-anchor" href="/review" target="_self"></a>
+                </paper-item>
+
+                <template is="dom-if" if="{{currentUser.editor}}">
+
+                    <paper-item id="editing" undefined="Papers You Are Editing">
+                        <a is="pushstate-anchor" href="/editing" target="_self"></a>
+                    </paper-item>
+
+                </template>
+
+                <paper-item id="submit" undefined="Submit">
+                    <a is="pushstate-anchor" href="/submit" target="_self"></a>
+                </paper-item>
+
+                <paper-item id="settings" undefined="Settings">
+                    <a is="pushstate-anchor" href="/settings" target="_self"></a>
+                </paper-item>
+
+            </template>
+
+            <paper-item id="about" undefined="About">
+                <a is="pushstate-anchor" href="/about" target="_self"></a>
+            </paper-item>
+
+        </paper-menu>
 
     </template>
-
-    <script>
+  <script>
     Polymer({
-
-        // External API
-
-        routeChanged: function(detail) {
-            var section;
-
-            if ($.isPlainObject(detail) ) {
-                section = detail.instance && detail.instance.getSectionName && detail.instance.getSectionName();
-
-                if (!section)
-                    section = this.sectionFromPath(detail.path);
-
-            } else {
-                section = this.sectionFromPath(detail);
-            }
-
-            // Make sure any other menu tap events are handled first
-            if (section != 'none') {
-                this.async( function() {
-                    this.selectedMenuItem = section || 'recent';
-                });
-            }
-        },
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
-        sectionFromPath: function(path) {
-            if (path=='/')
-                return '';
-            else if (path)
-                return path.split("/")[1] || path;
-            else
-                return undefined;
+      is: 'oj-main-menu',
+      properties: {
+        currentUser: { notify: true },
+        route: { observer: 'routeChanged' }
+      },
+      // External API
+      routeChanged: function (_, detail) {
+        var section;
+        if ($.isPlainObject(detail)) {
+          section = detail.instance && detail.instance.getSectionName && detail.instance.getSectionName();
+          if (!section)
+            section = this.sectionFromPath(detail.path);
+        } else {
+          section = this.sectionFromPath(detail);
         }
-
-    })
+        // Make sure any other menu tap events are handled first
+        if (section != 'none') {
+          this.async(function () {
+            this.selectedMenuItem = section || 'recent';
+          });
+        }
+      },
+      ////////////////////////////////////////////////////////////////////////////////////////////
+      sectionFromPath: function (path) {
+        if (path == '/')
+          return '';
+        else if (path)
+          return path.split('/')[1] || path;
+        else
+          return undefined;
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

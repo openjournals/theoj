@@ -1,9 +1,18 @@
-<polymer-element name=json-put extends=json-req>
-
-    <script>
-        Polymer({
-            method: 'put'
-        });
-    </script>
-
-</polymer-element>
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="json-put">
+  <script>
+    Polymer({
+      is: 'json-put',
+      properties: {
+        method: {
+          type: String,
+          value: 'put'
+        }
+      },
+      extends: 'json-req'
+    });
+  </script>
+</dom-module>

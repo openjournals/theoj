@@ -1,8 +1,5 @@
-<polymer-element name='oj-user-label' attributes='assignment'>
-
-  <template>
-
-    <style>
+<dom-module id="oj-user-label">
+  <style>
 
       :host {
         border-top: 5px solid;
@@ -16,28 +13,32 @@
       }
 
     </style>
+  <template>
   </template>
-
   <script>
     Polymer({
-        assignmentChanged: function() {
-            if (!this.assignment) return;
-
-            $(this).addClass('role-'+this.assignment.role);
-            this.style.backgroundColor = Oj.colors.userColor(this.assignment);
-
-            if (this.assignment.user) {
-                var title = this.assignment.user.name;
-                if (this.assignment.user.email)
-                    title = title + ' [' + this.assignment.email + ']';
-                title = title + ', ' + this.assignment.role;
-                this.title = title;
-
-            } else {
-                this.title = this.assignment.role;
-            }
+      is: 'oj-user-label',
+      properties: {
+        assignment: {
+          notify: true,
+          observer: 'assignmentChanged'
         }
-    })
+      },
+      assignmentChanged: function () {
+        if (!this.assignment)
+          return;
+        $(this).addClass('role-' + this.assignment.role);
+        this.set('style.backgroundColor', Oj.colors.userColor(this.assignment));
+        if (this.assignment.user) {
+          var title = this.assignment.user.name;
+          if (this.assignment.user.email)
+            title = title + ' [' + this.assignment.email + ']';
+          title = title + ', ' + this.assignment.role;
+          this.title = title;
+        } else {
+          this.title = this.assignment.role;
+        }
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

@@ -1,45 +1,24 @@
-<polymer-element name="oj-app"
-                 id="oj-app"
-                 on-notification={{onNotification}}
-                 on-go={{onGo}}
-                 on-go-default={{onGoDefault}}
-                 on-review={{onReview}}>
-  <template>
-
-    <core-header-panel border=true>
-
-        <core-toolbar>
-            <oj-toolbar
-                    currentUser={{currentUser}}
-                    narrow={{narrow}}
-                    on-toggle-drawer={{toggleDrawer}}
-                    ></oj-toolbar>
-        </core-toolbar>
-
-        <core-drawer-panel id=drawerPanel
-                           drawerWidth=280px
-                           narrow={{narrow}}>
-
-            <oj-main-menu drawer
-                    id=mainmenu
-                    currentUser={{currentUser}}>
-            </oj-main-menu>
-
-            <core-header-panel main mode=scroll layout vertical>
-                <oj-page-router id=pages
-                                flex layout vertical
-                                on-route-changed={{onRouteChanged}}
-                                currentUser={{currentUser}} >
-                    </oj-page-router>
-            </core-header-panel>
-
-        </core-drawer-panel>
-
-    </core-header-panel>
-
-    <paper-toast id=notification class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
-
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-app">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][flex] {
+      @apply(--layout-flex);
+    }
+  </style>
+  <style>
 
       :host, core-header-panel {
           height: 100%;
@@ -74,53 +53,73 @@
       }
 
     </style>
+  <template>
 
-    <oj-current-user on-user={{onUser}}></oj-current-user>
+    <paper-header-panel border="true">
+
+        <paper-toolbar>
+            <oj-toolbar currentuser="{{currentUser}}" narrow="{{narrow}}" on-toggle-drawer="toggleDrawer"></oj-toolbar>
+        </paper-toolbar>
+
+        <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
+
+            <oj-main-menu drawer="" id="mainmenu" currentuser="{{currentUser}}">
+            </oj-main-menu>
+
+            <paper-header-panel main="" mode="scroll" layout="" vertical="">
+                <oj-page-router id="pages" flex="" layout="" vertical="" on-route-changed="onRouteChanged" currentuser="{{currentUser}}">
+                    </oj-page-router>
+            </paper-header-panel>
+
+        </paper-drawer-panel>
+
+    </paper-header-panel>
+
+    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
+
+    <oj-current-user on-user="onUser"></oj-current-user>
 
   </template>
-
   <script>
     Polymer({
-
-      onNotification: function(event, text) {
-          this.showNotification(text);
+      is: 'oj-app',
+      properties: { onRoute: { observer: 'onRouteChanged' } },
+      onNotification: function (event, text) {
+        this.showNotification(text);
       },
-
-      onGo: function(event, url) {
-          this.$.pages.go(url);
+      onGo: function (event, url) {
+        this.$.pages.go(url);
       },
-
-      onGoDefault: function(event) {
-          this.$.pages.gotoDefault();
+      onGoDefault: function (event) {
+        this.$.pages.gotoDefault();
       },
-
-      onReview: function(event, paper_or_id) {
-          var id = paper_or_id.typed_provider_id || paper_or_id;
-          var url = '/review/' + id;
-          this.$.pages.go(url);
+      onReview: function (event, paper_or_id) {
+        var id = paper_or_id.typed_provider_id || paper_or_id;
+        var url = '/review/' + id;
+        this.$.pages.go(url);
       },
-
-      onUser: function(event, user) {
-          this.currentUser = user && user.name ? user : null;
-          this.$.pages.init();
+      onUser: function (event, user) {
+        this.currentUser = user && user.name ? user : null;
+        this.$.pages.init();
       },
-
-      onRouteChanged: function(event, detail) {
-          var $menu = this.shadowRoot.querySelector('#mainmenu');
-          $menu.routeChanged(detail);
+      onRouteChanged: function (detail, event) {
+        var $menu = Polymer.dom(this.shadowRoot).querySelector('#mainmenu');
+        $menu.routeChanged(detail);
       },
-
-      showNotification: function(text) {
-          console.info('Notification: ', text);
-          this.$.notification.text = text;
-          this.$.notification.show();
+      showNotification: function (text) {
+        console.info('Notification: ', text);
+        this.set('$.notification.text', text);
+        this.$.notification.show();
       },
-
-      toggleDrawer: function() {
-          this.$.drawerPanel.togglePanel();
+      toggleDrawer: function () {
+        this.$.drawerPanel.togglePanel();
+      },
+      listeners: {
+        notification: 'onNotification',
+        go: 'onGo',
+        go-default: 'onGoDefault',
+        review: 'onReview'
       }
-
     });
   </script>
-
-</polymer-element>
+</dom-module>

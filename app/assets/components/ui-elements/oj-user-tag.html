@@ -1,24 +1,5 @@
-<polymer-element name='oj-user-tag' attributes='assignment removable showCompleted showColor tagColor' >
-
-  <template>
-      <template if="{{showCompleted && assignment.role=='reviewer' && assignment.user}}">
-          <core-icon icon="{{assignment | getCompletionIcon }}"
-                     title="{{assignment | getCompletionTip }}"
-                  ></core-icon>
-      </template>
-      <span class=name>
-          <template if={{assignment.user}}>
-              {{assignment.role|capitalize}}: {{assignment.user.name}}
-          </template>
-          <template if={{assignment.text}}>
-              {{assignment.text}}
-          </template>
-      </span>
-
-      <template if="{{removable && assignment.role=='reviewer' && assignment.user}}"><a class='remover' href='#' on-click={{remove}} >&times</a></template>
-      <!-- <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template> -->
-
-    <style>
+<dom-module id="oj-user-tag">
+  <style>
 
       :host {
         display: inline-block;
@@ -58,48 +39,84 @@
       }
 
     </style>
-  </template>
+  <template>
+      <template is="dom-if" if="{{_computeIf(assignment, showCompleted)}}">
+          <iron-icon icon="{{getCompletionIcon (assignment)}}" title="{{getCompletionTip (assignment)}}"></iron-icon>
+      </template>
+      <span class="name">
+          <template is="dom-if" if="{{assignment.user}}">
+              <span>{{_computeExpression1(assignment, capitalize)}}</span>: <span>{{assignment.user.name}}</span>
+          </template>
+          <template is="dom-if" if="{{assignment.text}}">
+              <span>{{assignment.text}}</span>
+          </template>
+      </span>
 
+      <template is="dom-if" if="{{_computeIf2(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
+      <!-- <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template> -->
+  </template>
   <script>
     Polymer({
-
-      removable:false,
-
-      assignmentChanged: function() {
-        if (this.assignment ) {
-            if (!this.assignment.user && !this.assignment.text)
-                this.setAttribute('hidden', '');
-            else
-                this.removeAttribute('hidden');
-
-            this.className = this.className + ' role-'+this.assignment.role;
-            if (this.assignment.user && this.assignment.user.email)
-                this.title = this.assignment.user.email;
+      is: 'oj-user-tag',
+      properties: {
+        assignment: {
+          notify: true,
+          observer: 'assignmentChanged'
+        },
+        removable: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        showColor: { notify: true },
+        showCompleted: { notify: true },
+        tagColor: { notify: true }
+      },
+      assignmentChanged: function () {
+        if (this.assignment) {
+          if (!this.assignment.user && !this.assignment.text)
+            Polymer.dom(this).setAttribute('hidden', '');
+          else
+            Polymer.dom(this).removeAttribute('hidden');
+          this.className = this.className + ' role-' + this.assignment.role;
+          if (this.assignment.user && this.assignment.user.email)
+            this.title = this.assignment.user.email;
         }
       },
-
-      getCompletionIcon: function(assignment) {
-          switch (assignment.reviewer_accept) {
-              case true:  return 'done';
-              case false: return 'clear';
-              default:    return '';
-          }
+      getCompletionIcon: function (assignment) {
+        switch (assignment.reviewer_accept) {
+        case true:
+          return 'done';
+        case false:
+          return 'clear';
+        default:
+          return '';
+        }
       },
-      getCompletionTip: function(assignment) {
-          switch (assignment.reviewer_accept) {
-              case true:  return 'Recommended Acceptance';
-              case false: return 'Recommended Rejection';
-              default:    return 'Review Not Complete';
-          }
+      getCompletionTip: function (assignment) {
+        switch (assignment.reviewer_accept) {
+        case true:
+          return 'Recommended Acceptance';
+        case false:
+          return 'Recommended Rejection';
+        default:
+          return 'Review Not Complete';
+        }
       },
-
-      remove: function(event){
+      remove: function (event) {
         event.preventDefault();
-          if (this.removable)
-            this.fire("remove-user", this.assignment)
+        if (this.removable)
+          this.fire('remove-user', this.assignment);
+      },
+      _computeIf: function (assignment, showCompleted) {
+        return showCompleted && assignment.role == 'reviewer' && assignment.user;
+      },
+      _computeIf2: function (assignment, removable) {
+        return removable && assignment.role == 'reviewer' && assignment.user;
+      },
+      _computeExpression1: function (assignment, capitalize) {
+        return assignment.role | capitalize;
       }
-
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

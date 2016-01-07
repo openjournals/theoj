@@ -1,23 +1,5 @@
-<polymer-element name="markdown-text-area" attributes='value placeholder'>
-
-  <template>
-    <div id='content_wrapper'>
-
-      <template if={{previewVisible}}>
-          <markdown-content markdown={{value}}></markdown-content>
-          <a href='#' class=toggle on-click="{{hidePreview}}">Show content</a>
-      </template>
-
-      <div hidden?={{previewVisible}}>
-        <paper-autogrow-textarea id=autogrow rows=3 maxRows=12>
-          <textarea class='niceTextArea' placeholder={{placeholder}} id=input value={{value}}></textarea>
-        </paper-autogrow-textarea>
-        <a href='#' class=toggle on-click="{{showPreview}}">Show Preview</a>
-      </div>
-
-    </div>
-
-    <style>
+<dom-module id="markdown-text-area">
+  <style>
       #content_wrapper{
           width:100%;
           box-sizing: border-box;
@@ -56,35 +38,59 @@
         text-decoration: underline;
       }
     </style>
+  <template>
+    <div id="content_wrapper">
+
+      <template is="dom-if" if="{{previewVisible}}">
+          <markdown-content markdown="{{value}}"></markdown-content>
+          <a href="#" class="toggle" on-click="hidePreview">Show content</a>
+      </template>
+
+      <div hidden$="{{previewVisible}}">
+        <paper-autogrow-textarea id="autogrow" rows="3" maxrows="12">
+          <textarea class="niceTextArea" placeholder="{{placeholder}}" id="input" value="{{value::input}}"></textarea>
+        </paper-autogrow-textarea>
+        <a href="#" class="toggle" on-click="showPreview">Show Preview</a>
+      </div>
+
+    </div>
 
   </template>
-
   <script>
     Polymer({
-      previewVisible:false,
-      domReady: function() {
-        this.$.autogrow.update( this.$.input );
+      is: 'markdown-text-area',
+      properties: {
+        placeholder: { notify: true },
+        previewVisible: {
+          type: Boolean,
+          value: false
+        },
+        value: { notify: true }
       },
-      showPreview: function(event){
+      showPreview: function (event) {
         event.preventDefault();
         this.previewVisible = true;
       },
-      hidePreview: function(event){
+      hidePreview: function (event) {
         event.preventDefault();
         this.previewVisible = false;
-        this.async(  function() { this.$.autogrow.update( this.$.input ); } );
+        this.async(function () {
+          this.$.autogrow.update(this.$.input);
+        });
       },
-      focus: function() {
-          var textarea = this.shadowRoot.querySelector('#input');
-          if (textarea)
-              textarea.focus();
+      focus: function () {
+        var textarea = Polymer.dom(this.shadowRoot).querySelector('#input');
+        if (textarea)
+          textarea.focus();
       },
-      select: function() {
-          var textarea = this.shadowRoot.querySelector('#input');
-          if (textarea)
-              textarea.select();
+      select: function () {
+        var textarea = Polymer.dom(this.shadowRoot).querySelector('#input');
+        if (textarea)
+          textarea.select();
+      },
+      ready: function () {
+        this.$.autogrow.update(this.$.input);
       }
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

@@ -1,9 +1,18 @@
-<polymer-element name=json-get extends=json-req>
-
-    <script>
-        Polymer({
-            method: 'get'
-        });
-    </script>
-
-</polymer-element>
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="json-get">
+  <script>
+    Polymer({
+      is: 'json-get',
+      properties: {
+        method: {
+          type: String,
+          value: 'get'
+        }
+      },
+      extends: 'json-req'
+    });
+  </script>
+</dom-module>

@@ -1,49 +1,46 @@
-<polymer-element name='oj-papers-page' attributes='src header' fit>
-  <template>
-      
-    <div id=scroller layout vertical>
-
-      <div id=top layout horizontal>
-          <h1 flex>{{header}}</h1>
-          <paper-dropdown-menu on-core-select={{changeSortOrder}} label="Submitted Date">
-              <paper-dropdown class="dropdown">
-                  <core-menu class="menu" selected=3>
-                      <paper-item key=title>Sort By Article Title</paper-item>
-                      <paper-item key=author.name>Sort By Author</paper-item>
-                      <paper-item key=state>Sort By State</paper-item>
-                      <paper-item key=submitted_at desc>Sort By Submitted Date</paper-item>
-                  </core-menu>
-              </paper-dropdown>
-          </paper-dropdown-menu>
-      </div>
-
-      <div id=list layout vertical flex>
-
-          <template if="{{papers && papers.length>0}}">
-              <core-list scrollTarget={{$.scroller}}
-                         on-core-activate={{selectPaper}}
-                         data="{{papers | filtered(sortKey, sortDesc) }}" >
-
-                  <template>
-                      <div class='item {{ {selected: selected} | tokenList }}'>
-                          <oj-paper-row paper={{model}}></oj-paper-row>
-                      </div>
-                  </template>
-
-              </core-list>
-          </template>
-
-          <template if="{{papers && papers.length==0}}">
-              <div id=empty>
-                  There are no papers to view.
-              </div>
-          </template>
-
-      </div>
-
-    </div>
-
-    <style>
+  <style is="custom-style">
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-papers-page">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    :host[fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [layout][flex] {
+      @apply(--layout-flex);
+    }
+  </style>
+  <style>
 
         #top {
             background: #eee;
@@ -96,50 +93,114 @@
         }
 
     </style>
+  <template>
+      
+    <div id="scroller" layout="" vertical="">
 
-    <core-ajax auto url={{src}} handleAs="json" response={{papers}}></core-ajax>
+      <div id="top" layout="" horizontal="">
+          <h1 flex="">{{header}}</h1>
+          <paper-dropdown-menu on-core-select="changeSortOrder" label="Submitted Date">
+              <iron-dropdown class="dropdown">
+                  <paper-menu class="menu" selected="3">
+                      <paper-item key="title">Sort By Article Title</paper-item>
+                      <paper-item key="author.name">Sort By Author</paper-item>
+                      <paper-item key="state">Sort By State</paper-item>
+                      <paper-item key="submitted_at" desc="">Sort By Submitted Date</paper-item>
+                  </paper-menu>
+              </iron-dropdown>
+          </paper-dropdown-menu>
+      </div>
+
+      <div id="list" layout="" vertical="" flex="">
+
+          <template is="dom-if" if="{{_computeIf(papers)}}">
+              <iron-list scrolltarget="{{$.scroller}}" on-core-activate="selectPaper" data="{{filtered(papers, sortKey, sortDesc)}}">
+
+                  <template>
+                      <div class$="{{_computeClass(selected)}}">
+                          <oj-paper-row paper="{{model}}"></oj-paper-row>
+                      </div>
+                  </template>
+
+              </iron-list>
+          </template>
+
+          <template is="dom-if" if="{{_computeIf2(papers)}}">
+              <div id="empty">
+                  There are no papers to view.
+              </div>
+          </template>
+
+      </div>
+
+    </div>
+
+    <iron-ajax auto="" url="{{src}}" handle-as="json" last-response="{{papers}}"></iron-ajax>
 
   </template>
-
   <script>
     Polymer({
-
-        sortKey:  'submitted_at',
-        sortDesc: true,
-
-        changeSortOrder: function(event, detail) {
-            this.sortKey  = detail.item.getAttribute('key');
-            this.sortDesc = detail.item.hasAttribute('desc');
+      is: 'oj-papers-page',
+      properties: {
+        header: { notify: true },
+        sortDesc: {
+          type: Boolean,
+          value: true
         },
-
-        selectPaper: function(e, detail){
-            this.fire('review', detail.data);
+        sortKey: {
+          type: String,
+          value: 'submitted_at'
         },
-
-        filtered: function(array, key, desc) {
-            if (!array)
-                return array;
-
-            var keys = key.split('.');
-            var sortFunction = function(a, b) {
-                var x = a;
-                keys.forEach( function(key) { x = x && x[key] } );
-                var y = b;
-                keys.forEach( function(key) { y = y && y[key] } );
-
-                if (typeof x == "string"){
-                    x = x.toLowerCase();
-                    y = y.toLowerCase();
-                }
-
-                var order = ((x < y) ? -1 : ((x > y) ? 1 : 0));
-                return desc ? -order : order;
-            };
-
-            return array.sort(sortFunction);
+        src: { notify: true }
+      },
+      changeSortOrder: function (event, detail) {
+        this.sortKey = detail.item.getAttribute('key');
+        this.sortDesc = detail.item.hasAttribute('desc');
+      },
+      selectPaper: function (e, detail) {
+        this.fire('review', detail.data);
+      },
+      filtered: function (array, key, desc) {
+        if (!array)
+          return array;
+        var keys = key.split('.');
+        var sortFunction = function (a, b) {
+          var x = a;
+          keys.forEach(function (key) {
+            x = x && x[key];
+          });
+          var y = b;
+          keys.forEach(function (key) {
+            y = y && y[key];
+          });
+          if (typeof x == 'string') {
+            x = x.toLowerCase();
+            y = y.toLowerCase();
+          }
+          var order = x < y ? -1 : x > y ? 1 : 0;
+          return desc ? -order : order;
+        };
+        return array.sort(sortFunction);
+      },
+      hostAttributes: { 'fit': '' },
+      _computeIf: function (papers) {
+        return papers && papers.length > 0;
+      },
+      _computeIf2: function (papers) {
+        return papers && papers.length == 0;
+      },
+      _computeClass: function (selected) {
+        return 'item ' + this.tokenList({ selected: selected });
+      },
+      tokenList: function (obj) {
+        var pieces = [];
+        for (var key in obj) {
+          if (obj[key]) {
+            pieces.push(key);
+          }
         }
-
-    })
+        return pieces.join(' ');
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

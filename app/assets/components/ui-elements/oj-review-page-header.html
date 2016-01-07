@@ -1,78 +1,56 @@
-<polymer-element name="oj-review-page-header" attributes='user paper annotations loadProgress' relative layout horizontal>
-  <template>
-
-      <div class=left flex layout vertical>
-          <div class=title-row layout horizontal>
-
-              <div flex class=title>
-                  {{paper.title}}
-                  <template if="{{!show_bottom && paper.state != 'accepted'}}">
-                      <span class=inline-status>&nbsp;({{paper.state | capitalize}})</span>
-                  </template>
-              </div>
-
-              <div self-start>
-                  <paper-dropdown-menu on-core-activate={{versionSelected}}>
-                      <paper-dropdown class=dropdown>
-                          <core-menu id=versionMenu valueAttr=version selected={{paper.typed_provider_id}}>
-                              <template repeat="{{version in paper.versions}}">
-                                  <paper-item version={{version.typed_provider_id}}>{{version.typed_provider_id | providerPart}}</paper-item>
-                              </template>
-                          </core-menu>
-                      </paper-dropdown>
-                  </paper-dropdown-menu>
-              </div>
-
-          </div>
-
-          <div id=assignments-row>
-              <oj-assigned-users-list paper={{paper}}></oj-assigned-users-list>
-          </div>
-
-          <template if={{show_bottom}}>
-              <div id=status-row layout horizontal>
-
-                  <div class=status-block>
-                      <div class=label>Status:</div>
-                      <div class=status>{{paper.state | capitalize}}</div>
-                  </div>
-
-                  <template if="{{ppaper.state != 'submitted' }}">
-                      <div class=count-block>
-                          <div class=count>{{countOpen}}</div>
-                          <div class=label>Open<br/>Issues</div>
-                      </div>
-                  </template>
-
-                  <oj-review-page-actions
-                          flex
-                          user={{user}}
-                          paper={{paper}}
-                          ></oj-review-page-actions>
-
-              </div>
-          </template>
-
-      </div>
-
-      <template if={{paper.can_edit_annotations}}>
-          <div class=right layout vertical self-stretch>
-
-              <div id=add-paper-annotation>
-                  <paper-button raised on-tap="{{addPaperAnnotation}}">
-                      <div class=icon-wrapper><core-icon icon=add></core-icon></div>
-                      <div class=text-wrapper>Add a comment about the entire paper</div>
-                  </paper-button>
-              </div>
-
-          </div>
-      </template>
-
-      <template if={{loadProgress < 100}}>
-          <paper-progress class=progress value="{{loadProgress}}"></paper-progress>
-      </template>
-
-    <style>
+  <style is="custom-style">
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [relative] {
+      position: relative;
+    }
+  </style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-review-page-header">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    :host[layout] {
+      @apply(--layout);
+    }
+    :host[layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    :host[relative] {
+      position: relative;
+    }
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][flex] {
+      @apply(--layout-flex);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [self-start] {
+      @apply(--layout-self-start);
+    }
+    [self-stretch] {
+      @apply(--layout-self-stretch);
+    }
+  </style>
+  <style>
 
         :host {
             box-sizing:    border-box;;
@@ -221,39 +199,125 @@
         }
 
     </style>
+  <template>
+
+      <div class="left" flex="" layout="" vertical="">
+          <div class="title-row" layout="" horizontal="">
+
+              <div flex="" class="title">
+                  <span>{{paper.title}}</span>
+                  <template is="dom-if" if="{{_computeIf(paper, show_bottom)}}">
+                      <span class="inline-status">&nbsp;(<span>{{capitalize(paper.state)}}</span>)</span>
+                  </template>
+              </div>
+
+              <div self-start="">
+                  <paper-dropdown-menu on-core-activate="versionSelected">
+                      <iron-dropdown class="dropdown">
+                          <paper-menu id="versionMenu" valueattr="version" selected="{{paper.typed_provider_id}}">
+                              <template is="dom-repeat" items="{{paper.versions}}" as="version">
+                                  <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
+                              </template>
+                          </paper-menu>
+                      </iron-dropdown>
+                  </paper-dropdown-menu>
+              </div>
+
+          </div>
+
+          <div id="assignments-row">
+              <oj-assigned-users-list paper="{{paper}}"></oj-assigned-users-list>
+          </div>
+
+          <template is="dom-if" if="{{show_bottom}}">
+              <div id="status-row" layout="" horizontal="">
+
+                  <div class="status-block">
+                      <div class="label">Status:</div>
+                      <div class="status">{{capitalize(paper.state)}}</div>
+                  </div>
+
+                  <template is="dom-if" if="{{_computeIf2(ppaper)}}">
+                      <div class="count-block">
+                          <div class="count">{{countOpen}}</div>
+                          <div class="label">Open<br>Issues</div>
+                      </div>
+                  </template>
+
+                  <oj-review-page-actions flex="" user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
+
+              </div>
+          </template>
+
+      </div>
+
+      <template is="dom-if" if="{{paper.can_edit_annotations}}">
+          <div class="right" layout="" vertical="" self-stretch="">
+
+              <div id="add-paper-annotation">
+                  <paper-button raised="" on-tap="addPaperAnnotation">
+                      <div class="icon-wrapper"><iron-icon icon="add"></iron-icon></div>
+                      <div class="text-wrapper">Add a comment about the entire paper</div>
+                  </paper-button>
+              </div>
+
+          </div>
+      </template>
+
+      <template is="dom-if" if="{{loadProgress" <="" 100}}="">
+          <paper-progress class="progress" value="{{loadProgress}}"></paper-progress>
+      </template>
 
   </template>
-
   <script>
     Polymer({
-
-        computed: {
-            show_bottom: "paper.can_view_annotations && paper.state != 'accepted' "
+      is: 'oj-review-page-header',
+      properties: {
+        annotations: {
+          notify: true,
+          observer: 'annotationsChanged'
         },
-
-        annotationsChanged: function(){
-            this.updateCounts();
-        },
-
-        updateCounts: function() {
-            if (!this.annotations)
-                return;
-            this.countNew    = this.annotations.filter(function(annotation){return annotation.new}).length;
-            this.countClosed = this.annotations.filter(function(annotation){return annotation.state=='resolved'}).length;
-            this.countOpen   = this.annotations.length - this.countClosed - this.countNew;
-        },
-
-        versionSelected: function(event, detail) {
-            var id = this.$.versionMenu.selectedModel.version.typed_provider_id;
-            if (id != this.paper.typed_provider_id)
-                this.fire('review', id);
-        },
-
-        addPaperAnnotation: function(event, detail) {
-            this.fire('add-paper-annotation');
-        }
-
-    })
+        loadProgress: { notify: true },
+        paper: { notify: true },
+        show_bottom: { computed: '_computeShow_bottom(paper)' },
+        user: { notify: true }
+      },
+      annotationsChanged: function () {
+        this.updateCounts();
+      },
+      updateCounts: function () {
+        if (!this.annotations)
+          return;
+        this.countNew = this.annotations.filter(function (annotation) {
+          return annotation.new;
+        }).length;
+        this.countClosed = this.annotations.filter(function (annotation) {
+          return annotation.state == 'resolved';
+        }).length;
+        this.countOpen = this.annotations.length - this.countClosed - this.countNew;
+      },
+      versionSelected: function (event, detail) {
+        var id = this.$.versionMenu.selectedModel.version.typed_provider_id;
+        if (id != this.paper.typed_provider_id)
+          this.fire('review', id);
+      },
+      addPaperAnnotation: function (event, detail) {
+        this.fire('add-paper-annotation');
+      },
+      hostAttributes: {
+        'relative': '',
+        'layout': '',
+        'horizontal': ''
+      },
+      _computeIf: function (paper, show_bottom) {
+        return !show_bottom && paper.state != 'accepted';
+      },
+      _computeIf2: function (ppaper) {
+        return ppaper.state != 'submitted';
+      },
+      _computeShow_bottom: function (paper) {
+        return paper.can_view_annotations && paper.state != 'accepted';
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

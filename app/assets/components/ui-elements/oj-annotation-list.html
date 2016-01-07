@@ -1,118 +1,143 @@
-<polymer-element name='oj-annotation-list' attributes="paper annotations firstPageOffset pageHeight pageSpacing">
-  <template>
-    <div layout vertical flex id=list>
-
-      <template repeat="{{annotation in annotations}}">
-        <oj-annotation paper={{paper}}
-                       annotation={{annotation}}
-                       style="{{ {top:annotation.list_top} | styleObject }}"
-                       on-annotation-opened={{annotationOpened}}
-                       on-annotation-closed={{annotationClosed}}
-                       on-annotation-added={{annotationAdded}}
-                ></oj-annotation>
-      </template>
-
-    </div>
-
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-annotation-list">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][flex] {
+      @apply(--layout-flex);
+    }
+  </style>
+  <style>
       :host {
         position: relative;
         box-sizing: border-box;
       }
     </style>
+  <template>
+    <div layout="" vertical="" flex="" id="list">
+
+      <template is="dom-repeat" items="{{annotations}}" as="annotation">
+        <oj-annotation paper="{{paper}}" annotation="{{annotation}}" on-annotation-opened="annotationOpened" on-annotation-closed="annotationClosed" on-annotation-added="annotationAdded" style$="{{_computeStyle(annotation)}}"></oj-annotation>
+      </template>
+
+    </div>
 
   </template>
   <script>
     Polymer({
-      collapsedAnnotationHeight: 42,
-      pageHeight: 0,
-
-      created: function() {
-         this.annotations = [];
+      is: 'oj-annotation-list',
+      properties: {
+        annotations: {
+          notify: true,
+          observer: 'annotationsChanged'
+        },
+        collapsedAnnotationHeight: {
+          type: Number,
+          value: 42
+        },
+        firstPageOffset: { notify: true },
+        pageHeight: {
+          type: Number,
+          value: 0,
+          notify: true,
+          observer: 'pageHeightChanged'
+        },
+        pageSpacing: { notify: true },
+        paper: { notify: true }
       },
-      annotationsChanged: function() {
-        if (!this.annotations) return;
+      created: function () {
+        this.annotations = [];
+      },
+      annotationsChanged: function () {
+        if (!this.annotations)
+          return;
         // Don't work on the original list it kills the browser
         var copy = this.annotations.slice(0);
         this.sortAnnotations(copy);
         this.sorted_annotations = copy;
         this.addLocationToAnnotations();
       },
-      pageHeightChanged: function(oldValue, newValue) {
-
-        if (oldValue==0) {
-            // Do it immediately
-            this.addLocationToAnnotations();
+      pageHeightChanged: function (newValue, oldValue) {
+        if (oldValue == 0) {
+          // Do it immediately
+          this.addLocationToAnnotations();
         } else {
-            // Add a delay since we're reizing inside a mouse drag
-            this.job('update-annotation-list-locations', this.addLocationToAnnotations, 150 );
+          // Add a delay since we're reizing inside a mouse drag
+          this.debounce('update-annotation-list-locations', this.addLocationToAnnotations, 150);
         }
-
       },
-      sortAnnotations: function(unsorted) {
-        return unsorted.sort( function(a, b) {
-            var pa =  (a.page===undefined || a.page==null) ? -1 : a.page;
-            var pb =  (b.page===undefined || b.page==null) ? -1 : b.page;
-            if (pa !== pb) return pa - pb;
-
-            if (a.yStart !== b.yStart)
-              return a.yStart - b.yStart;
-            if (a.xStart !== b.xStart)
-              return a.xStart - b.xStart;
-
-            return a.id - b.id;
+      sortAnnotations: function (unsorted) {
+        return unsorted.sort(function (a, b) {
+          var pa = a.page === undefined || a.page == null ? -1 : a.page;
+          var pb = b.page === undefined || b.page == null ? -1 : b.page;
+          if (pa !== pb)
+            return pa - pb;
+          if (a.yStart !== b.yStart)
+            return a.yStart - b.yStart;
+          if (a.xStart !== b.xStart)
+            return a.xStart - b.xStart;
+          return a.id - b.id;
         });
       },
-      addLocationToAnnotations: function() {
-          var annotations = this.sorted_annotations;
-          var last = 0;
-          for (var i=0; i < annotations.length; i++) {
-              var a = annotations[i];
-              var top = this.topForAnnotation(a);
-
-              if (!a.new) {
-                  if (top < last) top = last;
-                  last = top + this.collapsedAnnotationHeight;
-              }
-
-              a.list_top = top + 'px';
+      addLocationToAnnotations: function () {
+        var annotations = this.sorted_annotations;
+        var last = 0;
+        for (var i = 0; i < annotations.length; i++) {
+          var a = annotations[i];
+          var top = this.topForAnnotation(a);
+          if (!a.new) {
+            if (top < last)
+              top = last;
+            last = top + this.collapsedAnnotationHeight;
           }
-      },
-      topForAnnotation: function(annotation){
-        var page_no = annotation.page;
-        if (page_no===undefined || page_no===null) {
-            return 0;
-
-        } else {
-            var y = annotation.yStart;
-            var t = this.firstPageOffset +
-                    this.pageHeight * page_no +
-                    this.pageHeight * y +
-                    this.pageSpacing * (page_no-1);
-            return Math.max(t,0);
+          a.list_top = top + 'px';
         }
       },
-      annotationOpened: function(event, element) {
+      topForAnnotation: function (annotation) {
+        var page_no = annotation.page;
+        if (page_no === undefined || page_no === null) {
+          return 0;
+        } else {
+          var y = annotation.yStart;
+          var t = this.firstPageOffset + this.pageHeight * page_no + this.pageHeight * y + this.pageSpacing * (page_no - 1);
+          return Math.max(t, 0);
+        }
+      },
+      annotationOpened: function (event, element) {
         this.collapseAnnotations(element);
       },
-      annotationClosed: function(event, element) {
+      annotationClosed: function (event, element) {
         if (element.annotation.new) {
-            var index = this.annotations.indexOf(element.annotation);
-            if (index >= 0)
-                this.annotations.splice(index, 1);
+          var index = this.annotations.indexOf(element.annotation);
+          if (index >= 0)
+            this.annotations.splice(index, 1);
         }
       },
-      annotationAdded: function(event, annotation) {
-          var last = this.annotations.length-1;
-          this.annotations[last] = annotation;
+      annotationAdded: function (event, annotation) {
+        var last = this.annotations.length - 1;
+        this.set('annotations' + ('.' + last), annotation);
       },
-      collapseAnnotations: function(exclude) {
-          var annotations = this.$.list.querySelectorAll('oj-annotation');
-          [].forEach.call( annotations, function(annotation) {
-             if (annotation != exclude)
-                annotation.close();
-          });
+      collapseAnnotations: function (exclude) {
+        var annotations = Polymer.dom(this.$.list).querySelectorAll('oj-annotation');
+        [].forEach.call(annotations, function (annotation) {
+          if (annotation != exclude)
+            annotation.close();
+        });
+      },
+      _computeStyle: function (annotation) {
+        return this.styleObject({ top: annotation.list_top });
       }
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

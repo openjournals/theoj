@@ -1,59 +1,46 @@
-<polymer-element name='oj-paper-preview' attributes='user paper_id' fit layout horizontal>
-  <template>
-
-    <template if="{{paper_details && !paper_details.is_existing}}">
-
-        <template if={{hidePDF}}>
-          <div flex id=preview>
-            <iframe src="{{paper_details | googlePreviewPath}}"  frameborder="0"></iframe>
-          </div>
-        </template>
-
-        <div id="details">
-
-          <div id=preview-text>Preview</div>
-          <paper-button raised role='button' on-tap={{submitForReview}}>Submit for review</paper-button>
-
-          <div id=title>{{paper_details.title}}</div>
-
-          <template if="{{paper_details.authors | isArray}}">
-              <ul id=authors>
-                <template repeat="{{author in paper_details.authors}}">
-                    <li>{{author.name}}</li>
-                </template>
-              </ul>
-          </template>
-
-          <template if="{{paper_details.authors | isNotArray}}">
-            <div id=authors>{{paper_details.authors}}</div>
-          </template>
-
-          <div id=summary>{{paper_details.summary}}</div>
-          <paper-button raised role='button' on-tap={{submitForReview}}>Submit for review</paper-button>
-
-        </div>
-    </template>
-
-    <template if={{$.detailsRequest.loading}}>
-      <paper-spinner active></paper-spinner>
-    </template>
-
-    <json-post id=postRequest
-               on-success={{onPostRepsonse}}
-               on-error={{onPostError}}>
-    </json-post>
-
-    <json-get  id=detailsRequest
-               auto=true
-               url="{{paper_id | previewPath}}"
-               result={{paper_details}}
-               on-success={{onDetailsResponse}}
-               on-error={{onDetailsError}}
-    ></json-get>
-
-    <core-media-query query="min-width: 600px" queryMatches="{{hidePDF}}"></core-media-query>
-
-    <style>
+  <style is="custom-style">
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-paper-preview">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    :host[layout] {
+      @apply(--layout);
+    }
+    :host[layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    :host[fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <style>
 
       #preview {
           height: 100%;
@@ -113,53 +100,103 @@
       }
 
     </style>
+  <template>
+
+    <template is="dom-if" if="{{_computeIf(paper_details)}}">
+
+        <template is="dom-if" if="{{hidePDF}}">
+          <div flex="" id="preview">
+            <iframe src="{{googlePreviewPath(paper_details)}}" frameborder="0"></iframe>
+          </div>
+        </template>
+
+        <div id="details">
+
+          <div id="preview-text">Preview</div>
+          <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
+
+          <div id="title">{{paper_details.title}}</div>
+
+          <template is="dom-if" if="{{isArray(paper_details.authors)}}">
+              <ul id="authors">
+                <template is="dom-repeat" items="{{paper_details.authors}}" as="author">
+                    <li>{{author.name}}</li>
+                </template>
+              </ul>
+          </template>
+
+          <template is="dom-if" if="{{isNotArray(paper_details.authors)}}">
+            <div id="authors">{{paper_details.authors}}</div>
+          </template>
+
+          <div id="summary">{{paper_details.summary}}</div>
+          <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
+
+        </div>
+    </template>
+
+    <template is="dom-if" if="{{$.detailsRequest.loading}}">
+      <paper-spinner active=""></paper-spinner>
+    </template>
+
+    <json-post id="postRequest" on-success="onPostRepsonse" on-error="onPostError">
+    </json-post>
+
+    <json-get id="detailsRequest" auto="true" url="{{previewPath(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></json-get>
+
+    <iron-media-query query="min-width: 600px" query-matches="{{hidePDF}}"></iron-media-query>
 
   </template>
-
   <script>
     Polymer({
-
-      onDetailsResponse: function(event) {
-          if (this.paper_details.is_existing) {
-              event.preventDefault();
-              this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
-
-              if (this.paper_details.is_self_owned)
-                  this.fire('review', this.paper_details);
-              else
-                  this.fire('go', "/submit");
-          }
+      is: 'oj-paper-preview',
+      properties: {
+        paper_id: { notify: true },
+        user: { notify: true }
       },
-      onDetailsError: function(event, detail) {
-          detail = JSON.parse(detail);
-          if (detail.code == 404)
-              var message = 'The paper could not be found. Please try again.';
+      onDetailsResponse: function (event) {
+        if (this.paper_details.is_existing) {
+          event.preventDefault();
+          this.fire('notification', 'Paper ' + this.paper_details.title + ' already exists.');
+          if (this.paper_details.is_self_owned)
+            this.fire('review', this.paper_details);
           else
-              var message = 'There was an error retrieving the paper: ' + (detail.text||detail.error) + ' (' + detail.code + ')';
-
-          this.fire("notification", message);
-          this.fire('go', "/submit");
+            this.fire('go', '/submit');
+        }
       },
-      submitForReview:function(event) {
-          this.$.postRequest.url = Oj.urls.paperPath(this.paper_details);
-          this.$.postRequest.go()
-      },
-      onPostRepsonse:function(response){
-          this.fire("notification", "Paper "+this.paper_details.title+" submitted");
-          this.fire('go', "/submitted")
-      },
-      onPostError: function(event) {
-        var xhr = event.detail.xhr;
-
-        if (xhr.status == 409)
-            var message = 'The paper already exists in the database.';
+      onDetailsError: function (event, detail) {
+        detail = JSON.parse(detail);
+        if (detail.code == 404)
+          var message = 'The paper could not be found. Please try again.';
         else
-            var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
-
-        this.fire("notification", message);
+          var message = 'There was an error retrieving the paper: ' + (detail.text || detail.error) + ' (' + detail.code + ')';
+        this.fire('notification', message);
+        this.fire('go', '/submit');
+      },
+      submitForReview: function (event) {
+        this.set('$.postRequest.url', Oj.urls.paperPath(this.paper_details));
+        this.$.postRequest.go();
+      },
+      onPostRepsonse: function (response) {
+        this.fire('notification', 'Paper ' + this.paper_details.title + ' submitted');
+        this.fire('go', '/submitted');
+      },
+      onPostError: function (event) {
+        var xhr = event.detail.xhr;
+        if (xhr.status == 409)
+          var message = 'The paper already exists in the database.';
+        else
+          var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+        this.fire('notification', message);
+      },
+      hostAttributes: {
+        'fit': '',
+        'layout': '',
+        'horizontal': ''
+      },
+      _computeIf: function (paper_details) {
+        return paper_details && !paper_details.is_existing;
       }
-
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

@@ -1,37 +1,24 @@
-<polymer-element name='oj-annotation-comments' attributes="paper annotation">
-  <template>
-
-      <template if={{annotation.responses.length}}>
-          <div class='comments'>
-              <template repeat="{{comment in annotation.responses}}">
-                  <div layout horizontal>
-                      <oj-user-label assignment={{comment.assignment|getAssignment}}></oj-user-label>
-                      <markdown-content class=comment flex markdown="{{comment.body}}"></markdown-content>
-                  </div>
-              </template>
-          </div>
-      </template>
-
-      <template if={{newCommentVisible}}>
-          <core-a11y-keys keys="esc" on-keys-pressed={{dismissNewComment}}></core-a11y-keys>
-          <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitComment}}></core-a11y-keys>
-
-          <markdown-text-area id=replyTextArea placeholder="Add a comment" value="{{text}}"></markdown-text-area>
-
-          <div layout horizontal end-justified class='controls'>
-              <paper-button disabled?={{!text||$.newCommentRequest.loading}} on-click={{submitComment}}  icon="add">Add</paper-button>
-              <paper-button disabled?={{$.newCommentRequest.loading}} on-click={{dismissNewComment}} icon="close">Cancel</paper-button>
-          </div>
-      </template>
-
-      <template if="{{!newCommentVisible && paper.can_edit_annotations}}">
-          <div layout horizontal>
-              <span flex></span>
-              <paper-button on-click= {{showNewComment}} icon='reply'>Reply</paper-button>
-          </div>
-      </template>
-
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-annotation-comments">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [layout][end-justified] {
+      @apply(--layout-end-justified);
+    }
+  </style>
+  <style>
 
       .comments {
           box-sizing: border-box;
@@ -69,79 +56,106 @@
       }
 
     </style>
+  <template>
 
-    <core-ajax id="newCommentRequest"
-               url="{{paper | addIssuePath}}"
-               method="POST"
-               contentType="application/json"
-               handleAs=json
-               on-core-response={{commentSaved}}
-               on-core-error={{commentError}}></core-ajax>
+      <template is="dom-if" if="{{annotation.responses.length}}">
+          <div class="comments">
+              <template is="dom-repeat" items="{{annotation.responses}}" as="comment">
+                  <div layout="" horizontal="">
+                      <oj-user-label assignment="{{_computeAssignment(comment, getAssignment)}}"></oj-user-label>
+                      <markdown-content class="comment" flex="" markdown="{{comment.body}}"></markdown-content>
+                  </div>
+              </template>
+          </div>
+      </template>
+
+      <template is="dom-if" if="{{newCommentVisible}}">
+          <iron-a11y-keys keys="esc" on-keys-pressed="dismissNewComment"></iron-a11y-keys>
+          <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitComment"></iron-a11y-keys>
+
+          <markdown-text-area id="replyTextArea" placeholder="Add a comment" value="{{text}}"></markdown-text-area>
+
+          <div layout="" horizontal="" end-justified="" class="controls">
+              <paper-button on-click="submitComment" icon="add" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
+              <paper-button on-click="dismissNewComment" icon="close" disabled$="{{$.newCommentRequest.loading}}">Cancel</paper-button>
+          </div>
+      </template>
+
+      <template is="dom-if" if="{{_computeIf(newCommentVisible, paper)}}">
+          <div layout="" horizontal="">
+              <span flex=""></span>
+              <paper-button on-click="showNewComment" icon="reply">Reply</paper-button>
+          </div>
+      </template>
+
+    <iron-ajax id="newCommentRequest" url="{{addIssuePath(paper)}}" method="POST" contenttype="application/json" handle-as="json" on-core-response="commentSaved" on-core-error="commentError"></iron-ajax>
 
   </template>
-
   <script>
     Polymer({
-
-      /***** API *******/
-
-      showNewComment:function(){
-            this.newCommentVisible = true;
-            this.async( function() {
-                var edit = this.shadowRoot.querySelector('#replyTextArea');
-                edit.focus();
-                edit.select();
-                this.asyncFire('new-comment-shown');
-            });
+      is: 'oj-annotation-comments',
+      properties: {
+        annotation: { notify: true },
+        /******** Polymer *******************/
+        newCommentVisible: {
+          type: Boolean,
+          value: false
+        },
+        paper: { notify: true }
       },
-
-      /******** Polymer *******************/
-
-      newCommentVisible: false,
-
+      /***** API *******/
+      showNewComment: function () {
+        this.newCommentVisible = true;
+        this.async(function () {
+          var edit = Polymer.dom(this.shadowRoot).querySelector('#replyTextArea');
+          edit.focus();
+          edit.select();
+          this.asyncFire('new-comment-shown');
+        });
+      },
       /*************************/
-
-      dismissNewComment:function(){
+      dismissNewComment: function () {
         this.newCommentVisible = false;
       },
-
-      submitComment:function(){
+      submitComment: function () {
         if (this.$.newCommentRequest.loading)
-            return;
+          return;
         if (!this.text)
-            return;
-
-        this.$.newCommentRequest.body = this.responseParams();
+          return;
+        this.set('$.newCommentRequest.body', this.responseParams());
         this.$.newCommentRequest.go();
       },
-
-      commentSaved:function(e){
-        this.fire("notification", "Reply saved");
+      commentSaved: function (e) {
+        this.fire('notification', 'Reply saved');
         this.annotation.responses.push(e.detail.response);
         this.newCommentVisible = false;
         this.text = '';
       },
-
-      responseParams:function(){
+      responseParams: function () {
         var params = {
-          annotation:{
-            body:      this.text,
-            page:      this.annotation.page,
+          annotation: {
+            body: this.text,
+            page: this.annotation.page,
             parent_id: this.annotation.id
           }
         };
-
-        return JSON.stringify(params)
+        return JSON.stringify(params);
       },
-
-      commentError:function(){
-        this.fire("notification", "Error saving reply")
+      commentError: function () {
+        this.fire('notification', 'Error saving reply');
       },
-
-      getAssignment: function(assignment) {
+      getAssignment: function (assignment) {
         return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
+      },
+      _computeIf: function (newCommentVisible, paper) {
+        return !newCommentVisible && paper.can_edit_annotations;
+      },
+      _computeAssignment: function (comment, getAssignment) {
+        return comment.assignment | getAssignment;
+      },
+      _computeDisabled: function ($, text) {
+        return !text || $.newCommentRequest.loading;
       }
-
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

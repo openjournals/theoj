@@ -1,169 +1,149 @@
-<polymer-element name="oj-page-router" attributes='currentUser' flex>
-    <template>
+<dom-module id="oj-page-router">
+  <template>
 
-        <app-router id=router
-                    init=manual
-                    mode=pushstate
-                    flex
-                    on-activate-route-start={{activateRouteStart}}
-                    on-before-data-binding={{beforeDataBinding}}
-                    on-activate-route-end={{activateRouteEnd}}
-                    >
+        <app-router id="router" init="manual" mode="pushstate" flex="" on-activate-route-start="activateRouteStart" on-before-data-binding="beforeDataBinding" on-activate-route-end="activateRouteEnd">
 
-            <app-route path='/' noAuth>
+            <app-route path="/" noauth="">
                 <template>
-                    <oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>
+                    <oj-papers-page src="/api/papers/recent" header="Recent Papers"></oj-papers-page>
                 </template>
             </app-route>
 
-            <app-route path='/search' noAuth>
+            <app-route path="/search" noauth="">
                 <template>
-                    <oj-papers-page src='/api/papers/search?q={{q}}' header="Search Results For {{q}}"></oj-papers-page>
+                    <oj-papers-page src="{{_computeSrc(q)}}" header="{{_computeHeader(q)}}"></oj-papers-page>
                 </template>
             </app-route>
 
-            <app-route path='/submit/:paper_id' element='oj-paper-preview'></app-route>
-            <app-route path='/submit' element='oj-submit-page'></app-route>
+            <app-route path="/submit/:paper_id" element="oj-paper-preview"></app-route>
+            <app-route path="/submit" element="oj-submit-page"></app-route>
             <!--<app-route path='/recent' noAuth>-->
                 <!--<template>-->
                     <!--<oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>-->
                 <!--</template>-->
             <!--</app-route>-->
-            <app-route path='/submitted'>
+            <app-route path="/submitted">
                 <template>
-                    <oj-papers-page src='/api/papers/as_author' header="Papers You Submitted"></oj-papers-page>
+                    <oj-papers-page src="/api/papers/as_author" header="Papers You Submitted"></oj-papers-page>
                 </template>
             </app-route>
-            <app-route path='/review'>
+            <app-route path="/review">
                 <template>
-                    <oj-papers-page src='/api/papers/as_reviewer' header="Papers You Are Reviewing"></oj-papers-page>
+                    <oj-papers-page src="/api/papers/as_reviewer" header="Papers You Are Reviewing"></oj-papers-page>
                 </template>
             </app-route>
-            <app-route path='/editing'>
+            <app-route path="/editing">
                 <template>
-                    <oj-papers-page src='/api/papers/as_editor' header="Papers You Are Editing" flex></oj-papers-page>
+                    <oj-papers-page src="/api/papers/as_editor" header="Papers You Are Editing" flex=""></oj-papers-page>
                 </template>
             </app-route>
-            <app-route path='/settings' element=oj-settings-page></app-route>
+            <app-route path="/settings" element="oj-settings-page"></app-route>
 
-            <app-route path="/review/:paper_id" element='oj-review-page' noAuth></app-route>
+            <app-route path="/review/:paper_id" element="oj-review-page" noauth=""></app-route>
 
-            <app-route path='/about' element=oj-about-page noAuth></app-route>
-            <app-route path='*' element='oj-404-page' noAuth></app-route>
+            <app-route path="/about" element="oj-about-page" noauth=""></app-route>
+            <app-route path="*" element="oj-404-page" noauth=""></app-route>
         </app-router>
 
     </template>
-
-    <script>
-        Polymer({
-
-            // Public API
-
-            init: function() {
-                this.$.router.init();
-            },
-
-            go: function (url) {
-                this.$.router.go(url);
-            },
-
-            gotoDefault: function() {
-                var newPath = this.getDefaultPath(this.currentUser);
-                if (newPath)
-                    this.$.router.go( newPath );
-            },
-
-            /////////////////////////////////////////////////////
-
-            getDefaultPath: function(user) {
-                if (!user)
-                    return '/'; //recent
-                else if (user.has_papers_as_editor)
-                    return '/editing';
-                else if (user.has_papers_as_reviewer)
-                    return '/review';
-                else if (user.has_papers_as_reviewer)
-                    return '/papers';
-                else
-                    return '/submit';
-            },
-
-            validateOrRedirectUser: function (event, path, route, initialRequest) {
-
-                if (initialRequest && path=='/') {
-                    var newPath = this.getDefaultPath(this.currentUser);
-                    if (newPath && newPath != path) {
-                        event.preventDefault();
-                        this.$.router.go( newPath );
-                        return false;
-                    }
-                }
-
-                // Login not required
-                if (!this.loginRequired(route)) {
-                    return true;
-                }
-
-                // User not logged in
-                if (!this.currentUser) {
-                    event.preventDefault();
-                    this.fire('notification', "Please log in");
-                    this.$.router.go('/');
-                    return false;
-                }
-
-                // Force users to enter an email
-                if (!this.currentUser.email && path!='/settings') {
-                    event.preventDefault();
-                    this.fire('notification', "Please enter your email to continue");
-                    this.$.router.go('/settings');
-                    return false;
-                }
-
-                // login successful
-                return true;
-            },
-
-            loginRequired: function (route) {
-                return !route.hasAttribute('noAuth');
-            },
-
-            bindExtraAttributes: function (model) {
-                model.user        = this.currentUser;
-                model.currentUser = this.currentUser;
-            },
-
-            pageInstanceForRoute: function(route) {
-                return route.children[route.children.length-1];
-            },
-
-            activateRouteStart: function (event, detail) {
-                var path = event.detail.path;
-                var route = event.detail.route;
-                var initialRequest = ! detail.oldRoute;
-                return this.validateOrRedirectUser(event, path, route, initialRequest);
-            },
-
-            beforeDataBinding: function(event, detail) {
-                return this.bindExtraAttributes(detail.model);
-            },
-
-            activateRouteEnd: function (event, detail) {
-                var path      = detail.path;
-                var route     = detail.route;
-                var instance  = this.pageInstanceForRoute(route);
-                route.activeInstance = instance;
-
-                this.fire('route-changed', {
-                    path:         path,
-                    route:        route,
-                    instance:     instance,
-                    firstRequest: ! detail.oldRoute // First page requested
-                });
-
-            }
-
+  <script>
+    Polymer({
+      is: 'oj-page-router',
+      properties: { currentUser: { notify: true } },
+      // Public API
+      init: function () {
+        this.$.router.init();
+      },
+      go: function (url) {
+        this.$.router.go(url);
+      },
+      gotoDefault: function () {
+        var newPath = this.getDefaultPath(this.currentUser);
+        if (newPath)
+          this.$.router.go(newPath);
+      },
+      /////////////////////////////////////////////////////
+      getDefaultPath: function (user) {
+        if (!user)
+          return '/';
+        else //recent
+        if (user.has_papers_as_editor)
+          return '/editing';
+        else if (user.has_papers_as_reviewer)
+          return '/review';
+        else if (user.has_papers_as_reviewer)
+          return '/papers';
+        else
+          return '/submit';
+      },
+      validateOrRedirectUser: function (event, path, route, initialRequest) {
+        if (initialRequest && path == '/') {
+          var newPath = this.getDefaultPath(this.currentUser);
+          if (newPath && newPath != path) {
+            event.preventDefault();
+            this.$.router.go(newPath);
+            return false;
+          }
+        }
+        // Login not required
+        if (!this.loginRequired(route)) {
+          return true;
+        }
+        // User not logged in
+        if (!this.currentUser) {
+          event.preventDefault();
+          this.fire('notification', 'Please log in');
+          this.$.router.go('/');
+          return false;
+        }
+        // Force users to enter an email
+        if (!this.currentUser.email && path != '/settings') {
+          event.preventDefault();
+          this.fire('notification', 'Please enter your email to continue');
+          this.$.router.go('/settings');
+          return false;
+        }
+        // login successful
+        return true;
+      },
+      loginRequired: function (route) {
+        return !route.hasAttribute('noAuth');
+      },
+      bindExtraAttributes: function (model) {
+        model.user = this.currentUser;
+        model.currentUser = this.currentUser;
+      },
+      pageInstanceForRoute: function (route) {
+        return route.children[route.children.length - 1];
+      },
+      activateRouteStart: function (event, detail) {
+        var path = event.detail.path;
+        var route = event.detail.route;
+        var initialRequest = !detail.oldRoute;
+        return this.validateOrRedirectUser(event, path, route, initialRequest);
+      },
+      beforeDataBinding: function (event, detail) {
+        return this.bindExtraAttributes(detail.model);
+      },
+      activateRouteEnd: function (event, detail) {
+        var path = detail.path;
+        var route = detail.route;
+        var instance = this.pageInstanceForRoute(route);
+        route.activeInstance = instance;
+        this.fire('route-changed', {
+          path: path,
+          route: route,
+          instance: instance,
+          firstRequest: !detail.oldRoute  // First page requested
         });
+      },
+      hostAttributes: { 'flex': '' },
+      _computeSrc: function (q) {
+        return '/api/papers/search?q=' + q;
+      },
+      _computeHeader: function (q) {
+        return 'Search Results For ' + q;
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

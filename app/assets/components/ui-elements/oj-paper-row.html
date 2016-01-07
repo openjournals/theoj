@@ -1,23 +1,23 @@
-<polymer-element name='oj-paper-row' attributes='paper'>
-<template>
-  <div class='row {{paper | actionForPaper}}' flex>
-      <div class=inner layout horizontal>
-          <div class=lhs flex>
-              <div class=title>{{paper.title}}</div>
-              <div class=detail>
-                  Submitted by <span class=highlight>{{paper.submittor.name}}</span>
-                  on <span class=highlight>{{ paper.submitted_at | date }}</span>
-                  <template if="{{paper.state=='under_review'}}">
-                  | Comments: <span class=highlight>{{paper.pending_issues_count}}</span>
-                  </template>
-              </div>
-          </div>
-          <div class='rhs action-{{paper | actionForPaper}}' self-end>
-              <div class="status">Status: <span class=highlight>{{paper.state | capitalize}}</span></div>
-          </div>
-      </div>
-  </div>
-
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-paper-row">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [self-end] {
+      @apply(--layout-self-end);
+    }
+  </style>
   <style>
 
     .row {
@@ -64,10 +64,38 @@
     }
 
   </style>
+  <template>
+  <div flex="" class$="{{_computeClass(paper)}}">
+      <div class="inner" layout="" horizontal="">
+          <div class="lhs" flex="">
+              <div class="title">{{paper.title}}</div>
+              <div class="detail">
+                  Submitted by <span class="highlight">{{paper.submittor.name}}</span>
+                  on <span class="highlight">{{date ( paper.submitted_at)}}</span>
+                  <template is="dom-if" if="{{_computeIf(paper)}}">
+                  | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
+                  </template>
+              </div>
+          </div>
+          <div self-end="{{_computeClass2(paper)}}" class$="{{_computeClass(paper)}}">
+              <div class="status">Status: <span class="highlight">{{capitalize(paper.state)}}</span></div>
+          </div>
+      </div>
+  </div>
 </template>
-
-<script>
-  Polymer({
-  })
-</script>
-</polymer-element>
+  <script>
+    Polymer({
+      is: 'oj-paper-row',
+      properties: { paper: { notify: true } },
+      _computeClass: function (paper) {
+        return 'row ' + this.actionForPaper(paper);
+      },
+      _computeIf: function (paper) {
+        return paper.state == 'under_review';
+      },
+      _computeClass2: function (paper) {
+        return 'rhs action-' + this.actionForPaper(paper);
+      }
+    });
+  </script>
+</dom-module>

@@ -1,9 +1,5 @@
-<polymer-element name="markdown-content" attributes='markdown'>
-
-  <template>
-    <div id='renderedContent'></div>
-
-    <style>
+<dom-module id="markdown-content">
+  <style>
       :host {
         width: 100%;
         height: 100%;
@@ -19,19 +15,34 @@
         padding:0;
       }
     </style>
+  <template>
+    <div id="renderedContent"></div>
 
   </template>
-
   <script>
     Polymer({
-      showPreview:false,
-      markdown: '',
-      markdownChanged:function(){
+      is: 'markdown-content',
+      properties: {
+        markdown: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: 'markdownChanged'
+        },
+        showPreview: {
+          type: Boolean,
+          value: false
+        }
+      },
+      markdownChanged: function () {
         var parsed = marked(this.markdown || '');
-        this.$.renderedContent.innerHTML =parsed;
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$.renderedContent ]);
+        this.set('$.renderedContent.innerHTML', parsed);
+        MathJax.Hub.Queue([
+          'Typeset',
+          MathJax.Hub,
+          this.$.renderedContent
+        ]);
       }
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

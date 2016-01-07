@@ -1,64 +1,21 @@
-<polymer-element name='oj-annotation' attributes="paper annotation text">
-  <template>
-
-    <div class='container state-{{annotation.state}} collapsed' >
-        <div class=container-inner>
-
-          <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-
-          <div on-tap="{{expand}}" class=header layout horizontal>
-              <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
-              <markdown-simplified flex class=issue markdown={{annotation.body}}></markdown-simplified>
-              <div class=count>{{annotation.responses.length||0}} replies</div>
-          </div>
-
-        </div>
-    </div>
-
-    <!-- Overlay this to get animated expansion to work nicely -->
-    <core-collapse id=collapsible opened={{annotation.open}} on-core-resize={{annotationAfterOpen}}>
-      <core-a11y-keys keys="esc" on-keys-pressed={{collapse}}></core-a11y-keys>
-
-      <div class='container state-{{annotation.state}} expanded' >
-          <div class=container-inner>
-
-              <oj-reviewer-annotation-controls paper={{paper}}  annotation={{annotation}} ></oj-reviewer-annotation-controls>
-
-              <template if="{{!annotation.new}}">
-                  <div on-tap="{{collapse}}" class=header layout horizontal>
-                      <oj-user-label assignment={{annotation.assignment|getAssignment}}></oj-user-label>
-                      <markdown-content class=issue markdown={{annotation.body}}></markdown-content>
-                  </div>
-
-                  <oj-annotation-comments id=comments
-                                          paper={{paper}}
-                                          annotation={{annotation}}
-                                          on-new-comment-shown={{newCommentShown}}
-                          ></oj-annotation-comments>
-              </template>
-
-              <template if="{{annotation.new}}">
-
-                  <div class=header >
-                      <core-a11y-keys keys="esc" on-keys-pressed={{close}}></core-a11y-keys>
-                      <core-a11y-keys keys="shift+enter" on-keys-pressed={{submitAnnotation}}></core-a11y-keys>
-                      <markdown-text-area id=annotationTextArea class=issue value={{text}}></markdown-text-area>
-                  </div>
-
-                  <div layout horizontal>
-                      <span flex></span>
-                      <paper-button on-click={{submitAnnotation}} disabled?={{!text||$.saveAnnotationRequest.loading}} >Add</paper-button>
-                      <paper-button on-click={{close}} disabled?={{$.saveAnnotationRequest.loading}}>Cancel</paper-button>
-                  </div>
-
-              </template>
-
-          </div>
-      </div>
-
-    </core-collapse>
-
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-annotation">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+  </style>
+  <style>
       :host{
           width: 100%;
           position:absolute;
@@ -157,140 +114,193 @@
       }
 
     </style>
+  <template>
 
-      <json-post id=saveAnnotationRequest
-                 url="{{paper | paperAnnotationsPath}}"
-                 on-success={{annotationSaved}}
-                 on-error={{annotationError}}></json-post>
+    <div class$="{{_computeClass(annotation)}}">
+        <div class="container-inner">
+
+          <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+
+          <div on-tap="expand" class="header" layout="" horizontal="">
+              <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
+              <markdown-simplified flex="" class="issue" markdown="{{annotation.body}}"></markdown-simplified>
+              <div class="count"><span>{{_computeExpression1(annotation)}}</span> replies</div>
+          </div>
+
+        </div>
+    </div>
+
+    <!-- Overlay this to get animated expansion to work nicely -->
+    <iron-collapse id="collapsible" opened="{{annotation.open}}" on-core-resize="annotationAfterOpen">
+      <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
+
+      <div class$="{{_computeClass2(annotation)}}">
+          <div class="container-inner">
+
+              <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+
+              <template is="dom-if" if="{{!annotation.new}}">
+                  <div on-tap="collapse" class="header" layout="" horizontal="">
+                      <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
+                      <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
+                  </div>
+
+                  <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}" on-new-comment-shown="newCommentShown"></oj-annotation-comments>
+              </template>
+
+              <template is="dom-if" if="{{annotation.new}}">
+
+                  <div class="header">
+                      <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
+                      <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
+                      <markdown-text-area id="annotationTextArea" class="issue" value="{{text}}"></markdown-text-area>
+                  </div>
+
+                  <div layout="" horizontal="">
+                      <span flex=""></span>
+                      <paper-button on-click="submitAnnotation" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
+                      <paper-button on-click="close" disabled$="{{$.saveAnnotationRequest.loading}}">Cancel</paper-button>
+                  </div>
+
+              </template>
+
+          </div>
+      </div>
+
+    </iron-collapse>
+
+      <json-post id="saveAnnotationRequest" url="{{paperAnnotationsPath(paper)}}" on-success="annotationSaved" on-error="annotationError"></json-post>
   </template>
-
   <script>
+    //TODO(polyup): Need to add an observer of annotation.open, calling annotationOpenChanged.
+    //Note that the semantics for observing properties and arrays has changed.
     Polymer({
-
+      is: 'oj-annotation',
+      properties: {
+        annotation: {
+          notify: true,
+          observer: 'annotationChanged'
+        },
+        annotationOpen: { observer: 'annotationOpenChanged' },
+        paper: { notify: true },
+        text: { notify: true }
+      },
       /**** API *****/
-
-      close:function(){
-          this.collapse();
+      close: function () {
+        this.collapse();
       },
-
-      scrollAnnotationIntoView: function(prioritize_top) {
-          if (!this.annotation.open)
-              return;
-
-          var list = this.offsetParent;
-          if (list.tagName != 'OJ-ANNOTATION-LIST') console.error('annotation parent is not the oj-annotation-list');
-
-          var container = list.offsetParent;
-          if (container.id != 'scroller') console.error('annotation-list parent is not the #scroller');
-
-          var spacing = 10 /*px*/ ;
-          var top     = this.offsetTop;
-          var height  = this.$.collapsible.offsetHeight;
-          top = top + list.offsetTop;
-
-          var newTop;
-
-          if (prioritize_top && top < container.scrollTop) {
-              newTop = top - spacing;
-
-          } else  if (top + height > container.scrollTop + container.offsetHeight ) {
-              newTop = top + height + spacing - container.offsetHeight;
-              if (prioritize_top && top < newTop)
-                newTop = top;
-
-          } else if (!prioritize_top && top < container.scrollTop) {
-              newTop = top - spacing;
-
-          }
-
-          if (newTop !== undefined)
-            $(container).animate({scrollTop: newTop}, 500);
-
-      },
-
-      /**** polymer *******/
-
-      observe: {
-        'annotation.open' : 'annotationOpenChanged'
-      },
-
-      domReady: function() {
-        if (this.annotation && this.annotation.new) {
-
-            this.async( function() {
-                var edit = this.shadowRoot.querySelector('core-collapse #annotationTextArea');
-                edit.focus();
-                edit.select();
-            });
-
+      scrollAnnotationIntoView: function (prioritize_top) {
+        if (!this.annotation.open)
+          return;
+        var list = this.offsetParent;
+        if (list.tagName != 'OJ-ANNOTATION-LIST')
+          console.error('annotation parent is not the oj-annotation-list');
+        var container = list.offsetParent;
+        if (container.id != 'scroller')
+          console.error('annotation-list parent is not the #scroller');
+        var spacing = 10;
+        /*px*/
+        var top = this.offsetTop;
+        var height = this.$.collapsible.offsetHeight;
+        top = top + list.offsetTop;
+        var newTop;
+        if (prioritize_top && top < container.scrollTop) {
+          newTop = top - spacing;
+        } else if (top + height > container.scrollTop + container.offsetHeight) {
+          newTop = top + height + spacing - container.offsetHeight;
+          if (prioritize_top && top < newTop)
+            newTop = top;
+        } else if (!prioritize_top && top < container.scrollTop) {
+          newTop = top - spacing;
         }
+        if (newTop !== undefined)
+          $(container).animate({ scrollTop: newTop }, 500);
       },
-
       /***********************/
-
-      showNewComment: function() {
+      showNewComment: function () {
         this.$.comments.showNewComment();
       },
-      annotationChanged: function() {
-        if (!this.annotation) return;
-
+      annotationChanged: function () {
+        if (!this.annotation)
+          return;
         var assignment = Oj.paperHelpers.assignmentFromSha(this.paper, this.annotation.assignment);
         this.role = assignment && assignment.role;
       },
-      annotationOpenChanged: function() {
+      annotationOpenChanged: function () {
         if (this.annotation.open)
-            this.expand();
+          this.expand();
         else
-            this.collapse();
+          this.collapse();
       },
-      annotationAfterOpen: function(event, detail) {
+      annotationAfterOpen: function (event, detail) {
         this.scrollAnnotationIntoView(true);
       },
-      newCommentShown: function(event) {
-          this.scrollAnnotationIntoView(false);
+      newCommentShown: function (event) {
+        this.scrollAnnotationIntoView(false);
       },
-      collapse: function() {
-        this.annotation.open = false;
+      collapse: function () {
+        this.set('annotation.open', false);
         this.asyncFire('annotation-closed', this);
       },
-      expand: function() {
-        this.annotation.open = true;
+      expand: function () {
+        this.set('annotation.open', true);
         this.asyncFire('annotation-opened', this);
       },
-
-      submitAnnotation: function(){
-          if (this.$.saveAnnotationRequest.loading)
-              return;
-          if (!this.text)
-              return;
-          this.$.saveAnnotationRequest.data = this.annotationData();
-          this.$.saveAnnotationRequest.go()
+      submitAnnotation: function () {
+        if (this.$.saveAnnotationRequest.loading)
+          return;
+        if (!this.text)
+          return;
+        this.set('$.saveAnnotationRequest.data', this.annotationData());
+        this.$.saveAnnotationRequest.go();
       },
-      annotationSaved:function(event, response){
-          this.annotation = response;
-          this.fire("annotation-added", this.annotation);
-          this.fire("notification", "Annotation saved.");
-          this.text = '';
-          this.close();
+      annotationSaved: function (event, response) {
+        this.annotation = response;
+        this.fire('annotation-added', this.annotation);
+        this.fire('notification', 'Annotation saved.');
+        this.text = '';
+        this.close();
       },
-      annotationError:function(response){
-          this.fire("notification", "Could not save annotation.")
+      annotationError: function (response) {
+        this.fire('notification', 'Could not save annotation.');
       },
-      annotationData:function(){
-          return {
-              annotation:{
-                    body:   this.text,
-                    page:   this.annotation.page,
-                    xStart: this.annotation.xStart,
-                    yStart: this.annotation.yStart
-                }
-            };
+      annotationData: function () {
+        return {
+          annotation: {
+            body: this.text,
+            page: this.annotation.page,
+            xStart: this.annotation.xStart,
+            yStart: this.annotation.yStart
+          }
+        };
       },
-
-      getAssignment: function(assignment) {
-          return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
+      getAssignment: function (assignment) {
+        return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
+      },
+      ready: function () {
+        if (this.annotation && this.annotation.new) {
+          this.async(function () {
+            var edit = Polymer.dom(this.shadowRoot).querySelector('core-collapse #annotationTextArea');
+            edit.focus();
+            edit.select();
+          });
+        }
+      },
+      _computeClass: function (annotation) {
+        return 'container state-' + annotation.state + ' collapsed';
+      },
+      _computeAssignment: function (annotation, getAssignment) {
+        return annotation.assignment | getAssignment;
+      },
+      _computeClass2: function (annotation) {
+        return 'container state-' + annotation.state + ' expanded';
+      },
+      _computeDisabled: function ($, text) {
+        return !text || $.saveAnnotationRequest.loading;
+      },
+      _computeExpression1: function (annotation) {
+        return annotation.responses.length || 0;
       }
-
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

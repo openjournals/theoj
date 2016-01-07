@@ -1,41 +1,48 @@
-<polymer-element name=json-req attributes='method url data auto loading result'>
-
-    <template>
-        <core-ajax  id='request'
-                    auto={{auto}}
-                    url={{url}}
-                    handleAs="json"
-                    contentType="application/json"
-                    method={{method}}
-                    loading={{loading}}
-                    response={{result}}
-                    body="{{data | json}}"
-                    on-core-response={{success}}
-                    on-core-error={{error}}
-                >
-        </core-ajax>
+<dom-module id="json-req">
+  <template>
+        <iron-ajax id="request" auto="{{auto}}" url="{{url}}" handle-as="json" contenttype="application/json" method="{{method}}" loading="{{loading}}" last-response="{{result}}" body="{{json(data)}}" on-core-response="success" on-core-error="error">
+        </iron-ajax>
     </template>
-
-    <script>
-        Polymer({
-            auto:   false,
-            method: 'get',
-            data:   {},
-
-            go: function( successCallback, errorCallback) {
-                this.successCallback = successCallback;
-                this.errorCallback = errorCallback;
-
-                this.$.request.go();
-            },
-            success: function(event,detail){
-                this.fire("success",detail.response );
-                if (this.successCallback) this.successCallback(event, detail.response);
-            },
-            error: function(event,detail){
-                this.fire("error", detail.xhr.responseText);
-                if (this.errorCallback) this.errorCallback(event, detail.xhr.responseText);
-            }
-        })
-    </script>
-</polymer-element>
+  <script>
+    Polymer({
+      is: 'json-req',
+      properties: {
+        auto: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        data: {
+          type: Object,
+          value: function () {
+            return {};
+          },
+          notify: true
+        },
+        loading: { notify: true },
+        method: {
+          type: String,
+          value: 'get',
+          notify: true
+        },
+        result: { notify: true },
+        url: { notify: true }
+      },
+      go: function (successCallback, errorCallback) {
+        this.successCallback = successCallback;
+        this.errorCallback = errorCallback;
+        this.$.request.go();
+      },
+      success: function (event, detail) {
+        this.fire('success', detail.response);
+        if (this.successCallback)
+          this.successCallback(event, detail.response);
+      },
+      error: function (event, detail) {
+        this.fire('error', detail.xhr.responseText);
+        if (this.errorCallback)
+          this.errorCallback(event, detail.xhr.responseText);
+      }
+    });
+  </script>
+</dom-module>

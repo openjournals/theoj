@@ -1,21 +1,5 @@
-<polymer-element name='oj-user-lookup' attributes='placeholder' >
-  <template>
-
-    <input id=input placeholder={{placeholder}} value={{search}}></input>
-
-    <core-dropdown id=suggestions relatedTarget={{$.input}} valign=bottom autoCloseDisabled=true autoFocusDisabled="true">
-        <core-menu>
-          <template repeat="{{suggestion in suggestions}}">
-            <core-item on-tap={{selectUser}}>{{suggestion.name}}</core-item>
-          </template>
-        </core-menu>
-    </core-dropdown>
-
-    <json-get  id=lookUpSearch
-               on-success={{lookupSuccess}}
-               ></json-get>
-
-    <style>
+<dom-module id="oj-user-lookup">
+  <style>
       :host {
           display: inline-block;
           position: relative;
@@ -62,45 +46,55 @@
       }
 
     </style>
-  </template>
+  <template>
 
+    <input id="input" placeholder="{{placeholder}}" value="{{search::input}}">
+
+    <iron-dropdown id="suggestions" position-target="{{$.input}}" vertical-align="bottom" autoclosedisabled="true" autofocusdisabled="true">
+        <paper-menu>
+          <template is="dom-repeat" items="{{suggestions}}" as="suggestion">
+            <paper-item on-tap="selectUser">{{suggestion.name}}</paper-item>
+          </template>
+        </paper-menu>
+    </iron-dropdown>
+
+    <json-get id="lookUpSearch" on-success="lookupSuccess"></json-get>
+  </template>
   <script>
     Polymer({
-
-      created: function() {
-          this.suggestions = [];
+      is: 'oj-user-lookup',
+      properties: {
+        placeholder: { notify: true },
+        search: { observer: 'searchChanged' }
       },
-
-      searchChanged:function(){
-       this.job('user_search', function() {
+      created: function () {
+        this.suggestions = [];
+      },
+      searchChanged: function () {
+        this.debounce('user_search', function () {
           if (this.search.length > 2) {
             this.$.lookUpSearch.url = '/api/user/lookup?guess=' + encodeURIComponent(this.search);
             this.$.lookUpSearch.go();
           }
-       }, 300);
+        }, 300);
       },
-
-      lookupSuccess: function(event, suggestions) {
-          this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
-
-          if (this.suggestions.length) {
-            this.async( function() {
-                this.$.suggestions.opened = true;
-                this.$.suggestions.discoverDimensions();
-                this.$.suggestions.resetTargetDimensions();
-            } );
-          }
+      lookupSuccess: function (event, suggestions) {
+        this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
+        if (this.suggestions.length) {
+          this.async(function () {
+            this.$.suggestions.opened = true;
+            this.$.suggestions.discoverDimensions();
+            this.$.suggestions.resetTargetDimensions();
+          });
+        }
       },
-
-      selectUser:function(event, detail, sender){
-          var user = event.target.templateInstance.model.suggestion;
-          this.$.suggestions.opened = false;
-          this.search = "";
-          this.suggestions = [];
-          this.fire("user-selected", user);
+      selectUser: function (event, detail, sender) {
+        var user = event.target.templateInstance.model.suggestion;
+        this.set('$.suggestions.opened', false);
+        this.search = '';
+        this.suggestions = [];
+        this.fire('user-selected', user);
       }
-
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

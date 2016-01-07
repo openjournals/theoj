@@ -1,115 +1,95 @@
-<polymer-element name="oj-assigned-users-list" attributes='paper'>
-  <template>
-
-      <template repeat="{{assignment in paper.assigned_users | sortAssignments}}" >
-          <oj-user-tag assignment={{assignment}}
-                       showColor={{!submitted}}
-                       tagColor={{userColor(assignment)}}
-                       showCompleted={{show_completed}}
-                       removable={{editable}}
-                       on-remove-user={{removeReviewer}}
-                  ></oj-user-tag>
-      </template>
-
-      <oj-user-tag assignment="{{paper.assigned_users | anonymousReviewersTag}}"
-              ></oj-user-tag>
-
-      <template if="{{editable}}">
-          <oj-user-lookup placeholder="Add Reviewer"
-                          on-user-selected={{addReviewer}}
-                          on-filter-suggestions={{filterReviewerList}}
-                  ></oj-user-lookup>
-      </template>
-
-    <style>
+<dom-module id="oj-assigned-users-list">
+  <style>
         oj-user-tag, oj-user-lookup {
             margin-top: 8px;
         }
 
     </style>
+  <template>
 
-    <json-post   id=addReviewer    on-success={{updateReviewers}} ></json-post>
-    <json-delete id=removeReviewer on-success={{updateReviewers}} ></json-delete>
+      <template is="dom-repeat" items="{{sortAssignments(paper.assigned_users)}}" as="assignment">
+          <oj-user-tag assignment="{{assignment}}" showcolor="{{!submitted}}" tagcolor="{{userColor(assignment)}}" showcompleted="{{show_completed}}" removable="{{editable}}" on-remove-user="removeReviewer"></oj-user-tag>
+      </template>
+
+      <oj-user-tag assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
+
+      <template is="dom-if" if="{{editable}}">
+          <oj-user-lookup placeholder="Add Reviewer" on-user-selected="addReviewer" on-filter-suggestions="filterReviewerList"></oj-user-lookup>
+      </template>
+
+    <json-post id="addReviewer" on-success="updateReviewers"></json-post>
+    <json-delete id="removeReviewer" on-success="updateReviewers"></json-delete>
 
   </template>
-
   <script>
     Polymer({
-
-        paperChanged: function() {
-            this.submitted      = this.paper && this.paper.state == 'submitted';
-            this.under_review   = this.paper && this.paper.state == 'under_review';
-            this.show_completed = this.paper && this.paper.current_role=='editor'
-                                && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
-            this.editable       = this.submitted && this.paper.current_role=='editor';
-        },
-
-        userColor: function(assignment) {
-            assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
-            return Oj.colors.userColor(assignment);
-        },
-
-        removeReviewer:function(event, assignment) {
-            this.$.removeReviewer.url = Oj.urls.removeAssigneePath(this.paper, assignment);
-            this.$.removeReviewer.go();
-        },
-        addReviewer:function(event, user) {
-            this.$.addReviewer.url = Oj.urls.addAssigneePath(this.paper, user);
-            this.$.addReviewer.go();
-        },
-        updateReviewers: function(event, detail) {
-            this.paper.assigned_users = detail;
-        },
-
-        filterReviewerList: function(event, suggestions) {
-            var paper = this.paper;
-
-            event.result = suggestions.filter( function(item) {
-
-                for (var i=0; i < paper.assigned_users.length; i++) {
-                    var assignment = paper.assigned_users[i];
-                    var user = assignment.user;
-                    if (user.sha == item.sha)
-                        return false;
-                }
-
-                return true;
-            });
-        },
-
-        anonymousReviewersTag: function(assigned_users) {
-            if (!assigned_users)
-                return {};
-
-            var total_reviewers= 0, anonymous_reviewers=0;
-            for (var i=0; i < assigned_users.length; i++) {
-                var assignment = assigned_users[i];
-                if (assignment.role=='reviewer') {
-                    total_reviewers = total_reviewers + 1;
-                    if (!assignment.user)
-                        anonymous_reviewers = anonymous_reviewers + 1;
-                }
-            }
-
-            if (anonymous_reviewers) {
-
-                var text = 'and ' + anonymous_reviewers.toString();
-                if (total_reviewers > anonymous_reviewers) text = text + ' more';
-                text = text + ' Reviewer';
-                if (anonymous_reviewers > 1) text = text + 's';
-
-                return {
-                    role:   'reviewer',
-                    text:   text
-                };
-
-            } else {
-                return {};
-
-            }
+      is: 'oj-assigned-users-list',
+      properties: {
+        paper: {
+          notify: true,
+          observer: 'paperChanged'
         }
-
-    })
+      },
+      paperChanged: function () {
+        this.submitted = this.paper && this.paper.state == 'submitted';
+        this.under_review = this.paper && this.paper.state == 'under_review';
+        this.show_completed = this.paper && this.paper.current_role == 'editor' && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
+        this.editable = this.submitted && this.paper.current_role == 'editor';
+      },
+      userColor: function (assignment) {
+        assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
+        return Oj.colors.userColor(assignment);
+      },
+      removeReviewer: function (event, assignment) {
+        this.set('$.removeReviewer.url', Oj.urls.removeAssigneePath(this.paper, assignment));
+        this.$.removeReviewer.go();
+      },
+      addReviewer: function (event, user) {
+        this.set('$.addReviewer.url', Oj.urls.addAssigneePath(this.paper, user));
+        this.$.addReviewer.go();
+      },
+      updateReviewers: function (event, detail) {
+        this.set('paper.assigned_users', detail);
+      },
+      filterReviewerList: function (event, suggestions) {
+        var paper = this.paper;
+        event.result = suggestions.filter(function (item) {
+          for (var i = 0; i < paper.assigned_users.length; i++) {
+            var assignment = paper.assigned_users[i];
+            var user = assignment.user;
+            if (user.sha == item.sha)
+              return false;
+          }
+          return true;
+        });
+      },
+      anonymousReviewersTag: function (assigned_users) {
+        if (!assigned_users)
+          return {};
+        var total_reviewers = 0, anonymous_reviewers = 0;
+        for (var i = 0; i < assigned_users.length; i++) {
+          var assignment = assigned_users[i];
+          if (assignment.role == 'reviewer') {
+            total_reviewers = total_reviewers + 1;
+            if (!assignment.user)
+              anonymous_reviewers = anonymous_reviewers + 1;
+          }
+        }
+        if (anonymous_reviewers) {
+          var text = 'and ' + anonymous_reviewers.toString();
+          if (total_reviewers > anonymous_reviewers)
+            text = text + ' more';
+          text = text + ' Reviewer';
+          if (anonymous_reviewers > 1)
+            text = text + 's';
+          return {
+            role: 'reviewer',
+            text: text
+          };
+        } else {
+          return {};
+        }
+      }
+    });
   </script>
-
-</polymer-element>
+</dom-module>

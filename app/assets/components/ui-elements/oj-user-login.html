@@ -1,17 +1,5 @@
-<polymer-element name="oj-user-login" attributes="currentUser">
-  <template>
-
-    <template if={{currentUser}}>
-      <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >
-          {{currentUser.name}}{{currentUser|roles}}</a>
-      <a class='link signout' href='/signout'>Sign Out</a>
-    </template>
-
-    <template if={{!currentUser}}>
-      <a class='link' href='/auth/orcid'>Sign In</a>
-    </template>
-
-    <style>
+<dom-module id="oj-user-login">
+  <style>
       a {
         color: #fff;
         text-decoration: none;
@@ -41,25 +29,37 @@
       }
 
     </style>
-  </template>
+  <template>
 
+    <template is="dom-if" if="{{currentUser}}">
+      <a class="link username" href="https://orcid.org/my-orcid" target="_blank">
+          <span>{{currentUser.name}}</span><span>{{_computeExpression2(currentUser, roles)}}</span></a>
+      <a class="link signout" href="/signout">Sign Out</a>
+    </template>
+
+    <template is="dom-if" if="{{!currentUser}}">
+      <a class="link" href="/auth/orcid">Sign In</a>
+    </template>
+  </template>
   <script>
     Polymer({
-
-      roles: function(user) {
-          if (!user)
-            return '';
-          else if (user.admin && user.editor)
-              return ' (Admin, Editor)';
-          else if (user.admin)
-            return ' (Admin)';
-          else if (user.editor)
-            return ' (Editor)';
-          else
-            return '';
+      is: 'oj-user-login',
+      properties: { currentUser: { notify: true } },
+      roles: function (user) {
+        if (!user)
+          return '';
+        else if (user.admin && user.editor)
+          return ' (Admin, Editor)';
+        else if (user.admin)
+          return ' (Admin)';
+        else if (user.editor)
+          return ' (Editor)';
+        else
+          return '';
+      },
+      _computeExpression2: function (currentUser, roles) {
+        return currentUser | roles;
       }
-
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

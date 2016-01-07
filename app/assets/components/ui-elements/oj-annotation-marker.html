@@ -1,13 +1,5 @@
-<polymer-element name=oj-annotation-marker attributes='annotation'>
-  <template>
-
-        <core-icon icon="custom-icons:selected"
-                   class="{{annotation.open ? 'open' : 'closed' }} state-{{annotation.state}}"
-                   on-click={{annotationClicked}}
-                   title={{stripped(annotation.body)}}
-        ></core-icon>
-
-      <style>
+<dom-module id="oj-annotation-marker">
+  <style>
           core-icon {
             display:      block !important;
             stroke-width: 2px;
@@ -36,22 +28,26 @@
           }
 
     </style>
+  <template>
+
+        <iron-icon icon="custom-icons:selected" on-click="annotationClicked" title="{{stripped(annotation.body)}}" class$="{{_computeClass(annotation)}}"></iron-icon>
 
   </template>
-
   <script>
     Polymer({
-
-      annotationClicked: function(event, detail) {
+      is: 'oj-annotation-marker',
+      properties: { annotation: { notify: true } },
+      annotationClicked: function (event, detail) {
         event.preventDefault();
         event.stopPropagation();
-        this.annotation.open = true;
+        this.set('annotation.open', true);
       },
-
-      stripped: function(markdown) {
+      stripped: function (markdown) {
         return stripped_markdown(markdown);
+      },
+      _computeClass: function (annotation) {
+        return annotation.open ? 'open' : 'closed' + ' state-' + annotation.state;
       }
-
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

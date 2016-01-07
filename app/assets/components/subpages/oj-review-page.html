@@ -1,47 +1,46 @@
-<polymer-element name="oj-review-page" attributes='paper_id currentUser' fit>
-  <template>
-
-    <div id=scroller layout vertical>
-
-        <oj-review-page-header
-                id=header
-                user={{currentUser}}
-                paper={{paper}}
-                annotations={{annotations}}
-                loadProgress={{loadProgress}}
-                on-add-paper-annotation={{addPaperAnnotation}}
-                ></oj-review-page-header>
-
-        <template if="{{paper}}">
-          <div id=main layout horizontal>
-
-            <div layout vertical id=pdf-pane flex>
-
-              <stacked-pdf-reader src={{paper.document_location}}
-                                  annotations={{annotations}}
-                                  pageOffset={{pageOffset}}
-                                  loadProgress={{loadProgress}}
-                                  on-page-clicked={{pageClicked}}
-                                  on-pdf-client-changed={{pdfClientChanged}}
-                      ></stacked-pdf-reader>
-            </div>
-
-            <template if={{paper.can_view_annotations}}>
-                <oj-annotation-list id=annotation_list
-                                    paper={{paper}}
-                                    annotations={{annotations}}
-                                    firstPageOffset={{20}}
-                                    pageHeight={{pdfClientHeight}}
-                                    pageSpacing={{20}}
-                                    on-annotation-changed={{onChangeAnnotation}}
-                        ></oj-annotation-list>
-            </template>
-          </div>
-        </template>
-
-    </div>
-
-    <style>
+  <style is="custom-style">
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="oj-review-page">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    :host[fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [layout][flex] {
+      @apply(--layout-flex);
+    }
+  </style>
+  <style>
         #scroller {
             position:      relative;
             overflow-y:    auto;
@@ -71,94 +70,123 @@
       }
 
     </style>
+  <template>
 
-    <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
+    <div id="scroller" layout="" vertical="">
 
-    <template if={{paper.can_view_annotations}}>
-      <firebase-element
-        id=annotation-firebase
-        location="{{paper_id | annotationsFirebasePath }}"
-        data={{data}}
-        keys={{keys}}
-        data-change={{updateAnnotations}}
-      ></firebase-element>
+        <oj-review-page-header id="header" user="{{currentUser}}" paper="{{paper}}" annotations="{{annotations}}" loadprogress="{{loadProgress}}" on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
+
+        <template is="dom-if" if="{{paper}}">
+          <div id="main" layout="" horizontal="">
+
+            <div layout="" vertical="" id="pdf-pane" flex="">
+
+              <stacked-pdf-reader src="{{paper.document_location}}" annotations="{{annotations}}" pageoffset="{{pageOffset}}" loadprogress="{{loadProgress}}" on-page-clicked="pageClicked" on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
+            </div>
+
+            <template is="dom-if" if="{{paper.can_view_annotations}}">
+                <oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" firstpageoffset="{{_computeFirstpageoffset()}}" pageheight="{{pdfClientHeight}}" pagespacing="{{_computePagespacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
+            </template>
+          </div>
+        </template>
+
+    </div>
+
+    <json-get auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-get>
+
+    <template is="dom-if" if="{{paper.can_view_annotations}}">
+      <firebase-element id="annotation-firebase" location="{{annotationsFirebasePath (paper_id)}}" data="{{data}}" keys="{{keys}}" data-change$="{{updateAnnotations}}"></firebase-element>
 
     </template>
 
   </template>
-
   <script>
     Polymer({
-
-      /**** external API *********/
-
-      getSectionName: function() {
-          return 'none';
+      is: 'oj-review-page',
+      properties: {
+        currentUser: { notify: true },
+        keys: { observer: 'keysChanged' },
+        paper: { observer: 'paperChanged' },
+        paper_id: { notify: true },
+        pdfClient: { observer: 'pdfClientChanged' }
       },
-
+      /**** external API *********/
+      getSectionName: function () {
+        return 'none';
+      },
       /*** Polymer callbacks *****/
-
-      created: function() {
+      created: function () {
         this.annotations = [];
       },
-
-      paperChanged: function() {
-          if (this.paper) {
-              var current_user_sha            = this.currentUser && this.currentUser.sha;
-              this.paper.current_assignment   = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-              this.paper.current_role         = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
-              this.paper.can_view_annotations = this.paper.current_assignment;
-              this.paper.can_edit_annotations = this.paper.can_view_annotations && this.paper.state == 'under_review';
-
-              this.fire('route-changed', this.menuSectionForRole(this.paper.current_role) );
-          }
+      paperChanged: function () {
+        if (this.paper) {
+          var current_user_sha = this.currentUser && this.currentUser.sha;
+          this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a) {
+            return a.user && a.user.sha == current_user_sha;
+          }));
+          this.set('paper.current_role', this.paper.current_assignment && this.paper.current_assignment.role || 'none');
+          this.set('paper.can_view_annotations', this.paper.current_assignment);
+          this.set('paper.can_edit_annotations', this.paper.can_view_annotations && this.paper.state == 'under_review');
+          this.fire('route-changed', this.menuSectionForRole(this.paper.current_role));
+        }
       },
-
-     /******************************/
-
-     menuSectionForRole: function(role) {
-          switch (role) {
-              case     'editor':       return 'editing';
-              case     'reviewer':     return 'review';
-              case     'submittor':    return 'submitted';
-              case     'collaborator': return 'submitted';
-              default:                 return '';
-          }
+      /******************************/
+      menuSectionForRole: function (role) {
+        switch (role) {
+        case 'editor':
+          return 'editing';
+        case 'reviewer':
+          return 'review';
+        case 'submittor':
+          return 'submitted';
+        case 'collaborator':
+          return 'submitted';
+        default:
+          return '';
+        }
       },
-      pdfClientChanged: function(event, detail) {
+      pdfClientChanged: function (detail, event) {
         this.pdfClientHeight = detail.clientHeight;
       },
-      onChangeAnnotation:function(event, annotation) {
+      onChangeAnnotation: function (event, annotation) {
         this.$.header.updateCounts();
       },
-      keysChanged:function(){
+      keysChanged: function () {
         // console.log('mapping ');
         // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
-        this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this));
+        this.annotations = this.keys.map(function (key) {
+          return this.data[key];
+        }.bind(this));
       },
-      updateAnnotations:function(event){
-          // console.log("UPDATING ANNOTAITONS");
-          // console.log($.extend({},event));
+      updateAnnotations: function (event) {
       },
-      newAnnotation: function(properties) {
-          return $.extend( {state:'new', new:true, open:true}, properties);
+      // console.log("UPDATING ANNOTAITONS");
+      // console.log($.extend({},event));
+      newAnnotation: function (properties) {
+        return $.extend({
+          state: 'new',
+          new: true,
+          open: true
+        }, properties);
       },
-      pageClicked:function(event, position){
-          console.log('position', position);
-          var annotation = this.newAnnotation( position );
-          this.addAnnotation(annotation);
+      pageClicked: function (event, position) {
+        console.log('position', position);
+        var annotation = this.newAnnotation(position);
+        this.addAnnotation(annotation);
       },
-      addPaperAnnotation: function(event) {
-          var annotation = this.newAnnotation();
-          this.addAnnotation(annotation);
+      addPaperAnnotation: function (event) {
+        var annotation = this.newAnnotation();
+        this.addAnnotation(annotation);
       },
-      addAnnotation: function(annotation) {
-          if (this.paper.can_edit_annotations) {
-              this.annotations.push(annotation);
-          }
+      addAnnotation: function (annotation) {
+        if (this.paper.can_edit_annotations) {
+          this.annotations.push(annotation);
+        }
+      },
+      hostAttributes: { 'fit': '' },
+      _computePagespacing: function () {
+        return 20;
       }
-
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>
