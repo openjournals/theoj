@@ -4,9 +4,11 @@
   <div>
     <h3><%= papers.count %> <%= state.name %> papers</h3>
     <% papers.each do |p| %>
-      <p>Title: <%= p.title %></p>
-      <p>PDF: <%= p.document_location %></p>
-      <p>Authors: <%= p.authors %></p>
+    <h4>Title: <%= p.title %></h4>
+    <ul>
+      <li>PDF: <%= p.document_location %></li>
+      <li>Authors: <%= p.authors %></li>
+    </ul>
     <% end %>
   </div>
 <% end %>
