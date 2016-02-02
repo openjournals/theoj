@@ -1,12 +1,12 @@
-<%= Paper.aasm.states.each do |state| %>
+<% Paper.aasm.states.each do |state| %>
   <% papers = Paper.where(:state => state.name) %>
 
   <div>
     <h3><%= papers.count %> <%= state.name %> papers</h3>
     <% papers.each do |p| %>
-      <p>Title: %= p.title %></p>
-      <p>PDF: %= p.document_location %></p>
-      <p>Authors: %= p.authors %></p>
+      <p>Title: <%= p.title %></p>
+      <p>PDF: <%= p.document_location %></p>
+      <p>Authors: <%= p.authors %></p>
     <% end %>
   </div>
 <% end %>
