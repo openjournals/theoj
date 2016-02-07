@@ -18,11 +18,11 @@
         min-width: 250px;
         top:       20px;
       }
-      #suggestions core-menu {
+      #suggestions paper-menu {
           margin: 0;
       }
 
-      core-item {
+      paper-item {
         box-sizing: border-box;
         padding:    5px 10px;
         background-color: #f8f8f8;
@@ -30,13 +30,13 @@
         border-bottom: 1px solid black;
         cursor: pointer;
       }
-      core-item:hover {
+      paper-item:hover {
           background-color: #ffffff;
       }
-      core-item:last-child {
+      paper-item:last-child {
           border-bottom: none;
       }
-      core-item.core-selected {
+      paper-item.selected {
           font-weight: normal;
       }
 
@@ -58,7 +58,7 @@
         </paper-menu>
     </iron-dropdown>
 
-    <json-get id="lookUpSearch" on-success="lookupSuccess"></json-get>
+    <json-request id="lookUpSearch" method="get" on-success="lookupSuccess"></json-request>
   </template>
   <script>
     Polymer({

@@ -1,4 +1,4 @@
-ruby '2.1.2'
+ruby '2.3.0'
 
 source 'https://rubygems.org'
 
@@ -27,7 +27,7 @@ gem 'jquery-rails'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'active_model_serializers'
-
+gem 'quiet_assets', group: :development
 
 gem 'bower-rails'
 # gem 'emcee', github: 'openjournals/emcee', branch:'fix_attempt'

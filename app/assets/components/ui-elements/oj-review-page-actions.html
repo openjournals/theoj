@@ -1,35 +1,20 @@
-  <style is="custom-style">
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
 
 <dom-module id="oj-review-page-actions">
+
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    :host[layout] {
-      @apply(--layout);
-    }
-    :host[layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
-  <style>
+
+      :host {
+          @apply(--layout);
+          @apply(--layout-horizontal);
+      }
+
       paper-button {
           color:         rgb(154, 154, 154) !important;
           border:        1px solid rgb(154, 154, 154) !important;
           padding-top:   1px !important;
           box-shadow:    0 4px 0 0 rgba(218, 218, 218, 0.3) !important;
       }
-      paper-button core-icon {
+      paper-button iron-icon {
           width: 16px !important;
           height: 16px !important;
           padding: 0;
@@ -52,7 +37,7 @@
               <iron-icon icon="arrow-forward"></iron-icon>
               Reviewer Selection Complete
           </paper-button>
-          <div flex=""></div>
+          <div class="layout flex"></div>
           <paper-button id="accept" on-tap="{{_computeHidden2(paper)}}" hidden$="{{_computeHidden(paper)}}">
               <iron-icon icon="thumb-up"></iron-icon>
               Accept
@@ -68,7 +53,7 @@
       </template>
 
       <template is="dom-if" if="{{_computeIf2(paper)}}">
-          <div flex=""></div>
+          <div class="layout flex"></div>
           <paper-button id="check-for-update" on-tap="{{_computeHidden4(paper)}}" hidden$="{{_computeHidden(paper)}}">
               <iron-icon icon="refresh"></iron-icon>
               Check for Update
@@ -80,7 +65,7 @@
               <iron-icon icon="check"></iron-icon>
               Make Publication Recommendation
           </paper-button>
-          <div flex=""></div>
+          <div class="layout flex"></div>
           <paper-button id="make-name-public" on-tap="{{_computeHidden6(paper)}}" hidden$="{{_computeHidden(paper)}}">
               <iron-icon icon="perm-identity"></iron-icon>
               Make Public
@@ -91,18 +76,18 @@
           </paper-button>
       </template>
 
-    <paper-action-dialog id="dialog" backdrop="" layered="false">
+    <paper-dialog id="dialog" backdrop="" layered="false">
         <p></p>
         <paper-button class="first" affirmative=""></paper-button>
         <paper-button class="second" affirmative=""></paper-button>
         <paper-button dismissive="" autofocus="">Cancel</paper-button>
-    </paper-action-dialog>
+    </paper-dialog>
 
-    <json-put id="statusChangeRequest" on-success="statusChangeRequestSuccess"></json-put>
-    <json-put id="updateRequest" on-success="updateRequestSuccess" on-error="requestError"></json-put>
-    <json-post id="completedRequest" on-success="completedRequestSuccess" on-error="requestError"></json-post>
-    <json-delete id="deleteRequest" on-error="requestError"></json-delete>
-    <json-req id="publicRequest" on-error="requestError"></json-req>
+    <json-request id="statusChangeRequest" method="put" on-success="statusChangeRequestSuccess"></json-request>
+    <json-request id="updateRequest" method="put" on-success="updateRequestSuccess" on-error="requestError"></json-request>
+    <json-request id="completedRequest" method="post" on-success="completedRequestSuccess" on-error="requestError"></json-request>
+    <json-request id="deleteRequest" method="delete" on-error="requestError"></json-request>
+    <json-request id="publicRequest" method="get" on-error="requestError"></json-request>
 
   </template>
   <script>
@@ -219,10 +204,6 @@
       },
       requestError: function (event, detail) {
         this.fire('notification', Oj.utils.errorMessage(detail));
-      },
-      hostAttributes: {
-        'layout': '',
-        'horizontal': ''
       },
       _computeIf: function (paper) {
         return paper.current_role == 'editor';

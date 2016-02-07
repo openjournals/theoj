@@ -1,19 +1,6 @@
 
 <dom-module id="oj-annotation-comments">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [layout][end-justified] {
-      @apply(--layout-end-justified);
-    }
-  </style>
+
   <style>
 
       .comments {
@@ -57,9 +44,9 @@
       <template is="dom-if" if="{{annotation.responses.length}}">
           <div class="comments">
               <template is="dom-repeat" items="{{annotation.responses}}" as="comment">
-                  <div layout="" horizontal="">
+                  <div class="layout horizontal">
                       <oj-user-label assignment="{{_computeAssignment(comment, getAssignment)}}"></oj-user-label>
-                      <markdown-content class="comment" flex="" markdown="{{comment.body}}"></markdown-content>
+                      <markdown-content class="comment" class="layout flex" markdown="{{comment.body}}"></markdown-content>
                   </div>
               </template>
           </div>
@@ -71,20 +58,20 @@
 
           <markdown-text-area id="replyTextArea" placeholder="Add a comment" value="{{text}}"></markdown-text-area>
 
-          <div layout="" horizontal="" end-justified="" class="controls">
+          <div class="controls layout horizontal end-justified">
               <paper-button on-click="submitComment" icon="add" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
               <paper-button on-click="dismissNewComment" icon="close" disabled$="{{$.newCommentRequest.loading}}">Cancel</paper-button>
           </div>
       </template>
 
       <template is="dom-if" if="{{_computeIf(newCommentVisible, paper)}}">
-          <div layout="" horizontal="">
-              <span flex=""></span>
+          <div class="layout horizontal">
+              <span class="layout flex"></span>
               <paper-button on-click="showNewComment" icon="reply">Reply</paper-button>
           </div>
       </template>
 
-    <iron-ajax id="newCommentRequest" url="{{addIssuePath(paper)}}" method="POST" contenttype="application/json" handle-as="json" on-core-response="commentSaved" on-core-error="commentError"></iron-ajax>
+    <iron-ajax id="newCommentRequest" url="{{addIssuePath(paper)}}" method="POST" contenttype="application/json" handle-as="json" on-response="commentSaved" on-error="commentError"></iron-ajax>
 
   </template>
   <script>

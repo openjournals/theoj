@@ -1,60 +1,19 @@
-  <style is="custom-style">
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [relative] {
-      position: relative;
-    }
-  </style>
 
 <dom-module id="oj-review-page-header">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    :host[layout] {
-      @apply(--layout);
-    }
-    :host[layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    :host[relative] {
-      position: relative;
-    }
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [self-start] {
-      @apply(--layout-self-start);
-    }
-    [self-stretch] {
-      @apply(--layout-self-stretch);
-    }
-  </style>
+
   <style>
 
         :host {
             box-sizing:    border-box;;
+            @apply(--layout);
+            @apply(--layout-relative);
+            @apply(--layout-horizontal);
+            @apply(--layout-relative);
         }
 
         .left {
             background:    rgb(230, 230, 230);;
-            padding:       20px 20px 0px 20px;
+            padding:       20px 20px 0 20px;
         }
 
         #title-row {
@@ -87,7 +46,7 @@
         paper-item::shadow .button-content {
             padding: 0 0 0 4px;
         }
-        paper-dropdown-menu::shadow core-icon {
+        paper-dropdown-menu::shadow iron-icon {
             margin: -4px;
         }
         paper-dropdown-menu::shadow #arrow {
@@ -101,12 +60,12 @@
             left:      16px;
             top:       4px;
         }
-        core-menu {
+        paper-menu {
             margin: 0;
         }
 
         #assignments-row {
-            margin: 8px 0px;
+            margin: 8px 0;
         }
 
         #status-row {
@@ -189,7 +148,7 @@
         #add-paper-annotation .text-wrapper {
             margin-left: 40px;
         }
-        #add-paper-annotation paper-button core-icon {
+        #add-paper-annotation paper-button iron-icon {
             color:    white;
             margin:   4px 0 0 2px;
         }
@@ -197,18 +156,18 @@
     </style>
   <template>
 
-      <div class="left" flex="" layout="" vertical="">
-          <div class="title-row" layout="" horizontal="">
+      <div class="layout flex left vertical" >
+          <div class="title-row" class="layout horizontal">
 
-              <div flex="" class="title">
+              <div class="title flex">
                   <span>{{paper.title}}</span>
                   <template is="dom-if" if="{{_computeIf(paper, show_bottom)}}">
                       <span class="inline-status">&nbsp;(<span>{{capitalize(paper.state)}}</span>)</span>
                   </template>
               </div>
 
-              <div self-start="">
-                  <paper-dropdown-menu on-core-activate="versionSelected">
+              <div class="self-start">
+                  <paper-dropdown-menu on-activate="versionSelected">
                       <iron-dropdown class="dropdown">
                           <paper-menu id="versionMenu" valueattr="version" selected="{{paper.typed_provider_id}}">
                               <template is="dom-repeat" items="{{paper.versions}}" as="version">
@@ -226,7 +185,7 @@
           </div>
 
           <template is="dom-if" if="{{show_bottom}}">
-              <div id="status-row" layout="" horizontal="">
+              <div id="status-row" class="layout horizontal">
 
                   <div class="status-block">
                       <div class="label">Status:</div>
@@ -240,7 +199,7 @@
                       </div>
                   </template>
 
-                  <oj-review-page-actions flex="" user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
+                  <oj-review-page-actions class="layout flex" user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
 
               </div>
           </template>
@@ -248,7 +207,7 @@
       </div>
 
       <template is="dom-if" if="{{paper.can_edit_annotations}}">
-          <div class="right" layout="" vertical="" self-stretch="">
+          <div class="layout right vertical self-stretch">
 
               <div id="add-paper-annotation">
                   <paper-button raised="" on-tap="addPaperAnnotation">
@@ -299,11 +258,6 @@
       },
       addPaperAnnotation: function (event, detail) {
         this.fire('add-paper-annotation');
-      },
-      hostAttributes: {
-        'relative': '',
-        'layout': '',
-        'horizontal': ''
       },
       _computeIf: function (paper, show_bottom) {
         return !show_bottom && paper.state != 'accepted';

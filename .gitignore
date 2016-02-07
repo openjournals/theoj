@@ -21,3 +21,6 @@
 # Ignore secure configurations
 # /config/secrets.yml
 /config/settings.yml
+
+# ignore node modules
+/node_modules

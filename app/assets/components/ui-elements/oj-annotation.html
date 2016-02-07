@@ -1,15 +1,5 @@
 <dom-module id="oj-annotation">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
+
   <style>
       :host{
           width: 100%;
@@ -29,7 +19,7 @@
       .container-inner.expanded {
           padding-bottom: 6px;
       }
-      core-collapse {
+      iron-collapse {
           position: absolute;
           top: 0;
           left: 0;
@@ -73,7 +63,7 @@
           height:         28px;
           line-height:    11px;
       }
-      :host .container /deep/ paper-button core-icon {
+      :host .container /deep/ paper-button iron-icon {
           width:         16px;
           height:        16px;
           padding:       0;
@@ -116,9 +106,9 @@
 
           <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
 
-          <div on-tap="expand" class="header" layout="" horizontal="">
+          <div on-tap="expand" class="header layout horizontal">
               <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
-              <markdown-simplified flex="" class="issue" markdown="{{annotation.body}}"></markdown-simplified>
+              <markdown-simplified class="issue layout flex" markdown="{{annotation.body}}"></markdown-simplified>
               <div class="count"><span>{{_computeExpression1(annotation)}}</span> replies</div>
           </div>
 
@@ -126,7 +116,7 @@
     </div>
 
     <!-- Overlay this to get animated expansion to work nicely -->
-    <iron-collapse id="collapsible" opened="{{annotation.open}}" on-core-resize="annotationAfterOpen">
+    <iron-collapse id="collapsible" opened="{{annotation.open}}" on-resize="annotationAfterOpen">
       <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
 
       <div class$="{{_computeClass2(annotation)}}">
@@ -135,7 +125,7 @@
               <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
 
               <template is="dom-if" if="{{!annotation.new}}">
-                  <div on-tap="collapse" class="header" layout="" horizontal="">
+                  <div on-tap="collapse" class="header layout horizontal">
                       <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
                       <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
                   </div>
@@ -151,8 +141,8 @@
                       <markdown-text-area id="annotationTextArea" class="issue" value="{{text}}"></markdown-text-area>
                   </div>
 
-                  <div layout="" horizontal="">
-                      <span flex=""></span>
+                  <div class="layout horizontal">
+                      <span class="layout flex"></span>
                       <paper-button on-click="submitAnnotation" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
                       <paper-button on-click="close" disabled$="{{$.saveAnnotationRequest.loading}}">Cancel</paper-button>
                   </div>
@@ -164,7 +154,7 @@
 
     </iron-collapse>
 
-      <json-post id="saveAnnotationRequest" url="{{paperAnnotationsPath(paper)}}" on-success="annotationSaved" on-error="annotationError"></json-post>
+      <json-request id="saveAnnotationRequest" method="post" url="{{paperAnnotationsPath(paper)}}" on-success="annotationSaved" on-error="annotationError"></json-request>
   </template>
   <script>
     //TODO(polyup): Need to add an observer of annotation.open, calling annotationOpenChanged.
@@ -180,6 +170,9 @@
         paper: { notify: true },
         text: { notify: true }
       },
+      observers: [
+        'annotationOpenChanged(annotation.open)'
+      ],
       /**** API *****/
       close: function () {
         this.collapse();
@@ -275,7 +268,7 @@
       ready: function () {
         if (this.annotation && this.annotation.new) {
           this.async(function () {
-            var edit = Polymer.dom(this.shadowRoot).querySelector('core-collapse #annotationTextArea');
+            var edit = Polymer.dom(this.shadowRoot).querySelector('collapse #annotationTextArea');
             edit.focus();
             edit.select();
           });

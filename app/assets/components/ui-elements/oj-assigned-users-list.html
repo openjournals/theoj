@@ -17,8 +17,8 @@
           <oj-user-lookup placeholder="Add Reviewer" on-user-selected="addReviewer" on-filter-suggestions="filterReviewerList"></oj-user-lookup>
       </template>
 
-    <json-post id="addReviewer" on-success="updateReviewers"></json-post>
-    <json-delete id="removeReviewer" on-success="updateReviewers"></json-delete>
+    <json-request id="addReviewer" method="post" on-success="updateReviewers"></json-request>
+    <json-request id="removeReviewer" method="delete" on-success="updateReviewers"></json-request>
 
   </template>
   <script>

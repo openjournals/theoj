@@ -1,31 +1,12 @@
 
 <dom-module id="oj-submit-page">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-    [layout][center-justified] {
-      @apply(--layout-center-justified);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
+
   <style>
       section {
         height:100%;
         min-height:400px;
       }
-      paper-shadow {
+      paper-material {
           padding-left: 40px;
       }
       .input {
@@ -52,14 +33,14 @@
       }
     </style>
   <template>
-    <section layout="" vertical="" class="boiler-plate">
+    <section class="boiler-plate layout vertical">
       <h1>Submit a Paper</h1>
 
-        <paper-material id="form" flex="" center-justified="" vertical="" layout="" left="" elevation="1">
+        <paper-material id="form" class="layout flex center-justified vertical left" elevation="1">
           <iron-a11y-keys keys="enter" on-keys-pressed="submit"></iron-a11y-keys>
 
-          <div class="input" layout="" horizontal="">
-              <paper-input flex="" label="arXiv identifier" value="{{paperIdentifier}}"></paper-input>
+          <div class="input layout horizontal">
+              <paper-input class="layout flex" label="arXiv identifier" value="{{paperIdentifier}}"></paper-input>
               <paper-button raised="" on-tap="submit" role="button" disabled$="{{!paperValid}}">Submit</paper-button>
           </div>
 

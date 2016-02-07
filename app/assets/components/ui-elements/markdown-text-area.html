@@ -7,7 +7,7 @@
           color: black;
           background-color: #e0e0e0;
       }
-      paper-autogrow-textarea {
+      iron-autogrow-textarea {
           position:relative;
           box-sizing: border-box;
           width: 100%;
@@ -47,9 +47,9 @@
       </template>
 
       <div hidden$="{{previewVisible}}">
-        <paper-autogrow-textarea id="autogrow" rows="3" maxrows="12">
+        <iron-autogrow-textarea id="autogrow" rows="3" maxrows="12">
           <textarea class="niceTextArea" placeholder="{{placeholder}}" id="input" value="{{value::input}}"></textarea>
-        </paper-autogrow-textarea>
+        </iron-autogrow-textarea>
         <a href="#" class="toggle" on-click="showPreview">Show Preview</a>
       </div>
 

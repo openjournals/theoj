@@ -1,26 +1,12 @@
 <dom-module id="oj-annotation-list">
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-  </style>
-  <style>
       :host {
         position: relative;
         box-sizing: border-box;
       }
     </style>
   <template>
-    <div layout="" vertical="" flex="" id="list">
+    <div class="layout vertical flex" id="list">
 
       <template is="dom-repeat" items="{{annotations}}" as="annotation">
         <oj-annotation paper="{{paper}}" annotation="{{annotation}}" on-annotation-opened="annotationOpened" on-annotation-closed="annotationClosed" on-annotation-added="annotationAdded" style$="{{_computeStyle(annotation)}}"></oj-annotation>

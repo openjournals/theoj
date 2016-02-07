@@ -1,18 +1,5 @@
 <dom-module id="oj-paper-row">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [self-end] {
-      @apply(--layout-self-end);
-    }
-  </style>
+
   <style>
 
     .row {
@@ -60,9 +47,9 @@
 
   </style>
   <template>
-  <div flex="" class$="{{_computeClass(paper)}}">
-      <div class="inner" layout="" horizontal="">
-          <div class="lhs" flex="">
+  <div class$="{{_computeClass(paper)}}">
+      <div class="inner layout horizontal">
+          <div class="lhs layout flex">
               <div class="title">{{paper.title}}</div>
               <div class="detail">
                   Submitted by <span class="highlight">{{paper.submittor.name}}</span>
@@ -72,7 +59,7 @@
                   </template>
               </div>
           </div>
-          <div self-end="{{_computeClass2(paper)}}" class$="{{_computeClass(paper)}}">
+          <div class$="{{_computeClass2(paper)}}">
               <div class="status">Status: <span class="highlight">{{capitalize(paper.state)}}</span></div>
           </div>
       </div>
@@ -82,14 +69,14 @@
     Polymer({
       is: 'oj-paper-row',
       properties: { paper: { notify: true } },
+        _computeIf: function (paper) {
+            return paper.state == 'under_review';
+        },
       _computeClass: function (paper) {
-        return 'row ' + this.actionForPaper(paper);
-      },
-      _computeIf: function (paper) {
-        return paper.state == 'under_review';
+        return 'row ' + this.actionForPaper(paper) + ' layout flex';
       },
       _computeClass2: function (paper) {
-        return 'rhs action-' + this.actionForPaper(paper);
+        return 'rhs action-' + this.actionForPaper(paper) + ' layout self-end';
       }
     });
   </script>

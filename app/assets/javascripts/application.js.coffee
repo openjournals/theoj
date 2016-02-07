@@ -1,4 +1,5 @@
 #= require jquery
+#= require webcomponentsjs/webcomponents-lite
 #= require pushstate-anchor
 #= require marked.min
 #= stub    pdfjs-dist/build/pdf.worker

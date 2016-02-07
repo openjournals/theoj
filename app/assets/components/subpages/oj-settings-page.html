@@ -1,24 +1,5 @@
 <dom-module id="oj-settings-page">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-    [layout][center] {
-      @apply(--layout-center);
-    }
-    [layout][center-justified] {
-      @apply(--layout-center-justified);
-    }
-  </style>
+
   <style>
             section {
                 height: 100%;
@@ -36,11 +17,11 @@
 
         </style>
   <template>
-        <section layout="" vertical="" class="boiler-plate">
+        <section class="boiler-plate layout vertical">
 
             <h1>Settings</h1>
 
-            <paper-material id="form" flex="" center-justified="" vertical="" layout="" center="" elevation="1">
+            <paper-material id="form" class="layout flex center-justified vertical center" elevation="1">
                 <iron-a11y-keys keys="enter" on-keys-pressed="submit"></iron-a11y-keys>
 
                 <paper-input label="e-mail address" value="{{email}}"></paper-input>
@@ -50,7 +31,7 @@
 
         </section>
 
-        <json-put id="update" url="/api/user" on-success="updateSuccess" on-error="updateError"></json-put>
+        <json-request id="update" metho="put" url="/api/user" on-success="updateSuccess" on-error="updateError"></json-request>
 
     </template>
   <script>

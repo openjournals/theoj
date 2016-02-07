@@ -1,43 +1,10 @@
-  <style is="custom-style">
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
-
-
 <dom-module id="oj-paper-preview">
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    :host[layout] {
-      @apply(--layout);
-    }
-    :host[layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    :host[fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
-  <style>
+      :host {
+          @apply(--layout);
+          @apply(--layout-horizontal);
+          @apply(--layout-fit);
+      }
 
       #preview {
           height: 100%;
@@ -102,7 +69,7 @@
     <template is="dom-if" if="{{_computeIf(paper_details)}}">
 
         <template is="dom-if" if="{{hidePDF}}">
-          <div flex="" id="preview">
+          <div class="layout flex" id="preview">
             <iframe src="{{googlePreviewPath(paper_details)}}" frameborder="0"></iframe>
           </div>
         </template>
@@ -136,10 +103,9 @@
       <paper-spinner active=""></paper-spinner>
     </template>
 
-    <json-post id="postRequest" on-success="onPostRepsonse" on-error="onPostError">
-    </json-post>
+    <json-request id="postRequest" method="post" on-success="onPostRepsonse" on-error="onPostError"></json-request>
 
-    <json-get id="detailsRequest" auto="true" url="{{previewPath(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></json-get>
+    <json-request id="detailsRequest" method="get" auto="true" url="{{previewPath(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></json-request>
 
     <iron-media-query query="min-width: 600px" query-matches="{{hidePDF}}"></iron-media-query>
 
@@ -185,11 +151,6 @@
         else
           var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
         this.fire('notification', message);
-      },
-      hostAttributes: {
-        'fit': '',
-        'layout': '',
-        'horizontal': ''
       },
       _computeIf: function (paper_details) {
         return paper_details && !paper_details.is_existing;

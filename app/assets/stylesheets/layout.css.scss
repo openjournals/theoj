@@ -12,7 +12,7 @@ body /deep/ {
     font-family: $default_font;
   }
 
-  core-toolbar {
+  paper-toolbar {
     height: 70px;
   }
 
@@ -63,7 +63,7 @@ body /deep/ {
       margin-right: 12px;
     }
 
-    /deep/ ::content input[is="core-input"]  {
+    /deep/ ::content input[is="iron-input"]  {
       border:        solid 2px silver;
       border-radius: 4px;
       height:        32px;

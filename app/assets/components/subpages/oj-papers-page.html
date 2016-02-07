@@ -1,42 +1,11 @@
-  <style is="custom-style">
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
-  
+
 <dom-module id="oj-papers-page">
+
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    :host[fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-  </style>
-  <style>
+        :host {
+            @apply(--layout);
+            @apply(--layout-fit);
+        }
 
         #top {
             background: #eee;
@@ -76,7 +45,7 @@
             height:        100%;
             margin-bottom: 18px;
         }
-        core-list{
+        iron-list{
             width: 100%;
         }
         #empty {
@@ -91,11 +60,11 @@
     </style>
   <template>
       
-    <div id="scroller" layout="" vertical="">
+    <div id="scroller" class="layout vertical">
 
-      <div id="top" layout="" horizontal="">
-          <h1 flex="">{{header}}</h1>
-          <paper-dropdown-menu on-core-select="changeSortOrder" label="Submitted Date">
+      <div id="top" class="layout horizontal">
+          <h1 class="layout flex">{{header}}</h1>
+          <paper-dropdown-menu on-select="changeSortOrder" label="Submitted Date">
               <iron-dropdown class="dropdown">
                   <paper-menu class="menu" selected="3">
                       <paper-item key="title">Sort By Article Title</paper-item>
@@ -107,10 +76,10 @@
           </paper-dropdown-menu>
       </div>
 
-      <div id="list" layout="" vertical="" flex="">
+      <div id="list" class="layout flex vertical">
 
           <template is="dom-if" if="{{_computeIf(papers)}}">
-              <iron-list scrolltarget="{{$.scroller}}" on-core-activate="selectPaper" data="{{filtered(papers, sortKey, sortDesc)}}">
+              <iron-list scrolltarget="{{$.scroller}}" on-activate="selectPaper" data="{{filtered(papers, sortKey, sortDesc)}}">
 
                   <template>
                       <div class$="{{_computeClass(selected)}}">
@@ -178,7 +147,6 @@
         };
         return array.sort(sortFunction);
       },
-      hostAttributes: { 'fit': '' },
       _computeIf: function (papers) {
         return papers && papers.length > 0;
       },

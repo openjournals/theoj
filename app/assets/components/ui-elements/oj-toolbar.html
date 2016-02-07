@@ -1,25 +1,11 @@
 <dom-module id="oj-toolbar">
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-  </style>
-  <style>
 
       [tool] {
         height: 100%;
       }
 
-      core-icon-button {
+      paper-icon-button {
           margin-top:  6px;
       }
 
@@ -79,11 +65,11 @@
     </style>
   <template>
 
-        <div tool="" flex="" layout="" horizontal="">
+        <div tool="" class="layout flex horizontal">
             <paper-icon-button icon="menu" on-tap="toggleDrawer" hidden$="{{!narrow}}"></paper-icon-button>
-            <span flex="" class="title">The Open Journal</span>
+            <span class="title flex">The Open Journal</span>
             <iron-icon id="search-icon" icon="search"></iron-icon>
-            <input id="search" is="core-input" placeholder="Search" on-keyup="onSearchKeyUp">
+            <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
             <oj-user-login currentuser="{{currentUser}}"></oj-user-login>
         </div>
 

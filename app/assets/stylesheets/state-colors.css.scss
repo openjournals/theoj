@@ -53,7 +53,7 @@ body /deep/ {
 
   oj-annotation-marker {
 
-    &::shadow core-icon {
+    &::shadow iron-icon {
 
       @each $state, $fg in $oj-issue-states-fg {
         &.state-#{$state} {

@@ -1,5 +1,13 @@
 <dom-module id="oj-page-router">
-  <template>
+
+    <style>
+        :host {
+            @apply(--layout);
+            @apply(--layout-flex);
+        }
+    </style>
+
+    <template>
 
         <app-router id="router" init="manual" mode="pushstate" flex="" on-activate-route-start="activateRouteStart" on-before-data-binding="beforeDataBinding" on-activate-route-end="activateRouteEnd">
 
@@ -137,7 +145,6 @@
           firstRequest: !detail.oldRoute  // First page requested
         });
       },
-      hostAttributes: { 'flex': '' },
       _computeSrc: function (q) {
         return '/api/papers/search?q=' + q;
       },

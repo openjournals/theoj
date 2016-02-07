@@ -1,48 +1,17 @@
-  <style is="custom-style">
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
-  
 <dom-module id="oj-review-page">
+
   <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    :host[fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [layout][flex] {
-      @apply(--layout-flex);
-    }
-  </style>
-  <style>
-        #scroller {
-            position:      relative;
-            overflow-y:    auto;
-            height:        100%;
-            margin-bottom: 18px;
-        }
+      :host {
+          @apply(--layout);
+          @apply(--layout-fit);
+      }
+
+      #scroller {
+        position:      relative;
+        overflow-y:    auto;
+        height:        100%;
+        margin-bottom: 18px;
+      }
 
       oj-review-page-header {
 
@@ -68,14 +37,14 @@
     </style>
   <template>
 
-    <div id="scroller" layout="" vertical="">
+    <div id="scroller" class="layout vertical">
 
         <oj-review-page-header id="header" user="{{currentUser}}" paper="{{paper}}" annotations="{{annotations}}" loadprogress="{{loadProgress}}" on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
 
         <template is="dom-if" if="{{paper}}">
-          <div id="main" layout="" horizontal="">
+          <div id="main" class="layout horizontal">
 
-            <div layout="" vertical="" id="pdf-pane" flex="">
+            <div class="layout flex vertical" id="pdf-pane">
 
               <stacked-pdf-reader src="{{paper.document_location}}" annotations="{{annotations}}" pageoffset="{{pageOffset}}" loadprogress="{{loadProgress}}" on-page-clicked="pageClicked" on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
             </div>
@@ -88,7 +57,7 @@
 
     </div>
 
-    <json-get auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-get>
+    <json-request method="get" auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-request>
 
     <template is="dom-if" if="{{paper.can_view_annotations}}">
       <firebase-element id="annotation-firebase" location="{{annotationsFirebasePath (paper_id)}}" data="{{data}}" keys="{{keys}}" data-change$="{{updateAnnotations}}"></firebase-element>
@@ -179,7 +148,6 @@
           this.annotations.push(annotation);
         }
       },
-      hostAttributes: { 'fit': '' },
       _computePagespacing: function () {
         return 20;
       }

@@ -27,14 +27,14 @@
           <paper-icon-button id="dispute" icon="report-problem" name="Dispute" title="{{_computeDisabled3(annotation)}}" disabled$="{{_computeDisabled(annotation)}}"></paper-icon-button>
       </div>
 
-      <paper-action-dialog id="dialog" backdrop="" layered="false">
+      <paper-dialog id="dialog" backdrop="" layered="false">
           <p>Do you really want to <span>{{newState}}</span> this annotation?</p>
           <paper-button affirmative="" autofocus="" on-tap="dialogAccepted">{{newAction}}</paper-button>
           <paper-button dismissive="">Cancel</paper-button>
-      </paper-action-dialog>
+      </paper-dialog>
 
 
-      <json-put id="putStateChange" on-success="putStateChangeSuccess"></json-put>
+      <json-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></json-request>
 
   </template>
   <script>
