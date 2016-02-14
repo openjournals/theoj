@@ -18,11 +18,11 @@
           height:         25px;
           margin-top:     22px;
           text-transform: uppercase;
-          text-transform: uppercase;
       }
 
       #search {
-          background: rgb(67, 111, 153);
+          width:          320px;
+          background:     rgb(67, 111, 153);
           border:         solid 1px #ccc;
           border-radius:  8px;
           color:          white;
@@ -70,7 +70,7 @@
             <span class="title flex">The Open Journal</span>
             <iron-icon id="search-icon" icon="search"></iron-icon>
             <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
-            <oj-user-login currentuser="{{currentUser}}"></oj-user-login>
+            <oj-user-login current-user="{{currentUser}}"></oj-user-login>
         </div>
 
     <oj-current-user on-user="onUser"></oj-current-user>
@@ -91,6 +91,10 @@
           if (value)
             this.fire('go', '/search?q=' + encodeURIComponent(value));
         }
+      },
+      onUser: function(event, detail) {
+          var user = detail.name ? detail : null;
+          this.currentUser = user;
       },
       toggleDrawer: function () {
         this.fire('toggle-drawer');

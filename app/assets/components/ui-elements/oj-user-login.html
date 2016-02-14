@@ -1,4 +1,5 @@
 <dom-module id="oj-user-login">
+
   <style>
       a {
         color: #fff;
@@ -14,7 +15,7 @@
 
       a.signout {
           padding: 8px 12px;
-          border-width: 2px solid rgb(77, 118, 156);
+          border: 2px solid rgb(77, 118, 156);
           border-radius: 5px;
           background-color: rgb(51, 85, 117);
           box-shadow: 0 2px 0 0 rgba(45, 74, 102, 0.004);
@@ -29,23 +30,34 @@
       }
 
     </style>
-  <template>
 
+  <template>
     <template is="dom-if" if="{{currentUser}}">
       <a class="link username" href="https://orcid.org/my-orcid" target="_blank">
-          <span>{{currentUser.name}}</span><span>{{_computeExpression2(currentUser, roles)}}</span></a>
+          <span>{{currentUser.name}}</span><span>{{roles}}</span></a>
       <a class="link signout" href="/signout">Sign Out</a>
     </template>
 
     <template is="dom-if" if="{{!currentUser}}">
       <a class="link" href="/auth/orcid">Sign In</a>
     </template>
+
   </template>
+
   <script>
     Polymer({
       is: 'oj-user-login',
-      properties: { currentUser: { notify: true } },
-      roles: function (user) {
+      properties: {
+          currentUser: {
+              type:   Object,
+              notify: true
+          },
+          roles: {
+              type:      String,
+              computed: 'rolesFor(currentUser)'
+          }
+      },
+      rolesFor: function (user) {
         if (!user)
           return '';
         else if (user.admin && user.editor)
@@ -56,9 +68,6 @@
           return ' (Editor)';
         else
           return '';
-      },
-      _computeExpression2: function (currentUser, roles) {
-        return currentUser | roles;
       }
     });
   </script>

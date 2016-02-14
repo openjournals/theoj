@@ -9,15 +9,18 @@
 
     <template>
 
-        <app-router id="router" init="manual" mode="pushstate" flex="" on-activate-route-start="activateRouteStart" on-before-data-binding="beforeDataBinding" on-activate-route-end="activateRouteEnd">
+        <app-router id="router" init="manual" mode="pushstate" class="layout flex="
+                    on-activate-route-start="activateRouteStart"
+                    on-before-data-binding="beforeDataBinding"
+                    on-activate-route-end="activateRouteEnd">
 
-            <app-route path="/" noauth="">
+            <app-route path="/" noauth>
                 <template>
                     <oj-papers-page src="/api/papers/recent" header="Recent Papers"></oj-papers-page>
                 </template>
             </app-route>
 
-            <app-route path="/search" noauth="">
+            <app-route path="/search" noauth>
                 <template>
                     <oj-papers-page src="{{_computeSrc(q)}}" header="{{_computeHeader(q)}}"></oj-papers-page>
                 </template>
@@ -60,7 +63,7 @@
       properties: { currentUser: { notify: true } },
       // Public API
       init: function () {
-        this.$.router.init();
+         this.$.router.init();
       },
       go: function (url) {
         this.$.router.go(url);
@@ -117,20 +120,20 @@
       loginRequired: function (route) {
         return !route.hasAttribute('noAuth');
       },
-      bindExtraAttributes: function (model) {
+      bindExtraAttributes: function(model) {
         model.user = this.currentUser;
         model.currentUser = this.currentUser;
       },
-      pageInstanceForRoute: function (route) {
+      pageInstanceForRoute: function(route) {
         return route.children[route.children.length - 1];
       },
-      activateRouteStart: function (event, detail) {
+      activateRouteStart: function(event, detail) {
         var path = event.detail.path;
         var route = event.detail.route;
         var initialRequest = !detail.oldRoute;
         return this.validateOrRedirectUser(event, path, route, initialRequest);
       },
-      beforeDataBinding: function (event, detail) {
+      beforeDataBinding: function(event, detail) {
         return this.bindExtraAttributes(detail.model);
       },
       activateRouteEnd: function (event, detail) {
@@ -145,10 +148,10 @@
           firstRequest: !detail.oldRoute  // First page requested
         });
       },
-      _computeSrc: function (q) {
+      _computeSrc: function(q) {
         return '/api/papers/search?q=' + q;
       },
-      _computeHeader: function (q) {
+      _computeHeader: function(q) {
         return 'Search Results For ' + q;
       }
     });

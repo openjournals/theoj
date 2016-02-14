@@ -9,7 +9,7 @@
           @apply(--layout-flex);
       }
 
-      [drawer] {
+      paper-drawer-panel {
           border-right: 1px solid #ccc;
       }
 
@@ -48,11 +48,11 @@
 
         <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
 
-            <oj-main-menu drawer="" id="mainmenu" currentuser="{{currentUser}}">
+            <oj-main-menu drawer id="mainmenu" current-user="{{currentUser}}">
             </oj-main-menu>
 
-            <paper-header-panel main="" mode="scroll" layout="" vertical="">
-                <oj-page-router id="pages" class="layout flex vertical" on-route-changed="onRouteChanged" currentuser="{{currentUser}}">
+            <paper-header-panel main mode="scroll" class="layout flex vertical" >
+                <oj-page-router id="pages" class="layout flex vertical" on-route-changed="onRouteChanged" current-user="{{currentUser}}">
                     </oj-page-router>
             </paper-header-panel>
 
@@ -87,9 +87,8 @@
         this.currentUser = user && user.name ? user : null;
         this.$.pages.init();
       },
-      onRouteChanged: function (detail, event) {
-        var $menu = Polymer.dom(this.shadowRoot).querySelector('#mainmenu');
-        $menu.routeChanged(detail);
+      onRouteChanged: function (event, detail) {
+        this.$.mainmenu.routeChanged(event, detail);
       },
       showNotification: function (text) {
         console.info('Notification: ', text);

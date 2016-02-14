@@ -9,49 +9,58 @@
                 font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
             }
 
-            paper-menu /deep/ #drawer{
+            paper-menu /deep/ #drawer {
                 background-color: #7986CB;
             }
 
-        </style>
+            paper-item a {
+                height: 100%;
+                width: 100%;
+                color:  inherit;
+                background: inherit;
+                text-decoration: none;
+                display: block;
+            }
+
+  </style>
   <template>
 
         <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" valueattr="id" class="main-menu">
 
-            <paper-item id="recent" undefined="Recent Papers">
-                <a is="pushstate-anchor" href="/" target="_self"></a>
+            <paper-item id="recent">
+                <a is="pushstate-anchor" href="/" target="_self"><iron-icon icon="home"></iron-icon> Recent Papers</a>
             </paper-item>
 
             <template is="dom-if" if="{{currentUser}}">
 
-                <paper-item id="submitted" undefined="Papers You Submitted">
-                    <a is="pushstate-anchor" href="/submitted" target="_self"></a>
+                <paper-item id="submitted">
+                    <a is="pushstate-anchor" href="/submitted" target="_self"><iron-icon icon="receipt"></iron-icon> Papers You Submitted</a>
                 </paper-item>
 
-                <paper-item id="review" undefined="Papers You Are Reviewing">
-                    <a is="pushstate-anchor" href="/review" target="_self"></a>
+                <paper-item id="review">
+                    <a is="pushstate-anchor" href="/review" target="_self"><iron-icon icon="speaker-notes"></iron-icon> Papers You Are Reviewing</a>
                 </paper-item>
 
                 <template is="dom-if" if="{{currentUser.editor}}">
 
-                    <paper-item id="editing" undefined="Papers You Are Editing">
-                        <a is="pushstate-anchor" href="/editing" target="_self"></a>
+                    <paper-item id="editing">
+                        <a is="pushstate-anchor" href="/editing" target="_self"><iron-icon icon="speaker-notes"></iron-icon> Papers You Are Editing</a>
                     </paper-item>
 
                 </template>
 
-                <paper-item id="submit" undefined="Submit">
-                    <a is="pushstate-anchor" href="/submit" target="_self"></a>
+                <paper-item id="submit">
+                    <a is="pushstate-anchor" href="/submit" target="_self"><iron-icon icon="send"></iron-icon> Submit</a>
                 </paper-item>
 
-                <paper-item id="settings" undefined="Settings">
-                    <a is="pushstate-anchor" href="/settings" target="_self"></a>
+                <paper-item id="settings">
+                    <a is="pushstate-anchor" href="/settings" target="_self"><iron-icon icon="settings"></iron-icon> Settings</a>
                 </paper-item>
 
             </template>
 
-            <paper-item id="about" undefined="About">
-                <a is="pushstate-anchor" href="/about" target="_self"></a>
+            <paper-item id="about">
+                <a is="pushstate-anchor" href="/about" target="_self"><iron-icon icon="info-outline"></iron-icon> About</a>
             </paper-item>
 
         </paper-menu>
