@@ -51,7 +51,10 @@ ActiveRecord::Schema.define(version: 20150808025904) do
   add_index "assignments", ["user_id"], name: "index_assignment_user_id", using: :btree
 
   create_table "papers", force: :cascade do |t|
+    t.integer  "user_id",           limit: 4
     t.integer  "submittor_id",      limit: 4
+    t.datetime "submitted_at"
+    t.text     "location",          limit: 1000
     t.string   "document_location", limit: 255
     t.string   "state",             limit: 255
     t.string   "title",             limit: 255
