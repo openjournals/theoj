@@ -1,0 +1,469 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Import dependencies -->
+    <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+    <script src="../node_modules/web-component-tester/browser.js"></script>
+    <link rel="import" href="../ajax-form.html">
+</head>
+
+<body>
+
+<script>
+    var ajaxForm, xhr, requests,
+
+            createForm = function (spec, done) {
+                var formStr =
+                        '<form is="ajax-form" method="' + spec.method + '" action="test">' +
+                        '<input name="test1" type="text" value="foobar"/>' +
+                        '<input name="test2" type="text"/>' +
+                        '<input name="test3" type="text"/>' +
+
+                        '<my-ce1 id="jsonce" name="ce1name"><input name="ce1name"></my-ce1>' +
+                        '<my-ce2></my-ce2>' +
+
+                        '<select name="select1">' +
+                        '<option value="foo">foo</option>' +
+                        '<option value="bar" selected>bar</option>' +
+                        '</select>' +
+
+                        '<select name="select2" multiple>' +
+                        '<option value="foo" selected>foo</option>' +
+                        '<option value="bar" selected>bar</option>' +
+                        '<option value="fizz">fizz</option>' +
+                        '</select>' +
+
+                        '<select name="select3">' +
+                        '<optgroup label="one">' +
+                        '<option value="foo">foo</option>' +
+                        '<option value="bar">bar</option>' +
+                        '</optgroup>' +
+                        '<optgroup label="two">' +
+                        '<option value="fizz" selected>fizz</option>' +
+                        '<option value="buzz">buzz</option>' +
+                        '</optgroup>' +
+                        '</select>' +
+
+                        '<input type="checkbox" name="checkboxname" value="checkboxvalue">' +
+                        '<custom-checkbox role="checkbox" name="customcheckboxname"></custom-checkbox>' +
+
+                        '<input type="checkbox" name="checkboxgroup" value="foo" checked>' +
+                        '<input type="checkbox" name="checkboxgroup" value="bar" checked>' +
+                        '<input type="checkbox" name="checkboxgroup" value="fizz">' +
+
+                        '<file-input name="files"></file-input>' +
+
+                        '</form>';
+
+                var container = document.createElement('span');
+                container.innerHTML = formStr;
+                ajaxForm = container.querySelector('form');
+
+                if (spec.mockEventListener) {
+                    sinon.spy(ajaxForm, 'addEventListener');
+                }
+
+                if (spec.headers) {
+                    ajaxForm.setAttribute('headers', JSON.stringify(spec.headers));
+                }
+
+                if (spec.enctype) {
+                    ajaxForm.setAttribute('enctype', spec.enctype);
+                }
+
+                ajaxForm.querySelector('my-ce1[name="ce1name"]').value = 'ce1value';
+                ajaxForm.querySelector('input[name="ce1name"]').value = 'ce1value-input';
+                ajaxForm.querySelector('[name="files"]').files = [];
+
+                document.body.appendChild(container);
+
+                // pause to allow component-related tasks in UI thread to be processed
+                setTimeout(function () {
+                    done();
+                }, 1);
+            };
+
+    beforeEach(function () {
+        requests = [];
+        xhr = sinon.useFakeXMLHttpRequest();
+
+        xhr.onCreate = function (xhr) {
+            requests.push(xhr);
+        };
+    });
+
+    afterEach(function () {
+        xhr.restore();
+        ajaxForm.parentNode.removeChild(ajaxForm);
+    });
+
+    describe('ajax-form method normalization', function () {
+        beforeEach(function() {
+            window.EventTarget && sinon.spy(EventTarget.prototype, 'addEventListener');
+        });
+
+        afterEach(function () {
+            if (window.EventTarget) {
+                EventTarget.prototype.addEventListener.restore();
+            }
+            else {
+                ajaxForm.addEventListener.restore();
+            }
+        });
+
+        // Ensure 'submit' event is added via addEventListener for post, put, and get methods
+        it('adds a listener to squelch submit events', function (done) {
+            createForm({method: 'GET', mockEventListener: !window.EventTarget}, function () {
+                expect(ajaxForm.addEventListener).to.have.been.calledWith('submit');
+                done();
+            });
+        });
+    });
+
+    describe('submit interception', function () {
+        it('uses default method of GET', function (done) {
+            createForm({method: 'foobar'}, function () {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('GET');
+                done();
+            })
+        });
+
+        it('submit method is overridden', function (done) {
+            createForm({method: 'GET'}, function () {
+                ajaxForm.addEventListener('submit', function () {
+                    done();
+                });
+                ajaxForm.submit();
+            })
+        });
+
+        it('prevents a form from being submitted if the submitting event\'s default action is prevented', function (done) {
+            createForm({method: 'GET'}, function () {
+                ajaxForm.addEventListener('submitting', function (event) {
+                    event.preventDefault();
+                });
+
+                ajaxForm.submit();
+
+                expect(requests.length).to.equal(0);
+                done();
+            });
+        });
+    });
+
+    describe('url encoding', function () {
+        it('url encodes the form fields and includes them in query string for GET requests', function (done) {
+            createForm({method: 'GET'}, function () {
+                ajaxForm.submit();
+
+                expect(requests[0].url).to.have.string('test1=foobar&test2=&test3=&select1=bar&select2=foo&select2=bar&select3=fizz&checkboxgroup=foo&checkboxgroup=bar&ce1name=ce1value');
+                done();
+            });
+        });
+
+        it('url encodes the form fields and includes them in the payload for POST requests', function (done) {
+            createForm({method: 'POST'}, function () {
+                ajaxForm.submit();
+
+                expect(requests[0].requestHeaders['Content-Type']).to.have.string('application/x-www-form-urlencoded');
+                expect(requests[0].requestBody).to.equal('test1=foobar&test2=&test3=&select1=bar&select2=foo&select2=bar&select3=fizz&checkboxgroup=foo&checkboxgroup=bar&ce1name=ce1value');
+                done();
+            });
+        });
+
+        it('includes checked checkboxes (native and custom) in the request payload', function (done) {
+            createForm({method: 'POST'}, function () {
+                var customCheckbox = ajaxForm.querySelector('[name="customcheckboxname"]');
+                customCheckbox.checked = true;
+                customCheckbox.value = "customcheckboxvalue";
+
+                ajaxForm.querySelector('[name="checkboxname"]').click();
+                ajaxForm.submit();
+
+                expect(requests[0].requestBody).to.equal('test1=foobar&test2=&test3=&select1=bar&select2=foo&select2=bar&select3=fizz&checkboxname=checkboxvalue&checkboxgroup=foo&checkboxgroup=bar&ce1name=ce1value&customcheckboxname=customcheckboxvalue');
+                done();
+            });
+        });
+    });
+
+    describe('custom headers', function () {
+        it('sends all custom headers with the request', function (done) {
+            createForm({method: 'GET', headers: {'X-Cust-Header': 'FooBar'}}, function () {
+                ajaxForm.submit();
+
+                var headers = requests[0].requestHeaders;
+
+                expect(headers['Content-Type']).to.have.string('application/x-www-form-urlencoded');
+                delete headers['Content-Type'];
+                expect(JSON.stringify(headers)).to.equal(JSON.stringify({
+                    'X-Cust-Header': 'FooBar'
+                }));
+                done();
+            });
+        });
+    });
+
+    describe('JSON encoding', function () {
+        it('JSON encodes the form fields and includes them in the payload', function (done) {
+            createForm({method: 'POST', enctype: 'application/json'}, function () {
+                ajaxForm.submit();
+
+                expect(requests[0].requestHeaders['Content-Type']).to.have.string('application/json');
+                expect(requests[0].requestBody).to.equal(JSON.stringify({
+                    test1: 'foobar',
+                    test2: '',
+                    test3: '',
+                    select1: ['bar'],
+                    select2: ['foo', 'bar'],
+                    select3: ['fizz'],
+                    checkboxgroup: [['foo'], ['bar']],
+                    ce1name: 'ce1value'
+                }));
+                done();
+            });
+        });
+    });
+
+    describe('multipart/form-data encoding', function () {
+        var realFormData = window.FormData,
+                appendedData = {};
+
+        beforeEach(function () {
+            window.FormData.prototype.append = function (key, val) {
+                if (appendedData[key] != null) {
+                    key = key + '_series';
+                }
+                appendedData[key] = val;
+            }
+        });
+
+        afterEach(function () {
+            window.FormData = realFormData;
+            appendedData = {};
+        });
+
+        it('encodes the form fields and includes them in the payload - empty file input', function (done) {
+            createForm({method: 'POST', enctype: 'multipart/form-data'}, function () {
+                ajaxForm.submit();
+
+                expect(requests[0].requestHeaders['Content-Type']).to.equal(undefined);
+                expect(JSON.stringify(appendedData)).to.equal(JSON.stringify({
+                    test1: 'foobar',
+                    test2: '',
+                    test3: '',
+                    select1: 'bar',
+                    'select2': 'foo',
+                    'select2_series': 'bar',
+                    select3: 'fizz',
+                    checkboxgroup: ['foo'],
+                    checkboxgroup_series: ['bar'],
+                    ce1name: 'ce1value',
+                    files: {}
+                }));
+                done();
+            });
+        });
+
+        it('encodes the form fields and includes them in the payload - file input w/ 1 file', function (done) {
+            createForm({method: 'POST', enctype: 'multipart/form-data'}, function () {
+                ajaxForm.querySelector('[name="files"]').files = ['placeholder-file'];
+                ajaxForm.submit();
+
+                expect(requests[0].requestHeaders['Content-Type']).to.equal(undefined);
+                expect(JSON.stringify(appendedData)).to.equal(JSON.stringify({
+                    test1: 'foobar',
+                    test2: '',
+                    test3: '',
+                    select1: 'bar',
+                    'select2': 'foo',
+                    'select2_series': 'bar',
+                    select3: 'fizz',
+                    checkboxgroup: ['foo'],
+                    checkboxgroup_series: ['bar'],
+                    ce1name: 'ce1value',
+                    files: 'placeholder-file'
+                }));
+                done();
+            });
+        });
+
+        it('encodes the form fields and includes them in the payload - file input w/ 2 files', function (done) {
+            createForm({method: 'POST', enctype: 'multipart/form-data'}, function () {
+                ajaxForm.querySelector('[name="files"]').files = ['placeholder-file1', 'placeholder-file2'];
+                ajaxForm.submit();
+
+                expect(requests[0].requestHeaders['Content-Type']).to.equal(undefined);
+                expect(JSON.stringify(appendedData)).to.equal(JSON.stringify({
+                    test1: 'foobar',
+                    test2: '',
+                    test3: '',
+                    select1: 'bar',
+                    'select2': 'foo',
+                    'select2_series': 'bar',
+                    select3: 'fizz',
+                    checkboxgroup: ['foo'],
+                    checkboxgroup_series: ['bar'],
+                    ce1name: 'ce1value',
+                    files: 'placeholder-file1',
+                    files_series: 'placeholder-file2'
+                }));
+                done();
+            });
+        });
+    });
+
+    describe('Submit data modification', function () {
+        it('Allows JSON encoded data to be augmented before it is submitted', function (done) {
+            createForm({method: 'POST', enctype: 'application/json'}, function () {
+                var submittedListener = function (event) {
+                    event.detail.formData.newfield = 'newval';
+                    event.detail.formData.test1 = 'changedval';
+                };
+
+                ajaxForm.addEventListener('submitting', submittedListener);
+
+                ajaxForm.submit();
+
+                ajaxForm.removeEventListener('submitting', submittedListener);
+
+                expect(requests[0].requestBody).to.equal(JSON.stringify({
+                    test1: 'changedval',
+                    test2: '',
+                    test3: '',
+                    select1: ['bar'],
+                    select2: ['foo', 'bar'],
+                    select3: ['fizz'],
+                    checkboxgroup: [['foo'], ['bar']],
+                    ce1name: 'ce1value',
+                    newfield: 'newval'
+                }));
+                done();
+            });
+        });
+
+        it('Allows JSON encoded data to be restructured before it is submitted', function (done) {
+            createForm({method: 'POST', enctype: 'application/json'}, function () {
+                ajaxForm.addEventListener('submitting', function (event) {
+                    var oldData = event.detail.formData;
+                    event.detail.formData = {
+                        testfields: {
+                            test1: oldData.test1
+                        },
+                        cefields: {
+                            ce1name: oldData.ce1name
+                        }
+                    };
+                });
+
+                ajaxForm.submit();
+
+                expect(requests[0].requestBody).to.equal(JSON.stringify({
+                    testfields: {
+                        test1: 'foobar'
+                    },
+                    cefields: {
+                        ce1name: 'ce1value'
+                    }
+                }));
+                done();
+            });
+        });
+
+        it('Allows URL-encoded data to be augmented before it is submitted (GET)', function (done) {
+            createForm({method: 'GET'}, function () {
+                ajaxForm.addEventListener('submitting', function (event) {
+                    event.detail.formData.newfield = 'newval';
+                    event.detail.formData.test1 = 'changedval';
+                    event.detail.formData.checkboxgroup[1][0] = 'newcbgroupval';
+                });
+
+                ajaxForm.submit();
+
+                expect(requests[0].url).to.have.string('test1=changedval&test2=&test3=&select1=bar&select2=foo&select2=bar&select3=fizz&checkboxgroup=foo&checkboxgroup=newcbgroupval&ce1name=ce1value&newfield=newval');
+                done();
+            });
+        });
+
+        it('Allows URL-encoded data to be augmented before it is submitted (POST)', function (done) {
+            createForm({method: 'POST', enctype: 'application/x-www-form-urlencoded'}, function () {
+                ajaxForm.addEventListener('submitting', function (event) {
+                    event.detail.formData.newfield = 'newval';
+                    event.detail.formData.test1 = 'changedval';
+                });
+
+                ajaxForm.submit();
+
+                expect(requests[0].requestBody).to.equal('test1=changedval&test2=&test3=&select1=bar&select2=foo&select2=bar&select3=fizz&checkboxgroup=foo&checkboxgroup=bar&ce1name=ce1value&newfield=newval');
+                done();
+            });
+        });
+    });
+
+    describe('form validation', function () {
+        it('ensures invalid fields are identified and presented via a single event', function (done) {
+            createForm({method: 'POST', enctype: 'application/x-www-form-urlencoded'}, function () {
+                var textInput1 = ajaxForm.querySelector('input[name=test1]'),
+                        textInput3 = ajaxForm.querySelector('input[name=test3]');
+
+                ajaxForm.addEventListener('invalid', function (event) {
+                    expect(event.detail.length).to.equal(2);
+                    expect(event.detail[0].name).to.equal('test1');
+                    expect(event.detail[1].name).to.equal('test3');
+                    done();
+                });
+
+                var inputInvalidEvent = new CustomEvent('invalid');
+                textInput1.dispatchEvent(inputInvalidEvent);
+                textInput3.dispatchEvent(inputInvalidEvent);
+            });
+        });
+    });
+
+    describe('sets request method according to form-parameter', function () {
+        it('supports GET requests', function (done) {
+            createForm({method: 'GET'}, function() {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('GET');
+                done();
+            });
+        });
+
+        it('supports POST requests', function (done) {
+            createForm({method: 'POST'}, function() {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('POST');
+                done();
+            });
+        });
+
+        it('supports PATCH requests', function (done) {
+            createForm({method: 'PATCH'}, function() {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('PATCH');
+                done();
+            });
+        });
+
+        it('supports DELETE requests', function (done) {
+            createForm({method: 'DELETE'}, function() {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('DELETE');
+                done();
+            });
+        });
+
+        it('falls back to GET', function (done) {
+            createForm({method: 'FOOBAR'}, function() {
+                ajaxForm.submit();
+                expect(requests[0].method).to.equal('GET');
+                done();
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
