@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: git://github.com/openjournals/emcee.git
-  revision: 7499e8b7746028d3d1ba044578f7462d45bc894d
+  revision: 8e8a5887113b8fc2d4d5c6d0ad35713316f885d0
   specs:
     emcee (1.0.10)
       nokogiri (~> 1.0)
