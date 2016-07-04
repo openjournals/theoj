@@ -37,7 +37,7 @@
           margin-top:  12px;
       }
 
-      #authors {
+      .authors {
         list-style:  none;
         margin-left: 0;
         padding:     0;
@@ -47,7 +47,7 @@
         color:       rgb(154, 154, 154);
       }
 
-      #authors li{
+      .authors li{
         display:      inline;
         padding-left: 0;
       }
@@ -82,7 +82,7 @@
           <div id="title">{{paper_details.title}}</div>
 
           <template is="dom-if" if="{{isArray(paper_details.authors)}}">
-              <ul id="authors">
+              <ul class="authors">
                 <template is="dom-repeat" items="{{paper_details.authors}}" as="author">
                     <li>{{author.name}}</li>
                 </template>
@@ -90,7 +90,7 @@
           </template>
 
           <template is="dom-if" if="{{isNotArray(paper_details.authors)}}">
-            <div id="authors">{{paper_details.authors}}</div>
+            <div class="authors">{{paper_details.authors}}</div>
           </template>
 
           <div id="summary">{{paper_details.summary}}</div>
