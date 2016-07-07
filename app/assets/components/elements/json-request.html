@@ -40,16 +40,16 @@
           notify: true
         },
         result: {
-            notify: true
+          notify: true
         },
         url: {
-            notify: true
+          notify: true
         }
       },
       go: function(successCallback, errorCallback) {
         this.successCallback = successCallback;
         this.errorCallback = errorCallback;
-        this.$.request.go();
+        this.$.request.generateRequest();
       },
       success: function (event, detail) {
         this.fire('success', detail.response);
@@ -57,9 +57,9 @@
           this.successCallback(event, detail.response);
       },
       error: function (event, detail) {
-        this.fire('error', detail.xhr.responseText);
+        this.fire('error', detail.request.xhr.responseText);
         if (this.errorCallback)
-          this.errorCallback(event, detail.xhr.responseText);
+          this.errorCallback(event, detail.request.xhr.responseText);
       },
       behaviors: [ Oj.globalExpressions ]
     }

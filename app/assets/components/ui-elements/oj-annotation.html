@@ -228,11 +228,11 @@
       },
       collapse: function () {
         this.set('annotation.open', false);
-        this.asyncFire('annotation-closed', this);
+        this.fire('annotation-closed', this);
       },
       expand: function () {
         this.set('annotation.open', true);
-        this.asyncFire('annotation-opened', this);
+        this.fire('annotation-opened', this);
       },
       submitAnnotation: function () {
         if (this.$.saveAnnotationRequest.loading)
@@ -268,7 +268,7 @@
       ready: function () {
         if (this.annotation && this.annotation.new) {
           this.async(function () {
-            var edit = Polymer.dom(this.shadowRoot).querySelector('collapse #annotationTextArea');
+            var edit = Polymer.dom(this).querySelector('collapse #annotationTextArea');
             edit.focus();
             edit.select();
           });

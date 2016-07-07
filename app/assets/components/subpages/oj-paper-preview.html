@@ -99,7 +99,7 @@
         </div>
     </template>
 
-    <template is="dom-if" if="{{$.detailsRequest.loading}}">
+    <template is="dom-if" if="{{loading}}">
       <paper-spinner active=""></paper-spinner>
     </template>
 
@@ -110,14 +110,17 @@
     <iron-media-query query="min-width: 600px" query-matches="{{hidePDF}}"></iron-media-query>
 
   </template>
+
   <script>
     Polymer({
       is: 'oj-paper-preview',
       properties: {
+        loading:  { notify: true, value: true },
         paper_id: { notify: true },
-        user: { notify: true }
+        user:     { notify: true }
       },
       onDetailsResponse: function (event) {
+        this.loading = false;
         if (this.paper_details.is_existing) {
           event.preventDefault();
           this.fire('notification', 'Paper ' + this.paper_details.title + ' already exists.');
@@ -128,6 +131,7 @@
         }
       },
       onDetailsError: function (event, detail) {
+        this.loading = false;
         detail = JSON.parse(detail);
         if (detail.code == 404)
           var message = 'The paper could not be found. Please try again.';
@@ -154,7 +158,8 @@
       },
       _computeIf: function (paper_details) {
         return paper_details && !paper_details.is_existing;
-      }
+      },
+      behaviors: [ Oj.urls, Oj.globalExpressions ]
     });
   </script>
 </dom-module>

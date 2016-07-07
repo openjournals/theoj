@@ -1,0 +1,2 @@
+Move <style> tags inside <templates>
+Run a code formatter

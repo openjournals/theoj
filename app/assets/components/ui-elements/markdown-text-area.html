@@ -79,12 +79,12 @@
         });
       },
       focus: function () {
-        var textarea = Polymer.dom(this.shadowRoot).querySelector('#input');
+        var textarea = Polymer.dom(this).querySelector('#input');
         if (textarea)
           textarea.focus();
       },
       select: function () {
-        var textarea = Polymer.dom(this.shadowRoot).querySelector('#input');
+        var textarea = Polymer.dom(this).querySelector('#input');
         if (textarea)
           textarea.select();
       },

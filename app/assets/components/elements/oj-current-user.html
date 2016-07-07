@@ -9,14 +9,14 @@
       is: 'oj-current-user',
       isReady: function (event) {
         var user;
-        if (event.detail.response && event.detail.response.name) {
-          user = event.detail.response;
-          window.current_user = user;
+        if (event.detail && event.detail.name) {
+          user = event.detail;
           this.fire('user-logged-in', user); //mro todo asyncFire
         } else {
           user = null;
           this.fire('user-logged-out'); //mRo todo asyncFire
         }
+        window.current_user = user;
         this.fire('user', user); //mRo todo asyncFire
       }
     });

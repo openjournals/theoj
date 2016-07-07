@@ -341,15 +341,19 @@
 
   // Create an instance of the template
   function activateTemplate(router, template, route, url, eventDetail) {
+    console.log('activateTemplate', template);
     var templateInstance;
     if ('createInstance' in template) {
+      console.log('activateTemplate - ci', template);
       // template.createInstance(model) is a Polymer method that binds a model to a template and also fixes
       // https://github.com/erikringsmuth/app-router/issues/19
       var model = createModel(router, route, url, eventDetail);
       templateInstance = template.createInstance(model);
     } else {
+      console.log('activateTemplate - else');
       templateInstance = document.importNode(template.content, true);
     }
+    console.log('activateTemplate - act');
     activateElement(router, templateInstance, url, eventDetail);
   }
 

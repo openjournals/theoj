@@ -79,7 +79,7 @@
       <div id="list" class="layout flex vertical">
 
           <template is="dom-if" if="{{_computeIf(papers)}}">
-              <iron-list scrolltarget="{{$.scroller}}" on-activate="selectPaper" data="{{filtered(papers, sortKey, sortDesc)}}">
+              <iron-list items="[[filtered(papers, sortKey, sortDesc)]]" as="model" >
 
                   <template>
                       <div class$="{{_computeClass(selected)}}">
@@ -106,7 +106,7 @@
   <script>
     Polymer({
       is: 'oj-papers-page',
-      properties: {
+        properties: {
         header: { notify: true },
         sortDesc: {
           type: Boolean,
@@ -121,9 +121,6 @@
       changeSortOrder: function (event, detail) {
         this.sortKey = detail.item.getAttribute('key');
         this.sortDesc = detail.item.hasAttribute('desc');
-      },
-      selectPaper: function (e, detail) {
-        this.fire('review', detail.data);
       },
       filtered: function (array, key, desc) {
         if (!array)

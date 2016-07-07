@@ -94,6 +94,7 @@
       is: 'stacked-pdf-page',
       properties: {
         annotations: {
+          type: Array,
           notify: true,
           observer: 'annotationsChanged'
         },
@@ -101,7 +102,10 @@
           type: Boolean,
           value: false
         },
-        page: { notify: true },
+        page: {
+           notify:   true,
+           observer: 'pageChanged'
+        },
         pageHeight: { observer: 'pageHeightChanged' },
         pageNo: { notify: true }
       },
@@ -118,7 +122,7 @@
         }
       },
       fireClick: function (event) {
-        // var canvas = this.shadowRoot.getElementById("canvas");
+        // var canvas = Polymer.dom(this).getElementById("canvas");
         // var canvasRect = canvas.getClientRects()[0];
         // pdf convertToPdfPoint doesn't sem accurate
         // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
@@ -135,7 +139,7 @@
       },
       adjustClientSizes: function (event) {
         if (this.pageNo == 0)
-          this.asyncFire('pdf-client-changed', {
+          this.fire('pdf-client-changed', {
             pageNo: this.pageNo,
             clientHeight: this.clientHeight
           });
@@ -168,8 +172,8 @@
         // Get the best scaling to fit the canvas
         var scale = this.clientWidth / this.pageContent.getViewport(1).width;
         this.viewport = this.pageContent.getViewport(scale);
-        this.textLayerDiv = this.shadowRoot.getElementById('textLayer');
-        var canvas = this.shadowRoot.getElementById('canvas');
+        this.textLayerDiv = this.$$('#textLayer');
+        var canvas = this.$$('#canvas');
         canvas.width = this.viewport.width;
         canvas.height = this.viewport.height;
         this.pageContent.getTextContent().then(function (textContent) {
@@ -188,13 +192,16 @@
       },
       ready: function () {
         $(window).resize(this.adjustClientSizes.bind(this));
-        this.page.then(function (pageContent) {
-          this.loaded = true;
-          this.pageContent = pageContent;
-          setTimeout(function () {
-            this.render();
-          }.bind(this), 600);
-        }.bind(this));
+      },
+      pageChanged: function() {
+          if (!this.page) return;
+          this.page.then(function (pageContent) {
+              this.loaded = true;
+              this.pageContent = pageContent;
+              setTimeout(function () {
+                  this.render();
+              }.bind(this), 600);
+          }.bind(this));
       },
       _computeIf: function (annotations, rendered) {
         return rendered && annotations;

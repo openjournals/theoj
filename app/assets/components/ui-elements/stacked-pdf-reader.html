@@ -18,7 +18,7 @@
 
       <div id="pages">
       <template is="dom-repeat" items="{{pageIndexArray}}" as="pageNo">
-        <stacked-pdf-page pageno="{{pageNo}}" page="{{getPage(pageNo)}}" annotations="{{annotations}}"></stacked-pdf-page>
+        <stacked-pdf-page page-no="{{pageNo}}" page="{{getPage(pageNo)}}" annotations="{{annotations}}"></stacked-pdf-page>
       </template>
     </div>
 
@@ -27,7 +27,7 @@
     Polymer({
       is: 'stacked-pdf-reader',
       properties: {
-        annotations: { notify: true },
+        annotations: { notify: true, type: Array },
         loadProgress: {
           type: Number,
           value: 0,

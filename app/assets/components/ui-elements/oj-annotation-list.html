@@ -20,6 +20,7 @@
       is: 'oj-annotation-list',
       properties: {
         annotations: {
+          type: Array,
           notify: true,
           observer: 'annotationsChanged'
         },
@@ -37,10 +38,8 @@
         pageSpacing: { notify: true },
         paper: { notify: true }
       },
-      created: function () {
-        this.annotations = [];
-      },
       annotationsChanged: function () {
+        console.log('annotationsChanged', this.annotations);
         if (!this.annotations)
           return;
         // Don't work on the original list it kills the browser
@@ -54,7 +53,7 @@
           // Do it immediately
           this.addLocationToAnnotations();
         } else {
-          // Add a delay since we're reizing inside a mouse drag
+          // Add a delay since we're re-sizing inside a mouse drag
           this.debounce('update-annotation-list-locations', this.addLocationToAnnotations, 150);
         }
       },

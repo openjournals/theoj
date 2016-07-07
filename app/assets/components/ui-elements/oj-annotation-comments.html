@@ -90,10 +90,10 @@
       showNewComment: function () {
         this.newCommentVisible = true;
         this.async(function () {
-          var edit = Polymer.dom(this.shadowRoot).querySelector('#replyTextArea');
+          var edit = Polymer.dom(this).querySelector('#replyTextArea');
           edit.focus();
           edit.select();
-          this.asyncFire('new-comment-shown');
+          this.fire('new-comment-shown');
         });
       },
       /*************************/

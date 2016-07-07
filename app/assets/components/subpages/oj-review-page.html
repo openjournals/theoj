@@ -35,58 +35,59 @@
       }
 
     </style>
+
   <template>
 
     <div id="scroller" class="layout vertical">
 
-        <oj-review-page-header id="header" user="{{currentUser}}" paper="{{paper}}" annotations="{{annotations}}" loadprogress="{{loadProgress}}" on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
+        <oj-review-page-header id="header" user="{{currentUser}}" paper="{{paper}}" annotations="{{annotations}}" load-progress="{{loadProgress}}" on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
 
         <template is="dom-if" if="{{paper}}">
           <div id="main" class="layout horizontal">
 
             <div class="layout flex vertical" id="pdf-pane">
-
-              <stacked-pdf-reader src="{{paper.document_location}}" annotations="{{annotations}}" pageoffset="{{pageOffset}}" loadprogress="{{loadProgress}}" on-page-clicked="pageClicked" on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
+              <stacked-pdf-reader src="{{paper.document_location}}" annotations="{{annotations}}" page-offset="{{pageOffset}}" load-progress="{{loadProgress}}" on-page-clicked="pageClicked" on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
             </div>
 
             <template is="dom-if" if="{{paper.can_view_annotations}}">
-                <oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" firstpageoffset="{{_computeFirstpageoffset()}}" pageheight="{{pdfClientHeight}}" pagespacing="{{_computePagespacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
+                <!--<oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" first-page-offset="{{_computeFirstPageOffset()}}" pageheight="{{pdfClientHeight}}" page-spacing="{{_computePageSpacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>-->
             </template>
+
           </div>
         </template>
 
     </div>
 
-    <json-request method="get" auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-request>
-
     <template is="dom-if" if="{{paper.can_view_annotations}}">
-      <firebase-element id="annotation-firebase" location="{{annotationsFirebasePath (paper_id)}}" data="{{data}}" keys="{{keys}}" data-change$="{{updateAnnotations}}"></firebase-element>
-
+      <firebase-element id="annotation-firebase" location="{{annotationsFirebasePath (paper_id)}}" data="{{data}}" keys="{{keys}}" on-data-change="updateAnnotations"></firebase-element>
     </template>
 
+    <json-request method="get" auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-request>
+
   </template>
+
   <script>
     Polymer({
       is: 'oj-review-page',
       properties: {
         currentUser: { notify: true },
-        keys: { observer: 'keysChanged' },
-        paper: { observer: 'paperChanged' },
-        paper_id: { notify: true },
-        pdfClient: { observer: 'pdfClientChanged' }
+        keys:        { observer: 'keysChanged' },
+        paper:       { observer: 'paperChanged' },
+        annotations: { notify: true, type: Array, value:function() { return []; } },
+        paper_id:    { notify: true },
+        pdfClient:   { observer: 'pdfClientChanged' }
       },
+      observers: [ 'a(assignments.splices)', 'aa(assignments)'],
+        a:function(){ console.log('a'); },
+        aa:function(){ console.log('aa'); },
       /**** external API *********/
       getSectionName: function () {
         return 'none';
       },
-      /*** Polymer callbacks *****/
-      created: function () {
-        this.annotations = [];
-      },
       paperChanged: function () {
         if (this.paper) {
           var current_user_sha = this.currentUser && this.currentUser.sha;
-          this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a) {
+          this.set('paper.current_assignment', !!Oj.utils.detect(this.paper.assigned_users, function (a) {
             return a.user && a.user.sha == current_user_sha;
           }));
           this.set('paper.current_role', this.paper.current_assignment && this.paper.current_assignment.role || 'none');
@@ -111,22 +112,23 @@
         }
       },
       pdfClientChanged: function (detail, event) {
-        this.pdfClientHeight = detail.clientHeight;
+          this.pdfClientHeight = detail.clientHeight;
       },
       onChangeAnnotation: function (event, annotation) {
-        this.$.header.updateCounts();
+          console.log('onChangeAnnotation');
+          this.$.header.updateCounts();
       },
       keysChanged: function () {
-        // console.log('mapping ');
+        console.log('keysChanged');
+          // console.log('mapping ');
         // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
         this.annotations = this.keys.map(function (key) {
           return this.data[key];
         }.bind(this));
       },
       updateAnnotations: function (event) {
+          console.log('-- updateAnnotations');
       },
-      // console.log("UPDATING ANNOTAITONS");
-      // console.log($.extend({},event));
       newAnnotation: function (properties) {
         return $.extend({
           state: 'new',
@@ -135,7 +137,7 @@
         }, properties);
       },
       pageClicked: function (event, position) {
-        console.log('position', position);
+        console.log('pageClicked:', position);
         var annotation = this.newAnnotation(position);
         this.addAnnotation(annotation);
       },
@@ -145,12 +147,16 @@
       },
       addAnnotation: function (annotation) {
         if (this.paper.can_edit_annotations) {
-          this.annotations.push(annotation);
+          this.push('annotations', annotation);
         }
       },
-      _computePagespacing: function () {
+      _computeFirstPageOffset: function () {
         return 20;
-      }
+      },
+      _computePageSpacing: function () {
+        return 20;
+      },
+      behaviors: [ Oj.urls ]
     });
   </script>
 </dom-module>

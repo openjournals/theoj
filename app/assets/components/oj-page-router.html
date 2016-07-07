@@ -14,41 +14,16 @@
                     on-before-data-binding="beforeDataBinding"
                     on-activate-route-end="activateRouteEnd">
 
-            <app-route path="/" noauth>
-                <template>
-                    <oj-papers-page src="/api/papers/recent" header="Recent Papers"></oj-papers-page>
-                </template>
-            </app-route>
-
-            <app-route path="/search" noauth>
-                <template>
-                    <oj-papers-page src="{{_computeSrc(q)}}" header="{{_computeHeader(q)}}"></oj-papers-page>
-                </template>
-            </app-route>
+            <app-route path="/"       noauth element="oj-papers-page" src="/api/papers/recent" header="Recent Papers"></app-route>
+            <app-route path="/search" noauth element="oj-papers-page" src="{{_computeSrc(q)}}" header="{{_computeHeader(q)}}"></app-route>
 
             <app-route path="/submit/:paper_id" element="oj-paper-preview"></app-route>
-            <app-route path="/submit" element="oj-submit-page"></app-route>
-            <!--<app-route path='/recent' noAuth>-->
-                <!--<template>-->
-                    <!--<oj-papers-page src='/api/papers/recent' header="Recent Papers"></oj-papers-page>-->
-                <!--</template>-->
-            <!--</app-route>-->
-            <app-route path="/submitted">
-                <template>
-                    <oj-papers-page src="/api/papers/as_author" header="Papers You Submitted"></oj-papers-page>
-                </template>
-            </app-route>
-            <app-route path="/review">
-                <template>
-                    <oj-papers-page src="/api/papers/as_reviewer" header="Papers You Are Reviewing"></oj-papers-page>
-                </template>
-            </app-route>
-            <app-route path="/editing">
-                <template>
-                    <oj-papers-page src="/api/papers/as_editor" header="Papers You Are Editing" flex=""></oj-papers-page>
-                </template>
-            </app-route>
-            <app-route path="/settings" element="oj-settings-page"></app-route>
+            <app-route path="/submit" element="oj-submit-page" src="/api/papers/as_author"></app-route>
+            <!--<app-route path='/recent' noAuth element="oj-papers-page" src='/api/papers/recent' header="Recent Papers"></app-route>-->
+            <app-route path="/submitted" element="oj-papers-page" src="/api/papers/as_author"   header="Papers You Submitted"></app-route>
+            <app-route path="/review"    element="oj-papers-page" src="/api/papers/as_reviewer" header="Papers You Are Reviewing"></app-route>
+            <app-route path="/editing"   element="oj-papers-page" src="/api/papers/as_editor"   header="Papers You Are Editing"></app-route>
+            <app-route path="/settings"  element="oj-settings-page"></app-route>
 
             <app-route path="/review/:paper_id" element="oj-review-page" noauth=""></app-route>
 
@@ -124,17 +99,27 @@
         model.user = this.currentUser;
         model.currentUser = this.currentUser;
       },
+      bindRouteAttributes: function(route, model) {
+          for (var i=0; i<route.attributes.length; i++) {
+              var a = route.attributes[i];
+              if (! '|class|noauth|flex|id|path|element|'.includes(a.name.toLowerCase()) ) {
+                model[a.name] = a.value;
+              }
+          }
+      },
       pageInstanceForRoute: function(route) {
         return route.children[route.children.length - 1];
       },
       activateRouteStart: function(event, detail) {
-        var path = event.detail.path;
+        var path  = event.detail.path;
         var route = event.detail.route;
         var initialRequest = !detail.oldRoute;
         return this.validateOrRedirectUser(event, path, route, initialRequest);
       },
       beforeDataBinding: function(event, detail) {
-        return this.bindExtraAttributes(detail.model);
+          this.bindRouteAttributes(detail.route, detail.model);
+          this.bindExtraAttributes(detail.model);
+          return true;
       },
       activateRouteEnd: function (event, detail) {
         var path = detail.path;
