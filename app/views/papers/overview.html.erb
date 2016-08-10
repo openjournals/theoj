@@ -18,7 +18,7 @@
 <% papers = Paper.where(:state => "accepted_hidden") %>
 
 <div>
-  <h3><%= papers.count %> <%= state.name %> papers</h3>
+  <h3><%= papers.count %> accepted_hidden papers</h3>
   <% papers.each do |p| %>
   <h4>Title: <%= p.title %> (<%= p.id %>)</h4>
   <ul>
