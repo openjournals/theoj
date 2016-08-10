@@ -14,3 +14,18 @@
     <% end %>
   </div>
 <% end %>
+
+<% papers = Paper.where(:state => "accepted_hidden") %>
+
+<div>
+  <h3><%= papers.count %> <%= state.name %> papers</h3>
+  <% papers.each do |p| %>
+  <h4>Title: <%= p.title %> (<%= p.id %>)</h4>
+  <ul>
+    <li>PDF: <%= p.document_location %></li>
+    <li>Authors: <%= p.authors %></li>
+    <li>Submitting author: <%= p.submittor.name %> &middot; <%= p.submittor.email %> &middot; <%= link_to "ORCID", "http://orcid.org/#{p.submittor.uid}" %></li>
+    <li>Submitted at: <%= p.created_at %></li>
+  </ul>
+  <% end %>
+</div>
