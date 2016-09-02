@@ -1,2 +1,3 @@
 vendor/assets/* linguist-vendored=true
 public/pdf.worker.js linguist-vendored=true
+public/pdf.worker.js.coffee linguist-vendored=true

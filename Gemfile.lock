@@ -108,6 +108,7 @@ GEM
     json (1.8.2)
     jwt (1.4.1)
     kgio (2.9.3)
+    libv8 (3.16.14.15)
     libxml-ruby (2.8.0)
     loofah (2.0.1)
       nokogiri (>= 1.5.9)
@@ -184,6 +185,7 @@ GEM
     rake (10.4.2)
     rdoc (4.2.0)
       json (~> 1.4)
+    ref (2.0.0)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
     rspec-core (3.2.2)
@@ -229,6 +231,9 @@ GEM
       sprockets (>= 2.8, < 4.0)
     test_after_commit (0.4.1)
       activerecord (>= 3.2)
+    therubyracer (0.12.2)
+      libv8 (~> 3.16.14.0)
+      ref
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (1.4.1)
@@ -273,6 +278,7 @@ DEPENDENCIES
   sdoc
   shoulda-matchers (~> 2.6.1)
   test_after_commit
+  therubyracer
   uglifier (>= 1.3.0)
   unicorn (~> 4.9.0)
   webmock (~> 1.18.0)
