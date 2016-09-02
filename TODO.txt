@@ -1,2 +1,3 @@
-Move <style> tags inside <templates>
+Move <style> tags inside <templates> for performance
 Run a code formatter
+Add spacing to JS

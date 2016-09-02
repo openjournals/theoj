@@ -1,14 +1,22 @@
 <dom-module id="oj-assigned-users-list">
+
   <style>
+
         oj-user-tag, oj-user-lookup {
             margin-top: 8px;
         }
 
     </style>
+
   <template>
 
       <template is="dom-repeat" items="{{sortAssignments(paper.assigned_users)}}" as="assignment">
-          <oj-user-tag assignment="{{assignment}}" showcolor="{{!submitted}}" tagcolor="{{userColor(assignment)}}" showcompleted="{{show_completed}}" removable="{{editable}}" on-remove-user="removeReviewer"></oj-user-tag>
+          <oj-user-tag assignment="{{assignment}}"
+                       showcolor="{{!submitted}}"
+                       tagcolor="{{userColor(assignment)}}"
+                       showcompleted="{{show_completed}}"
+                       removable="{{editable}}"
+                       on-remove-user="removeReviewer"></oj-user-tag>
       </template>
 
       <oj-user-tag assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
@@ -24,33 +32,40 @@
   <script>
     Polymer({
       is: 'oj-assigned-users-list',
+
       properties: {
         paper: {
           notify: true,
           observer: 'paperChanged'
         }
       },
+
       paperChanged: function () {
         this.submitted = this.paper && this.paper.state == 'submitted';
         this.under_review = this.paper && this.paper.state == 'under_review';
-        this.show_completed = this.paper && this.paper.current_role == 'editor' && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
-        this.editable = this.submitted && this.paper.current_role == 'editor';
+        this.show_completed = this.paper && this.hasRole(this.paper, 'editor') && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
+        this.editable = this.submitted && this.hasRole(this.paper, 'editor');
       },
+
       userColor: function (assignment) {
         assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
         return Oj.colors.userColor(assignment);
       },
+
       removeReviewer: function (event, assignment) {
         this.set('$.removeReviewer.url', Oj.urls.removeAssigneePath(this.paper, assignment));
         this.$.removeReviewer.go();
       },
+
       addReviewer: function (event, user) {
         this.set('$.addReviewer.url', Oj.urls.addAssigneePath(this.paper, user));
         this.$.addReviewer.go();
       },
+
       updateReviewers: function (event, detail) {
         this.set('paper.assigned_users', detail);
       },
+
       filterReviewerList: function (event, suggestions) {
         var paper = this.paper;
         event.result = suggestions.filter(function (item) {
@@ -63,9 +78,12 @@
           return true;
         });
       },
+
+      // Create a 'User' object that is used to display anonymous reviewers
       anonymousReviewersTag: function (assigned_users) {
         if (!assigned_users)
           return {};
+
         var total_reviewers = 0, anonymous_reviewers = 0;
         for (var i = 0; i < assigned_users.length; i++) {
           var assignment = assigned_users[i];
@@ -75,6 +93,7 @@
               anonymous_reviewers = anonymous_reviewers + 1;
           }
         }
+
         if (anonymous_reviewers) {
           var text = 'and ' + anonymous_reviewers.toString();
           if (total_reviewers > anonymous_reviewers)
@@ -82,15 +101,22 @@
           text = text + ' Reviewer';
           if (anonymous_reviewers > 1)
             text = text + 's';
+
           return {
             role: 'reviewer',
             text: text
           };
+
         } else {
           return {};
+
         }
       },
-      behaviors: [ Oj.paperHelpers ]
+
+      behaviors: [
+          Oj.paperHelpers
+      ]
+
     });
   </script>
 </dom-module>

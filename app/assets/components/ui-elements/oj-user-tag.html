@@ -40,24 +40,29 @@
 
     </style>
   <template>
-      <template is="dom-if" if="{{_computeIf(assignment, showCompleted)}}">
-          <iron-icon icon="{{getCompletionIcon (assignment)}}" title="{{getCompletionTip (assignment)}}"></iron-icon>
+
+      <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
+          <iron-icon icon="{{getCompletionIcon(assignment)}}" title="{{getCompletionTip(assignment)}}"></iron-icon>
       </template>
+
       <span class="name">
           <template is="dom-if" if="{{assignment.user}}">
-              <span>{{_computeExpression1(assignment, capitalize)}}</span>: <span>{{assignment.user.name}}</span>
+              <span>{{capitalize(assignment.role)}}</span>: <span>{{assignment.user.name}}</span>
           </template>
           <template is="dom-if" if="{{assignment.text}}">
               <span>{{assignment.text}}</span>
           </template>
       </span>
 
-      <template is="dom-if" if="{{_computeIf2(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
+      <template is="dom-if" if="{{showRemover(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
       <!-- <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template> -->
   </template>
   <script>
     Polymer({
       is: 'oj-user-tag',
+      behaviors: [
+        Oj.globalExpressions
+      ],
       properties: {
         assignment: {
           notify: true,
@@ -86,9 +91,9 @@
       getCompletionIcon: function (assignment) {
         switch (assignment.reviewer_accept) {
         case true:
-          return 'done';
+          return 'icons:done';
         case false:
-          return 'clear';
+          return 'icons:clear';
         default:
           return '';
         }
@@ -108,14 +113,11 @@
         if (this.removable)
           this.fire('remove-user', this.assignment);
       },
-      _computeIf: function (assignment, showCompleted) {
+      showCompletionCheckbox: function (assignment, showCompleted) {
         return showCompleted && assignment.role == 'reviewer' && assignment.user;
       },
-      _computeIf2: function (assignment, removable) {
+      showRemover: function (assignment, removable) {
         return removable && assignment.role == 'reviewer' && assignment.user;
-      },
-      _computeExpression1: function (assignment, capitalize) {
-        return assignment.role | capitalize;
       }
     });
   </script>

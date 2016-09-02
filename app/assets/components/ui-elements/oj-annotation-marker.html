@@ -1,4 +1,5 @@
 <dom-module id="oj-annotation-marker">
+
   <style>
           iron-icon {
             display:      block !important;
@@ -28,11 +29,11 @@
           }
 
     </style>
+
   <template>
-
         <iron-icon icon="custom-icons:selected" on-click="annotationClicked" title="{{stripped(annotation.body)}}" class$="{{_computeClass(annotation)}}"></iron-icon>
-
   </template>
+
   <script>
     Polymer({
       is: 'oj-annotation-marker',

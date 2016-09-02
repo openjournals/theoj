@@ -8,6 +8,11 @@
           @apply(--layout-horizontal);
       }
 
+      .spacer {
+          @apply(--layout);
+          @apply(--flex);
+      }
+
       paper-button {
           color:         rgb(154, 154, 154) !important;
           border:        1px solid rgb(154, 154, 154) !important;
@@ -32,49 +37,79 @@
     </style>
   <template>
 
-      <template is="dom-if" if="{{_computeIf(paper)}}">
-          <paper-button id="start-review" on-tap="{{_computeHidden(paper)}}" hidden$="{{_computeHidden(paper)}}" disabled$="{{hasNoReviewers ( paper.assigned_users)}}">
-              <iron-icon icon="arrow-forward"></iron-icon>
-              Reviewer Selection Complete
-          </paper-button>
-          <div class="layout flex"></div>
-          <paper-button id="accept" on-tap="{{_computeHidden2(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="thumb-up"></iron-icon>
-              Accept
-          </paper-button>
-          <paper-button id="reject" on-tap="{{_computeHidden3(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="thumb-down"></iron-icon>
-              Reject
-          </paper-button>
-          <paper-button id="delete" on-tap="deleteClick" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="delete"></iron-icon>
-              Delete Paper
-          </paper-button>
-      </template>
+    <template is="dom-if" if="{{hasRole(paper, 'editor')}}">
 
-      <template is="dom-if" if="{{_computeIf2(paper)}}">
-          <div class="layout flex"></div>
-          <paper-button id="check-for-update" on-tap="{{_computeHidden4(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="refresh"></iron-icon>
-              Check for Update
-          </paper-button>
-      </template>
+      <paper-button id="start-review"
+                    on-tap="startReviewClick"
+                    hidden$="{{canStartReview(paper, paper.state)}}"
+                    disabled$="{{hasNoReviewers(paper.assigned_users)}}">
+          <iron-icon icon="icons:arrow-forward"></iron-icon>
+          Reviewer Selection Complete
+      </paper-button>
 
-      <template is="dom-if" if="{{_computeIf3(paper)}}">
-          <paper-button id="mark-review-complete" on-tap="{{_computeHidden5(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="check"></iron-icon>
-              Make Publication Recommendation
-          </paper-button>
-          <div class="layout flex"></div>
-          <paper-button id="make-name-public" on-tap="{{_computeHidden6(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="perm-identity"></iron-icon>
-              Make Public
-          </paper-button>
-          <paper-button id="hide-name-public" on-tap="{{_computeHidden7(paper)}}" hidden$="{{_computeHidden(paper)}}">
-              <iron-icon icon="perm-identity"></iron-icon>
-              Hide Public
-          </paper-button>
-      </template>
+      <div class="spacer"></div>
+
+      <paper-button id="accept"
+                    on-tap="acceptClick"
+                    hidden$="{{canAccept(paper, paper.state)}}"
+                    >
+          <iron-icon icon="icons:thumb-up"></iron-icon>
+          Accept
+      </paper-button>
+
+      <paper-button id="reject"
+                    on-tap="rejectClick"
+                    hidden$="{{canReject(paper, paper.state)}}"
+                    >
+          <iron-icon icon="icons:thumb-down"></iron-icon>
+          Reject
+      </paper-button>
+
+      <paper-button id="delete" on-tap="deleteClick"
+                    hidden$="{{canDelete(paper, paper.state)}}"
+                    >
+          <iron-icon icon="icons:delete"></iron-icon>
+          Delete Paper
+      </paper-button>
+
+  </template>
+
+    <template is="dom-if" if="{{hasRole(paper, 'submittor')}}">
+      <div class="spacer"></div>
+      <paper-button id="check-for-update"
+                    on-tap="checkForUpdateClick"
+                    hidden$="{{canCheckForUpdate(paper, paper.state)}}">
+          <iron-icon icon="icons:refresh"></iron-icon>
+          Check for Update
+      </paper-button>
+  </template>
+
+    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
+
+      <paper-button id="mark-review-complete"
+                    on-tap="markReviewCompleteClick"
+                    hidden$="{{canCompleteReview(paper, paper.state)}}">
+          <iron-icon icon="icons:check"></iron-icon>
+          Make Publication Recommendation
+      </paper-button>
+
+      <div class="spacer"></div>
+
+      <paper-button id="make-name-public"
+                    on-tap="makePublicClick"
+                    hidden$="{{canMakePublic(paper, paper.state)}}">
+          <iron-icon icon="icons:perm-identity"></iron-icon>
+          Make Public
+      </paper-button>
+
+      <paper-button id="hide-name-public"
+                    on-tap="makePublicClick"
+                    hidden$="{{canHidePublic(paper, paper.state)}}">
+          <iron-icon icon="icons:perm-identity"></iron-icon>
+          Hide Public
+      </paper-button>
+
+  </template>
 
     <paper-dialog id="dialog" backdrop="" layered="false">
         <p></p>
@@ -83,16 +118,19 @@
         <paper-button dismissive="" autofocus="">Cancel</paper-button>
     </paper-dialog>
 
-    <json-request id="statusChangeRequest" method="put" on-success="statusChangeRequestSuccess"></json-request>
-    <json-request id="updateRequest" method="put" on-success="updateRequestSuccess" on-error="requestError"></json-request>
-    <json-request id="completedRequest" method="post" on-success="completedRequestSuccess" on-error="requestError"></json-request>
-    <json-request id="deleteRequest" method="delete" on-error="requestError"></json-request>
-    <json-request id="publicRequest" method="get" on-error="requestError"></json-request>
+    <json-request id="statusChangeRequest" method="put"    on-success="statusChangeRequestSuccess"></json-request>
+    <json-request id="updateRequest"       method="put"    on-success="updateRequestSuccess"    on-error="requestError"></json-request>
+    <json-request id="completedRequest"    method="post"   on-success="completedRequestSuccess" on-error="requestError"></json-request>
+    <json-request id="deleteRequest"       method="delete"                                      on-error="requestError"></json-request>
+    <json-request id="publicRequest"                                                            on-error="requestError"></json-request>
 
   </template>
+
   <script>
     Polymer({
+
       is: 'oj-review-page-actions',
+
       properties: {
         paper: {
           notify: true,
@@ -100,24 +138,30 @@
         },
         user: { notify: true }
       },
+
       paperChanged: function () {
         this.submitted = this.paper && this.paper.state == 'submitted';
       },
+
       hasNoReviewers: function (assigned_users) {
         for (var i = 0; i < assigned_users.length; i++)
           if (assigned_users[i].role == 'reviewer')
             return false;
         return true;
       },
+
       startReviewClick: function () {
         this.changeState('start_review', 'Do you really want to start reviewing this paper?', 'Start Review', 'Thank You. The paper will now be available for review.');
       },
+
       acceptClick: function () {
         this.changeState('accept', 'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.', 'Accept', 'The paper has been accepted.');
       },
+
       rejectClick: function () {
         this.changeState('reject', 'Do you really want to reject this paper?', 'Reject', 'The paper has been rejected.');
       },
+
       markReviewCompleteClick: function () {
         this.showDialog('Do you really want to mark this paper as completed?', 'Recommend Acceptance', 'Recommend Rejection', function (event) {
           var accept = event.target.className == 'first';
@@ -127,11 +171,13 @@
           $request.go();
         });
       },
+
       completedRequestSuccess: function (event, detail) {
         var message = 'You have finished reviewing the paper.';
         this.fire('notification', message);
         this.paper = detail;
       },
+
       makePublicClick: function (event, detail, target) {
         var make_public = target.id == 'make-name-public';
         var html = make_public ? 'Do you really want to make your name public?' : 'Do you really want to hide your public name?';
@@ -148,6 +194,7 @@
           }.bind(this));
         });
       },
+
       deleteClick: function () {
         this.showDialog('Do you want to delete this paper?<br/>' + 'All versions of the paper will be permanently removed from the system.', 'Delete Paper', function () {
           var $request = this.$.deleteRequest;
@@ -159,23 +206,26 @@
           }.bind(this));
         });
       },
+
       checkForUpdateClick: function () {
         var $request = this.$.updateRequest;
         $request.url = Oj.urls.paperCheckForUpdatePath(this.paper);
         $request.go();
       },
+
       updateRequestSuccess: function (event, detail) {
         var message = 'We have retrieved version ' + detail.version + ' of your document.';
         this.fire('notification', message);
         this.fire('review', detail);
       },
+
       showDialog: function (html, button1Text, button2Text, onSuccess) {
         if ($.isFunction(button2Text)) {
           onSuccess = button2Text;
           button2Text = undefined;
         }
-        ;
-        var $dialog = this.$.dialog;
+
+        var $dialog  = this.$.dialog;
         var $content = Polymer.dom($dialog).querySelector('p');
         Polymer.dom($content).innerHTML = html;
         var $button1 = Polymer.dom($dialog).querySelector('.first');
@@ -189,6 +239,7 @@
         $($button2).on('tap', onSuccess.bind(this));
         $dialog.open();
       },
+
       changeState: function (newState, html, buttonText, successMessage) {
         this.showDialog(html, buttonText, function () {
           this.successMessage = successMessage;
@@ -198,43 +249,52 @@
           $request.go();
         });
       },
+
       statusChangeRequestSuccess: function (event, detail) {
         this.fire('notification', this.successMessage);
         this.fire('go-default');
       },
+
       requestError: function (event, detail) {
         this.fire('notification', Oj.utils.errorMessage(detail));
       },
-      _computeIf: function (paper) {
-        return paper.current_role == 'editor';
-      },
-      _computeIf2: function (paper) {
-        return paper.current_role == 'submittor';
-      },
-      _computeIf3: function (paper) {
-        return paper.current_role == 'reviewer';
-      },
-      _computeHidden: function (paper) {
+
+      canStartReview: function (paper) {
         return paper.state != 'submitted';
       },
-      _computeHidden2: function (paper) {
+
+      canAccept: function (paper) {
         return paper.state != 'review_completed';
       },
-      _computeHidden3: function (paper) {
+
+      canReject: function (paper) {
         return paper.state != 'under_review' && paper.state != 'review_completed';
       },
-      _computeHidden4: function (paper) {
+
+      canDelete: function (paper) {
+        return paper.state != 'submitted';
+      },
+
+      canCheckForUpdate: function (paper) {
         return paper.state != 'submitted' && paper.state != 'under_review';
       },
-      _computeHidden5: function (paper) {
+
+      canCompleteReview: function (paper) {
         return paper.state != 'under_review' || paper.current_assignment.completed;
       },
-      _computeHidden6: function (paper) {
+
+      canMakePublic: function (paper) {
         return true || paper.state == 'superceded' || paper.current_assignment.public;
       },
-      _computeHidden7: function (paper) {
+
+      canHidePublic: function (paper) {
         return paper.state == 'superceded' || !paper.current_assignment.public;
-      }
+      },
+
+      behaviors: [
+        Oj.paperHelpers
+      ]
+
     });
   </script>
 </dom-module>

@@ -59,15 +59,15 @@
           <markdown-text-area id="replyTextArea" placeholder="Add a comment" value="{{text}}"></markdown-text-area>
 
           <div class="controls layout horizontal end-justified">
-              <paper-button on-click="submitComment" icon="add" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
-              <paper-button on-click="dismissNewComment" icon="close" disabled$="{{$.newCommentRequest.loading}}">Cancel</paper-button>
+              <paper-button on-click="submitComment" icon="icons:add" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
+              <paper-button on-click="dismissNewComment" icon="icons:close" disabled$="{{$.newCommentRequest.loading}}">Cancel</paper-button>
           </div>
       </template>
 
       <template is="dom-if" if="{{_computeIf(newCommentVisible, paper)}}">
           <div class="layout horizontal">
               <span class="layout flex"></span>
-              <paper-button on-click="showNewComment" icon="reply">Reply</paper-button>
+              <paper-button on-click="showNewComment" icon="icons:reply">Reply</paper-button>
           </div>
       </template>
 

@@ -66,9 +66,9 @@
   <template>
 
         <div tool="" class="layout flex horizontal">
-            <paper-icon-button icon="menu" on-tap="toggleDrawer" hidden$="{{!narrow}}"></paper-icon-button>
+            <paper-icon-button icon="icons:menu" on-tap="toggleDrawer" hidden$="{{!narrow}}"></paper-icon-button>
             <span class="title flex">The Open Journal</span>
-            <iron-icon id="search-icon" icon="search"></iron-icon>
+            <iron-icon id="search-icon" icon="icons:search"></iron-icon>
             <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
             <oj-user-login current-user="{{currentUser}}"></oj-user-login>
         </div>

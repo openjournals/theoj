@@ -22,9 +22,21 @@
   <template>
 
       <div class="tools" on-tap="changeState">
-          <paper-icon-button id="unresolve" icon="thumb-down" name="Unresolve" title="Unresolved" disabled$="{{_computeDisabled(annotation)}}"></paper-icon-button>
-          <paper-icon-button id="resolve" icon="thumb-up" name="Resolve" title="{{_computeDisabled2(annotation)}}" disabled$="{{_computeDisabled(annotation)}}"></paper-icon-button>
-          <paper-icon-button id="dispute" icon="report-problem" name="Dispute" title="{{_computeDisabled3(annotation)}}" disabled$="{{_computeDisabled(annotation)}}"></paper-icon-button>
+          <paper-icon-button id="unresolve"
+                             icon="icons:thumb-down"
+                             name="Unresolve"
+                             title="Unresolve"
+                             disabled$="{{isUnresolved(annotation)}}"></paper-icon-button>
+          <paper-icon-button id="resolve"
+                             icon="icons:thumb-up"
+                             name="Resolve"
+                             title="Resolved / Complete"
+                             disabled$="{{isResolved(annotation)}}"></paper-icon-button>
+          <paper-icon-button id="dispute"
+                             icon="icons:report-problem"
+                             name="Dispute"
+                             title="In Dispute"
+                             disabled$="{{isDisputed(annotation)}}"></paper-icon-button>
       </div>
 
       <paper-dialog id="dialog" backdrop="" layered="false">
@@ -37,29 +49,32 @@
       <json-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></json-request>
 
   </template>
+
   <script>
     Polymer({
       is: 'oj-reviewer-annotation-controls',
+
       properties: {
         annotation: {
-          notify: true,
-          observer: 'annotationChanged'
+          notify: true
         },
         paper: {
-          notify: true,
-          observer: 'paperChanged'
+          notify: true
         }
       },
-      paperChanged: function () {
+
+      observers: [
+          'annotationChanged(annotation, paper)'
+      ],
+
+      annotationChanged: function () {
         if (!this.paper || !this.annotation)
           return;
-        var own_issue = this.paper && this.paper.current_assignment && this.annotation && this.paper.current_assignment.sha == this.annotation.assignment;
-        var enabled = this.paper.state == 'under_review' && (own_issue || this.paper.current_role == 'editor');
+        var own_issue = this.isOwnAnnotation(this.annotation, this.paper);
+        var enabled   = this.paper.state == 'under_review' && (own_issue || this.hasRole(paper, 'editor'));
         enabled ? Polymer.dom(this).removeAttribute('hidden') : Polymer.dom(this).setAttribute('hidden', '');
       },
-      annotationChanged: function () {
-        this.paperChanged();
-      },
+
       changeState: function (event) {
         event.preventDefault();
         var target = event.target;
@@ -69,23 +84,29 @@
           return;
         this.$.dialog.open();
       },
+
       dialogAccepted: function () {
         this.set('$.putStateChange.url', Oj.urls.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState));
         this.$.putStateChange.go();
       },
+
       putStateChangeSuccess: function (event, response) {
         $.extend(this.annotation, response);
         this.fire('annotation-changed', response);
       },
-      _computeDisabled: function (annotation) {
-        return annotation.state == 'unresolved';
+
+      isUnresolved: function (annotation) {
+          return annotation.state == 'unresolved';
       },
-      _computeDisabled2: function (annotation) {
+
+      isResolved: function (annotation) {
         return annotation.state == 'resolved';
       },
-      _computeDisabled3: function (annotation) {
+
+      idDisputed: function (annotation) {
         return annotation.state == 'disputed';
       }
+
     });
   </script>
 </dom-module>

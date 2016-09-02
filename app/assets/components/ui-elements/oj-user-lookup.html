@@ -50,26 +50,33 @@
 
     <input id="input" placeholder="{{placeholder}}" value="{{search::input}}">
 
-    <iron-dropdown id="suggestions" position-target="{{$.input}}" vertical-align="bottom" autoclosedisabled="true" autofocusdisabled="true">
+    <paper-dropdown id="suggestions" position-target="input" vertical-align="bottom">
         <paper-menu>
           <template is="dom-repeat" items="{{suggestions}}" as="suggestion">
             <paper-item on-tap="selectUser">{{suggestion.name}}</paper-item>
           </template>
         </paper-menu>
-    </iron-dropdown>
+    </paper-dropdown>
 
     <json-request id="lookUpSearch" method="get" on-success="lookupSuccess"></json-request>
   </template>
+
   <script>
     Polymer({
       is: 'oj-user-lookup',
+
       properties: {
-        placeholder: { notify: true },
-        search: { observer: 'searchChanged' }
+        suggestions: {
+            value: function() { return [] }
+        },
+        placeholder:  {
+            notify: true
+        },
+        search: {
+            observer: 'searchChanged'
+        }
       },
-      created: function () {
-        this.suggestions = [];
-      },
+
       searchChanged: function () {
         this.debounce('user_search', function () {
           if (this.search.length > 2) {
@@ -78,23 +85,24 @@
           }
         }, 300);
       },
+
       lookupSuccess: function (event, suggestions) {
         this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
         if (this.suggestions.length) {
           this.async(function () {
             this.$.suggestions.opened = true;
-            this.$.suggestions.discoverDimensions();
-            this.$.suggestions.resetTargetDimensions();
           });
         }
       },
+
       selectUser: function (event, detail, sender) {
-        var user = event.target.templateInstance.model.suggestion;
-        this.set('$.suggestions.opened', false);
+        var user = event.model.suggestion;
+        this.$.suggestions.opened = false;
         this.search = '';
         this.suggestions = [];
         this.fire('user-selected', user);
       }
+
     });
   </script>
 </dom-module>

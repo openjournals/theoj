@@ -64,22 +64,21 @@
 
       <div id="top" class="layout horizontal">
           <h1 class="layout flex">{{header}}</h1>
-          <paper-dropdown-menu on-select="changeSortOrder" label="Submitted Date">
-              <iron-dropdown class="dropdown">
-                  <paper-menu class="menu" selected="3">
-                      <paper-item key="title">Sort By Article Title</paper-item>
-                      <paper-item key="author.name">Sort By Author</paper-item>
-                      <paper-item key="state">Sort By State</paper-item>
-                      <paper-item key="submitted_at" desc="">Sort By Submitted Date</paper-item>
-                  </paper-menu>
-              </iron-dropdown>
+
+          <paper-dropdown-menu on-iron-select="changeSortOrder">
+              <paper-listbox class="dropdown-content menu" attr-for-selected="key" selected="submitted_at">
+                  <paper-item key="title">Sort By Article Title</paper-item>
+                  <paper-item key="submittor.name">Sort By Submittor</paper-item>
+                  <paper-item key="state">Sort By State</paper-item>
+                  <paper-item key="submitted_at" desc>Sort By Submitted Date</paper-item>
+              </paper-listbox>
           </paper-dropdown-menu>
       </div>
 
       <div id="list" class="layout flex vertical">
 
           <template is="dom-if" if="{{_computeIf(papers)}}">
-              <iron-list items="[[filtered(papers, sortKey, sortDesc)]]" as="model" >
+              <iron-list items="[[ filtered(papers, sortKey, sortDesc) ]]" as="model" >
 
                   <template>
                       <div class$="{{_computeClass(selected)}}">
@@ -107,43 +106,60 @@
     Polymer({
       is: 'oj-papers-page',
         properties: {
-        header: { notify: true },
+        header: {
+          notify: true
+        },
         sortDesc: {
-          type: Boolean,
+          type:  Boolean,
           value: true
         },
         sortKey: {
-          type: String,
+          type:  String,
           value: 'submitted_at'
         },
-        src: { notify: true }
+        src: {
+          notify: true
+        }
       },
+
       changeSortOrder: function (event, detail) {
-        this.sortKey = detail.item.getAttribute('key');
+        this.sortKey  = detail.item.getAttribute('key');
         this.sortDesc = detail.item.hasAttribute('desc');
+        //force refresh
+        var list = this.$.list.querySelector('iron-list');
+        if (list) list.notifyResize();
       },
+
       filtered: function (array, key, desc) {
         if (!array)
           return array;
+
+        return array.sort( this.sortFunction(key,desc) );
+      },
+
+      sortFunction(key, desc) {
         var keys = key.split('.');
+
         var sortFunction = function (a, b) {
           var x = a;
           keys.forEach(function (key) {
-            x = x && x[key];
+              x = x && x[key];
           });
           var y = b;
           keys.forEach(function (key) {
-            y = y && y[key];
+              y = y && y[key];
           });
           if (typeof x == 'string') {
-            x = x.toLowerCase();
-            y = y.toLowerCase();
+              x = x.toLowerCase();
+              y = y.toLowerCase();
           }
           var order = x < y ? -1 : x > y ? 1 : 0;
           return desc ? -order : order;
         };
-        return array.sort(sortFunction);
+
+        return sortFunction;
       },
+
       _computeIf: function (papers) {
         return papers && papers.length > 0;
       },
@@ -164,4 +180,5 @@
       }
     });
   </script>
+
 </dom-module>

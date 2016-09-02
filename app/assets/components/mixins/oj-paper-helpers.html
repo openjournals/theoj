@@ -9,7 +9,7 @@
 
             var has_role = function(role) { return paper.user_permissions.indexOf(role) >= 0; };
 
-            if (has_role('submittor') && paper.pending_issues_count>1)
+            if ( paper.pending_issues_count>1 && this.hasRole(paper, 'submittor') )
                 return 'needs-attention';
 
             else if (paper.state=='under_review')
@@ -24,23 +24,21 @@
             else if (paper.state=='rejected')
                 return 'rejected';
 
-            else if (has_role('submittor'))
+            else if (this.hasRole(paper, 'submittor'))
                 return 'in-process';
 
         },
 
-//        roleForPaper: function(paper){
-//            if (!paper)
-//                return '';
-//            else if (paper.user_permissions.indexOf('editor') >= 0)
-//                return 'editor';
-//            else if (paper.user_permissions.indexOf('reviewer') >= 0)
-//                return 'reviewer';
-//            else if (paper.user_permissions.indexOf('collaborator') >= 0)
-//                return 'author';
-//            else if (paper.user_permissions.indexOf('submittor') >= 0)
-//                return 'author';
-//        },
+        hasRole(paper, role) {
+            return paper.user_permissions.indexOf(role) >= 0;
+        },
+
+        isOwnAnnotation: function(annotation, paper) {
+            if (!annotation || !paper)
+              return false;
+
+            return paper.current_assignment.sha == annotation.assignment;
+        },
 
         // Given a assignment sha returns the assignment object from the paper
         // With some additional metadata
@@ -69,7 +67,10 @@
         },
 
         sortAssignments: function(assignments) {
-            return assignments && assignments.sort( function(a,b) {
+            if (!assignments)
+              return assignments;
+
+            return assignments.slice(0).sort( function(a,b) {
                         var ai = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(a.role),
                             bi = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(b.role);
                         if (ai != bi)
@@ -80,7 +81,7 @@
                             return 1;
                         else
                             return -1;
-                    });
+                  });
         },
 
         providerPart: function(typed_provider_id) {

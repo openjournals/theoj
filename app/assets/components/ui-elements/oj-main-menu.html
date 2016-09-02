@@ -28,39 +28,39 @@
         <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" valueattr="id" class="main-menu">
 
             <paper-item id="recent">
-                <a is="pushstate-anchor" href="/" target="_self"><iron-icon icon="home"></iron-icon> Recent Papers</a>
+                <a is="pushstate-anchor" href="/" target="_self"><iron-icon icon="icons:home"></iron-icon> Recent Papers</a>
             </paper-item>
 
             <template is="dom-if" if="{{currentUser}}">
 
                 <paper-item id="submitted">
-                    <a is="pushstate-anchor" href="/submitted" target="_self"><iron-icon icon="receipt"></iron-icon> Papers You Submitted</a>
+                    <a is="pushstate-anchor" href="/submitted" target="_self"><iron-icon icon="icons:receipt"></iron-icon> Papers You Submitted</a>
                 </paper-item>
 
                 <paper-item id="review">
-                    <a is="pushstate-anchor" href="/review" target="_self"><iron-icon icon="speaker-notes"></iron-icon> Papers You Are Reviewing</a>
+                    <a is="pushstate-anchor" href="/review" target="_self"><iron-icon icon="icons:speaker-notes"></iron-icon> Papers You Are Reviewing</a>
                 </paper-item>
 
                 <template is="dom-if" if="{{currentUser.editor}}">
 
                     <paper-item id="editing">
-                        <a is="pushstate-anchor" href="/editing" target="_self"><iron-icon icon="speaker-notes"></iron-icon> Papers You Are Editing</a>
+                        <a is="pushstate-anchor" href="/editing" target="_self"><iron-icon icon="icons:speaker-notes"></iron-icon> Papers You Are Editing</a>
                     </paper-item>
 
                 </template>
 
                 <paper-item id="submit">
-                    <a is="pushstate-anchor" href="/submit" target="_self"><iron-icon icon="send"></iron-icon> Submit</a>
+                    <a is="pushstate-anchor" href="/submit" target="_self"><iron-icon icon="icons:send"></iron-icon> Submit</a>
                 </paper-item>
 
                 <paper-item id="settings">
-                    <a is="pushstate-anchor" href="/settings" target="_self"><iron-icon icon="settings"></iron-icon> Settings</a>
+                    <a is="pushstate-anchor" href="/settings" target="_self"><iron-icon icon="icons:settings"></iron-icon> Settings</a>
                 </paper-item>
 
             </template>
 
             <paper-item id="about">
-                <a is="pushstate-anchor" href="/about" target="_self"><iron-icon icon="info-outline"></iron-icon> About</a>
+                <a is="pushstate-anchor" href="/about" target="_self"><iron-icon icon="icons:info-outline"></iron-icon> About</a>
             </paper-item>
 
         </paper-menu>

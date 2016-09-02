@@ -35,7 +35,9 @@
   <script>
     Polymer({
       is: 'oj-page-router',
-      properties: { currentUser: { notify: true } },
+      properties: {
+          currentUser: { notify: true }
+      },
       // Public API
       init: function () {
          this.$.router.init();

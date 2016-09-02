@@ -18,6 +18,7 @@
   <script>
     Polymer({
       is: 'oj-annotation-list',
+
       properties: {
         annotations: {
           type: Array,
@@ -38,6 +39,7 @@
         pageSpacing: { notify: true },
         paper: { notify: true }
       },
+
       annotationsChanged: function () {
         console.log('annotationsChanged', this.annotations);
         if (!this.annotations)
@@ -48,6 +50,7 @@
         this.sorted_annotations = copy;
         this.addLocationToAnnotations();
       },
+
       pageHeightChanged: function (newValue, oldValue) {
         if (oldValue == 0) {
           // Do it immediately
@@ -57,6 +60,7 @@
           this.debounce('update-annotation-list-locations', this.addLocationToAnnotations, 150);
         }
       },
+
       sortAnnotations: function (unsorted) {
         return unsorted.sort(function (a, b) {
           var pa = a.page === undefined || a.page == null ? -1 : a.page;
@@ -70,6 +74,7 @@
           return a.id - b.id;
         });
       },
+
       addLocationToAnnotations: function () {
         var annotations = this.sorted_annotations;
         var last = 0;
@@ -84,6 +89,7 @@
           a.list_top = top + 'px';
         }
       },
+
       topForAnnotation: function (annotation) {
         var page_no = annotation.page;
         if (page_no === undefined || page_no === null) {
@@ -94,9 +100,11 @@
           return Math.max(t, 0);
         }
       },
+
       annotationOpened: function (event, element) {
         this.collapseAnnotations(element);
       },
+
       annotationClosed: function (event, element) {
         if (element.annotation.new) {
           var index = this.annotations.indexOf(element.annotation);
@@ -104,10 +112,12 @@
             this.annotations.splice(index, 1);
         }
       },
+
       annotationAdded: function (event, annotation) {
         var last = this.annotations.length - 1;
         this.set('annotations' + ('.' + last), annotation);
       },
+
       collapseAnnotations: function (exclude) {
         var annotations = Polymer.dom(this.$.list).querySelectorAll('oj-annotation');
         [].forEach.call(annotations, function (annotation) {
@@ -115,9 +125,11 @@
             annotation.close();
         });
       },
+
       _computeStyle: function (annotation) {
         return this.styleObject({ top: annotation.list_top });
       }
+
     });
   </script>
 </dom-module>

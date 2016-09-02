@@ -60,7 +60,7 @@
             left:      16px;
             top:       4px;
         }
-        paper-menu {
+        paper-listbox {
             margin: 0;
         }
 
@@ -116,7 +116,7 @@
 
         .right {
             background: white;
-            width:      353px; /* Match width of annoations list */
+            width:      353px; /* Match width of annotations list */
         }
 
         #add-paper-annotation {
@@ -154,6 +154,7 @@
         }
 
     </style>
+
   <template>
 
       <div class="layout flex left vertical" >
@@ -161,20 +162,18 @@
 
               <div class="title flex">
                   <span>{{paper.title}}</span>
-                  <template is="dom-if" if="{{_computeIf(paper)}}">
+                  <template is="dom-if" if="{{showStateInTitle(paper, paper.state, paper.can_view_annotations)}}">
                       <span class="inline-status">&nbsp;(<span>{{capitalize(paper.state)}}</span>)</span>
                   </template>
               </div>
 
               <div class="self-start">
-                  <paper-dropdown-menu on-activate="versionSelected">
-                      <iron-dropdown class="dropdown">
-                          <paper-menu id="versionMenu" valueattr="version" selected="{{paper.typed_provider_id}}">
-                              <template is="dom-repeat" items="{{paper.versions}}" as="version">
-                                  <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
-                              </template>
-                          </paper-menu>
-                      </iron-dropdown>
+                  <paper-dropdown-menu on-iron-select="versionSelected">
+                      <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
+                          <template is="dom-repeat" items="{{paper.versions}}" as="version">
+                              <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
+                          </template>
+                      </paper-listbox>
                   </paper-dropdown-menu>
               </div>
 
@@ -184,7 +183,7 @@
               <oj-assigned-users-list paper="{{paper}}"></oj-assigned-users-list>
           </div>
 
-          <template is="dom-if" if="{{_computeShowBottom(paper)}}">
+          <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
               <div id="status-row" class="layout horizontal">
 
                   <div class="status-block">
@@ -192,7 +191,7 @@
                       <div class="status">{{capitalize(paper.state)}}</div>
                   </div>
 
-                  <template is="dom-if" if="{{_computeIf2(paper)}}">
+                  <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
                       <div class="count-block">
                           <div class="count">{{countOpen}}</div>
                           <div class="label">Open<br>Issues</div>
@@ -211,7 +210,7 @@
 
               <div id="add-paper-annotation">
                   <paper-button raised="" on-tap="addPaperAnnotation">
-                      <div class="icon-wrapper"><iron-icon icon="add"></iron-icon></div>
+                      <div class="icon-wrapper"><iron-icon icon="icons:add"></iron-icon></div>
                       <div class="text-wrapper">Add a comment about the entire paper</div>
                   </paper-button>
               </div>
@@ -219,7 +218,7 @@
           </div>
       </template>
 
-      <template is="dom-if" if="computeIf3(loadProgress)">
+      <template is="dom-if" if="showProgress(loadProgress)">
           <paper-progress class="progress" value="{{loadProgress}}"></paper-progress>
       </template>
 
@@ -228,6 +227,7 @@
   <script>
     Polymer({
       is: 'oj-review-page-header',
+
       properties: {
         annotations: {
           type:     Array,
@@ -238,9 +238,11 @@
         paper: { notify: true },
         user: { notify: true }
       },
+
       annotationsChanged: function () {
         this.updateCounts();
       },
+
       updateCounts: function () {
         if (!this.annotations)
           return;
@@ -252,27 +254,38 @@
         }).length;
         this.countOpen = this.annotations.length - this.countClosed - this.countNew;
       },
+
       versionSelected: function (event, detail) {
-        var id = this.$.versionMenu.selectedModel.version.typed_provider_id;
+        var id = detail.item.version;
         if (id != this.paper.typed_provider_id)
           this.fire('review', id);
       },
+
       addPaperAnnotation: function (event, detail) {
         this.fire('add-paper-annotation');
       },
-      _computeShowBottom: function (paper) {
+
+      showBottomDetails: function(paper) {
         return paper && paper.can_view_annotations && paper.state != 'accepted';
       },
-      _computeIf: function (paper) {
-        return paper && !this._computeShowBottom(paper) && paper.state != 'accepted';
+
+      showStateInTitle: function(paper) {
+        return paper && !paper.can_view_annotations && paper.state != 'accepted';
       },
-      _computeIf2: function (paper) {
+
+      showCounts: function(paper) {
         return paper.state != 'submitted';
       },
-      _computeIf3: function(loadProgress) {
-        return loadProgress <= 100;
+
+      showProgress: function(loadProgress) {
+        return loadProgress < 100;
       },
-      behaviors: [ Oj.globalExpressions, Oj.paperHelpers ]
+
+      behaviors: [
+          Oj.globalExpressions,
+          Oj.paperHelpers
+      ]
+
     });
   </script>
 </dom-module>

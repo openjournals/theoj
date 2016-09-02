@@ -68,7 +68,9 @@
   <script>
     Polymer({
       is: 'oj-app',
-      properties: { onRoute: { observer: 'onRouteChanged' } },
+      properties: {
+        onRoute: { observer: 'onRouteChanged' }
+      },
       onNotification: function (event, text) {
         this.showNotification(text);
       },

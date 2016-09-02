@@ -6,7 +6,7 @@
     <%= javascript_include_tag "application" %>
 
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <%= stylesheet_link_tag    "application", media: "all", :'shim-shadowdom'=>'' %>
+    <style is="custom-style"><%= Rails.application.assets['application.css'].to_s.html_safe %></style>
     <%= html_import_tag "application" %>
 
     <script src="https://cdn.firebase.com/js/client/2.2.6/firebase.js"></script>

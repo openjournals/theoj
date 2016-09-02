@@ -4,6 +4,8 @@ body {
   font-family: $default_font;
 }
 
+// #@mro #@todo - this all needs to be rewritten, deep and shadow selectors no longer work
+
 // Modified CSS for Polymer elements
 
 body /deep/ {
@@ -52,26 +54,26 @@ body /deep/ {
 
   }
 
-  paper-input {
-
-    /deep/ #underline {
-      display: none;
-    }
-
-    /deep/ paper-input-decorator {
-      padding-top:  0;
-      margin-right: 12px;
-    }
-
-    /deep/ ::content input[is="iron-input"]  {
-      border:        solid 2px silver;
-      border-radius: 4px;
-      height:        32px;
-      margin-top:    0;
-      padding-left:  8px;
-    }
-
-  }
+  //paper-input {
+  //
+  //  /deep/ #underline {
+  //    display: none;
+  //  }
+  //
+  //  /deep/ paper-input-decorator {
+  //    padding-top:  0;
+  //    margin-right: 12px;
+  //  }
+  //
+  //  /deep/ ::content input[is="iron-input"]  {
+  //    border:        solid 2px silver;
+  //    border-radius: 4px;
+  //    height:        32px;
+  //    margin-top:    0;
+  //    padding-left:  8px;
+  //  }
+  //
+  //}
 
   section.boiler-plate {
 

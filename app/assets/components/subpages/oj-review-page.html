@@ -50,7 +50,7 @@
             </div>
 
             <template is="dom-if" if="{{paper.can_view_annotations}}">
-                <!--<oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" first-page-offset="{{_computeFirstPageOffset()}}" pageheight="{{pdfClientHeight}}" page-spacing="{{_computePageSpacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>-->
+                <oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" first-page-offset="{{_computeFirstPageOffset()}}" pageheight="{{pdfClientHeight}}" page-spacing="{{_computePageSpacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
             </template>
 
           </div>
@@ -69,25 +69,38 @@
   <script>
     Polymer({
       is: 'oj-review-page',
+
       properties: {
         currentUser: { notify: true },
         keys:        { observer: 'keysChanged' },
         paper:       { observer: 'paperChanged' },
-        annotations: { notify: true, type: Array, value:function() { return []; } },
+        annotations: {
+                       notify: true,
+                       type: Array, value:function() { return []; }
+                     },
         paper_id:    { notify: true },
         pdfClient:   { observer: 'pdfClientChanged' }
       },
-      observers: [ 'a(assignments.splices)', 'aa(assignments)'],
-        a:function(){ console.log('a'); },
-        aa:function(){ console.log('aa'); },
+
+      observers: [
+          'a(assignments.splices)',
+          'aa(assignments)'
+      ],
+
+      //#@todo, #@mro - rmeove this debugging code
+      a:function(){ console.log('a'); },
+      aa:function(){ console.log('aa'); },
+
       /**** external API *********/
+
       getSectionName: function () {
         return 'none';
       },
+
       paperChanged: function () {
         if (this.paper) {
           var current_user_sha = this.currentUser && this.currentUser.sha;
-          this.set('paper.current_assignment', !!Oj.utils.detect(this.paper.assigned_users, function (a) {
+          this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a, i) {
             return a.user && a.user.sha == current_user_sha;
           }));
           this.set('paper.current_role', this.paper.current_assignment && this.paper.current_assignment.role || 'none');
@@ -96,7 +109,9 @@
           this.fire('route-changed', this.menuSectionForRole(this.paper.current_role));
         }
       },
+
       /******************************/
+
       menuSectionForRole: function (role) {
         switch (role) {
         case 'editor':
@@ -111,24 +126,29 @@
           return '';
         }
       },
+
       pdfClientChanged: function (detail, event) {
           this.pdfClientHeight = detail.clientHeight;
       },
+
       onChangeAnnotation: function (event, annotation) {
           console.log('onChangeAnnotation');
           this.$.header.updateCounts();
       },
+
       keysChanged: function () {
         console.log('keysChanged');
-          // console.log('mapping ');
+        // console.log('mapping ');
         // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
         this.annotations = this.keys.map(function (key) {
           return this.data[key];
         }.bind(this));
       },
+
       updateAnnotations: function (event) {
           console.log('-- updateAnnotations');
       },
+
       newAnnotation: function (properties) {
         return $.extend({
           state: 'new',
@@ -136,27 +156,36 @@
           open: true
         }, properties);
       },
+
       pageClicked: function (event, position) {
         console.log('pageClicked:', position);
         var annotation = this.newAnnotation(position);
         this.addAnnotation(annotation);
       },
+
       addPaperAnnotation: function (event) {
         var annotation = this.newAnnotation();
         this.addAnnotation(annotation);
       },
+
       addAnnotation: function (annotation) {
         if (this.paper.can_edit_annotations) {
           this.push('annotations', annotation);
         }
       },
+
       _computeFirstPageOffset: function () {
         return 20;
       },
+
       _computePageSpacing: function () {
         return 20;
       },
-      behaviors: [ Oj.urls ]
+
+      behaviors: [
+          Oj.urls
+      ]
+
     });
   </script>
 </dom-module>
