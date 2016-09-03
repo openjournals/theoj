@@ -34,18 +34,19 @@
       is: 'oj-assigned-users-list',
 
       properties: {
-        paper: {
-          notify: true,
-          observer: 'paperChanged'
-        },
         user:           { notify: true },
+        paper:          { notify: true },
         submitted:      { notify: true },
         under_review:   { notify: true },
         show_completed: { notify: true },
         editable:       { notify: true }
       },
 
-      paperChanged: function() {
+      observers: [
+        'modelsChanged(paper, user)'
+      ],
+
+      modelsChanged: function() {
         var can_edit        = this.user.admin || this.hasRole(this.paper, 'editor');
         this.submitted      = this.paper && this.paper.state == 'submitted';
         this.under_review   = this.paper && this.paper.state == 'under_review';
