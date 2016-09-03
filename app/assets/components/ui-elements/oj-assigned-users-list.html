@@ -25,7 +25,7 @@
           <oj-user-lookup placeholder="Add Reviewer" on-user-selected="addReviewer" on-filter-suggestions="filterReviewerList"></oj-user-lookup>
       </template>
 
-    <json-request id="addReviewer" method="post" on-success="updateReviewers"></json-request>
+    <json-request id="addReviewer"    method="post"   on-success="updateReviewers"></json-request>
     <json-request id="removeReviewer" method="delete" on-success="updateReviewers"></json-request>
 
   </template>
@@ -37,36 +37,42 @@
         paper: {
           notify: true,
           observer: 'paperChanged'
-        }
+        },
+        user:           { notify: true },
+        submitted:      { notify: true },
+        under_review:   { notify: true },
+        show_completed: { notify: true },
+        editable:       { notify: true }
       },
 
-      paperChanged: function () {
-        this.submitted = this.paper && this.paper.state == 'submitted';
-        this.under_review = this.paper && this.paper.state == 'under_review';
-        this.show_completed = this.paper && this.hasRole(this.paper, 'editor') && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
-        this.editable = this.submitted && this.hasRole(this.paper, 'editor');
+      paperChanged: function() {
+        var can_edit        = user.admin || this.hasRole(this.paper, 'editor');
+        this.submitted      = this.paper && this.paper.state == 'submitted';
+        this.under_review   = this.paper && this.paper.state == 'under_review';
+        this.show_completed = this.paper && can_edit && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
+        this.editable       = this.submitted && can_edit;
       },
 
-      userColor: function (assignment) {
+      userColor: function(assignment) {
         assignment = Oj.paperHelpers.assignmentFromSha(this.paper, assignment.sha);
         return Oj.colors.userColor(assignment);
       },
 
-      removeReviewer: function (event, assignment) {
+      removeReviewer: function(event, assignment) {
         this.set('$.removeReviewer.url', Oj.urls.removeAssigneePath(this.paper, assignment));
         this.$.removeReviewer.go();
       },
 
-      addReviewer: function (event, user) {
+      addReviewer: function(event, user) {
         this.set('$.addReviewer.url', Oj.urls.addAssigneePath(this.paper, user));
         this.$.addReviewer.go();
       },
 
-      updateReviewers: function (event, detail) {
+      updateReviewers: function(event, detail) {
         this.set('paper.assigned_users', detail);
       },
 
-      filterReviewerList: function (event, suggestions) {
+      filterReviewerList: function(event, suggestions) {
         var paper = this.paper;
         event.result = suggestions.filter(function (item) {
           for (var i = 0; i < paper.assigned_users.length; i++) {
@@ -80,7 +86,7 @@
       },
 
       // Create a 'User' object that is used to display anonymous reviewers
-      anonymousReviewersTag: function (assigned_users) {
+      anonymousReviewersTag: function(assigned_users) {
         if (!assigned_users)
           return {};
 

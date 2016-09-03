@@ -40,7 +40,12 @@
 
     <div id="scroller" class="layout vertical">
 
-        <oj-review-page-header id="header" user="{{currentUser}}" paper="{{paper}}" annotations="{{annotations}}" load-progress="{{loadProgress}}" on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
+        <oj-review-page-header id="header"
+                               user="{{currentUser}}"
+                               paper="{{paper}}"
+                               annotations="{{annotations}}"
+                               load-progress="{{loadProgress}}"
+                               on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
 
         <template is="dom-if" if="{{paper}}">
           <div id="main" class="layout horizontal">
