@@ -46,7 +46,7 @@
       },
 
       paperChanged: function() {
-        var can_edit        = user.admin || this.hasRole(this.paper, 'editor');
+        var can_edit        = this.user.admin || this.hasRole(this.paper, 'editor');
         this.submitted      = this.paper && this.paper.state == 'submitted';
         this.under_review   = this.paper && this.paper.state == 'under_review';
         this.show_completed = this.paper && can_edit && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
