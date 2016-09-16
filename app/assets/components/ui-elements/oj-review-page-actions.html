@@ -74,17 +74,16 @@
 
   </template>
 
-    <template is="dom-if" if="{{hasRole(paper, 'submittor')}}">
+    <template is="dom-if" if="{{canCheckForUpdate(paper, paper.state)}}">
       <div class="spacer"></div>
       <paper-button id="check-for-update"
-                    on-tap="checkForUpdateClick"
-                    hidden$="{{canCheckForUpdate(paper, paper.state)}}">
+                    on-tap="checkForUpdateClick" >
           <iron-icon icon="icons:refresh"></iron-icon>
           Check for Update
       </paper-button>
-  </template>
+    </template>
 
-    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
+      <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
 
       <paper-button id="mark-review-complete"
                     on-tap="markReviewCompleteClick"
@@ -276,7 +275,7 @@
       },
 
       canCheckForUpdate: function (paper) {
-        return paper.state != 'submitted' && paper.state != 'under_review';
+        return paper.state != 'submitted' && paper.state != 'under_review' && this.hasRole(paper, 'submittor', 'editor')
       },
 
       canCompleteReview: function (paper) {

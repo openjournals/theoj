@@ -29,8 +29,13 @@
 
         },
 
-        hasRole(paper, role) {
-            return paper.user_permissions.indexOf(role) >= 0;
+        hasRole: function(paper, role, role2, role3) {
+            for (var i = 1; i < arguments.length; i++) {
+                role = arguments[i];
+                if (paper.user_permissions.indexOf(role) >= 0)
+                    return true;
+            }
+            return false;
         },
 
         isOwnAnnotation: function(annotation, paper) {
