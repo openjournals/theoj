@@ -5,7 +5,8 @@ class PaperSerializer < BaseSerializer
              :state,
              :submitted_at,
              :title,
-             :pending_issues_count
+             :pending_issues_count,
+             :doi
 
   has_one    :submittor, serializer:BasicUserSerializer
 
