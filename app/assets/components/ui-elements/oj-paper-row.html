@@ -7,6 +7,9 @@
               <div class=detail>
                   Submitted by <span class=highlight>{{paper.submittor.name}}</span>
                   on <span class=highlight>{{ paper.submitted_at | date }}</span>
+                  <template if="{{paper.state=='accepted'}}">
+                  , DOI: {{paper.doi}}
+                  </template>
                   <template if="{{paper.state=='under_review'}}">
                   | Comments: <span class=highlight>{{paper.pending_issues_count}}</span>
                   </template>
