@@ -170,6 +170,10 @@ class Paper < ActiveRecord::Base
     "#{provider_type}:#{provider_id}"
   end
 
+  def arxiv_feed_journal_ref
+    "The Open Journal of Astrophysics, #{self.created_at.strftime("%Y")}"
+  end
+
   def is_original_version?
     all_versions.empty? || self == all_versions.last
   end

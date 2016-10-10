@@ -6,6 +6,6 @@ xml.preprint  'xmlns' => 'http://arxiv.org/doi_feed',
               'xsi:schemaLocation' => 'http://arxiv.org/doi_feed http://arxiv.org/schemas/doi_feed.xsd' do
   xml.date("year" => date.strftime("%Y"), "month" => date.strftime("%b"), "day" => date.strftime("%d"))
   papers.each do |paper|
-    xml.article("preprint_id" => paper.arxiv_feed_identifier, "doi" => paper.doi)
+    xml.article("preprint_id" => paper.arxiv_feed_identifier, "doi" => paper.doi, "journal_ref" => paper.arxiv_feed_journal_ref)
   end
 end
