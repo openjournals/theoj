@@ -1,6 +1,6 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions, :overview ]
+  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions, :overview, :arxiv ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
@@ -32,6 +32,13 @@ class PapersController < ApplicationController
     end
 
     respond_with paper, serializer:PreviewPaperSerializer
+  end
+
+  # arXiv metadata https://arxiv.org/help/bib_feed
+  def arxiv
+    papers = Paper.where(:state => 'accepted')
+
+    render :template => 'papers/arxiv.xml.builder', :locals => {:papers => papers, :date => Time.now}
   end
 
   def create

@@ -166,6 +166,10 @@ class Paper < ActiveRecord::Base
     ! superceded?
   end
 
+  def arxiv_feed_identifier
+    "#{provider_type}:#{provider_id}"
+  end
+
   def is_original_version?
     all_versions.empty? || self == all_versions.last
   end

@@ -1,4 +1,3 @@
-
 Theoj::Application.routes.draw do
   scope path:'api', as:'api', format: 'json' do
 
@@ -63,6 +62,10 @@ Theoj::Application.routes.draw do
   get '/papers/:identifier/status', to: 'papers#state', param: :identifier, identifier: /[^\/]+/
 
   get '/papers/secret', to: 'papers#overview'
+
+  # Custom arXiv metadata URL
+
+  get '/papers/arxiv', to: 'papers#arxiv'
 
   # Make all other routes get the SPA page
   if Rails.env.development?
