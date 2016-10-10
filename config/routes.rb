@@ -65,7 +65,7 @@ Theoj::Application.routes.draw do
 
   # Custom arXiv metadata URL
 
-  get '/papers/arxiv', to: 'papers#arxiv'
+  get '/papers/arxiv.xml', to: 'papers#arxiv'
 
   # Make all other routes get the SPA page
   if Rails.env.development?
