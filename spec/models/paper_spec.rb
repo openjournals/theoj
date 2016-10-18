@@ -8,7 +8,7 @@ describe Paper do
         provider_id:       "1311.1653",
         version:           2,
         authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        document_location: "https://arxiv.org/pdf/1311.1653v2.pdf",
         title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
         summary:           "We present photometry.*in a second paper."
     }
@@ -296,7 +296,7 @@ describe Paper do
       expect(new_paper.version).to eq(2)
       expect(new_paper.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(new_paper.summary).to match /^We present.*paper.$/
-      expect(new_paper.document_location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(new_paper.document_location).to eq("https://arxiv.org/pdf/1311.1653v2.pdf")
       expect(new_paper.authors).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
     end
 

@@ -34,12 +34,19 @@
                 return (error && error.toString()) || 'An error occurred.'
         },
 
-        INVALID_FIREBASE_CHARS: /[~\.\$\#\[\]]/gi, // Added ~ since we use it as an escape, Also '/' but we don't worry about that
-
-        clean_firebase_key: function(key) {
-            return key.toString().replace(this.INVALID_FIREBASE_CHARS, function(c) {
-                return '~' + c.charCodeAt(0).toString(16);
-            });
+        menuSectionForRole: function (role) {
+            switch (role) {
+                case 'editor':
+                    return 'editing';
+                case 'reviewer':
+                    return 'review';
+                case 'submittor':
+                    return 'submitted';
+                case 'collaborator':
+                    return 'submitted';
+                default:
+                    return '';
+            }
         }
 
     };

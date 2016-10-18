@@ -35,6 +35,33 @@
             args.splice(1, 0, value);
             console.info.apply(console, args);
             return value;
+        },
+
+        // Replacements for Polymer 0.5 functions
+
+        convertStylePropertyName: function(name) {
+            return String(name).replace(/[A-Z]/g, function(c) {
+                return '-' + c.toLowerCase();
+            });
+        },
+
+        styleObject: function(values) {
+            var parts = [];
+            for (var key in values) {
+                if (values.hasOwnProperty(key)) {
+                    var name = this.convertStylePropertyName(key);
+                    parts.push(name + ': ' + values[key]);
+                }
+            }
+            return parts.join('; ');
+        },
+
+        tokenList: function(values) {
+            var tokens = [];
+            for (var key in values)
+                if (values.hasOwnProperty(key) && values[key])
+                  tokens.push(key);
+            return tokens.join(' ');
         }
 
     };

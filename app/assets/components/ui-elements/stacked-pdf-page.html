@@ -1,4 +1,5 @@
 <dom-module id="stacked-pdf-page">
+
   <style>
           :host {
             background-color: white;
@@ -70,18 +71,17 @@
           }
 
     </style>
+
   <template>
 
       <template is="dom-if" if="{{loaded}}">
           <paper-material elevation="1" on-click="fireClick">
             <canvas id="canvas"></canvas>
             <div id="textLayer"></div>
-            <template is="dom-if" if="{{_computeIf(annotations, rendered)}}">
+            <template is="dom-if" if="{{canRender(annotations, rendered)}}">
                 <div id="iconlayer">
-                    <template is="dom-repeat" items="{{annotations}}" as="a">
-                      <template is="dom-if" if="{{_computeIf2(a, pageNo)}}">
-                        <oj-annotation-marker annotation="{{a}}" style$="{{_computeStyle(a)}}"></oj-annotation-marker>
-                      </template>
+                    <template is="dom-repeat" items="{{annotations}}" as="a" observe="pageNo" filter="samePageFilter">
+                      <oj-annotation-marker annotation="{{a}}" style$="{{computeStyle(a, a.page_x, a.page_y)}}"></oj-annotation-marker>
                     </template>
                 </div>
             </template>
@@ -89,85 +89,105 @@
       </template>
 
   </template>
+
   <script>
     Polymer({
       is: 'stacked-pdf-page',
+
       properties: {
         annotations: {
-          type: Array,
-          notify: true,
-          observer: 'annotationsChanged'
+          type:     Array,
+          notify:   true
         },
         loaded: {
-          type: Boolean,
+          type:  Boolean,
           value: false
         },
         page: {
+           // PDF Page Object
+           type:     Object,
            notify:   true,
            observer: 'pageChanged'
         },
-        pageHeight: { observer: 'pageHeightChanged' },
-        pageNo: { notify: true }
-      },
-      annotationsChanged: function () {
-        this.addLocationToAnnotations();
-      },
-      pageHeightChanged: function (newValue, oldValue) {
-        if (oldValue == 0) {
-          // Do it immediately
-          this.addLocationToAnnotations();
-        } else {
-          // Add a delay since we're reizing inside a mouse drag
-          this.debounce('update-annotation-list-locations', this.addLocationToAnnotations, 150);
+        pageNo: {
+            notify: true
         }
       },
+
+      observers: [
+        'annotationsChanged(annotations.*)'
+      ],
+
+      ready: function () {
+            $(window).resize( this.adjustClientSizes.bind(this) );
+        },
+
+      annotationsChanged: function () {
+        if (!this.annotations || !this.clientHeight)
+            return;
+
+        this.addLocationToAnnotations();
+      },
+
       fireClick: function (event) {
         // var canvas = Polymer.dom(this).getElementById("canvas");
         // var canvasRect = canvas.getClientRects()[0];
         // pdf convertToPdfPoint doesn't sem accurate
         // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
-        var x = event.offsetX || event.layerX;
-        var y = event.offsetY || event.layerY;
+        var x =  event.offsetX || event.layerX;
+        var y =  event.offsetY || event.layerY;
         var rx = x / this.clientWidth;
         var ry = y / this.clientHeight;
-        var o = $(this).position();
+        // var o = $(this).position();
         this.fire('page-clicked', {
-          page: this.pageNo,
+          page:   this.pageNo,
           xStart: rx,
           yStart: ry
         });
       },
+
       adjustClientSizes: function (event) {
         if (this.pageNo == 0)
           this.fire('pdf-client-changed', {
-            pageNo: this.pageNo,
+            pageNo:       this.pageNo,
             clientHeight: this.clientHeight
           });
-        this.addLocationToAnnotations();
+
+        // Add a delay since we're reizing inside a mouse drag
+        this.debounce('update-annotation-list-locations # ' + this.pageNo,
+                      this.addLocationToAnnotations, 150);
       },
+
       addLocationToAnnotations: function () {
         if (!this.annotations)
           return;
+
         for (var i = 0; i < this.annotations.length; i++) {
           var a = this.annotations[i];
           if (a.page == this.pageNo) {
             var location = this.annotationLocation(a);
-            $.extend(a, location);
+            if (location.page_x != a.page_x)
+              this.set(['annotations', i, 'page_x'], location.page_x);
+            if (location.page_y != a.page_y)
+              this.set(['annotations', i, 'page_y'], location.page_y);
           }
         }
       },
+
       annotationLocation: function (a) {
         return {
           page_y: a.yStart * this.clientHeight + 'px',
-          page_x: a.xStart * this.clientWidth + 'px'
+          page_x: a.xStart * this.clientWidth  + 'px'
         };
       },
+
       annotationClicked: function (event, detail) {
         event.preventDefault();
         event.stopPropagation();
         var annotation = event.target.templateInstance.model.annotation;
         annotation.open = true;
       },
+
       render: function () {
         // Get the best scaling to fit the canvas
         var scale = this.clientWidth / this.pageContent.getViewport(1).width;
@@ -190,31 +210,41 @@
         this.adjustClientSizes();
         this.rendered = true;
       },
-      ready: function () {
-        $(window).resize(this.adjustClientSizes.bind(this));
-      },
+
       pageChanged: function() {
-          if (!this.page) return;
+          if (!this.page)
+              return;
+
           this.page.then(function (pageContent) {
               this.loaded = true;
               this.pageContent = pageContent;
+
               setTimeout(function () {
                   this.render();
               }.bind(this), 600);
+
           }.bind(this));
       },
-      _computeIf: function (annotations, rendered) {
+
+      canRender: function(annotations, rendered) {
         return rendered && annotations;
       },
-      _computeIf2: function (a, pageNo) {
-        return a.page == pageNo;
+
+      samePageFilter: function(a) {
+        return a.page == this.pageNo;
       },
-      _computeStyle: function (a) {
+
+      computeStyle: function (a) {
         return this.styleObject({
-          top: a.page_y,
+          top:  a.page_y,
           left: a.page_x
         });
-      }
+      },
+
+      behaviors: [
+        Oj.globalExpressions
+      ]
+
     });
   </script>
 </dom-module>

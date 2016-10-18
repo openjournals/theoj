@@ -7,12 +7,6 @@
             return paper_or_id ? "/api/papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
         },
 
-        annotationsFirebasePath: function(paper_or_id) {
-            var id = paper_or_id ? (paper_or_id.typed_provider_id || paper_or_id) : '';
-            id = Oj.utils.clean_firebase_key(id);
-            return "https://theoj.firebaseio.com/papers/" + id + "/annotations/";
-        },
-
         addAssigneePath: function(paper, user) {
             return "/api/papers/"+paper.typed_provider_id+"/assignments?user=" + user.sha ;
         },
@@ -22,11 +16,11 @@
         },
 
         getIssuesPath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/annotations";
+            return "/api/papers/" + (paper.typed_provider_id || paper) + "/annotations";
         },
 
         getAllIssuesPath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/annotations/all";
+            return "/api/papers/" + (paper.typed_provider_id || paper) + "/annotations/all";
         },
 
         previewPath: function(paper) {
@@ -43,7 +37,7 @@
 
         googlePreviewPath: function(paper){
           var link = paper.document_location;
-          return "http://docs.google.com/gview?embedded=true&url=" + link;
+          return "https://docs.google.com/gview?embedded=true&url=" + link;
         },
 
         paperAnnotationsPath: function(paper){

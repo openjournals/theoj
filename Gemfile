@@ -62,7 +62,7 @@ group :test do
   gem 'test_after_commit'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
-  gem 'webmock', '~> 1.18.0'
+  gem 'webmock', '~> 2.1.0'
 end
 
 # Use ActiveModel has_secure_password

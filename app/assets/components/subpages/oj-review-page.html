@@ -10,6 +10,7 @@
         position:      relative;
         overflow-y:    auto;
         height:        100%;
+        width:         100%;
         margin-bottom: 18px;
       }
 
@@ -51,11 +52,21 @@
           <div id="main" class="layout horizontal">
 
             <div class="layout flex vertical" id="pdf-pane">
-              <stacked-pdf-reader src="{{paper.document_location}}" annotations="{{annotations}}" page-offset="{{pageOffset}}" load-progress="{{loadProgress}}" on-page-clicked="pageClicked" on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
+              <stacked-pdf-reader src="{{paper.document_location}}"
+                                  annotations="{{annotations}}"
+                                  load-progress="{{loadProgress}}"
+                                  on-page-clicked="pageClicked"
+                                  on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
             </div>
 
             <template is="dom-if" if="{{paper.can_view_annotations}}">
-                <oj-annotation-list id="annotation_list" paper="{{paper}}" annotations="{{annotations}}" first-page-offset="{{_computeFirstPageOffset()}}" pageheight="{{pdfClientHeight}}" page-spacing="{{_computePageSpacing()}}" on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
+                <oj-annotation-list id="annotation_list"
+                                    paper="{{paper}}"
+                                    annotations="{{annotations}}"
+                                    first-page-offset="{{annotationFirstPageOffset}}"
+                                    page-height="{{pdfClientHeight}}"
+                                    page-spacing="{{pageSpacing}}"
+                                    on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
             </template>
 
           </div>
@@ -63,11 +74,10 @@
 
     </div>
 
+    <json-request     method="get" auto="true"  url="{{paperPath(paper_id)}}"    result="{{paper}}"      ></json-request>
     <template is="dom-if" if="{{paper.can_view_annotations}}">
-      <firebase-element id="annotation-firebase" location="{{annotationsFirebasePath (paper_id)}}" data="{{data}}" keys="{{keys}}" on-data-change="updateAnnotations"></firebase-element>
+        <json-request method="get" auto="true" url="{{getAllIssuesPath(paper)}}" result="{{annotations}}"></json-request>
     </template>
-
-    <json-request method="get" auto="true" url="{{paperPath(paper_id)}}" result="{{paper}}"></json-request>
 
   </template>
 
@@ -76,25 +86,36 @@
       is: 'oj-review-page',
 
       properties: {
-        currentUser: { notify: true },
-        keys:        { observer: 'keysChanged' },
-        paper:       { observer: 'paperChanged' },
+        currentUser: {
+                         notify: true
+                     },
+        data:        {
+                         type: Array
+                     },
+        paper:       {
+                        observer: 'paperChanged'
+                     },
         annotations: {
                        notify: true,
-                       type: Array, value:function() { return []; }
+                       type:   Array,
+                       value:  function() { return []; }
                      },
-        paper_id:    { notify: true },
-        pdfClient:   { observer: 'pdfClientChanged' }
+        paper_id:    {
+                         notify: true
+                     },
+        pdfClient:   {
+                         observer: 'pdfClientChanged'
+                     },
+        annotationFirstPageOffset: {
+                         notify: true,
+                         value:  20
+        },
+        pageSpacing: {
+              notify: true,
+              value:  20
+        }
+
       },
-
-      observers: [
-          'a(assignments.splices)',
-          'aa(assignments)'
-      ],
-
-      //#@todo, #@mro - rmeove this debugging code
-      a:function(){ console.log('a'); },
-      aa:function(){ console.log('aa'); },
 
       /**** external API *********/
 
@@ -117,48 +138,20 @@
 
       /******************************/
 
-      menuSectionForRole: function (role) {
-        switch (role) {
-        case 'editor':
-          return 'editing';
-        case 'reviewer':
-          return 'review';
-        case 'submittor':
-          return 'submitted';
-        case 'collaborator':
-          return 'submitted';
-        default:
-          return '';
-        }
-      },
-
-      pdfClientChanged: function (detail, event) {
+      pdfClientChanged: function(event, detail) {
           this.pdfClientHeight = detail.clientHeight;
       },
 
-      onChangeAnnotation: function (event, annotation) {
+      onChangeAnnotation: function(event, annotation) {
           console.log('onChangeAnnotation');
           this.$.header.updateCounts();
       },
 
-      keysChanged: function () {
-        console.log('keysChanged');
-        // console.log('mapping ');
-        // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
-        this.annotations = this.keys.map(function (key) {
-          return this.data[key];
-        }.bind(this));
-      },
-
-      updateAnnotations: function (event) {
-          console.log('-- updateAnnotations');
-      },
-
-      newAnnotation: function (properties) {
+      newAnnotation: function(properties) {
         return $.extend({
           state: 'new',
-          new: true,
-          open: true
+          new:   true,
+          open:  true
         }, properties);
       },
 
@@ -179,15 +172,8 @@
         }
       },
 
-      _computeFirstPageOffset: function () {
-        return 20;
-      },
-
-      _computePageSpacing: function () {
-        return 20;
-      },
-
       behaviors: [
+          Oj.utils,
           Oj.urls
       ]
 

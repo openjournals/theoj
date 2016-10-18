@@ -1420,6 +1420,7 @@ _useCache: true
 });
 },
 _propertySetter: function (property, value, effects, fromAbove) {
+if (!this.__data__) console.trace();
 var old = this.__data__[property];
 if (old !== value && (old === old || value === value)) {
 this.__data__[property] = value;

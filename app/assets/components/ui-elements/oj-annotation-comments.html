@@ -45,7 +45,7 @@
           <div class="comments">
               <template is="dom-repeat" items="{{annotation.responses}}" as="comment">
                   <div class="layout horizontal">
-                      <oj-user-label assignment="{{_computeAssignment(comment, getAssignment)}}"></oj-user-label>
+                      <oj-user-label assignment="{{getAssignment(paper, comment.assignment)}}"></oj-user-label>
                       <markdown-content class="comment" class="layout flex" markdown="{{comment.body}}"></markdown-content>
                   </div>
               </template>
@@ -59,8 +59,8 @@
           <markdown-text-area id="replyTextArea" placeholder="Add a comment" value="{{text}}"></markdown-text-area>
 
           <div class="controls layout horizontal end-justified">
-              <paper-button on-click="submitComment" icon="icons:add" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
-              <paper-button on-click="dismissNewComment" icon="icons:close" disabled$="{{$.newCommentRequest.loading}}">Cancel</paper-button>
+              <paper-button on-click="submitComment" icon="icons:add" disabled$="{{computeDisabled(text, ajaxLoading)}}">Add</paper-button>
+              <paper-button on-click="dismissNewComment" icon="icons:close" disabled$="{{ajaxLoading}}">Cancel</paper-button>
           </div>
       </template>
 
@@ -71,23 +71,38 @@
           </div>
       </template>
 
-    <iron-ajax id="newCommentRequest" url="{{addIssuePath(paper)}}" method="POST" contenttype="application/json" handle-as="json" on-response="commentSaved" on-error="commentError"></iron-ajax>
+    <json-request id="newCommentRequest"
+                  url="{{addIssuePath(paper)}}"
+                  method="POST"
+                  loading="{{ajaxLoading}}"
+                  on-success="commentSaved"
+                  on-error="commentError"></json-request>
 
   </template>
   <script>
     Polymer({
       is: 'oj-annotation-comments',
+
       properties: {
-        annotation: { notify: true },
-        /******** Polymer *******************/
+        annotation: {
+            notify: true
+        },
         newCommentVisible: {
           type: Boolean,
           value: false
         },
-        paper: { notify: true }
+        ajaxLoading: {
+          type: Boolean,
+          value: false
+        },
+        paper: {
+            notify: true
+        }
       },
+
       /***** API *******/
-      showNewComment: function () {
+
+      showNewComment: function() {
         this.newCommentVisible = true;
         this.async(function () {
           var edit = Polymer.dom(this).querySelector('#replyTextArea');
@@ -96,11 +111,14 @@
           this.fire('new-comment-shown');
         });
       },
+
       /*************************/
-      dismissNewComment: function () {
+
+      dismissNewComment: function() {
         this.newCommentVisible = false;
       },
-      submitComment: function () {
+
+      submitComment: function() {
         if (this.$.newCommentRequest.loading)
           return;
         if (!this.text)
@@ -108,13 +126,15 @@
         this.set('$.newCommentRequest.body', this.responseParams());
         this.$.newCommentRequest.go();
       },
-      commentSaved: function (e) {
+
+      commentSaved: function(e) {
         this.fire('notification', 'Reply saved');
         this.annotation.responses.push(e.detail.response);
         this.newCommentVisible = false;
         this.text = '';
       },
-      responseParams: function () {
+
+      responseParams: function() {
         var params = {
           annotation: {
             body: this.text,
@@ -124,21 +144,28 @@
         };
         return JSON.stringify(params);
       },
-      commentError: function () {
+
+      commentError: function() {
         this.fire('notification', 'Error saving reply');
       },
-      getAssignment: function (assignment) {
-        return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
-      },
-      _computeIf: function (newCommentVisible, paper) {
+
+      _computeIf: function(newCommentVisible, paper) {
         return !newCommentVisible && paper.can_edit_annotations;
       },
-      _computeAssignment: function (comment, getAssignment) {
-        return comment.assignment | getAssignment;
+
+      getAssignment: function(paper, assignment) {
+          return Oj.paperHelpers.assignmentFromSha(paper, assignment);
       },
-      _computeDisabled: function ($, text) {
-        return !text || $.newCommentRequest.loading;
-      }
+
+      computeDisabled: function(text, ajaxLoading) {
+        return !text || ajaxLoading;
+      },
+
+      behaviors: [
+        Oj.urls
+      ]
+
     });
+
   </script>
 </dom-module>

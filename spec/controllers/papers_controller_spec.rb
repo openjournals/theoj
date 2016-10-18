@@ -8,7 +8,7 @@ describe PapersController do
         provider_id:       "1311.1653",
         version:            2,
         authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        document_location: "https://arxiv.org/pdf/1311.1653v2.pdf",
         title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
         summary:           "We present photometry.*in a second paper."
     }
@@ -102,7 +102,7 @@ describe PapersController do
       expect(response.content_type).to eq("application/json")
       assert_serializer PreviewPaperSerializer
       expect(response_json).to include("typed_provider_id" => "test:6fd60602a51d2b16b8a3c9cd33d2d22b-1",
-                                       "document_location" => "http://example.com/1234",
+                                       "document_location" => "https://example.com/1234",
                                        "authors"           => "John Smith, Paul Adams, Ella Fitzgerald",
                                        "summary"           => "Summary of my awesome paper",
                                        "title"             => "My awesome paper"
@@ -152,7 +152,7 @@ describe PapersController do
       assert_serializer PreviewPaperSerializer
 
       expect(response_json).to include("typed_provider_id" => "arxiv:1311.1653v2",
-                                       "document_location" => "http://arxiv.org/pdf/1311.1653v2.pdf",
+                                       "document_location" => "https://arxiv.org/pdf/1311.1653v2.pdf",
                                        "authors"           => "Mar Álvarez-Álvarez, Angeles I. Díaz",
                                        "summary"           => "We present photometry.*in a second paper.",
                                        "title"             => "A photometric comprehensive study of circumnuclear star forming rings: the sample"
@@ -545,7 +545,7 @@ describe PapersController do
     it "should create an updated paper" do
       user  = authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
-      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return(fixture('arxiv/1311.1653v2.xml'))
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return( fixture('arxiv/1311.1653v2.xml') )
 
       expect {
         put :check_for_update, identifier:paper.typed_provider_id

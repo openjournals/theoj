@@ -99,6 +99,7 @@
       }
 
     </style>
+
   <template>
 
     <div class$="{{_computeClass(annotation)}}">
@@ -107,15 +108,16 @@
           <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
 
           <div on-tap="expand" class="header layout horizontal">
-              <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
+              <oj-user-label assignment="{{getAssignment(paper, annotation.assignment)}}"></oj-user-label>
               <markdown-simplified class="issue layout flex" markdown="{{annotation.body}}"></markdown-simplified>
-              <div class="count"><span>{{_computeExpression1(annotation)}}</span> replies</div>
+              <div class="count"><span>{{responseCount(annotation)}}</span> replies</div>
           </div>
 
         </div>
     </div>
 
     <!-- Overlay this to get animated expansion to work nicely -->
+
     <iron-collapse id="collapsible" opened="{{annotation.open}}" on-resize="annotationAfterOpen">
       <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
 
@@ -126,11 +128,12 @@
 
               <template is="dom-if" if="{{!annotation.new}}">
                   <div on-tap="collapse" class="header layout horizontal">
-                      <oj-user-label assignment="{{_computeAssignment(annotation, getAssignment)}}"></oj-user-label>
+                      <oj-user-label assignment="{{getAssignment(paper, annotation.assignment)}}"></oj-user-label>
                       <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
                   </div>
 
-                  <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}" on-new-comment-shown="newCommentShown"></oj-annotation-comments>
+                  <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}"
+                                              on-new-comment-shown="newCommentShown"></oj-annotation-comments>
               </template>
 
               <template is="dom-if" if="{{annotation.new}}">
@@ -143,8 +146,8 @@
 
                   <div class="layout horizontal">
                       <span class="layout flex"></span>
-                      <paper-button on-click="submitAnnotation" disabled$="{{_computeDisabled($, text)}}">Add</paper-button>
-                      <paper-button on-click="close" disabled$="{{$.saveAnnotationRequest.loading}}">Cancel</paper-button>
+                      <paper-button on-click="submitAnnotation" disabled$="{{_computeDisabled(text, saving)}}">Add</paper-button>
+                      <paper-button on-click="close" disabled$="{{saving}}">Cancel</paper-button>
                   </div>
 
               </template>
@@ -154,30 +157,57 @@
 
     </iron-collapse>
 
-      <json-request id="saveAnnotationRequest" method="post" url="{{paperAnnotationsPath(paper)}}" on-success="annotationSaved" on-error="annotationError"></json-request>
+      <json-request id="saveAnnotationRequest"
+                    method="post"
+                    loading="{{saving}}"
+                    url="{{paperAnnotationsPath(paper)}}"
+                    on-success="annotationSaved"
+                    on-error="annotationError"></json-request>
+
   </template>
+
   <script>
-    //TODO(polyup): Need to add an observer of annotation.open, calling annotationOpenChanged.
     //Note that the semantics for observing properties and arrays has changed.
     Polymer({
       is: 'oj-annotation',
+
       properties: {
         annotation: {
-          notify: true,
-          observer: 'annotationChanged'
+          notify:     true,
         },
-        annotationOpen: { observer: 'annotationOpenChanged' },
-        paper: { notify: true },
-        text: { notify: true }
+        paper: {
+            notify: true
+        },
+        text: {
+            notify: true
+        },
+        saving: {
+            notify: true
+        }
       },
+
       observers: [
+        'annotationChanged(paper, annotation)',
         'annotationOpenChanged(annotation.open)'
       ],
+
+      ready: function() {
+        if (this.annotation && this.annotation.new) {
+            this.async(function () {
+                var edit = this.$$('#annotationTextArea');
+                edit.focus();
+                edit.select();
+            });
+        }
+      },
+
       /**** API *****/
-      close: function () {
+
+      close: function() {
         this.collapse();
       },
-      scrollAnnotationIntoView: function (prioritize_top) {
+
+      scrollAnnotationIntoView: function(prioritize_top) {
         if (!this.annotation.open)
           return;
         var list = this.offsetParent;
@@ -204,37 +234,46 @@
         if (newTop !== undefined)
           $(container).animate({ scrollTop: newTop }, 500);
       },
+
       /***********************/
-      showNewComment: function () {
+
+      showNewComment: function() {
         this.$.comments.showNewComment();
       },
-      annotationChanged: function () {
+
+      annotationChanged: function() {
         if (!this.annotation)
           return;
         var assignment = Oj.paperHelpers.assignmentFromSha(this.paper, this.annotation.assignment);
         this.role = assignment && assignment.role;
       },
-      annotationOpenChanged: function () {
+
+      annotationOpenChanged: function() {
         if (this.annotation.open)
           this.expand();
         else
           this.collapse();
       },
-      annotationAfterOpen: function (event, detail) {
+
+      annotationAfterOpen: function(event, detail) {
         this.scrollAnnotationIntoView(true);
       },
-      newCommentShown: function (event) {
+
+      newCommentShown: function(event) {
         this.scrollAnnotationIntoView(false);
       },
-      collapse: function () {
+
+      collapse: function() {
         this.set('annotation.open', false);
         this.fire('annotation-closed', this);
       },
-      expand: function () {
+
+      expand: function() {
         this.set('annotation.open', true);
         this.fire('annotation-opened', this);
       },
-      submitAnnotation: function () {
+
+      submitAnnotation: function() {
         if (this.$.saveAnnotationRequest.loading)
           return;
         if (!this.text)
@@ -242,17 +281,20 @@
         this.set('$.saveAnnotationRequest.data', this.annotationData());
         this.$.saveAnnotationRequest.go();
       },
-      annotationSaved: function (event, response) {
+
+      annotationSaved: function(event, response) {
         this.annotation = response;
         this.fire('annotation-added', this.annotation);
         this.fire('notification', 'Annotation saved.');
         this.text = '';
         this.close();
       },
-      annotationError: function (response) {
+
+      annotationError: function(response) {
         this.fire('notification', 'Could not save annotation.');
       },
-      annotationData: function () {
+
+      annotationData: function() {
         return {
           annotation: {
             body: this.text,
@@ -262,33 +304,31 @@
           }
         };
       },
-      getAssignment: function (assignment) {
-        return Oj.paperHelpers.assignmentFromSha(this.paper, assignment);
+
+      getAssignment: function(paper, assignment) {
+        return Oj.paperHelpers.assignmentFromSha(paper, assignment);
       },
-      ready: function () {
-        if (this.annotation && this.annotation.new) {
-          this.async(function () {
-            var edit = Polymer.dom(this).querySelector('collapse #annotationTextArea');
-            edit.focus();
-            edit.select();
-          });
-        }
-      },
-      _computeClass: function (annotation) {
+
+      _computeClass: function(annotation) {
         return 'container state-' + annotation.state + ' collapsed';
       },
-      _computeAssignment: function (annotation, getAssignment) {
-        return annotation.assignment | getAssignment;
-      },
-      _computeClass2: function (annotation) {
+
+      _computeClass2: function(annotation) {
         return 'container state-' + annotation.state + ' expanded';
       },
-      _computeDisabled: function ($, text) {
-        return !text || $.saveAnnotationRequest.loading;
+
+      _computeDisabled: function(text, saving) {
+        return !text || saving;
       },
-      _computeExpression1: function (annotation) {
-        return annotation.responses.length || 0;
-      }
+
+      responseCount: function(annotation) {
+        return annotation.responses && annotation.responses.length || 0;
+      },
+
+      behaviors: [
+        Oj.urls
+      ]
+
     });
   </script>
 </dom-module>

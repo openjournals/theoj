@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :paper do
-    document_location "http://example.com/1234"
+    document_location "https://example.com/1234"
     state              "submitted"
     title              "My awesome paper"
     summary            "Summary of my awesome paper"

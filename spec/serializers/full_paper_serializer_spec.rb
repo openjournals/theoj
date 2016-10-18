@@ -5,7 +5,7 @@ describe FullPaperSerializer do
   it "should initialize properly" do
     user = create(:user)
 
-    paper = create(:paper, document_location:"http://example.com", title:"Teh awesomeness", submittor:user)
+    paper = create(:paper, document_location:"https://example.com", title:"Teh awesomeness", submittor:user)
     serializer = FullPaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 

@@ -31,24 +31,38 @@
     </style>
 
   <template>
-        <iron-icon icon="custom-icons:selected" on-click="annotationClicked" title="{{stripped(annotation.body)}}" class$="{{_computeClass(annotation)}}"></iron-icon>
+        <iron-icon icon="custom-icons:selected"
+                   on-click="annotationClicked"
+                   title="{{stripped(annotation.body)}}"
+                   class$="{{computeClass(annotation)}}"></iron-icon>
   </template>
 
   <script>
+
     Polymer({
       is: 'oj-annotation-marker',
-      properties: { annotation: { notify: true } },
-      annotationClicked: function (event, detail) {
+
+      properties: {
+          annotation: {
+              notify: true
+          }
+      },
+
+      annotationClicked: function(event, detail) {
         event.preventDefault();
         event.stopPropagation();
         this.set('annotation.open', true);
       },
-      stripped: function (markdown) {
+
+      stripped: function(markdown) {
         return stripped_markdown(markdown);
       },
-      _computeClass: function (annotation) {
+
+      computeClass: function(annotation) {
         return annotation.open ? 'open' : 'closed' + ' state-' + annotation.state;
       }
+
     });
   </script>
+
 </dom-module>

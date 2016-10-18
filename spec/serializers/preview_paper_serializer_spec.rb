@@ -6,7 +6,7 @@ describe PreviewPaperSerializer do
     current_user = create(:user)
     user  = create(:user)
 
-    paper = build(:paper, document_location:"http://example.com", title:"Teh awesomeness", submittor:user)
+    paper = build(:paper, document_location:"https://example.com", title:"Teh awesomeness", submittor:user)
     serializer = PreviewPaperSerializer.new(paper, scope:current_user)
     hash = hash_from_json(serializer.to_json)
 

@@ -105,7 +105,7 @@
   <script>
     Polymer({
       is: 'oj-papers-page',
-        properties: {
+      properties: {
         header: {
           notify: true
         },
@@ -126,6 +126,7 @@
         this.sortKey  = detail.item.getAttribute('key');
         this.sortDesc = detail.item.hasAttribute('desc');
         //force refresh
+        //#@todo Maybe use a dom-repeat and its sort method instead of an iron-list
         var list = this.$.list.querySelector('iron-list');
         if (list) list.notifyResize();
       },
@@ -137,7 +138,7 @@
         return array.sort( this.sortFunction(key,desc) );
       },
 
-      sortFunction(key, desc) {
+      sortFunction: function(key, desc) {
         var keys = key.split('.');
 
         var sortFunction = function (a, b) {
@@ -169,15 +170,10 @@
       _computeClass: function (selected) {
         return 'item ' + this.tokenList({ selected: selected });
       },
-      tokenList: function (obj) {
-        var pieces = [];
-        for (var key in obj) {
-          if (obj[key]) {
-            pieces.push(key);
-          }
-        }
-        return pieces.join(' ');
-      }
+
+      behaviors: [
+        Oj.globalExpressions
+      ]
     });
   </script>
 

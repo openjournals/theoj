@@ -5,6 +5,7 @@
   <script>
     Polymer({
       is: 'paper-url-resolver',
+
       properties: {
         paperFullId: {
           value: null,
@@ -41,44 +42,54 @@
           observer: 'textChanged'
         }
       },
+
       textChanged: function () {
-        var arxiv_id_pattern = '(\\d{4}\\.\\d{4,5})(v\\d+)?';
-        var regex_flags = 'i';
-        var paper_id_pattern = new RegExp('^\\s*' + arxiv_id_pattern + '\\s*$', regex_flags);
+        var regex_flags        = 'i';
+        var arxiv_id_pattern   = '(\\d{4}\\.\\d{4,5})(v\\d+)?';
+        var paper_id_pattern   = new RegExp('^\\s*' + arxiv_id_pattern + '\\s*$',                                   regex_flags);
         var paper_page_pattern = new RegExp('^\\s*https?://arxiv\\.org/abs/' + arxiv_id_pattern + '(\\.pdf)?\\s*$', regex_flags);
-        var paper_pdf_pattern = new RegExp('^\\s*https?://arxiv\\.org/pdf/' + arxiv_id_pattern + '(\\.pdf)?\\s*$', regex_flags);
+        var paper_pdf_pattern  = new RegExp('^\\s*https?://arxiv\\.org/pdf/' + arxiv_id_pattern + '(\\.pdf)?\\s*$', regex_flags);
+
         if (match = this.text.match(paper_page_pattern)) {
           this.paperId = match[1];
           this.paperVersion = match[2];
           this.resolved = true;
+
         } else if (match = this.text.match(paper_pdf_pattern)) {
           this.paperId = match[1];
           this.paperVersion = match[2];
           this.resolved = true;
+
         } else if (match = this.text.match(paper_id_pattern)) {
           this.paperId = match[1];
           this.paperVersion = match[2];
           this.resolved = true;
+
         } else {
           this.paperId = null;
           this.paperVersion = null;
           this.resolved = false;
         }
+
         if (this.paperVersion && this.paperVersion[0] == 'v')
           this.paperVersion = this.paperVersion.slice(1);
+
         if (!this.resolved || !this.paperId)
           return;
-        requiredLength = parseInt(this.paperId.slice(0, 2)) <= 14 ? 9 : 10;
+
+        var requiredLength = parseInt(this.paperId.slice(0, 2)) <= 14 ? 9 : 10;
         if (this.paperId.length != requiredLength) {
           this.resolved = false;
           return;
         }
+
         this.paperFullId = this.paperId;
         this.paperTypedId = this.paperType + ':' + this.paperId;
         if (this.paperVersion)
           this.paperFullId = this.paperFullId + 'v' + this.paperVersion;
-        this.paperURL = 'http://arxiv.org/pdf/' + this.paperFullId;
+        this.paperURL = 'https://arxiv.org/pdf/' + this.paperFullId;
       }
+
     });
   </script>
 </dom-module>

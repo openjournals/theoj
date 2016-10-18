@@ -64,14 +64,14 @@
       },
 
       observers: [
-          'annotationChanged(annotation, paper)'
+          'annotationChanged(paper, annotation)'
       ],
 
       annotationChanged: function () {
         if (!this.paper || !this.annotation)
           return;
         var own_issue = this.isOwnAnnotation(this.annotation, this.paper);
-        var enabled   = this.paper.state == 'under_review' && (own_issue || this.hasRole(paper, 'editor'));
+        var enabled   = this.paper.state == 'under_review' && (own_issue || this.hasRole(this.paper, 'editor'));
         enabled ? Polymer.dom(this).removeAttribute('hidden') : Polymer.dom(this).setAttribute('hidden', '');
       },
 
@@ -103,9 +103,13 @@
         return annotation.state == 'resolved';
       },
 
-      idDisputed: function (annotation) {
+      isDisputed: function (annotation) {
         return annotation.state == 'disputed';
-      }
+      },
+
+      behaviors: [
+          Oj.paperHelpers
+      ]
 
     });
   </script>

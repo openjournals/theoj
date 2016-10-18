@@ -40,7 +40,7 @@ class SessionsController < ApplicationController
   end
   
   def orcid_name_for(orcid_id)
-    data = JSON.parse(open("http://pub.orcid.org/v1.1/#{orcid_id}/orcid-bio", "Accept" => "application/orcid+json").read)
+    data = JSON.parse(open("https://pub.orcid.org/v1.1/#{orcid_id}/orcid-bio", "Accept" => "application/orcid+json").read)
     given_name = data['orcid-profile']['orcid-bio']['personal-details']['given-names']['value']
     surname = data['orcid-profile']['orcid-bio']['personal-details']['family-name']['value']
     

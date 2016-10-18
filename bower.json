@@ -25,7 +25,6 @@
     "paper-item": "PolymerElements/paper-item#^1.1.3",
     "app-router": "^2.6.1",
     "ajax-form": "^2.1.3",
-    "firebase-element": "GoogleWebComponents/firebase-element#^1.0.12",
     "polymer": "Polymer/polymer#^1.2.0"
   }
 }

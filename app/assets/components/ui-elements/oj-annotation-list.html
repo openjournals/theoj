@@ -1,60 +1,81 @@
 <dom-module id="oj-annotation-list">
+
   <style>
       :host {
         position: relative;
         box-sizing: border-box;
       }
-    </style>
+
+      oj-annotation {
+          display: none;
+      }
+  </style>
+
   <template>
     <div class="layout vertical flex" id="list">
 
-      <template is="dom-repeat" items="{{annotations}}" as="annotation">
-        <oj-annotation paper="{{paper}}" annotation="{{annotation}}" on-annotation-opened="annotationOpened" on-annotation-closed="annotationClosed" on-annotation-added="annotationAdded" style$="{{_computeStyle(annotation)}}"></oj-annotation>
+      <template is="dom-repeat" items="{{annotations}}" as="a">
+        <oj-annotation paper="{{paper}}"
+                       annotation="{{a}}"
+                       on-annotation-opened="annotationOpened"
+                       on-annotation-closed="annotationClosed"
+                       on-annotation-added="annotationAdded"
+                       style$="{{_computeStyle(a, a.list_top)}}"></oj-annotation>
       </template>
 
     </div>
 
   </template>
+
   <script>
     Polymer({
       is: 'oj-annotation-list',
 
       properties: {
+        paper: {
+            notify: true
+        },
         annotations: {
-          type: Array,
-          notify: true,
-          observer: 'annotationsChanged'
+          type:   Array,
+          notify: true
         },
         collapsedAnnotationHeight: {
           type: Number,
           value: 42
         },
-        firstPageOffset: { notify: true },
+        firstPageOffset: {
+            notify: true
+        },
         pageHeight: {
           type: Number,
-          value: 0,
           notify: true,
           observer: 'pageHeightChanged'
         },
-        pageSpacing: { notify: true },
-        paper: { notify: true }
+        pageSpacing: {
+          notify: true
+        }
       },
 
-      annotationsChanged: function () {
-        console.log('annotationsChanged', this.annotations);
-        if (!this.annotations)
+      observers: [
+        'annotationsChanged(annotations.*)'
+      ],
+
+      annotationsChanged: function() {
+        if (!this.annotations || !this.pageHeight)
           return;
+
+        // console.log('oj-annotations-list:annotationsChanged', this.annotations);
+
         // Don't work on the original list it kills the browser
         var copy = this.annotations.slice(0);
-        this.sortAnnotations(copy);
-        this.sorted_annotations = copy;
+        this.sorted_annotations = this.sortAnnotations(copy);
         this.addLocationToAnnotations();
       },
 
       pageHeightChanged: function (newValue, oldValue) {
-        if (oldValue == 0) {
-          // Do it immediately
-          this.addLocationToAnnotations();
+        if (!this.sorted_annotations) {
+            this.annotationsChanged();
+
         } else {
           // Add a delay since we're re-sizing inside a mouse drag
           this.debounce('update-annotation-list-locations', this.addLocationToAnnotations, 150);
@@ -65,35 +86,56 @@
         return unsorted.sort(function (a, b) {
           var pa = a.page === undefined || a.page == null ? -1 : a.page;
           var pb = b.page === undefined || b.page == null ? -1 : b.page;
+
           if (pa !== pb)
             return pa - pb;
+
           if (a.yStart !== b.yStart)
             return a.yStart - b.yStart;
+
           if (a.xStart !== b.xStart)
             return a.xStart - b.xStart;
+
           return a.id - b.id;
         });
       },
 
-      addLocationToAnnotations: function () {
-        var annotations = this.sorted_annotations;
-        var last = 0;
-        for (var i = 0; i < annotations.length; i++) {
-          var a = annotations[i];
-          var top = this.topForAnnotation(a);
-          if (!a.new) {
-            if (top < last)
-              top = last;
-            last = top + this.collapsedAnnotationHeight;
-          }
-          a.list_top = top + 'px';
+      addLocationToAnnotations: function() {
+        if (this.inAddLocationToAnnotations)
+            return;
+
+        try {
+            this.inAddLocationToAnnotations = true;
+            var last_bottom = 0;
+
+            for (var i = 0; i < this.sorted_annotations.length; i++) {
+              var a = this.sorted_annotations[i];
+              var top = this.topForAnnotation(a);
+
+              if (!a.new) {
+                if (top < last_bottom)
+                  top = last_bottom;
+                last_bottom = top + this.collapsedAnnotationHeight;
+              }
+
+              top = top + 'px';
+              if (top != a.top) {
+                  var ii = this.annotations.indexOf(a);
+                  this.set(['annotations', ii, 'list_top'], top);
+              }
+            }
+
+        } finally {
+            this.inAddLocationToAnnotations = false;
         }
       },
 
       topForAnnotation: function (annotation) {
         var page_no = annotation.page;
+
         if (page_no === undefined || page_no === null) {
           return 0;
+
         } else {
           var y = annotation.yStart;
           var t = this.firstPageOffset + this.pageHeight * page_no + this.pageHeight * y + this.pageSpacing * (page_no - 1);
@@ -109,13 +151,12 @@
         if (element.annotation.new) {
           var index = this.annotations.indexOf(element.annotation);
           if (index >= 0)
-            this.annotations.splice(index, 1);
+            this.splice('annotations', index, 1);
         }
       },
 
       annotationAdded: function (event, annotation) {
-        var last = this.annotations.length - 1;
-        this.set('annotations' + ('.' + last), annotation);
+        this.push('annotations', annotation);
       },
 
       collapseAnnotations: function (exclude) {
@@ -127,8 +168,15 @@
       },
 
       _computeStyle: function (annotation) {
-        return this.styleObject({ top: annotation.list_top });
-      }
+        return this.styleObject({
+            top:     annotation.list_top,
+            display: 'block'
+        });
+      },
+
+      behaviors: [
+        Oj.globalExpressions
+      ]
 
     });
   </script>

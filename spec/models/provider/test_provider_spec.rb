@@ -29,7 +29,7 @@ describe Provider::TestProvider do
         provider_id:       "123",
         version:           9,
         authors:           "author list",
-        document_location: "http://example.com/document/123-9.pdf",
+        document_location: "https://example.com/document/123-9.pdf",
         title:             "title",
         summary:           "summary"
     }

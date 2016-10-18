@@ -12,6 +12,6 @@ namespace :firebase do
   end
 
   # desc 'Clear and then update Firebase data'
-  # task :sync => [:update, :clear]
+  # task :sync => [:clear, :update]
 
 end

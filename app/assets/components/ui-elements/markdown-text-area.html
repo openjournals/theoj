@@ -11,14 +11,12 @@
           position:relative;
           box-sizing: border-box;
           width: 100%;
-      }
-      textarea#input {
-          resize: none;
-          box-sizing: border-box;
-          width: 100%;
-          padding: 5px;
-          border: 1px solid #cccccc;
-          font-size: 13px;
+          --iron-autogrow-textarea: {
+              box-sizing: border-box;
+              padding:    5px;
+              border:     1px solid #cccccc;
+              font-size:  13px;
+          }
       }
       markdown-content {
         width:   100%;
@@ -47,8 +45,8 @@
       </template>
 
       <div hidden$="{{previewVisible}}">
-        <iron-autogrow-textarea id="autogrow" rows="3" maxrows="12">
-          <textarea class="niceTextArea" placeholder="{{placeholder}}" id="input" value="{{value::input}}"></textarea>
+        <iron-autogrow-textarea id="autogrow" rows="3" maxrows="12"
+                                placeholder="{{placeholder}}" value="{{value}}">
         </iron-autogrow-textarea>
         <a href="#" class="toggle" on-click="showPreview">Show Preview</a>
       </div>
@@ -60,12 +58,16 @@
     Polymer({
       is: 'markdown-text-area',
       properties: {
-        placeholder: { notify: true },
+        placeholder: {
+            notify: true
+        },
         previewVisible: {
           type: Boolean,
           value: false
         },
-        value: { notify: true }
+        value: {
+            notify: true
+        }
       },
       showPreview: function (event) {
         event.preventDefault();
@@ -74,22 +76,24 @@
       hidePreview: function (event) {
         event.preventDefault();
         this.previewVisible = false;
-        this.async(function () {
-          this.$.autogrow.update(this.$.input);
-        });
+//#@todo
+//        this.async(function () {
+//          this.$.autogrow.update(this.$.input);
+//        });
       },
       focus: function () {
-        var textarea = Polymer.dom(this).querySelector('#input');
+        var textarea = this.$.autogrow.textarea;
         if (textarea)
           textarea.focus();
       },
       select: function () {
-        var textarea = Polymer.dom(this).querySelector('#input');
+        var textarea = this.$.autogrow.textarea;
         if (textarea)
           textarea.select();
       },
       ready: function () {
-        this.$.autogrow.update(this.$.input);
+//#@todo
+//        this.$.autogrow.update(this.$.input);
       }
     });
   </script>

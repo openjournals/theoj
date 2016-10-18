@@ -1,4 +1,5 @@
 <dom-module id="stacked-pdf-reader">
+
   <style>
         :host {
             padding: 2px;
@@ -14,20 +15,28 @@
             margin-bottom: 20px;
         }
     </style>
+
   <template>
 
       <div id="pages">
       <template is="dom-repeat" items="{{pageIndexArray}}" as="pageNo">
-        <stacked-pdf-page page-no="{{pageNo}}" page="{{getPage(pageNo)}}" annotations="{{annotations}}"></stacked-pdf-page>
+        <stacked-pdf-page page-no="{{pageNo}}"
+                          page="{{getPage(pageNo)}}"
+                          annotations="{{annotations}}"></stacked-pdf-page>
       </template>
     </div>
 
   </template>
+
   <script>
     Polymer({
       is: 'stacked-pdf-reader',
+
       properties: {
-        annotations: { notify: true, type: Array },
+        annotations: {
+            notify: true,
+            type: Array
+        },
         loadProgress: {
           type: Number,
           value: 0,
@@ -37,26 +46,31 @@
           type: Boolean,
           value: false
         },
-        noPages: { notify: true },
+        pageNo: {
+            notify: true
+        },
         pageIndexArray: {
           type: Array,
-          value: function () {
-            return [];
-          }
+          value: function () { return []; }
         },
         src: {
           notify: true,
           observer: 'srcChanged'
         }
       },
-      getPDF: function () {
+
+      ready: function() {
+        this.getPDF();
+      },
+
+      getPDF: function() {
         if (!this.loading) {
           this.loading = true;
           this.pdf = null;
           PDFJS.openExternalLinksInNewWindow = true;
           PDFJS.disableRange = true;
           // var url = "/proxy?url="+ this.src;
-          var url = this.src;
+          var url = this.src.replace('http://', 'https://');
           PDFJS.getDocument(url, null, null, this.updateProgress.bind(this)).then(function (pdf) {
             this.pdf = pdf;
             this.loading = false;
@@ -65,32 +79,36 @@
           }.bind(this));
         }
       },
-      updateProgress: function (prog) {
+
+      updateProgress: function(prog) {
         this.loadProgress = 100 * prog.loaded / (1 * prog.total);
       },
-      createPageIndexArray: function (numPages) {
+
+      createPageIndexArray: function(numPages) {
         var pageIndexArray = [];
         for (var i = 0; i < this.numPages; i++) {
           pageIndexArray[i] = i;
         }
         this.pageIndexArray = pageIndexArray;
       },
-      srcChanged: function () {
+
+      srcChanged: function() {
         this.getPDF();
       },
-      getPage: function (pageNo) {
+
+      getPage: function(pageNo) {
         return this.pdf.getPage(pageNo + 1);
       },
-      pageIsVisible: function (pageNo) {
+
+      pageIsVisible: function(pageNo) {
         var docViewTop = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
         var elemTop = $(elem).offset().top;
         var elemBottom = elemTop + $(elem).height();
         return elemBottom <= docViewBottom && elemTop >= docViewTop;
-      },
-      ready: function () {
-        this.getPDF();
       }
+
     });
   </script>
+
 </dom-module>

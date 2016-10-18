@@ -1,7 +1,7 @@
 <% if flash.present? %>
   <script>
     <% message = flash.map { |key, value| value }.join("\r\n") %>
-    Polymer.whenReady(function(){
+    HTMLImports.whenReady(function(){
         var app = document.getElementById('oj-app');
         app.showNotification(<%= raw message.to_json %>);
     });
