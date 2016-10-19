@@ -22,6 +22,8 @@
           box-sizing: border-box;
           width: 65%;
           margin-right: 4px;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
       }
       #add-document-issue paper-button {
           box-sizing: border-box;
@@ -51,7 +53,7 @@
         <template is="dom-if" if="{{paper}}">
           <div id="main" class="layout horizontal">
 
-            <div class="layout flex vertical" id="pdf-pane">
+            <div id="pdf-pane">
               <stacked-pdf-reader src="{{paper.document_location}}"
                                   annotations="{{annotations}}"
                                   load-progress="{{loadProgress}}"

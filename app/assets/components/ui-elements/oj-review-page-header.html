@@ -5,15 +5,19 @@
 
         :host {
             box-sizing:    border-box;;
-            @apply(--layout);
+        }
+
+        .wrap {
             @apply(--layout-relative);
             @apply(--layout-horizontal);
-            @apply(--layout-relative);
         }
 
         .left {
             background:    rgb(230, 230, 230);;
             padding:       20px 20px 0 20px;
+            @apply(--layout);
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
         }
 
         #title-row {
@@ -117,6 +121,9 @@
         .right {
             background: white;
             width:      353px; /* Match width of annotations list */
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-self-stretch);
         }
 
         #add-paper-annotation {
@@ -157,70 +164,74 @@
 
   <template>
 
-      <div class="layout flex left vertical" >
-          <div class="title-row" class="layout horizontal">
+      <div class="wrap">
 
-              <div class="title flex">
-                  <span>{{paper.title}}</span>
-                  <template is="dom-if" if="{{showStateInTitle(paper, paper.state, paper.can_view_annotations)}}">
-                      <span class="inline-status">&nbsp;(<span>{{capitalize(paper.state)}}</span>)</span>
-                  </template>
-              </div>
+          <div class="left" >
+              <div class="title-row" class="layout horizontal">
 
-              <div class="self-start">
-                  <paper-dropdown-menu on-iron-select="versionSelected">
-                      <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
-                          <template is="dom-repeat" items="{{paper.versions}}" as="version">
-                              <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
-                          </template>
-                      </paper-listbox>
-                  </paper-dropdown-menu>
-              </div>
-
-          </div>
-
-          <div id="assignments-row">
-              <oj-assigned-users-list paper="{{paper}}" user="{{user}}"></oj-assigned-users-list>
-          </div>
-
-          <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
-              <div id="status-row" class="layout horizontal">
-
-                  <div class="status-block">
-                      <div class="label">Status:</div>
-                      <div class="status">{{capitalize(paper.state)}}</div>
+                  <div class="title flex">
+                      <span>{{paper.title}}</span>
+                      <template is="dom-if" if="{{showStateInTitle(paper, paper.state, paper.can_view_annotations)}}">
+                          <span class="inline-status">&nbsp;(<span>{{capitalize(paper.state)}}</span>)</span>
+                      </template>
                   </div>
 
-                  <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
-                      <div class="count-block">
-                          <div class="count">{{countOpen}}</div>
-                          <div class="label">Open<br>Issues</div>
-                      </div>
-                  </template>
+                  <div class="self-start">
+                      <paper-dropdown-menu on-iron-select="versionSelected">
+                          <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
+                              <template is="dom-repeat" items="{{paper.versions}}" as="version">
+                                  <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
+                              </template>
+                          </paper-listbox>
+                      </paper-dropdown-menu>
+                  </div>
 
-                  <oj-review-page-actions class="layout flex" user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
+              </div>
+
+              <div id="assignments-row">
+                  <oj-assigned-users-list paper="{{paper}}" user="{{user}}"></oj-assigned-users-list>
+              </div>
+
+              <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
+                  <div id="status-row" class="layout horizontal">
+
+                      <div class="status-block">
+                          <div class="label">Status:</div>
+                          <div class="status">{{capitalize(paper.state)}}</div>
+                      </div>
+
+                      <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
+                          <div class="count-block">
+                              <div class="count">{{countOpen}}</div>
+                              <div class="label">Open<br>Issues</div>
+                          </div>
+                      </template>
+
+                      <oj-review-page-actions class="layout flex" user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
+
+                  </div>
+              </template>
+
+          </div>
+
+          <template is="dom-if" if="{{paper.can_edit_annotations}}">
+              <div class="right">
+
+                  <div id="add-paper-annotation">
+                      <paper-button raised="" on-tap="addPaperAnnotation">
+                          <div class="icon-wrapper"><iron-icon icon="icons:add"></iron-icon></div>
+                          <div class="text-wrapper">Add a comment about the entire paper</div>
+                      </paper-button>
+                  </div>
 
               </div>
           </template>
 
+          <template is="dom-if" if="{{showProgress(loadProgress)}}">
+              <paper-progress class="progress" value="{{loadProgress}}"></paper-progress>
+          </template>
+
       </div>
-
-      <template is="dom-if" if="{{paper.can_edit_annotations}}">
-          <div class="layout right vertical self-stretch">
-
-              <div id="add-paper-annotation">
-                  <paper-button raised="" on-tap="addPaperAnnotation">
-                      <div class="icon-wrapper"><iron-icon icon="icons:add"></iron-icon></div>
-                      <div class="text-wrapper">Add a comment about the entire paper</div>
-                  </paper-button>
-              </div>
-
-          </div>
-      </template>
-
-      <template is="dom-if" if="{{showProgress(loadProgress)}}">
-          <paper-progress class="progress" value="{{loadProgress}}"></paper-progress>
-      </template>
 
   </template>
 
