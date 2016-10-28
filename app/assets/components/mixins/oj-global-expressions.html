@@ -24,7 +24,8 @@
         },
 
         date: function(date) {
-            if (!date) return undefined;
+            if (!date)
+                return undefined;
             if (typeof date == 'string')
                 date = new Date(date);
             return date.toDateString()

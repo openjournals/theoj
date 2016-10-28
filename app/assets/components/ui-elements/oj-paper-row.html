@@ -7,7 +7,10 @@
       cursor:        pointer;
       border-bottom: 1px solid #c2c2c2;
       color:         black;
+      @apply(--layout);
+      @apply(--layout-flex);
     }
+
     .inner {
         width:       100%;
         margin:      10px 0;
@@ -38,6 +41,8 @@
         text-align:   left;
         position:     relative;
         font-size:    12px;
+        @apply(--layout);
+        @apply(--layout-self-end);
     }
 
     .status {
@@ -49,19 +54,19 @@
 
   <template>
 
-      <div class$="{{_computeClass(paper)}}" on-tap="onTap">
+      <div class$="{{computeRowClass(paper)}}" on-tap="onTap">
           <div class="inner layout horizontal">
               <div class="lhs layout flex">
                   <div class="title">{{paper.title}}</div>
                   <div class="detail">
                       Submitted by <span class="highlight">{{paper.submittor.name}}</span>
-                      on <span class="highlight">{{date ( paper.submitted_at)}}</span>
-                      <template is="dom-if" if="{{_computeIf(paper)}}">
+                      on <span class="highlight">{{date(paper.submitted_at)}}</span>
+                      <template is="dom-if" if="{{ifUnderReview(paper)}}">
                       | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
                       </template>
                   </div>
               </div>
-              <div class$="{{_computeClass2(paper)}}">
+              <div class$="{{computeStatusClass(paper)}}">
                   <div class="status">Status: <span class="highlight">{{capitalize(paper.state)}}</span></div>
               </div>
           </div>
@@ -72,22 +77,34 @@
   <script>
     Polymer({
       is: 'oj-paper-row',
+
       properties: {
-          paper: { notify: true }
+          paper: {
+              notify: true
+          }
       },
-      _computeIf: function (paper) {
+
+      ifUnderReview: function (paper) {
         return paper.state == 'under_review';
       },
-      _computeClass: function (paper) {
-        return 'row ' + this.actionForPaper(paper) + ' layout flex';
+
+      computeRowClass: function (paper) {
+        return 'row ' + this.actionForPaper(paper);
       },
-      _computeClass2: function (paper) {
-        return 'rhs action-' + this.actionForPaper(paper) + ' layout self-end';
+
+      computeStatusClass: function (paper) {
+        return 'rhs action-' + this.actionForPaper(paper);
       },
+
       onTap: function(event, detail) {
         this.fire('review', this.paper);
       },
-      behaviors: [ Oj.globalExpressions, Oj.paperHelpers ]
+
+      behaviors: [
+          Oj.globalExpressions,
+          Oj.paperHelpers
+      ]
+
     });
   </script>
 </dom-module>
