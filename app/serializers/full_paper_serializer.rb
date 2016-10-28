@@ -1,6 +1,7 @@
 class FullPaperSerializer < PaperSerializer
 
   attributes :paper_id,
+             :authors,
              :document_location
 
   has_many :assigned_users

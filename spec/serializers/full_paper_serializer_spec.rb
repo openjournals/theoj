@@ -12,7 +12,7 @@ describe FullPaperSerializer do
     expect(hash.keys).to contain_exactly("paper_id",
                                          "typed_provider_id",
                                          "user_permissions", "document_location", "state",
-                                         "submitted_at", "title",
+                                         "submitted_at", "authors", "title",
                                          "pending_issues_count",
                                          "submittor",
                                          "assigned_users", "versions")
