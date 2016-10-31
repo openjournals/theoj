@@ -3,27 +3,84 @@
   <style>
 
         oj-user-tag, oj-user-lookup {
-            margin-top: 8px;
+        }
+
+        .user-block     {
+
+        }
+
+        .user-header    {
+        }
+
+        .user-separator {
+            border: 1px inset;
+            box-sizing: border-box;
+            color: gray;
+            margin-block-end: 0.5em;
+            margin-block-start: 0.5em;
+            margin-inline-end: auto;
+            margin-inline-start: auto;
         }
 
     </style>
 
   <template>
 
-      <template is="dom-repeat" items="{{sortAssignments(paper.assigned_users)}}" as="assignment">
-          <oj-user-tag assignment="{{assignment}}"
-                       showcolor="{{!submitted}}"
-                       tagcolor="{{userColor(assignment)}}"
-                       showcompleted="{{show_completed}}"
-                       removable="{{editable}}"
-                       on-remove-user="removeReviewer"></oj-user-tag>
-      </template>
+      <div class="user-block">
+          <div class="user-header">Submittor</div>
+          <template is="dom-repeat"
+                    items="{{paper.assigned_users}}"
+                    sort="sortAssignments"
+                    filter="isSubmittor"
+                    as="assignment">
+              <oj-user-tag assignment="{{assignment}}"
+                           showcolor="{{!submitted}}"
+                           tagcolor="{{userColor(assignment)}}"></oj-user-tag>
+          </template>
+      </div>
 
-      <oj-user-tag assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
+      <div class="user-separator"></div>
 
-      <template is="dom-if" if="{{editable}}">
-          <oj-user-lookup placeholder="Add Reviewer" on-user-selected="addReviewer" on-filter-suggestions="filterReviewerList"></oj-user-lookup>
-      </template>
+      <div class="user-block">
+          <div class="user-header">Editor</div>
+          <template is="dom-repeat"
+                    items="{{paper.assigned_users}}"
+                    sort="sortAssignments"
+                    filter="isEditor"
+                    as="assignment">
+              <oj-user-tag assignment="{{assignment}}"
+                           showcolor="{{!submitted}}"
+                           tagcolor="{{userColor(assignment)}}"></oj-user-tag>
+          </template>
+      </div>
+
+      <div class="user-separator"></div>
+
+      <div class="user-block">
+          <div class="user-header">Reviewers</div>
+          <template is="dom-repeat"
+                    items="{{paper.assigned_users}}"
+                    sort="sortAssignments"
+                    filter="isReviewer"
+                    as="assignment">
+              <oj-user-tag assignment="{{assignment}}"
+                           showcolor="{{!submitted}}"
+                           tagcolor="{{userColor(assignment)}}"
+                           showcompleted="{{showCompleted}}"
+                           removable="{{editable}}"
+                           on-remove-user="removeReviewer"></oj-user-tag>
+          </template>
+
+          <oj-user-tag assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
+
+          <template is="dom-if" if="{{editable}}">
+              <div>Add a reviewer:</div>
+              <oj-user-lookup placeholder="Add Reviewer"
+                              on-user-selected="addReviewer"
+                              on-filter-suggestions="filterReviewerList"></oj-user-lookup>
+          </template>
+
+      </div>
 
     <json-request id="addReviewer"    method="post"   on-success="updateReviewers"></json-request>
     <json-request id="removeReviewer" method="delete" on-success="updateReviewers"></json-request>
@@ -118,6 +175,18 @@
           return {};
 
         }
+      },
+
+      isSubmittor: function(assignment) {
+          return assignment.role == 'submittor';
+      },
+
+      isEditor: function(assignment) {
+          return assignment.role == 'editor';
+      },
+
+      isReviewer: function(assignment) {
+          return assignment.role == 'reviewer';
       },
 
       behaviors: [

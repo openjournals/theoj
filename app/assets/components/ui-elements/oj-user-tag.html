@@ -39,6 +39,7 @@
       }
 
     </style>
+
   <template>
 
       <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
@@ -57,6 +58,7 @@
       <template is="dom-if" if="{{showRemover(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
       <!-- <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template> -->
   </template>
+
   <script>
     Polymer({
       is: 'oj-user-tag',
@@ -73,9 +75,15 @@
           value: false,
           notify: true
         },
-        showColor: { notify: true },
-        showCompleted: { notify: true },
-        tagColor: { notify: true }
+        showColor: {
+            notify: true
+        },
+        showCompleted: {
+            notify: true
+        },
+        tagColor: {
+            notify: true
+        }
       },
       assignmentChanged: function () {
         if (this.assignment) {

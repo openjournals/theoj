@@ -1,46 +1,60 @@
 <dom-module id="oj-app">
 
-  <style>
-
-      :host, paper-header-panel {
-          height: 100%;
-          @apply(--layout);
-          @apply(--layout-vertical);
-          @apply(--layout-flex);
-      }
-
-      paper-drawer-panel {
-          border-right: 1px solid #ccc;
-      }
-
-      paper-toolbar {
-          height: 70px;
-          color: #fff;
-          font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-          background-color: rgb(51, 85, 117);
-      }
-      oj-toolbar {
-          height: 100%;
-          width:  100%;
-      }
-
-      :host /deep/ #mainContainer {
-        background-color: white;
-      }
-
-      #notification {
-        border-radius:0;
-        padding-right: 60px;
-        position: fixed;
-        outline: none;
-        z-index: 24;
-        box-sizing: border-box;
-      }
-
-    </style>
   <template>
 
-    <paper-header-panel border="true">
+      <style>
+
+          :host {
+              height: 100%;
+              @apply(--layout);
+              @apply(--layout-vertical);
+              @apply(--layout-flex);
+          }
+
+          paper-header-panel {
+              height: 100%;
+              @apply(--layout);
+              @apply(--layout-vertical);
+              @apply(--layout-flex);
+              --paper-header-panel-shadow: {
+                  height:     6px;
+                  bottom:     -6px;
+                  box-shadow: inset 0 5px 6px -3px rgba(0, 0, 0, 0.4);
+                  z-index:    1000;
+              };
+          }
+
+          paper-drawer-panel {
+              border-right: 1px solid #ccc;
+          }
+
+          paper-toolbar {
+              height: 70px;
+              color: #fff;
+              font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+              background-color: rgb(51, 85, 117);
+          }
+          oj-toolbar {
+              height: 100%;
+              width:  100%;
+          }
+
+          :host /deep/ #mainContainer {
+              background-color: white;
+          }
+
+          #notification {
+              border-radius:0;
+              padding-right: 60px;
+              position: fixed;
+              outline: none;
+              z-index: 24;
+              box-sizing: border-box;
+          }
+
+      </style>
+
+    <paper-header-panel>
 
         <paper-toolbar>
             <oj-toolbar currentuser="{{currentUser}}" narrow="{{narrow}}" on-toggle-drawer="toggleDrawer"></oj-toolbar>
@@ -65,47 +79,63 @@
     <oj-current-user on-user="onUser"></oj-current-user>
 
   </template>
+
   <script>
+
     Polymer({
+
       is: 'oj-app',
+
       properties: {
         onRoute: { observer: 'onRouteChanged' }
       },
+
+      listeners: {
+          'notification': 'onNotification',
+          'go':           'onGo',
+          'go-default':   'onGoDefault',
+          'review':       'onReview'
+      },
+
       onNotification: function (event, text) {
         this.showNotification(text);
       },
+
       onGo: function (event, url) {
         this.$.pages.go(url);
       },
+
       onGoDefault: function (event) {
         this.$.pages.gotoDefault();
       },
+
       onReview: function (event, paper_or_id) {
         var id = paper_or_id.typed_provider_id || paper_or_id;
         var url = '/review/' + id;
         this.$.pages.go(url);
       },
+
       onUser: function (event, user) {
         this.currentUser = user && user.name ? user : null;
         this.$.pages.init();
       },
+
       onRouteChanged: function (event, detail) {
         this.$.mainmenu.routeChanged(event, detail);
       },
+
       showNotification: function (text) {
         console.info('Notification: ', text);
         this.set('$.notification.text', text);
         this.$.notification.show();
       },
+
       toggleDrawer: function () {
         this.$.drawerPanel.togglePanel();
-      },
-      listeners: {
-        'notification': 'onNotification',
-        'go':           'onGo',
-        'go-default':   'onGoDefault',
-        'review':       'onReview'
       }
+
     });
+
   </script>
+
 </dom-module>

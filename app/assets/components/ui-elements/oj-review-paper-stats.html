@@ -1,0 +1,191 @@
+
+<dom-module id="oj-review-paper-stats">
+
+  <template>
+
+      <style>
+
+          :host {
+              background:   #eee;
+          }
+
+          paper-dropdown-menu {
+              font-size:    12px;
+              border:       none;
+              padding:      0;
+              margin:       0;
+              padding-left: 4px;
+              width:        132px;
+              color:        #9a9a9a;
+              top:          -14px;
+          }
+          paper-item {
+              font-size: 12px;
+              margin:    0;
+              padding:   0;
+          }
+          paper-item::shadow .button-content {
+              padding: 0 0 0 4px;
+          }
+          paper-dropdown-menu::shadow iron-icon {
+              margin: -4px;
+          }
+          paper-dropdown-menu::shadow #arrow {
+              position:  absolute;
+              left:      0;
+              top:       3px;
+              color: #9a9a9a;
+          }
+          paper-dropdown-menu::shadow #label {
+              position:  absolute;
+              left:      16px;
+              top:       4px;
+          }
+          paper-listbox {
+              margin: 0;
+          }
+
+          .title {
+          }
+
+          .authors {
+              color:     #999;
+              font-size: 75%;
+          }
+
+          .block-row {
+              margin-top: 12px;
+              @apply(--layout-horizontal);
+          }
+
+          .block-item {
+              border-right: solid 1px #bbb;
+              padding: 0 20px 0 0;
+              color: #7d7d7d;
+          }
+
+          .block-item .label {
+              font-size: 12px;
+              font-weight: 700;
+          }
+          .block-item .text {
+              font-size:   14px;
+              font-weight: 400;
+          }
+
+          .block-item.count .label {
+              font-size: 14px;
+              font-weight: 400;
+              float:     left;
+          }
+          .block-item.count .text {
+              font-size:    36px;
+              float:        left;
+              margin:       -4px 4px 0 0;
+          }
+
+          oj-review-page-actions {
+              @apply(--layout);
+              @apply(--layout-flex);
+          }
+
+      </style>
+
+      <paper-dropdown-menu on-iron-select="versionSelected">
+          <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
+              <template is="dom-repeat" items="{{paper.versions}}" as="version">
+                  <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
+              </template>
+          </paper-listbox>
+      </paper-dropdown-menu>
+
+      <div class="title">{{paper.title}}</div>
+
+      <div class="authors">{{paper.authors}}</div>
+
+      <br/>
+
+      <oj-assigned-users-list paper="{{paper}}" user="{{user}}"></oj-assigned-users-list>
+
+      <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
+          <div class="block-row">
+
+              <div class="block-item status">
+                  <div class="label">Status:</div>
+                  <div class="text">{{capitalize(paper.state)}}</div>
+              </div>
+
+              <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
+                  <div class="block-item count">
+                      <div class="text">{{countOpen}}</div>
+                      <div class="label">Open<br>Issues</div>
+                  </div>
+              </template>
+
+          </div>
+
+          <oj-review-page-actions user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
+
+      </template>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-review-paper-stats',
+
+      properties: {
+        annotations: {
+            type:     Array,
+            notify:   true
+        },
+        paper: {
+            notify: true
+        },
+        user: {
+            notify: true
+        }
+      },
+
+      observers: [
+          'annotationsChanged(annotations.*)'
+      ],
+
+      annotationsChanged: function () {
+        this.updateCounts();
+      },
+
+      showBottomDetails: function(paper) {
+          return paper && paper.can_view_annotations && paper.state != 'accepted';
+      },
+
+      showCounts: function(paper) {
+          return paper.state != 'submitted' && paper.state != 'accepted';
+      },
+
+      updateCounts: function () {
+        if (!this.annotations)
+          return;
+        this.countNew = this.annotations.filter(function (annotation) {
+          return annotation.new;
+        }).length;
+        this.countClosed = this.annotations.filter(function (annotation) {
+          return annotation.state == 'resolved';
+        }).length;
+        this.countOpen = this.annotations.length - this.countClosed - this.countNew;
+      },
+
+      versionSelected: function (event, detail) {
+        var id = detail.item.version;
+        if (id != this.paper.typed_provider_id)
+          this.fire('review', id);
+      },
+
+      behaviors: [
+          Oj.globalExpressions,
+          Oj.paperHelpers
+      ]
+
+    });
+  </script>
+</dom-module>

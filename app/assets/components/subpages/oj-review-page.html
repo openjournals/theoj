@@ -1,54 +1,101 @@
 <dom-module id="oj-review-page">
 
-  <style>
-      :host {
-          @apply(--layout);
-          @apply(--layout-fit);
-      }
-
-      #scroller {
-        position:      relative;
-        overflow-y:    auto;
-        height:        100%;
-        width:         100%;
-        margin-bottom: 18px;
-      }
-
-      oj-review-page-header {
-
-      }
-
-      #pdf-pane {
-          box-sizing: border-box;
-          width: 65%;
-          margin-right: 4px;
-          @apply(--layout-vertical);
-          @apply(--layout-flex);
-      }
-      #add-document-issue paper-button {
-          box-sizing: border-box;
-          width: 100%;
-      }
-      #main {
-      }
-
-      oj-annotation-list {
-          width: 350px;
-          left: -3px;
-      }
-
-    </style>
-
   <template>
 
-    <div id="scroller" class="layout vertical">
+      <style>
+          :host {
+              @apply(--layout);
+              @apply(--layout-fit);
+          }
+
+          #scroller {
+              position:      relative;
+              overflow-y:    auto;
+              height:        100%;
+              width:         100%;
+              margin-bottom: 18px;
+          }
+
+          #pdf-pane {
+              box-sizing: border-box;
+              width: 65%;
+              margin-right: 4px;
+              @apply(--layout-vertical);
+              @apply(--layout-flex);
+          }
+
+          #main {
+          }
+
+          #rhs {
+              width: 350px;
+              left: -3px;
+          }
+
+          #rhs-tabs {
+              position:         fixed;
+              top:              260px;
+              right:            -1px;
+              transform-origin: right top;
+              transform:        rotate(90deg);
+              z-index:          100;
+          }
+
+          #rhs-tabs span {
+              display:    inline-block;
+              float:      left;
+              cursor:     pointer;
+              background: white;
+              border:     1px solid black;
+              padding:    2px 4px;
+              color:      #ccc;
+          }
+
+          #rhs-tabs span:hover {
+              color:       #8f8;
+          }
+
+          #rhs-tabs span:first-child {
+              border-style: solid none solid solid;
+          }
+
+          #rhs-tabs span.selected {
+              cursor:      default;
+              font-weight: bold;
+              color:       #cfc;
+          }
+
+          oj-review-page-header {
+              position:     fixed;
+              z-index:      1;
+              box-sizing:   border-box;
+              width:        100%;
+          }
+
+          oj-review-paper-stats, oj-annotation-list {
+              width:        350px;
+              box-sizing:   border-box;
+              margin-right: 12px;
+          }
+
+          oj-review-paper-stats {
+              position:     fixed;
+              padding-left: 6px;
+              padding-top:  44px;
+              height:       100%;
+          }
+
+          oj-annotation-list {
+              position:   absolute;
+          }
+
+      </style>
+
+      <div id="scroller" class="layout vertical">
 
         <oj-review-page-header id="header"
-                               user="{{currentUser}}"
                                paper="{{paper}}"
-                               annotations="{{annotations}}"
-                               load-progress="{{loadProgress}}"
-                               on-add-paper-annotation="addPaperAnnotation"></oj-review-page-header>
+                               load-progress="{{loadProgress}}"></oj-review-page-header>
 
         <template is="dom-if" if="{{paper}}">
           <div id="main" class="layout horizontal">
@@ -61,15 +108,30 @@
                                   on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
             </div>
 
-            <template is="dom-if" if="{{paper.can_view_annotations}}">
-                <oj-annotation-list id="annotation_list"
-                                    paper="{{paper}}"
-                                    annotations="{{annotations}}"
-                                    first-page-offset="{{annotationFirstPageOffset}}"
-                                    page-height="{{pdfClientHeight}}"
-                                    page-spacing="{{pageSpacing}}"
-                                    on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
-            </template>
+            <div id="rhs">
+
+                <div id="rhs-tabs" hidden$="{{!paper.can_view_annotations}}">
+                    <span id="tab-stats" class$="{{tabClass('stats', selectedTab)}}" on-tap="tabTap">Stats</span>
+                    <span id="tab-edits" class$="{{tabClass('edits', selectedTab)}}" on-tap="tabTap">Edits</span>
+                </div>
+
+                <oj-review-paper-stats hidden$="{{tabHidden('stats', selectedTab)}}"
+                                       user="{{currentUser}}"
+                                       paper="{{paper}}"
+                                       annotations="{{annotations}}">
+                      ></oj-review-paper-stats>
+
+                <template is="dom-if" if="{{paper.can_view_annotations}}">
+                    <oj-annotation-list id="annotation_list"
+                                        hidden$="{{tabHidden('edits', selectedTab)}}"
+                                        paper="{{paper}}"
+                                        annotations="{{annotations}}"
+                                        first-page-offset="{{annotationFirstPageOffset}}"
+                                        page-height="{{pdfClientHeight}}"
+                                        page-spacing="{{pageSpacing}}"
+                                        on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
+                </template>
+            </div>
 
           </div>
         </template>
@@ -111,28 +173,32 @@
         annotationFirstPageOffset: {
                          notify: true,
                          value:  20
-        },
+                     },
         pageSpacing: {
-              notify: true,
-              value:  20
-        }
-
+                         notify: true,
+                         value:  20
+                     },
+        selectedTab: {
+                         type:  String,
+                         notify: true,
+                         value:  'stats'
+                     }
       },
 
       /**** external API *********/
 
-      getSectionName: function () {
+      getSectionName: function() {
         return 'none';
       },
 
-      paperChanged: function () {
+      paperChanged: function() {
         if (this.paper) {
           var current_user_sha = this.currentUser && this.currentUser.sha;
           this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a, i) {
             return a.user && a.user.sha == current_user_sha;
           }));
           this.set('paper.current_role', this.paper.current_assignment && this.paper.current_assignment.role || 'none');
-          this.set('paper.can_view_annotations', this.paper.current_assignment);
+          this.set('paper.can_view_annotations', this.paper.current_assignment   && this.paper.state != 'submitted'   );
           this.set('paper.can_edit_annotations', this.paper.can_view_annotations && this.paper.state == 'under_review');
           this.fire('route-changed', this.menuSectionForRole(this.paper.current_role));
         }
@@ -157,21 +223,33 @@
         }, properties);
       },
 
-      pageClicked: function (event, position) {
+      pageClicked: function(event, position) {
         console.log('pageClicked:', position);
         var annotation = this.newAnnotation(position);
         this.addAnnotation(annotation);
       },
 
-      addPaperAnnotation: function (event) {
+      addPaperAnnotation: function(event) {
         var annotation = this.newAnnotation();
         this.addAnnotation(annotation);
       },
 
-      addAnnotation: function (annotation) {
+      addAnnotation: function(annotation) {
         if (this.paper.can_edit_annotations) {
           this.push('annotations', annotation);
         }
+      },
+
+      tabClass: function(tabName) {
+          return tabName == this.selectedTab ? 'selected' : '';
+      },
+
+      tabTap: function(event, detail) {
+        this.selectedTab = event.target.id.slice(4);
+      },
+
+      tabHidden: function(tabName) {
+        return tabName != this.selectedTab;
       },
 
       behaviors: [
