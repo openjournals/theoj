@@ -5,6 +5,10 @@
             display:      block !important;
             stroke-width: 2px;
             transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+            color:        #ff601e;
+            --iron-icon: {
+
+            }
           }
           iron-icon.closed {
             height:       8px;
@@ -26,6 +30,9 @@
             margin-top:   -8px;
             margin-left:  -8px;
             cursor:       default;
+          }
+          iron-icon ::shadow svg {
+              overflow: visible;
           }
 
     </style>
@@ -59,7 +66,7 @@
       },
 
       computeClass: function(annotation) {
-        return annotation.open ? 'open' : 'closed' + ' state-' + annotation.state;
+        return annotation.open ? 'open' : 'closed';
       }
 
     });
