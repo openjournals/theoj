@@ -1,12 +1,20 @@
 <dom-module id="oj-annotation-list">
 
-  <style>
-      oj-annotation {
-          display: none;
-      }
-  </style>
-
   <template>
+
+    <style>
+
+      :host {
+          width:       100%;
+      }
+
+      oj-annotation {
+        display: none;
+        width:   100%;
+      }
+
+    </style>
+
     <div class="layout vertical flex" id="list">
 
       <template is="dom-repeat" items="{{annotations}}" as="a">

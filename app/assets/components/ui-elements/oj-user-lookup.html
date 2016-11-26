@@ -1,51 +1,5 @@
 <dom-module id="oj-user-lookup">
-  <style>
-      :host {
-          display: inline-block;
-          position: relative;
-      }
 
-      input {
-          font-size:      14px;
-          padding:        0 4px;
-          vertical-align: top;
-      }
-
-      #suggestions {
-        display:   none;
-        position:  absolute;
-        z-index:   100;
-        min-width: 250px;
-        top:       20px;
-      }
-      #suggestions paper-menu {
-          margin: 0;
-      }
-
-      paper-item {
-        box-sizing: border-box;
-        padding:    5px 10px;
-        background-color: #f8f8f8;
-        color:black;
-        border-bottom: 1px solid black;
-        cursor: pointer;
-      }
-      paper-item:hover {
-          background-color: #ffffff;
-      }
-      paper-item:last-child {
-          border-bottom: none;
-      }
-      paper-item.selected {
-          font-weight: normal;
-      }
-
-      /* Only show the drop down when the edit is focused */
-      input:focus + #suggestions, #suggestions:active, #suggestions:focus {
-          display: block;
-      }
-
-    </style>
   <template>
 
     <input id="input" placeholder="{{placeholder}}" value="{{search::input}}">
@@ -59,6 +13,76 @@
     </paper-dropdown>
 
     <json-request id="lookUpSearch" method="get" on-success="lookupSuccess"></json-request>
+
+      <style>
+
+          :host {
+              display: inline-block;
+              position: relative;
+          }
+
+          input {
+              padding:        0 4px;
+              vertical-align: top;
+              font-family:    Neuton;
+              color:          #192023;
+              font-size:      32px;/* Approximation due to font substitution */
+              font-weight:    700;
+              border:         2px inset ThreeDLightShadow;
+          }
+          input::-webkit-input-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
+          input:-ms-input-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
+          input::-moz-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
+
+          #suggestions {
+              display:   none;
+              position:  absolute;
+              z-index:   100;
+              min-width: 100%;
+              top:       40px;
+              left:      -1px;
+          }
+          #suggestions paper-menu {
+              margin:    0;
+          }
+
+          paper-item {
+              box-sizing:     border-box;
+              padding:        5px 10px;
+              background:     #f8f8f8;
+              color:          black;
+              border-top:     1px solid #888;
+              cursor:         pointer;
+              font-family:    Neuton;
+              color:          #192023;
+              font-size:      32px;/* Approximation due to font substitution */
+          }
+          paper-item:hover {
+              background-color: #ffffff;
+          }
+          paper-item:first-child {
+              border-top: none;
+          }
+          paper-item.selected {
+              font-weight: normal;
+          }
+
+          /* Only show the drop down when the edit is focused */
+          input:focus + #suggestions, #suggestions:active, #suggestions:focus {
+              display: block;
+          }
+
+      </style>
+
   </template>
 
   <script>

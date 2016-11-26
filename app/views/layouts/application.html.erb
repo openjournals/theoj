@@ -5,7 +5,10 @@
 
     <%= javascript_include_tag "application" %>
 
-    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton:400,700">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab:700">
+
     <style is="custom-style"><%= Rails.application.assets['application.css'].to_s.html_safe %></style>
     <%= html_import_tag "application" %>
 
@@ -14,10 +17,9 @@
 
     <%= csrf_meta_tags %>
   </head>
-<body unresolved class="fullbleed layout vertical">
 
-<%= yield %>
-<%= render 'layouts/flash' %>
-
-</body>
+  <body unresolved class="fullbleed layout vertical">
+    <%= yield %>
+    <%= render 'layouts/flash' %>
+  </body>
 </html>

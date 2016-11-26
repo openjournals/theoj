@@ -75,7 +75,7 @@
             if (!assignments)
               return assignments;
 
-            return assignments.slice(0).sort( function(a,b) {
+            return assignments.slice().sort( function(a,b) {
                         var ai = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(a.role),
                             bi = window.Oj.paperHelpers .ASSIGNMENT_ORDER.indexOf(b.role);
                         if (ai != bi)

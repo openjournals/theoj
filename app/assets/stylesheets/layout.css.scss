@@ -1,7 +1,10 @@
 @import 'variables';
 
 body {
-  font-family: $default_font;
+  --paper-font-common-base: {
+    font-family: $default_font;
+    color:       $default_color;
+  }
 }
 
 // #@mro #@todo - this all needs to be rewritten, deep and shadow selectors no longer work
@@ -10,12 +13,13 @@ body {
 
 body /deep/ {
 
-  * {
-    font-family: $default_font;
-  }
-
-  paper-toolbar {
-    height: 70px;
+  .disable-selection {
+    /* Disable Selection */
+    -ms-user-select:     none;
+    -webkit-user-select: none;
+    -moz-user-select:    none;
+    user-select:         none;
+    cursor:              default;
   }
 
   paper-button {
