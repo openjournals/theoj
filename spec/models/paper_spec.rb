@@ -39,6 +39,14 @@ describe Paper do
       expect(p.assignments.second.user).to eq(submittor)
     end
 
+    it "The submittor will become the editor if they are capable [for testing]" do
+      editor    = set_paper_editor
+      submittor = create(:user, editor:true)
+      p = create(:paper, submittor:submittor)
+
+      expect(p.editors.first).to eq(submittor)
+    end
+
   end
 
   describe "::search" do

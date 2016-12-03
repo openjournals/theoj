@@ -229,7 +229,8 @@ class Paper < ActiveRecord::Base
   def create_assignments
 
     if assignments.none? { |a| a.role=='editor' }
-      editor = User.next_editor
+      #@todo: This is just for testing. The submittor should never be the editor
+      editor = submittor.editor? ? submittor : User.next_editor
       assignments.build(role:'editor',   user:editor) if editor
     end
 
