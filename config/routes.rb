@@ -62,7 +62,8 @@ Theoj::Application.routes.draw do
 
   get '/papers/:identifier/status', to: 'papers#state', param: :identifier, identifier: /[^\/]+/
 
-  get '/papers/secret', to: 'papers#overview'
+  get '/admin',          to: 'admin#index'
+  get '/admin/overview', to: 'admin#index'
 
   # Make all other routes get the SPA page
   if Rails.env.development?

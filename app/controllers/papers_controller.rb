@@ -1,6 +1,6 @@
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions, :overview ]
+  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
@@ -13,12 +13,6 @@ class PapersController < ApplicationController
     # raise CanCan::AccessDenied if ability.cannot? :show, paper
 
     respond_with paper, serializer:FullPaperSerializer
-  end
-
-  # TODO: Fix this mess.
-  def overview
-    raise unless params[:secret] == ENV["ADMIN_SECRET"]
-    render :overview, :layout => false
   end
 
   # Get the details for a new submission
