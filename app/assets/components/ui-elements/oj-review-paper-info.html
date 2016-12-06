@@ -59,8 +59,16 @@
               padding:      2px 4px;
           }
 
+          #version {
+              margin-bottom:  20px;
+          }
+
+          .doi {
+              font-size:   32px;/* Approximation due to font substitution */
+              font-weight: 700;
+          }
+
           .title {
-              margin-top:  20px;
               font-size:   32px;/* Approximation due to font substitution */
               font-weight: 700;
               /*line-height: 30px;/* Approximation due to font substitution */
@@ -121,13 +129,21 @@
 
       <div id=inner>
 
-          <paper-dropdown-menu on-iron-select="versionSelected" noink no-animations no-label-float vertical-align=bottom horizontal-align=left>
+          <paper-dropdown-menu id="version"
+                               on-iron-select="versionSelected"
+                               noink no-animations no-label-float
+                               vertical-align=bottom
+                               horizontal-align=left>
               <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
                   <template is="dom-repeat" items="{{paper.versions}}" as="version">
                       <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
                   </template>
               </paper-listbox>
           </paper-dropdown-menu>
+
+          <template is="dom-if" if="{{paper.dio}}">
+              <div class="doi">DOI: <span>{{paper.doi}}</span></div>
+          </template>
 
           <div class="title" title="{{paper.title}}">{{paper.title}}</div>
 

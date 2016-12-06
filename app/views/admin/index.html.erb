@@ -9,8 +9,13 @@
         <div style="font-weight:bold"><%= p.typed_provider_id %>: <%= p.title %> <%= link_to '[review]', "/review/#{p.typed_provider_id}", target:'_blank' %></div>
         <ul style="margin:0">
           <li>PDF: <%= p.document_location %> <%= link_to '[open]', p.document_location, {target:'_blank'} %></li>
+          <%- if p.doi %>
+              <li>DOI: <%= p.doi %></li>
+          <%- end %>
           <li>Authors: <%= p.authors %></li>
-          <li>Submitting author: <%= p.submittor.name %> &middot; <%= p.submittor.email %> &middot; <%= link_to "ORCID", "http://orcid.org/#{p.submittor.uid}" %></li>
+          <li>Submittor: <%= p.submittor.name %> &middot; <%= p.submittor.email %> &middot; <%= link_to "ORCID", "http://orcid.org/#{p.submittor.uid}" %></li>
+          <li>Editors: <%= p.editors.collect(&:name).join(', ') %></li>
+          <li>Reviewers: <%= p.reviewers.collect(&:name).join(', ') %></li>
           <li>Submitted at: <%= p.created_at %>, Last Update: <%= p.updated_at %></li>
         </ul>
       </div>
