@@ -66,6 +66,10 @@ Theoj::Application.routes.draw do
     end
   end
 
+  scope 'feed', controller:'feed' do
+    get 'arxiv(.:format)',      action: 'arxiv',  defaults: { format:'xml' }
+  end
+
   scope 'admin', controller:'admin' do
     get '',           action: 'index'
     get 'overview',   action: 'index'

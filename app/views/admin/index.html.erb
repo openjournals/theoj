@@ -1,7 +1,7 @@
 <%- Paper.aasm.states.each do |state| %>
   <div style="padding-bottom:10px; border-bottom: solid 2px black; margin-bottom:10px;margin-left:20px">
 
-    <% papers = Paper.where(state: state.name) %>
+    <% papers = Paper.with_state(state.name) %>
     <h3><%= papers.count %> <%= state.name %> papers</h3>
 
     <%- papers.each do |p| %>
