@@ -1,4 +1,5 @@
-class UsersController < ApplicationController
+class Api::V1::UsersController < Api::V1::ApplicationController
+
   respond_to :json
   before_filter :require_user,   except: [ :show ]
   before_filter :require_editor, only:   [ :lookup ]

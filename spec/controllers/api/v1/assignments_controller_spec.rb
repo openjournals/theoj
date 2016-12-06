@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe AssignmentsController do
+describe Api::V1::AssignmentsController do
 
   describe "GET #index" do
 

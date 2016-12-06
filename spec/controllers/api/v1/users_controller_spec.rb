@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe UsersController do
+describe Api::V1::UsersController do
 
   describe "GET #show" do
 

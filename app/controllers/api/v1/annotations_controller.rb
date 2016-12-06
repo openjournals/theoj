@@ -1,4 +1,6 @@
-class AnnotationsController < ApplicationController
+class Api::V1::AnnotationsController < Api::V1::ApplicationController
+
+  respond_to :json
   before_filter :require_user,     except: [:index, :all]
   before_filter :require_editor,   only:   [:update]
 

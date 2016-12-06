@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe AnnotationsController do
+describe Api::V1::AnnotationsController do
 
   describe "POST #create" do
 

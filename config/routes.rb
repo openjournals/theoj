@@ -1,55 +1,59 @@
 
 Theoj::Application.routes.draw do
 
-  scope path:'api', as:'api', format: 'json' do
+  namespace :api, format: 'json' do
 
-    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier, identifier: /[^\/]+/ do
+    namespace :v1 do
 
-      collection do
-        get :recent
-        get :as_author
-        get :as_collaborator
-        get :as_reviewer
-        get :as_editor
-        get :search
-      end
-
-      member do
-        get   :preview
-        post  action:'create'
-        put   :check_for_update
-        get   :versions
-
-        get   :state
-        put   :transition
-
-        post  :complete
-        match :public,   via:[:post, :delete]
-      end
-
-      resources :assignments, only:[:index, :create, :destroy]
-
-      resources :annotations, only:[:index, :create] do
+      resources :papers, only:[:index, :show, :create, :destroy], param: :identifier, identifier: /[^\/]+/ do
 
         collection do
-          get :all
+          get :recent
+          get :as_author
+          get :as_collaborator
+          get :as_reviewer
+          get :as_editor
+          get :search
         end
 
         member do
-          # Change status
-          put :unresolve
-          put :dispute
-          put :resolve
+          get   :preview
+          post  action:'create'
+          put   :check_for_update
+          get   :versions
+
+          get   :state
+          put   :transition
+
+          post  :complete
+          match :public,   via:[:post, :delete]
+        end
+
+        resources :assignments, only:[:index, :create, :destroy]
+
+        resources :annotations, only:[:index, :create] do
+
+          collection do
+            get :all
+          end
+
+          member do
+            # Change status
+            put :unresolve
+            put :dispute
+            put :resolve
+          end
+
         end
 
       end
 
-    end
-
-    resource :user, only: [:show, :update] do
-      collection do
-        get :lookup
+      resource :user, only: [:show, :update] do
+        collection do
+          get :lookup
+        end
       end
+
     end
 
   end

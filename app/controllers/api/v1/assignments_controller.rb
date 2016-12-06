@@ -1,4 +1,5 @@
-class AssignmentsController < ApplicationController
+class Api::V1::AssignmentsController < Api::V1::ApplicationController
+
   respond_to :json
   before_filter :require_user,   except: [ :index ]
   before_filter :require_editor, only:   [ :create, :destroy ]
