@@ -49,8 +49,8 @@
 
       </div>
 
-    <json-request id="addReviewer"    method="post"   on-success="updateReviewers"></json-request>
-    <json-request id="removeReviewer" method="delete" on-success="updateReviewers"></json-request>
+    <api-request id="addReviewer"    method="post"   on-success="updateReviewers"></api-request>
+    <api-request id="removeReviewer" method="delete" on-success="updateReviewers"></api-request>
 
       <style>
 
@@ -136,12 +136,12 @@
       },
 
       removeReviewer: function(event, assignment) {
-        this.set('$.removeReviewer.url', Oj.urls.removeAssigneePath(this.paper, assignment));
+        this.set('$.removeReviewer.api', Oj.api.removeAssigneeApi(this.paper, assignment));
         this.$.removeReviewer.go();
       },
 
       addReviewer: function(event, user) {
-        this.set('$.addReviewer.url', Oj.urls.addAssigneePath(this.paper, user));
+        this.set('$.addReviewer.api', Oj.api.addAssigneeApi(this.paper, user));
         this.$.addReviewer.go();
       },
 

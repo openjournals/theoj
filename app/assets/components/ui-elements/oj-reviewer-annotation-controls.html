@@ -46,7 +46,7 @@
       </paper-dialog>
 
 
-      <json-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></json-request>
+      <api-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></api-request>
 
   </template>
 
@@ -86,7 +86,7 @@
       },
 
       dialogAccepted: function () {
-        this.set('$.putStateChange.url', Oj.urls.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState));
+        this.set('$.putStateChange.api', Oj.api.paperAnnotationStateChangeApi(this.paper, this.annotation, this.newState));
         this.$.putStateChange.go();
       },
 

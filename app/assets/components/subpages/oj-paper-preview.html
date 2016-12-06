@@ -66,7 +66,7 @@
     </style>
   <template>
 
-    <template is="dom-if" if="{{_computeIf(paper_details)}}">
+    <template is="dom-if" if="{{notExisting(paper_details)}}">
 
         <template is="dom-if" if="{{hidePDF}}">
           <div class="layout flex" id="preview">
@@ -103,22 +103,32 @@
       <paper-spinner active=""></paper-spinner>
     </template>
 
-    <json-request id="postRequest" method="post" on-success="onPostRepsonse" on-error="onPostError"></json-request>
+    <api-request id="postRequest" method="post" on-success="onPostRepsonse" on-error="onPostError"></api-request>
 
-    <json-request id="detailsRequest" method="get" auto="true" url="{{previewPath(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></json-request>
+    <api-request id="detailsRequest" method="get" auto="true" api="{{previewApi(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></api-request>
 
     <iron-media-query query="min-width: 600px" query-matches="{{hidePDF}}"></iron-media-query>
 
   </template>
 
   <script>
+
     Polymer({
       is: 'oj-paper-preview',
+
       properties: {
-        loading:  { notify: true, value: true },
-        paper_id: { notify: true },
-        user:     { notify: true }
+        loading:  {
+            notify: true,
+            value: true
+        },
+        paper_id: {
+            notify: true }
+            ,
+        user:     {
+            notify: true
+        }
       },
+
       onDetailsResponse: function (event) {
         this.loading = false;
         if (this.paper_details.is_existing) {
@@ -130,6 +140,7 @@
             this.fire('go', '/submit');
         }
       },
+
       onDetailsError: function (event, detail) {
         this.loading = false;
         detail = JSON.parse(detail);
@@ -140,14 +151,17 @@
         this.fire('notification', message);
         this.fire('go', '/submit');
       },
+
       submitForReview: function (event) {
-        this.set('$.postRequest.url', Oj.urls.paperPath(this.paper_details));
+        this.set('$.postRequest.api', Oj.api.paperApi(this.paper_details));
         this.$.postRequest.go();
       },
+
       onPostRepsonse: function (response) {
         this.fire('notification', 'Paper ' + this.paper_details.title + ' submitted');
         this.fire('go', '/submitted');
       },
+
       onPostError: function (event) {
         var xhr = event.detail.xhr;
         if (xhr.status == 409)
@@ -156,10 +170,19 @@
           var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
         this.fire('notification', message);
       },
-      _computeIf: function (paper_details) {
+
+      notExisting: function (paper_details) {
         return paper_details && !paper_details.is_existing;
       },
-      behaviors: [ Oj.urls, Oj.globalExpressions ]
+
+      behaviors: [
+          Oj.urls,
+          Oj.api,
+          Oj.globalExpressions
+      ]
+
     });
+
   </script>
+
 </dom-module>

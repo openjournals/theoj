@@ -156,9 +156,9 @@
 
     </div>
 
-    <json-request     method="get" auto="true"  url="{{paperPath(paper_id)}}"    result="{{paper}}"      ></json-request>
+    <api-request     method="get" auto="true"  api="{{paperApi(paper_id)}}"    result="{{paper}}"      ></api-request>
     <template is="dom-if" if="{{paper.can_view_annotations}}">
-        <json-request method="get" auto="true" url="{{getAllIssuesPath(paper)}}" result="{{annotations}}"></json-request>
+        <api-request method="get" auto="true" api="{{getAllIssuesApi(paper)}}" result="{{annotations}}"></api-request>
     </template>
 
   </template>
@@ -276,7 +276,7 @@
 
       behaviors: [
           Oj.utils,
-          Oj.urls
+          Oj.api
       ]
 
     });

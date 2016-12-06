@@ -1,8 +1,8 @@
-<dom-module id="json-request">
+<dom-module id="api-request">
 
     <template>
         <iron-ajax id="request"
-                   url="{{url}}"
+                   url="[[ apiUrl(api) ]]"
                    auto="{{auto}}"
                    handle-as="json"
                    content-type="application/json"
@@ -17,7 +17,8 @@
 
   <script>
     Polymer( {
-      is: 'json-request',
+      is: 'api-request',
+
       properties: {
         auto: {
           type: Boolean,
@@ -42,15 +43,17 @@
         result: {
           notify: true
         },
-        url: {
+        api: {
           notify: true
         }
       },
+
       go: function(successCallback, errorCallback) {
         this.successCallback = successCallback;
         this.errorCallback = errorCallback;
         this.$.request.generateRequest();
       },
+
       success: function (event, detail) {
         this.fire('success', detail.response);
         if (this.successCallback)
@@ -61,8 +64,18 @@
         if (this.errorCallback)
           this.errorCallback(event, detail.request.xhr.responseText);
       },
+
+      apiUrl: function(api) {
+        if (!api)
+          return api;
+
+        if (api[0]=='/')
+            api = api.slice(1);
+        return '/api/v1/' + api;
+      },
+
       behaviors: [
-              Oj.globalExpressions
+        Oj.globalExpressions
       ]
     }
   )

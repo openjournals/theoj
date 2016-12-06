@@ -38,7 +38,7 @@
 
         </div>
 
-        <json-request auto="true" url="{{src}}" result="{{papers}}"></json-request>
+        <api-request auto="true" api="{{api}}" result="{{papers}}"></api-request>
 
         <style>
             :host {
@@ -128,7 +128,7 @@
           type:  Boolean,
           value: true      // Match initial value of dropdown
         },
-        src: {
+        api: {
           notify: true
         }
       },

@@ -117,11 +117,11 @@
         <paper-button dismissive="" autofocus="">Cancel</paper-button>
     </paper-dialog>
 
-    <json-request id="statusChangeRequest" method="put"    on-success="statusChangeRequestSuccess"></json-request>
-    <json-request id="updateRequest"       method="put"    on-success="updateRequestSuccess"    on-error="requestError"></json-request>
-    <json-request id="completedRequest"    method="post"   on-success="completedRequestSuccess" on-error="requestError"></json-request>
-    <json-request id="deleteRequest"       method="delete"                                      on-error="requestError"></json-request>
-    <json-request id="publicRequest"                                                            on-error="requestError"></json-request>
+    <api-request id="statusChangeRequest" method="put"    on-success="statusChangeRequestSuccess"></api-request>
+    <api-request id="updateRequest"       method="put"    on-success="updateRequestSuccess"    on-error="requestError"></api-request>
+    <api-request id="completedRequest"    method="post"   on-success="completedRequestSuccess" on-error="requestError"></api-request>
+    <api-request id="deleteRequest"       method="delete"                                      on-error="requestError"></api-request>
+    <api-request id="publicRequest"                                                            on-error="requestError"></api-request>
 
   </template>
 
@@ -165,7 +165,7 @@
         this.showDialog('Do you really want to mark this paper as completed?', 'Recommend Acceptance', 'Recommend Rejection', function (event) {
           var accept = event.target.className == 'first';
           var $request = this.$.completedRequest;
-          $request.url = Oj.urls.paperCompletePath(this.paper);
+          $request.api = Oj.api.paperCompleteApi(this.paper);
           $request.data = { accept: accept };
           $request.go();
         });
@@ -183,8 +183,8 @@
         var button = make_public ? 'Make Name Public' : 'Hide Name';
         this.showDialog(html, button, function () {
           var $request = this.$.publicRequest;
-          var url = Oj.urls.paperMakePublicPath(this.paper, make_public);
-          $request.url = url;
+          var api = Oj.api.paperMakePublicApi(this.paper, make_public);
+          $request.api = api;
           $request.method = make_public ? 'post' : 'delete';
           $request.go(function (event, detail) {
             var msg = make_public ? 'Your name has been made public.' : 'Your name has now been hidden';
@@ -197,7 +197,7 @@
       deleteClick: function () {
         this.showDialog('Do you want to delete this paper?<br/>' + 'All versions of the paper will be permanently removed from the system.', 'Delete Paper', function () {
           var $request = this.$.deleteRequest;
-          $request.url = Oj.urls.paperPath(this.paper);
+          $request.api = Oj.api.paperApi(this.paper);
           $request.go(function (event, detail) {
             var msg = 'The paper has been deleted';
             this.fire('notificaion', msg);
@@ -208,7 +208,7 @@
 
       checkForUpdateClick: function () {
         var $request = this.$.updateRequest;
-        $request.url = Oj.urls.paperCheckForUpdatePath(this.paper);
+        $request.api = Oj.api.paperCheckForUpdateApi(this.paper);
         $request.go();
       },
 
@@ -242,9 +242,9 @@
       changeState: function (newState, html, buttonText, successMessage) {
         this.showDialog(html, buttonText, function () {
           this.successMessage = successMessage;
-          var url = Oj.urls.paperTransitionPath(this.paper, newState);
+          var api = Oj.api.paperTransitionApi(this.paper, newState);
           var $request = this.$.statusChangeRequest;
-          $request.url = url;
+          $request.api = api;
           $request.go();
         });
       },

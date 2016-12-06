@@ -71,12 +71,12 @@
           </div>
       </template>
 
-    <json-request id="newCommentRequest"
-                  url="{{addIssuePath(paper)}}"
-                  method="POST"
-                  loading="{{ajaxLoading}}"
-                  on-success="commentSaved"
-                  on-error="commentError"></json-request>
+    <api-request id="newCommentRequest"
+                 api="{{addIssueApi(paper)}}"
+                 method="POST"
+                 loading="{{ajaxLoading}}"
+                 on-success="commentSaved"
+                 on-error="commentError"></api-request>
 
   </template>
   <script>
@@ -162,7 +162,7 @@
       },
 
       behaviors: [
-        Oj.urls
+        Oj.api
       ]
 
     });

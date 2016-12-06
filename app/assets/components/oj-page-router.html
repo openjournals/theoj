@@ -1,12 +1,5 @@
 <dom-module id="oj-page-router">
 
-    <style>
-        :host {
-            @apply(--layout);
-            @apply(--layout-flex);
-        }
-    </style>
-
     <template>
 
         <app-router id="router" init="manual" mode="pushstate" class="layout flex="
@@ -14,15 +7,15 @@
                     on-before-data-binding="beforeDataBinding"
                     on-activate-route-end="activateRouteEnd">
 
-            <app-route path="/"       noauth element="oj-papers-page" src="/api/papers/recent" header="Recent Papers"></app-route>
-            <app-route path="/search" noauth element="oj-papers-page" src="{{_computeSrc(q)}}" header="{{_computeHeader(q)}}"></app-route>
+            <app-route path="/"       noauth element="oj-papers-page" api="papers/recent" header="Recent Papers"></app-route>
+            <app-route path="/search" noauth element="oj-papers-page" api="{{searchApi(q)}}" header="{{searchHeader(q)}}"></app-route>
 
             <app-route path="/submit/:paper_id" element="oj-paper-preview"></app-route>
-            <app-route path="/submit" element="oj-submit-page" src="/api/papers/as_author"></app-route>
-            <!--<app-route path='/recent' noAuth element="oj-papers-page" src='/api/papers/recent' header="Recent Papers"></app-route>-->
-            <app-route path="/submitted" element="oj-papers-page" src="/api/papers/as_author"   header="Papers You Submitted"></app-route>
-            <app-route path="/review"    element="oj-papers-page" src="/api/papers/as_reviewer" header="Papers You Are Reviewing"></app-route>
-            <app-route path="/editing"   element="oj-papers-page" src="/api/papers/as_editor"   header="Papers You Are Editing"></app-route>
+            <app-route path="/submit" element="oj-submit-page" api="papers/as_author"></app-route>
+            <!--<app-route path='/recent' noAuth element="oj-papers-page" src='papers/recent' header="Recent Papers"></app-route>-->
+            <app-route path="/submitted" element="oj-papers-page" api="papers/as_author"   header="Papers You Submitted"></app-route>
+            <app-route path="/review"    element="oj-papers-page" api="papers/as_reviewer" header="Papers You Are Reviewing"></app-route>
+            <app-route path="/editing"   element="oj-papers-page" api="papers/as_editor"   header="Papers You Are Editing"></app-route>
             <app-route path="/settings"  element="oj-settings-page"></app-route>
 
             <app-route path="/review/:paper_id" element="oj-review-page" noauth=""></app-route>
@@ -31,30 +24,47 @@
             <app-route path="*" element="oj-404-page" noauth=""></app-route>
         </app-router>
 
+        <style>
+            :host {
+                @apply(--layout);
+                @apply(--layout-flex);
+            }
+        </style>
+
     </template>
+
   <script>
+
     Polymer({
       is: 'oj-page-router',
+
       properties: {
-          currentUser: { notify: true }
+          currentUser: {
+              notify: true
+          }
       },
+
       // Public API
       init: function () {
          this.$.router.init();
       },
+
       go: function (url) {
         this.$.router.go(url);
       },
+
       gotoDefault: function () {
         var newPath = this.getDefaultPath(this.currentUser);
         if (newPath)
           this.$.router.go(newPath);
       },
+
       /////////////////////////////////////////////////////
+
       getDefaultPath: function (user) {
         if (!user)
           return '/';
-        else //recent
+
         if (user.has_papers_as_editor)
           return '/editing';
         else if (user.has_papers_as_reviewer)
@@ -64,6 +74,7 @@
         else
           return '/submit';
       },
+
       validateOrRedirectUser: function (event, path, route, initialRequest) {
         if (initialRequest && path == '/') {
           var newPath = this.getDefaultPath(this.currentUser);
@@ -73,10 +84,12 @@
             return false;
           }
         }
+
         // Login not required
         if (!this.loginRequired(route)) {
           return true;
         }
+
         // User not logged in
         if (!this.currentUser) {
           event.preventDefault();
@@ -84,6 +97,7 @@
           this.$.router.go('/');
           return false;
         }
+
         // Force users to enter an email
         if (!this.currentUser.email && path != '/settings') {
           event.preventDefault();
@@ -91,16 +105,20 @@
           this.$.router.go('/settings');
           return false;
         }
+
         // login successful
         return true;
       },
+
       loginRequired: function (route) {
         return !route.hasAttribute('noAuth');
       },
+
       bindExtraAttributes: function(model) {
         model.user = this.currentUser;
         model.currentUser = this.currentUser;
       },
+
       bindRouteAttributes: function(route, model) {
           for (var i=0; i<route.attributes.length; i++) {
               var a = route.attributes[i];
@@ -109,20 +127,24 @@
               }
           }
       },
+
       pageInstanceForRoute: function(route) {
         return route.children[route.children.length - 1];
       },
+
       activateRouteStart: function(event, detail) {
         var path  = event.detail.path;
         var route = event.detail.route;
         var initialRequest = !detail.oldRoute;
         return this.validateOrRedirectUser(event, path, route, initialRequest);
       },
+
       beforeDataBinding: function(event, detail) {
           this.bindRouteAttributes(detail.route, detail.model);
           this.bindExtraAttributes(detail.model);
           return true;
       },
+
       activateRouteEnd: function (event, detail) {
         var path = detail.path;
         var route = detail.route;
@@ -135,12 +157,16 @@
           firstRequest: !detail.oldRoute  // First page requested
         });
       },
-      _computeSrc: function(q) {
-        return '/api/papers/search?q=' + q;
+
+      searchApi: function(q) {
+        return 'papers/search?q=' + q;
       },
-      _computeHeader: function(q) {
+
+      searchHeader: function(q) {
         return 'Search Results For ' + q;
       }
+
     });
   </script>
+
 </dom-module>

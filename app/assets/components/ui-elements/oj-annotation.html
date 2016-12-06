@@ -157,12 +157,12 @@
 
     </iron-collapse>
 
-      <json-request id="saveAnnotationRequest"
-                    method="post"
-                    loading="{{saving}}"
-                    url="{{paperAnnotationsPath(paper)}}"
-                    on-success="annotationSaved"
-                    on-error="annotationError"></json-request>
+      <api-request id="saveAnnotationRequest"
+                   method="post"
+                   loading="{{saving}}"
+                   api="{{paperAnnotationsApi(paper)}}"
+                   on-success="annotationSaved"
+                   on-error="annotationError"></api-request>
 
   </template>
 
@@ -326,7 +326,7 @@
       },
 
       behaviors: [
-        Oj.urls
+        Oj.api
       ]
 
     });
