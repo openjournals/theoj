@@ -106,6 +106,9 @@
               position:   absolute;
           }
 
+          stacked-pdf-reader {
+            overflow-y: visible;
+          }
       </style>
 
       <paper-progress id="progress" hidden$="{{!showProgress(loadProgress)}}" value="{{loadProgress}}"></paper-progress>
@@ -177,7 +180,7 @@
         annotations: {
                        notify: true,
                        type:   Array,
-                       value:  function() { return []; }
+                       value:  null
                      },
         paper_id:    {
                          notify: true
