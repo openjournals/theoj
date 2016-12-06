@@ -22,6 +22,7 @@
               width:100%;
               height: 100%;
           }
+
           stacked-pdf-page:not(:last-of-type) {
               margin-bottom: 20px;
           }
@@ -36,26 +37,26 @@
       properties: {
         annotations: {
             notify: true,
-            type: Array
+            type:   Array
         },
         loadProgress: {
           type: Number,
-          value: 0,
-          notify: true
+          value:   0,
+          notify:  true
         },
         loading: {
-          type: Boolean,
-          value: false
+          type:    Boolean,
+          value:   false
         },
         pageNo: {
             notify: true
         },
         pageIndexArray: {
-          type: Array,
-          value: function () { return []; }
+          type:    Array,
+          value:   function () { return []; }
         },
         src: {
-          notify: true,
+          notify:   true,
           observer: 'srcChanged'
         }
       },
@@ -84,7 +85,7 @@
       },
 
       pdfComplete: function(pdf) {
-        // console.log('PDF Complete');
+        // console.log('PDF Complete', pdf);
         this.pdf      = pdf;
         this.loading  = false;
         this.numPages = this.pdf.numPages;
@@ -108,10 +109,11 @@
       },
 
       pageIsVisible: function(pageNo) {
-        var docViewTop = $(window).scrollTop();
+        var docViewTop    = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
-        var elemTop = $(elem).offset().top;
-        var elemBottom = elemTop + $(elem).height();
+        var elemTop       = $(elem).offset().top;
+        var elemBottom    = elemTop + $(elem).height();
+
         return elemBottom <= docViewBottom && elemTop >= docViewTop;
       }
 
