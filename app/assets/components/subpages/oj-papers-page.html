@@ -8,7 +8,7 @@
             <div id="top" class="layout horizontal">
                 <h1 class="layout flex">{{header}}</h1>
 
-                <paper-dropdown-menu on-iron-select="changeSortOrder">
+                <paper-dropdown-menu on-iron-activate="changeSortOrder">
                     <paper-listbox class="dropdown-content menu" attr-for-selected="key" selected="submitted_at">
                         <paper-item key="title">Sort By Article Title</paper-item>
                         <paper-item key="submittor.name">Sort By Submittor</paper-item>
@@ -20,16 +20,12 @@
 
             <div id="list" class="layout flex vertical">
 
-                <template is="dom-if" if="{{hasPapers(papers)}}">
-                    <iron-list items="[[ filtered(papers, sortKey, sortDesc) ]]" as="model">
-
-                        <template>
-                            <div class$="{{rowDivClass(selected)}}">
-                                <oj-paper-row paper="{{model}}"></oj-paper-row>
-                            </div>
-                        </template>
-
-                    </iron-list>
+                <template id="list_repeater" is="dom-if" if="{{hasPapers(papers)}}">
+                    <template is="dom-repeat"
+                              items="[[ sortedPapers ]]"
+                              initialCount="10">
+                        <oj-paper-row paper="{{item}}"></oj-paper-row>
+                    </template>
                 </template>
 
                 <template is="dom-if" if="{{hasNoPapers(papers)}}">
@@ -42,7 +38,7 @@
 
         </div>
 
-        <iron-ajax auto="" url="{{src}}" handle-as="json" last-response="{{papers}}"></iron-ajax>
+        <json-request auto="true" url="{{src}}" result="{{papers}}"></json-request>
 
         <style>
             :host {
@@ -90,7 +86,7 @@
                 margin-bottom: 18px;
                 @apply(--layout);
                 @apply(--layout-fit);
-                max-width: 1200px;
+                max-width: 600px;
             }
 
             iron-list {
@@ -103,15 +99,12 @@
                 padding: 20px 10px;
             }
 
-            .item {
-                padding: 0;
-            }
-
         </style>
 
     </template>
 
     <script>
+
     Polymer({
       is: 'oj-papers-page',
 
@@ -119,37 +112,59 @@
         header: {
           notify: true
         },
-        sortDesc: {
-          type:  Boolean,
-          value: true
+        papers: {
+          type:   Array,
+          notify: true
+        },
+        sortedPapers: {
+          type:   Array,
+          notify: true
         },
         sortKey: {
           type:  String,
-          value: 'submitted_at'
+          value: 'submitted_at'      // Match initial value of dropdown
+        },
+        sortDesc: {
+          type:  Boolean,
+          value: true      // Match initial value of dropdown
         },
         src: {
           notify: true
         }
       },
 
+      observers: [
+          'paperValid(papers, sortKey, sortDesc)'
+      ],
+
+      paperValid: function() {
+        this.sortPapers();
+      },
+
       changeSortOrder: function (event, detail) {
-        this.sortKey  = detail.item.getAttribute('key');
-        this.sortDesc = detail.item.hasAttribute('desc');
-        //force refresh
-        //#@todo Maybe use a dom-repeat and it's sort method instead of an iron-list
-        var list = this.$.list.querySelector('iron-list');
-        if (list)
-            list.notifyResize();
+        var key  = detail.item.getAttribute('key');
+        var desc = detail.item.hasAttribute('desc');
+        console.log(key, desc);
+        if (key == this.sortKey)
+            desc = ! desc;
+
+        this.sortKey  = key;
+        this.sortDesc = desc;
+
+        this.sortPapers();
       },
 
-      filtered: function (array, key, desc) {
-        if (!array)
-          return array;
+      sortPapers: function() {
+        if (!this.papers)
+            return;
 
-        return array.sort( this.sortFunction(key,desc) );
+        var papers = this.papers.slice();
+        var sortFn = this.createSortFunction(this.sortKey, this.sortDesc);
+        papers.sort(sortFn);
+        this.sortedPapers = papers;
       },
 
-      sortFunction: function(key, desc) {
+      createSortFunction: function(key, desc) {
         var keys = key.split('.');
 
         var sortFunction = function (a, b) {
@@ -175,17 +190,16 @@
       hasPapers: function (papers) {
         return papers && papers.length > 0;
       },
-      hasNopapers: function (papers) {
+      hasNoPapers: function (papers) {
         return papers && papers.length == 0;
-      },
-      rowDivClass: function (selected) {
-        return 'item ' + this.tokenList({ selected: selected });
       },
 
       behaviors: [
         Oj.globalExpressions
       ]
+
     });
+
   </script>
 
 </dom-module>

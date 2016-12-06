@@ -1,76 +1,77 @@
 <dom-module id="oj-paper-row">
 
-  <style>
-
-    .row {
-      padding:       0;
-      cursor:        pointer;
-      border-bottom: 1px solid #c2c2c2;
-      color:         black;
-      @apply(--layout);
-      @apply(--layout-flex);
-    }
-
-    .inner {
-        width:       100%;
-        margin:      10px 0;
-    }
-    .inner:hover {
-        background-color: #fcfcfc;
-    }
-
-    .title {
-        font-size:    18px;
-        font-weight:  700;
-        line-height:  24px;
-    }
-
-    .detail {
-        font-size:    12px;
-        color:        rgb(125, 125, 125);
-    }
-
-    .highlight {
-        font-weight: 700;
-        color:       rgb(81, 81, 81);
-    }
-
-    .rhs {
-        width:        140px;
-        height:       100%;
-        text-align:   left;
-        position:     relative;
-        font-size:    12px;
-        @apply(--layout);
-        @apply(--layout-self-end);
-    }
-
-    .status {
-        left:   0;
-        bottom: 0;
-    }
-
-  </style>
-
   <template>
 
       <div class$="{{computeRowClass(paper)}}" on-tap="onTap">
-          <div class="inner layout horizontal">
-              <div class="lhs layout flex">
-                  <div class="title">{{paper.title}}</div>
-                  <div class="detail">
-                      Submitted by <span class="highlight">{{paper.submittor.name}}</span>
-                      on <span class="highlight">{{date(paper.submitted_at)}}</span>
+          <div class="inner">
+
+              <div class="title">{{paper.title}}</div>
+
+              <div class="detail">
+
+                  <div class="lhs">
+                      Submitted by
+                      <span class="highlight">{{paper.submittor.name}}</span>
+                      on
+                      <span class="highlight">{{date(paper.submitted_at)}}</span>
                       <template is="dom-if" if="{{ifUnderReview(paper)}}">
-                      | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
+                          | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
                       </template>
                   </div>
+
+                  <div class$="{{computeStatusClass(paper)}}">
+                      Status: <span class="highlight">{{capitalize(paper.state)}}</span>
+                  </div>
+
               </div>
-              <div class$="{{computeStatusClass(paper)}}">
-                  <div class="status">Status: <span class="highlight">{{capitalize(paper.state)}}</span></div>
-              </div>
+
           </div>
       </div>
+
+      <style>
+
+          .row {
+              padding:       0;
+              cursor:        pointer;
+              border-bottom: 1px solid #c2c2c2;
+              color:         black;
+              @apply(--layout-flex);
+          }
+
+          .inner {
+              width:       100%;
+              margin:      10px 0;
+              @apply(--layout-vertical);
+          }
+          .inner:hover {
+              background-color: #fafafa;
+          }
+
+          .detail {
+              font-size:    12px;
+              color:        rgb(125, 125, 125);
+              width:        100%;
+              @apply(--layout-horizontal);
+          }
+
+          .title {
+              font-size:    18px;
+              font-weight:  700;
+              line-height:  24px;
+          }
+
+          .highlight {
+              font-weight: 700;
+              color:       rgb(81, 81, 81);
+          }
+
+          .lhs {
+              @apply(--layout-flex-auto);
+          }
+          .rhs {
+          }
+
+      </style>
 
   </template>
 
@@ -107,4 +108,5 @@
 
     });
   </script>
+
 </dom-module>
