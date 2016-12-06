@@ -16,7 +16,8 @@ describe PaperSerializer do
                                          'title',
                                          'pending_issues_count',
                                          'submittor',
-                                         'doi'
+                                         'doi',
+                                         'authors'
                          )
   end
 

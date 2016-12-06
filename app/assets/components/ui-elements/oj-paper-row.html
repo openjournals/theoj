@@ -6,6 +6,7 @@
           <div class="inner">
 
               <div class="title">{{paper.title}}</div>
+              <div class="authors">{{paper.authors}}</div>
 
               <div class="detail">
 
@@ -57,7 +58,13 @@
           .title {
               font-size:    18px;
               font-weight:  700;
-              line-height:  24px;
+          }
+
+          .authors {
+              font-size:    14px;
+              font-weight:  normal;
+              font-style:   italic;
+              color:        #808080;
           }
 
           .highlight {
@@ -67,6 +74,7 @@
 
           .lhs {
               @apply(--layout-flex-auto);
+              padding-left: 24px;
           }
           .rhs {
           }
