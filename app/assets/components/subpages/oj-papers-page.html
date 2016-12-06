@@ -1,110 +1,120 @@
 
 <dom-module id="oj-papers-page">
 
-  <style>
-        :host {
-            @apply(--layout);
-            @apply(--layout-fit);
-        }
+    <template>
 
-        #top {
-            background: #eee;
-            padding:    0 30px;
-        }
+        <div id="scroller" class="layout vertical">
 
-        #list {
-            padding: 0 30px 12px;
-        }
+            <div id="top" class="layout horizontal">
+                <h1 class="layout flex">{{header}}</h1>
 
-        paper-dropdown-menu {
-            font-size: 12px;
-            width:     180px;
-            border:    none;
-        }
-        paper-item {
-            font-size: 12px;
-            margin:    0;
-            padding:   0;
-        }
+                <paper-dropdown-menu on-iron-select="changeSortOrder">
+                    <paper-listbox class="dropdown-content menu" attr-for-selected="key" selected="submitted_at">
+                        <paper-item key="title">Sort By Article Title</paper-item>
+                        <paper-item key="submittor.name">Sort By Submittor</paper-item>
+                        <paper-item key="state">Sort By State</paper-item>
+                        <paper-item key="submitted_at" desc>Sort By Submitted Date</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+            </div>
 
-        paper-dropdown-menu::shadow #arrow {
-            position: absolute;
-            left:     0;
-            top:      16px;
-        }
+            <div id="list" class="layout flex vertical">
 
-        paper-dropdown-menu::shadow #label {
-            position: absolute;
-            left:     20px;
-            top:      20px;
-        }
+                <template is="dom-if" if="{{hasPapers(papers)}}">
+                    <iron-list items="[[ filtered(papers, sortKey, sortDesc) ]]" as="model">
 
-        #scroller {
-            position:      relative;
-            overflow-y:    auto;
-            height:        100%;
-            margin-bottom: 18px;
-        }
-        iron-list{
-            width: 100%;
-        }
-        #empty {
-            font-weight: 500;
-            font-size: 18px;
-            padding: 20px 10px;
-        }
-        .item {
-            padding:       0;
-        }
+                        <template>
+                            <div class$="{{rowDivClass(selected)}}">
+                                <oj-paper-row paper="{{model}}"></oj-paper-row>
+                            </div>
+                        </template>
 
-    </style>
-  <template>
-      
-    <div id="scroller" class="layout vertical">
+                    </iron-list>
+                </template>
 
-      <div id="top" class="layout horizontal">
-          <h1 class="layout flex">{{header}}</h1>
+                <template is="dom-if" if="{{hasNoPapers(papers)}}">
+                    <div id="empty">
+                        There are no papers to view.
+                    </div>
+                </template>
 
-          <paper-dropdown-menu on-iron-select="changeSortOrder">
-              <paper-listbox class="dropdown-content menu" attr-for-selected="key" selected="submitted_at">
-                  <paper-item key="title">Sort By Article Title</paper-item>
-                  <paper-item key="submittor.name">Sort By Submittor</paper-item>
-                  <paper-item key="state">Sort By State</paper-item>
-                  <paper-item key="submitted_at" desc>Sort By Submitted Date</paper-item>
-              </paper-listbox>
-          </paper-dropdown-menu>
-      </div>
+            </div>
 
-      <div id="list" class="layout flex vertical">
+        </div>
 
-          <template is="dom-if" if="{{_computeIf(papers)}}">
-              <iron-list items="[[ filtered(papers, sortKey, sortDesc) ]]" as="model" >
+        <iron-ajax auto="" url="{{src}}" handle-as="json" last-response="{{papers}}"></iron-ajax>
 
-                  <template>
-                      <div class$="{{_computeClass(selected)}}">
-                          <oj-paper-row paper="{{model}}"></oj-paper-row>
-                      </div>
-                  </template>
+        <style>
+            :host {
+                @apply(--layout);
+                @apply(--layout-fit);
+            }
 
-              </iron-list>
-          </template>
+            #top {
+                background: #eee;
+                padding: 0 30px;
+            }
 
-          <template is="dom-if" if="{{_computeIf2(papers)}}">
-              <div id="empty">
-                  There are no papers to view.
-              </div>
-          </template>
+            #list {
+                padding: 0 30px 12px;
+            }
 
-      </div>
+            paper-dropdown-menu {
+                font-size: 12px;
+                width: 180px;
+                border: none;
+            }
 
-    </div>
+            paper-item {
+                font-size: 12px;
+                margin: 0;
+                padding: 0;
+            }
 
-    <iron-ajax auto="" url="{{src}}" handle-as="json" last-response="{{papers}}"></iron-ajax>
+            paper-dropdown-menu::shadow #arrow {
+                position: absolute;
+                left: 0;
+                top: 16px;
+            }
 
-  </template>
-  <script>
+            paper-dropdown-menu::shadow #label {
+                position: absolute;
+                left: 20px;
+                top: 20px;
+            }
+
+            #scroller {
+                position: relative;
+                overflow-y: auto;
+                height: 100%;
+                margin-bottom: 18px;
+                @apply(--layout);
+                @apply(--layout-fit);
+                max-width: 1200px;
+            }
+
+            iron-list {
+                width: 100%;
+            }
+
+            #empty {
+                font-weight: 500;
+                font-size: 18px;
+                padding: 20px 10px;
+            }
+
+            .item {
+                padding: 0;
+            }
+
+        </style>
+
+    </template>
+
+    <script>
     Polymer({
       is: 'oj-papers-page',
+
       properties: {
         header: {
           notify: true
@@ -126,9 +136,10 @@
         this.sortKey  = detail.item.getAttribute('key');
         this.sortDesc = detail.item.hasAttribute('desc');
         //force refresh
-        //#@todo Maybe use a dom-repeat and its sort method instead of an iron-list
+        //#@todo Maybe use a dom-repeat and it's sort method instead of an iron-list
         var list = this.$.list.querySelector('iron-list');
-        if (list) list.notifyResize();
+        if (list)
+            list.notifyResize();
       },
 
       filtered: function (array, key, desc) {
@@ -161,13 +172,13 @@
         return sortFunction;
       },
 
-      _computeIf: function (papers) {
+      hasPapers: function (papers) {
         return papers && papers.length > 0;
       },
-      _computeIf2: function (papers) {
+      hasNopapers: function (papers) {
         return papers && papers.length == 0;
       },
-      _computeClass: function (selected) {
+      rowDivClass: function (selected) {
         return 'item ' + this.tokenList({ selected: selected });
       },
 
