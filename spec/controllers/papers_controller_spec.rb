@@ -182,13 +182,13 @@ describe PapersController do
 
   end
 
-  describe "GET #state" do
+  describe "GET #badge" do
 
     render_views
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code and response" do
       paper = create(:paper, :review_completed)
-      get :state, identifier:paper.typed_provider_id, format:'html'
+      get :badge, identifier:paper.typed_provider_id, format:'html'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("text/html")
@@ -197,7 +197,7 @@ describe PapersController do
 
     it "WITHOUT USER responds successfully with an HTTP 200 status code and JSON response" do
       paper = create(:paper, :review_completed)
-      get :state, identifier:paper.typed_provider_id, format:'json'
+      get :badge, identifier:paper.typed_provider_id, format:'json'
 
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq("application/json")
@@ -206,20 +206,20 @@ describe PapersController do
 
     it "Sets an eTag" do
       paper = create(:paper, :review_completed)
-      get :state, identifier:paper.typed_provider_id
+      get :badge, identifier:paper.typed_provider_id
 
       expect( response.header['ETag'] ).to be_present
     end
 
     it "Returns 304 if an etag is set" do
       paper = create(:paper, :review_completed)
-      get :state, identifier:paper.typed_provider_id
+      get :badge, identifier:paper.typed_provider_id
 
       etag1 = response['ETag']
 
       request.headers['If-None-Match'] = etag1
 
-      get :state, identifier:paper.typed_provider_id
+      get :badge, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:not_modified)
       expect(response.content_type).to eq("application/json")

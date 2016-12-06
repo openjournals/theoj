@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150808025904) do
+ActiveRecord::Schema.define(version: 20161009043324) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "assignment_id", limit: 4
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 20150808025904) do
     t.text     "summary",           limit: 65535
     t.text     "authors",           limit: 65535
     t.string   "provider_type",     limit: 10,                null: false
+    t.string   "doi",               limit: 255
   end
 
   add_index "papers", ["provider_type", "provider_id", "version"], name: "index_papers_on_provider_type_and_provider_id_and_version", unique: true, using: :btree

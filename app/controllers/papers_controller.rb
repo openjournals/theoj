@@ -1,7 +1,6 @@
-
 class PapersController < ApplicationController
   respond_to :json
-  before_filter :require_user,   except: [ :recent, :search, :index, :show, :state, :versions ]
+  before_filter :require_user,   except: [ :recent, :search, :index, :show, :badge, :versions ]
   before_filter :require_editor, only:   [ :destroy, :transition ]
 
   def index
@@ -74,7 +73,7 @@ class PapersController < ApplicationController
 
   end
 
-  def state
+  def badge
     if stale?(paper)
 
       respond_to do |format|

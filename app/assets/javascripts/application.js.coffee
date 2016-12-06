@@ -5,6 +5,7 @@
 #= stub    pdfjs-dist/build/pdf.worker
 #= stub    pdf.worker
 #= stub    bootstrap
+#= stub    textlayerbuilder
 #= require pdfjs-dist/build/pdf
 #= require_tree .
 

@@ -1,8 +1,9 @@
 
 Theoj::Application.routes.draw do
+
   scope path:'api', as:'api', format: 'json' do
 
-    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier,identifier: /[^\/]+/ do
+    resources :papers, only:[:index, :show, :create, :destroy], param: :identifier, identifier: /[^\/]+/ do
 
       collection do
         get :recent
@@ -58,11 +59,25 @@ Theoj::Application.routes.draw do
   get '/auth/failure',            to: 'sessions#failure'
   get "/signout",                 to: "sessions#destroy"
 
-  # Add custom review badge URL for now
+  resources :papers, only: [], param: :identifier, identifier: /[^\/]+/ do
+    member do
+      # Add custom review badge URL for now
+      get 'badge',     action: 'badge'
+    end
+  end
 
-  get '/papers/:identifier/status', to: 'papers#state', param: :identifier, identifier: /[^\/]+/
+  scope 'feed', controller:'feed' do
+    get 'arxiv(.:format)',      action: 'arxiv',  defaults: { format:'xml' }
+  end
 
+  scope 'admin', controller:'admin' do
+    get '',           action: 'index'
+    get 'overview',   action: 'index'
+  end
+
+  ##################################################################
   # Make all other routes get the SPA page
+
   if Rails.env.development?
     get '/*path', to: 'home#index', constraints: { path: /(?!rails).*/ }
   else
@@ -70,10 +85,13 @@ Theoj::Application.routes.draw do
   end
   root            to: 'home#index'
 
-  # Helpers for Polymer Routes
+
+  # Helpers for Polymer and External Routes
+
   scope controller:'none', action:'none' do
 
-    get 'review/:identifier', as:'paper_review'
+    get 'review/:identifier',                                            as: 'paper_review'
+    get '/:uid',                host: 'orcid.org',  only_path: false,    as: 'orcid_account'
 
   end
 
