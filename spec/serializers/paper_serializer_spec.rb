@@ -9,11 +9,14 @@ describe PaperSerializer do
     serializer = PaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
-    expect(hash.keys).to contain_exactly("typed_provider_id",
-                                         "user_permissions", "state",
-                                         "submitted_at", "title",
-                                         "pending_issues_count",
-                                         "submittor"
+    expect(hash.keys).to contain_exactly('typed_provider_id',
+                                         'user_permissions',
+                                         'state',
+                                         'submitted_at',
+                                         'title',
+                                         'pending_issues_count',
+                                         'submittor',
+                                         'doi'
                          )
   end
 
