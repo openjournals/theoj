@@ -65,24 +65,30 @@
       },
 
       getPDF: function() {
-        if (!this.loading) {
-          this.loading = true;
-          this.pdf = null;
-          PDFJS.openExternalLinksInNewWindow = true;
-          PDFJS.disableRange = true;
-          // var url = "/proxy?url="+ this.src;
-          var url = this.src.replace('http://', 'https://');
-          PDFJS.getDocument(url, null, null, this.updateProgress.bind(this)).then(function (pdf) {
-            this.pdf = pdf;
-            this.loading = false;
-            this.numPages = this.pdf.numPages;
-            this.createPageIndexArray(this.numPages);
-          }.bind(this));
-        }
+        if (this.loading)
+        return;
+
+        this.loading = true;
+        this.pdf = null;
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
+        PDFJS.disableRange = true;
+        var url  = this.src.replace('http://', 'https://');
+        var task = PDFJS.getDocument(url);
+        task.onProgress = this.pdfUpdateProgress.bind(this);
+        task.then( this.pdfComplete.bind(this) );
       },
 
-      updateProgress: function(prog) {
-        this.loadProgress = 100 * prog.loaded / (1 * prog.total);
+      pdfUpdateProgress: function(progress) {
+        // console.log('PDF Progress', progress);
+        this.loadProgress = 100 * progress.loaded / (1 * progress.total);
+      },
+
+      pdfComplete: function(pdf) {
+        // console.log('PDF Complete');
+        this.pdf      = pdf;
+        this.loading  = false;
+        this.numPages = this.pdf.numPages;
+        this.createPageIndexArray(this.numPages);
       },
 
       createPageIndexArray: function(numPages) {
