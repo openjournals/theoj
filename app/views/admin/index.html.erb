@@ -6,10 +6,12 @@
 
     <%- papers.each do |p| %>
       <div style="margin-bottom:12px">
-        <div style="font-weight:bold">Title: <%= p.title %></div>
+        <div style="font-weight:bold"><%= p.typed_provider_id %>: <%= p.title %> <%= link_to '[review]', "/review/#{p.typed_provider_id}", target:'_blank' %></div>
         <ul style="margin:0">
-          <li>PDF: <%= link_to p.document_location %></li>
+          <li>PDF: <%= p.document_location %> <%= link_to '[open]', p.document_location, {target:'_blank'} %></li>
           <li>Authors: <%= p.authors %></li>
+          <li>Submitting author: <%= p.submittor.name %> &middot; <%= p.submittor.email %> &middot; <%= link_to "ORCID", "http://orcid.org/#{p.submittor.uid}" %></li>
+          <li>Submitted at: <%= p.created_at %>, Last Update: <%= p.updated_at %></li>
         </ul>
       </div>
     <% end %>
