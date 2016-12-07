@@ -143,13 +143,13 @@
 
       changeSortOrder: function (event, detail) {
         var key  = detail.item.getAttribute('key');
-        var desc = detail.item.hasAttribute('desc');
-        console.log(key, desc);
-        if (key == this.sortKey)
-            desc = ! desc;
+
+        if (key != this.sortKey)
+          this.sortDesc = detail.item.hasAttribute('desc');
+        else
+          this.sortDesc = ! this.sortDesc;
 
         this.sortKey  = key;
-        this.sortDesc = desc;
 
         this.sortPapers();
       },
