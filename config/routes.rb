@@ -73,6 +73,8 @@ Theoj::Application.routes.draw do
   scope 'feed', controller:'feed' do
     get 'arxiv(.:format)',      action: 'arxiv',  defaults: { format:'xml' }
   end
+  #@todo Remove this once we have updated Arxiv
+  get '/papers/arxiv(.:format)', to: 'feed#arxiv',  defaults: { format:'xml' }
 
   scope 'admin', controller:'admin' do
     get '',           action: 'index'
