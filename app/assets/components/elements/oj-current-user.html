@@ -11,13 +11,13 @@
         var user;
         if (event.detail && event.detail.name) {
           user = event.detail;
-          this.fire('user-logged-in', user); //mro todo asyncFire
+          this.fire('user-logged-in', user);
         } else {
           user = null;
-          this.fire('user-logged-out'); //mRo todo asyncFire
+          this.fire('user-logged-out');
         }
         window.current_user = user;
-        this.fire('user', user); //mRo todo asyncFire
+        this.fire('user', user);
       }
     });
   </script>

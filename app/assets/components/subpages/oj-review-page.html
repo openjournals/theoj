@@ -2,115 +2,6 @@
 
   <template>
 
-      <style>
-
-          :host {
-              @apply(--layout);
-              @apply(--layout-fit);
-              background:  white;
-              font-family: Neuton;
-              color:       #192023;
-          }
-
-          #progress {
-              position: absolute;
-              width:    100%;
-              top:      0;
-              left:     0;
-              right:    0;
-              --paper-progress-container-color: transparent;
-              --paper-progress-active-color:    #00cc00;
-          }
-
-          #scroller {
-              position:      relative;
-              overflow-y:    auto;
-              height:        100%;
-              width:         100%;
-              margin-bottom: 18px;
-          }
-
-          #pdf-pane {
-              box-sizing: border-box;
-              width: 65%;
-              margin-right: 4px;
-              @apply(--layout-vertical);
-              @apply(--layout-flex);
-          }
-
-          #main {
-          }
-
-          #rhs {
-              box-sizing:    border-box;
-              width:         505px;
-              height:        100%;
-              left:          -3px;
-              background:    #eeeeee;
-          }
-
-          #rhs-tabs {
-              position:         fixed;
-              top:              145px;
-              right:            0;
-              z-index:          100;
-          }
-
-          #rhs-tabs div {
-              width:         36px;
-              height:        38px;
-              margin-bottom: 2px;
-              cursor:        pointer;
-              box-shadow:    0 3px 15px 0 rgba(0, 0, 0, 0.08);
-              font-family:   "Roboto Slab";
-              color:         #cfcfcf;
-              background:    white center/20px no-repeat;
-              font-size:     20px;/* Approximation due to font substitution */
-              font-weight:   700;
-              line-height:   42px;/* Approximation due to font substitution */
-              text-align:    center;
-          }
-          #rhs-tabs div.active {
-              cursor:        default;
-              color:         #54d1b8;
-          }
-          #rhs-tabs div:hover {
-              color:         #54d1b8;
-          }
-
-          #rhs-tabs #tab-info::before {
-              content: 'i';
-          }
-          #rhs-tabs #tab-edits {
-              background-image: url(/assets/paper_edits.png)
-          }
-          #rhs-tabs #tab-edits.active {
-              background-image: url(/assets/paper_edits-active.png)
-          }
-          #rhs-tabs #tab-edits:hover {
-              background-image: url(/assets/paper_edits-active.png)
-          }
-
-          oj-review-paper-info, oj-annotation-list {
-              box-sizing:    border-box;
-              padding-right: 38px; /* Width of tabs */
-              background:    #eeeeee;
-          }
-
-          oj-review-paper-info {
-              position:     fixed;
-              height:       100%;
-          }
-
-          oj-annotation-list {
-              position:   absolute;
-          }
-
-          stacked-pdf-reader {
-            overflow-y: visible;
-          }
-      </style>
-
       <paper-progress id="progress" hidden$="{{!showProgress(loadProgress)}}" value="{{loadProgress}}"></paper-progress>
 
       <div id="scroller" class="layout vertical">
@@ -129,7 +20,7 @@
             <div id="rhs">
 
                 <div id="rhs-tabs" hidden$="{{!paper.can_view_annotations}}">
-                    <div id="tab-info"  class$="{{tabClass('info',  activeTab)}}" title="Info" on-tap="tabTap"></div>
+                    <div id="tab-info"  class$="{{tabClass('info',  activeTab)}}" title="Info"  on-tap="tabTap"></div>
                     <div id="tab-edits" class$="{{tabClass('edits', activeTab)}}" title="Edits" on-tap="tabTap"></div>
                 </div>
 
@@ -147,7 +38,8 @@
                                         first-page-offset="{{annotationFirstPageOffset}}"
                                         page-height="{{pdfClientHeight}}"
                                         page-spacing="{{pageSpacing}}"
-                                        on-annotation-changed="onChangeAnnotation"></oj-annotation-list>
+                                        on-annotation-changed="onChangeAnnotation"
+                                        on-annotation-opened="onAnnotationOpened"></oj-annotation-list>
                 </template>
             </div>
 
@@ -160,6 +52,117 @@
     <template is="dom-if" if="{{paper.can_view_annotations}}">
         <api-request method="get" auto="true" api="{{getAllIssuesApi(paper)}}" result="{{annotations}}"></api-request>
     </template>
+
+    <style>
+
+      :host {
+          @apply(--layout);
+          @apply(--layout-fit);
+          background:  white;
+          font-family: Neuton;
+          color:       #192023;
+      }
+
+      #progress {
+          position: absolute;
+          width:    100%;
+          top:      0;
+          left:     0;
+          right:    0;
+          --paper-progress-container-color: transparent;
+          --paper-progress-active-color:    #00cc00;
+      }
+
+      #scroller {
+          position:      relative;
+          overflow-y:    auto;
+          height:        100%;
+          width:         100%;
+          margin-bottom: 18px;
+      }
+
+      #pdf-pane {
+          box-sizing: border-box;
+          width: 65%;
+          margin-right: 4px;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
+      }
+
+      #main {
+      }
+
+      #rhs {
+          box-sizing:    border-box;
+          width:         505px;
+          height:        100%;
+          left:          -3px;
+          background:    #eeeeee;
+      }
+
+      #rhs-tabs {
+          position:         fixed;
+          top:              145px;
+          right:            0;
+          z-index:          100;
+      }
+
+      #rhs-tabs div {
+          width:         36px;
+          height:        38px;
+          margin-bottom: 2px;
+          cursor:        pointer;
+          box-shadow:    0 3px 15px 0 rgba(0, 0, 0, 0.08);
+          font-family:   "Roboto Slab";
+          color:         #cfcfcf;
+          background:    white center/20px no-repeat;
+          font-size:     20px;/* Approximation due to font substitution */
+          font-weight:   700;
+          line-height:   42px;/* Approximation due to font substitution */
+          text-align:    center;
+      }
+      #rhs-tabs div.active {
+          cursor:        default;
+          color:         #54d1b8;
+      }
+      #rhs-tabs div:hover {
+          color:         #54d1b8;
+      }
+
+      #rhs-tabs #tab-info::before {
+          content: 'i';
+      }
+      #rhs-tabs #tab-edits {
+          background-image: url(/assets/paper_edits.png)
+      }
+      #rhs-tabs #tab-edits.active {
+          background-image: url(/assets/paper_edits-active.png)
+      }
+      #rhs-tabs #tab-edits:hover {
+          background-image: url(/assets/paper_edits-active.png)
+      }
+
+      oj-review-paper-info, oj-annotation-list {
+          box-sizing:    border-box;
+          padding-right: 38px; /* Width of tabs */
+          background:    #eeeeee;
+      }
+
+      oj-review-paper-info {
+          position:     fixed;
+          width:         505px;
+          height:       100%;
+      }
+
+      oj-annotation-list {
+          position:   absolute;
+          width:      505px;
+      }
+
+      stacked-pdf-reader {
+          overflow-y: visible;
+      }
+    </style>
 
   </template>
 
@@ -233,15 +236,20 @@
       },
 
       onChangeAnnotation: function(event, annotation) {
-          console.log('onChangeAnnotation');
-          this.$.header.updateCounts();
+          this.$$('oj-review-paper-info').updateCounts();
+      },
+
+      onAnnotationOpened: function(event, annotation) {
+          if (this.paper.can_view_annotations)
+              this.activeTab = 'edits';
       },
 
       newAnnotation: function(properties) {
         return $.extend({
-          state: 'new',
-          new:   true,
-          open:  true
+          state:      'new',
+          new:        true,
+          open:       true,
+          assignment: this.paper.current_assignment
         }, properties);
       },
 
@@ -259,6 +267,7 @@
       addAnnotation: function(annotation) {
         if (this.paper.can_edit_annotations) {
           this.push('annotations', annotation);
+          this.activeTab = 'edits';
         }
       },
 

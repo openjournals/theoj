@@ -105,10 +105,10 @@
       showNewComment: function() {
         this.newCommentVisible = true;
         this.async(function () {
-          var edit = Polymer.dom(this).querySelector('#replyTextArea');
+          var edit = this.$$('#replyTextArea');
           edit.focus();
           edit.select();
-          this.fire('new-comment-shown');
+          this.fire('new-response-shown');
         });
       },
 

@@ -14,7 +14,7 @@
                       Submitted by
                       <span class="highlight">{{paper.submittor.name}}</span>
                       on
-                      <span class="highlight">{{date(paper.submitted_at)}}</span>
+                      <span class="highlight">{{dateString(paper.submitted_at)}}</span>
                       <template is="dom-if" if="{{ifUnderReview(paper)}}">
                           | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
                       </template>

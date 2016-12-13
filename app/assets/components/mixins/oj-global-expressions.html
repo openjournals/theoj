@@ -2,6 +2,8 @@
 
     window.Oj.globalExpressions = {
 
+        MONTH_NAMES: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
+
         isArray: function(obj) {
             return Array.isArray(obj);
         },
@@ -23,12 +25,20 @@
             return text && text.replace(/[_-]/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
         },
 
-        date: function(date) {
-            if (!date)
+        dateString: function(date) {
+            date = Oj.utils.normalizeDate(date);
+            if (date)
+                return date.toDateString();
+            else
                 return undefined;
-            if (typeof date == 'string')
-                date = new Date(date);
-            return date.toDateString()
+        },
+
+        shortDateString: function(date) {
+            date = Oj.utils.normalizeDate(date);
+            if (date)
+                return this.MONTH_NAMES[ date.getMonth() ] + ' ' + date.getDate();
+            else
+                return undefined;
         },
 
         log: function(value, args) {

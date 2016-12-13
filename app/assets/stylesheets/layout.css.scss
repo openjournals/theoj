@@ -11,16 +11,27 @@ body {
 
 // Modified CSS for Polymer elements
 
-body /deep/ {
+:root {
 
-  .disable-selection {
-    /* Disable Selection */
-    -ms-user-select:     none;
-    -webkit-user-select: none;
-    -moz-user-select:    none;
-    user-select:         none;
-    cursor:              default;
-  }
+  /* Sass doesn't this CSS syntax yet */
+
+  --ellipses: #{'{
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+   }'};
+
+   --disable-selection: #{'{
+     -ms-user-select:     none;
+     -webkit-user-select: none;
+     -moz-user-select:    none;
+     user-select:         none;
+     cursor:              default;
+   }'};
+
+}
+
+body /deep/ {
 
   paper-button {
     text-transform: capitalize;

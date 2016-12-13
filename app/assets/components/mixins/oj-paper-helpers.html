@@ -71,6 +71,17 @@
             return paper.assignmentsBySha[assignment_sha];
         },
 
+        authorFor: function(paper, assignment_sha) {
+          var a = this.assignmentFromSha(paper, assignment_sha);
+          if (!a)
+              return null;
+
+          if (a.user)
+              return a.user.name;
+          else
+              return null;
+        },
+
         sortAssignments: function(assignments) {
             if (!assignments)
               return assignments;
@@ -87,6 +98,18 @@
                         else
                             return -1;
                   });
+        },
+
+        latestDateForAnnotation: function(annotation) {
+          var date = Oj.utils.normalizeDate(annotation.created_at);
+          if (annotation.responses) {
+              for (var i = 0; i < annotation.responses.length; i++) {
+                  var response_date = window.Oj.paperHelpers.latestDateForAnnotation( annotation.responses[i] );
+                  if (response_date > date)
+                     date = response_date;
+              }
+          }
+          return date;
         },
 
         providerPart: function(typed_provider_id) {

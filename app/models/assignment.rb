@@ -18,7 +18,7 @@ class Assignment < ActiveRecord::Base
   def self.build_copy(original)
     # Note we don't copy the 'completed' field
     attrs = original.attributes.symbolize_keys.slice(:role, :user_id, :public)
-    new attrs.merge(copied:true)
+    attrs.merge(copied:true)
   end
 
   def use_completed?

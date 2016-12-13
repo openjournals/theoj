@@ -8,9 +8,15 @@
           width:       100%;
       }
 
+      .layout {
+          box-sizing:   border-box;
+      }
+
       oj-annotation {
-        display: none;
-        width:   100%;
+        box-sizing:    border-box;
+        position:      absolute;
+        display:       none;
+        width:         100%;
       }
 
     </style>
@@ -43,15 +49,15 @@
           notify: true
         },
         collapsedAnnotationHeight: {
-          type: Number,
-          value: 42
+          type:  Number,
+          value: 30
         },
         firstPageOffset: {
             notify: true
         },
         pageHeight: {
-          type: Number,
-          notify: true,
+          type:     Number,
+          notify:   true,
           observer: 'pageHeightChanged'
         },
         pageSpacing: {
