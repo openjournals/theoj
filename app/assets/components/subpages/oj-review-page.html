@@ -24,7 +24,7 @@
                     <div id="tab-edits" class$="{{tabClass('edits', activeTab)}}" title="Edits" on-tap="tabTap"></div>
                 </div>
 
-                <oj-review-paper-info  hidden$="{{tabHidden('info', activeTab)}}"
+                <oj-review-paper-info hidden$="{{tabHidden('info', activeTab)}}"
                                        user="{{currentUser}}"
                                        paper="{{paper}}"
                                        annotations="{{annotations}}">
@@ -98,6 +98,11 @@
           height:        100%;
           left:          -3px;
           background:    #eeeeee;
+      }
+
+      #rhs [hidden] {
+          display:    block  !important;
+          visibility: hidden !important;
       }
 
       #rhs-tabs {
