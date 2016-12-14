@@ -1,100 +1,122 @@
 <dom-module id="markdown-text-area">
-  <style>
-      #content_wrapper{
-          width:100%;
-          box-sizing: border-box;
-          position: relative;
-          color: black;
-          background-color: #e0e0e0;
-      }
-      iron-autogrow-textarea {
-          position:relative;
-          box-sizing: border-box;
-          width: 100%;
-          --iron-autogrow-textarea: {
-              box-sizing: border-box;
-              padding:    5px;
-              border:     1px solid #cccccc;
-              font-size:  13px;
-          }
-      }
-      markdown-content {
-        width:   100%;
-        height:  100%;
-        margin:  0;
-        padding: 0;
-      }
-      a.toggle {
-        position:absolute;
-        bottom: 0;
-        right: 0;
-        color: blue;
-        text-decoration: none;
-        z-index:1;
-      }
-      a.toggle:hover {
-        text-decoration: underline;
-      }
-    </style>
+
   <template>
-    <div id="content_wrapper">
+      <markdown-content id="markdown"
+                        markdown="{{value}}"
+                        hidden$="{{!previewVisible}}"></markdown-content>
 
-      <template is="dom-if" if="{{previewVisible}}">
-          <markdown-content markdown="{{value}}"></markdown-content>
-          <a href="#" class="toggle" on-click="hidePreview">Show content</a>
-      </template>
+      <iron-autogrow-textarea id="autogrow"
+                              rows="3"
+                              maxrows="12"
+                              placeholder="{{placeholder}}"
+                              value="{{value}}"
+                              hidden$="{{previewVisible}}"></iron-autogrow-textarea>
 
-      <div hidden$="{{previewVisible}}">
-        <iron-autogrow-textarea id="autogrow" rows="3" maxrows="12"
-                                placeholder="{{placeholder}}" value="{{value}}">
-        </iron-autogrow-textarea>
-        <a href="#" class="toggle" on-click="showPreview">Show Preview</a>
-      </div>
+      <style>
 
-    </div>
+          :host {
+              font-family: Roboto;
+              color:       #c5c5c5;
+              font-size:   12px;/* Approximation due to font substitution */
+              font-weight: 400;
+              padding:     0;
+          }
+
+          iron-autogrow-textarea {
+              box-sizing:     border-box;
+              width:          100%;
+              border:         none;
+              border-bottom:  solid 1px #c9c9c9;
+              background:     white;
+              --iron-autogrow-textarea: {
+                  font-family: Roboto;
+                  color:       #858585;
+                  font-size:   14px;/* Approximation due to font substitution */
+                  font-weight: 400;
+                  box-sizing:  border-box;
+                  padding:     0;
+                  border:      none;
+              }
+          }
+
+          markdown-content {
+              width:   100%;
+              height:  100%;
+              margin:  0;
+              padding: 0;
+              cursor:  default;
+              border:         none;
+              border-bottom:  solid 1px #c9c9c9;
+          }
+
+      </style>
 
   </template>
+
   <script>
     Polymer({
       is: 'markdown-text-area',
+
       properties: {
         placeholder: {
             notify: true
         },
         previewVisible: {
-          type: Boolean,
-          value: false
+            type:     Boolean,
+            value:    false
+        },
+        previewButtonLabel: {
+            type:     String,
+            notify:   true,
+            computed: 'computePreviewButtonLabel(previewVisible)'
         },
         value: {
-            notify: true
+            notify:   true,
+            observer: 'valueChanged'
         }
       },
-      showPreview: function (event) {
-        event.preventDefault();
-        this.previewVisible = true;
+
+      showPreview: function () {
+          this.previewVisible = true;
       },
-      hidePreview: function (event) {
-        event.preventDefault();
-        this.previewVisible = false;
-//#@todo
-//        this.async(function () {
-//          this.$.autogrow.update(this.$.input);
-//        });
+
+      hidePreview: function () {
+          this.previewVisible = false;
       },
+
+      togglePreview: function () {
+          if (this.previewVisible || this.value)
+              this.previewVisible = ! this.previewVisible;
+      },
+
       focus: function () {
         var textarea = this.$.autogrow.textarea;
         if (textarea)
           textarea.focus();
       },
+
       select: function () {
         var textarea = this.$.autogrow.textarea;
         if (textarea)
           textarea.select();
       },
+
       ready: function () {
-//#@todo
-//        this.$.autogrow.update(this.$.input);
+        //#@todo
+        //        this.$.autogrow.update(this.$.input);
+      },
+
+      computePreviewButtonLabel: function(previewVisible) {
+          return previewVisible ? 'Edit' : 'Preview';
+      },
+
+      valueChanged: function(value) {
+           var minHeight = this.$.autogrow.clientHeight;
+          this.$.markdown.style.minHeight = minHeight + 'px';
       }
+
     });
+
   </script>
+
 </dom-module>

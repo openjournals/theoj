@@ -48,6 +48,10 @@
           type:   Array,
           notify: true
         },
+        annotationVerticalShift: {  /* Annotations are shifted up this much, about half the header height */
+          type:  Number,
+          value: 15
+        },
         collapsedAnnotationHeight: {
           type:  Number,
           value: 30
@@ -146,8 +150,9 @@
           return 0;
 
         } else {
-          var y = annotation.yStart;
-          var t = this.firstPageOffset + this.pageHeight * page_no + this.pageHeight * y + this.pageSpacing * (page_no - 1);
+          var y = this.pageHeight * annotation.yStart - this.annotationVerticalShift;
+          y = Math.max(y, 0);
+          var t = this.firstPageOffset + this.pageHeight * page_no + this.pageSpacing * (page_no - 1) + y;
           return Math.max(t, 0);
         }
       },
@@ -165,7 +170,8 @@
       },
 
       annotationAdded: function (event, annotation) {
-        this.push('annotations', annotation);
+        this.fire('notification', 'Annotation saved.');
+        this.collapseAnnotations();
       },
 
       collapseAnnotations: function (exclude) {

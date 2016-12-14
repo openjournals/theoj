@@ -2,64 +2,78 @@
 
   <template>
 
-    <!-- Collapsed Display -->
+    <!-- Saved Annotation --> <template is="dom-if" if="{{!annotation.new}}">
 
-    <div class$="{{containerClass('collapsed', annotation, annotation.state)}}">
-        <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+        <!-- Collapsed Display -->
 
-        <div class="container-inner">
+        <div class$="{{containerClass('collapsed', annotation, annotation.state)}}">
 
-          <div on-tap="expand" class="header">
-              <div class="text">{{headerDisplay(annotation.body, annotation.assignment, paper)}}</div>
-              <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
-              <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
-          </div>
+            <div class="container-inner">
 
+              <div on-tap="expand" class="header">
+                  <div class="text">{{headerDisplay(annotation.body, annotation.assignment, paper)}}</div>
+                  <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
+                  <div class="filler layout flex"></div>
+                  <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
+                  <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+              </div>
+
+            </div>
         </div>
-    </div>
-
-    <!-- Overlay this to get animated expansion to work nicely -->
-
-    <iron-collapse id="collapsible" opened="{{annotation.open}}" on-iron-resize="annotationAfterOpen">
-      <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
 
         <!-- Expanded Display -->
+        <!-- Overlay this to get animated expansion to work nicely -->
 
-      <div class$="{{containerClass('expanded', annotation, annotation.state)}}">
-          <div class="container-inner">
+        <iron-collapse id="collapsible" opened="{{annotation.open}}" on-iron-resize="annotationAfterOpen">
+          <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
 
-              <template is="dom-if" if="{{!annotation.new}}">
-                  <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+          <div class$="{{containerClass('expanded', annotation, annotation.state)}}">
+              <div class="container-inner" on-tap="collapse" >
 
-                  <div on-tap="collapse" class="header">
+                  <div class="header">
                       <div class="text">{{author}}</div>
                       <div class="date">{{dateDisplay(annotation)}}</div>
+                      <div class="filler layout flex"></div>
+                      <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
                   </div>
 
                   <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
 
                   <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}"
-                                              on-new-response-shown="newResponseShown"></oj-annotation-comments>
-              </template>
+                                                  on-new-response-shown="newResponseShown"></oj-annotation-comments>
 
-              <template is="dom-if" if="{{annotation.new}}">
+              </div>
+          </div>
 
-                  <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
-                  <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
-                  <markdown-text-area id="annotationTextArea" class="issue" value="{{text}}"></markdown-text-area>
+        </iron-collapse>
 
-                  <div class="layout horizontal">
-                      <span class="layout flex"></span>
-                      <paper-button on-click="submitAnnotation" disabled$="{{disableSaving(text, saving)}}">Add</paper-button>
-                      <paper-button on-click="close" disabled$="{{saving}}">Cancel</paper-button>
-                  </div>
+    </template> <!-- Saved Annotation -->
 
-              </template>
+    <!-- New Annotations --> <template is="dom-if" if="{{annotation.new}}">
+
+      <div class$="{{containerClass('new', annotation, annotation.state)}}">
+          <div class="container-inner">
+
+              <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
+              <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
+              <markdown-text-area id="annotationTextArea"
+                                  class="issue"
+                                  value="{{text}}"
+                                  placeholder="Make a Comment"
+                                  preview-button-label="{{previewButtonLabel}}"></markdown-text-area>
+
+              <div class="actions layout horizontal">
+                  <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!text}}">{{previewButtonLabel}}</a>
+                  <span class="filler layout flex"></span>
+                  <a class="action" href="#" on-click="submitAnnotation" data-disabled$="{{savingDisabled(text, saving)}}">Add</a>
+                  <a class="action" href="#" on-click="close" data-disabled$="{{saving}}">Cancel</a>
+              </div>
+
 
           </div>
       </div>
 
-    </iron-collapse>
+    </template> <!-- New Annotations -->
 
     <api-request id="saveAnnotationRequest"
                  method="post"
@@ -75,7 +89,7 @@
           .container {
               box-sizing: border-box;
               padding:    0 18px;
-              @apply      --disable-selection;
+              @apply(--disable-selection);
           }
           .container-inner {
               box-sizing:       border-box;
@@ -84,7 +98,7 @@
               font-weight:      400;
               padding:          2px;
           }
-          .expanded .container-inner {
+          .expanded .container-inner, .new .container-inner {
               background-color: #f7f7f7;
           }
 
@@ -120,12 +134,18 @@
           }
           .header .count {
               font-size:     0.7em;
-              flex-grow:     2;
               text-align:    right;
               margin-left:   6px;
-              margin-right:  30px; /* Leave space for the controls */
+              margin-right:  6px;
               margin-bottom: 4px;
               white-space:   nowrap;
+          }
+          .header oj-reviewer-annotation-controls {
+              margin-bottom: 4px;
+          }
+
+          .collapsed .header {
+              overflow: hidden;
           }
 
           .issue {
@@ -135,64 +155,34 @@
               font-weight: 400;
 
               cursor:     pointer;
-              padding:     0 4px 4px 4px;
               min-height:  25px;
           }
-
-          .collapsed .header {
-              overflow: hidden;
-          }
-
           .collapsed .issue {
               height: 25px;
           }
-          .collapsed .issue::shadow #renderedContent {
-              @apply --ellipses;
-          }
 
-          :host .container /deep/ paper-button {
-              padding-top:    0;
-              padding-bottom: 0;
-              margin:         4px 0 0 4px;
-              color:          rgb(120, 120, 120);
-              border:         1px solid rgb(120, 120, 120);
-              box-shadow:     0 4px 0 0 rgba(218, 218, 218, 0.3);
-              height:         28px;
-              line-height:    11px;
+          .actions {
+              line-height:     18px;
           }
-          :host .container /deep/ paper-button iron-icon {
-              width:         16px;
-              height:        16px;
-              padding:       0;
-              margin:        -8px 4px 8px;
+          .action {
+              text-decoration: underline;
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
+              margin-right:    4px;
+              margin-left:     4px;
           }
-          :host .container /deep/ paper-button:not([disabled]):hover, paper-button:not([disabled]):active {
-              color:        rgb( 90,  90,  90);
-              border-color: rgb( 90,  90,  90);
+          .action:first-child {
+              margin-left:     4px;
           }
-          :host .container /deep/ paper-button[disabled] {
-              border-color:  rgb(200,200,200);
-              color:         rgb(200,200,200);
-          }
-
-          oj-reviewer-annotation-controls {
-              position: absolute;
-              top:      7px;
-              right:    20px;
+          .action[data-disabled] {
+              text-decoration: none;
+              color:           #b0b0b0;
+              cursor:          default;
           }
 
           markdown-text-area {
               width: 100%;
-          }
-          markdown-text-area::shadow a.toggle {
-              bottom:         -45px;
-              right:          154px;
-              font-size:      12px;
-              color:          #888;
-              text-transform: capitalize;
-          }
-          markdown-text-area::shadow markdown-content::shadow #renderedContent {
-              padding: 4px;
           }
 
       </style>
@@ -222,6 +212,9 @@
         },
         saving: {
             notify: true
+        },
+        previewButtonLabel: {
+            notify : true
         }
       },
 
@@ -232,7 +225,7 @@
       ready: function() {
         if (this.annotation && this.annotation.new) {
           var component = this;
-          this.async(function () {
+                    this.async(function () {
               var edit = component.$$('#annotationTextArea');
               edit.focus();
               edit.select();
@@ -242,19 +235,21 @@
 
       /**** API *****/
 
-      close: function() {
+      close: function(event) {
+          if (event)
+            event.preventDefault();
+          if (this.saving)
+              return;
           this.collapse();
       },
 
       showNewResponse: function() {
-          this.$.comments.showNewComment();
+          this.$$('#comments').showNewComment();
       },
 
       scrollAnnotationIntoView: function(prioritize_top) {
         if (!this.annotation.open)
           return;
-
-        console.log('scrollIntoView', prioritize_top);
 
         var list = this.offsetParent;
         if (list.tagName != 'OJ-ANNOTATION-LIST')
@@ -265,11 +260,8 @@
 
         var spacing = 10; /*px*/
         var top = this.offsetTop;
-        var height = this.$.collapsible.offsetHeight;
+        var height = this.$$('#collapsible').offsetHeight;
         top = top + list.offsetTop;
-
-        console.log('tops', this.offsetTop, list.offsetTop, top, container.scrollTop, container.offsetTop);
-        console.log('heights', height, container.offsetHeight);
 
         var newTop;
         if (prioritize_top && top < container.scrollTop) {
@@ -285,8 +277,9 @@
 
         }
 
-        if (newTop !== undefined)
-          $(container).animate({ scrollTop: newTop }, 500);
+        if (newTop)
+            if (Math.abs(newTop-container.scrollTop) > 5) // Avoid irritating small changes
+                $(container).animate({ scrollTop: newTop }, 500);
       },
 
       /***********************/
@@ -340,19 +333,30 @@
         this.fire('annotation-opened', this);
       },
 
-      submitAnnotation: function() {
-        if (this.$.saveAnnotationRequest.loading)
-          return;
-        if (!this.text)
-          return;
+      togglePreview: function(event) {
+          event.preventDefault();
+          if (!this.text)
+              return;
+
+          this.$$('markdown-text-area').togglePreview();
+      },
+
+      submitAnnotation: function(event) {
+        event.preventDefault();
+        if (this.savingDisabled(this.text, this.saving))
+            return;
+
         this.set('$.saveAnnotationRequest.data', this.annotationData());
-        this.$.saveAnnotationRequest.go();
+        this.$$('#saveAnnotationRequest').go();
       },
 
       annotationSaved: function(event, response) {
-        this.annotation = response;
+        $.extend(this.annotation, response);
+        this.annotation.new = false;
+        this.notifyPath('annotation.new');
+        this.notifyPath('annotation.state');
+        this.notifyPath('annotation.assignment');
         this.fire('annotation-added', this.annotation);
-        this.fire('notification', 'Annotation saved.');
         this.text = '';
         this.close();
       },
@@ -380,7 +384,7 @@
         return 'container state-' + annotation.state + ' ' + mode;
       },
 
-        disableSaving: function(text, saving) {
+      savingDisabled: function(text, saving) {
         return !text || saving;
       },
 

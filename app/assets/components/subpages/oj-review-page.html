@@ -214,14 +214,17 @@
 
       paperChanged: function() {
         if (this.paper) {
+          //Rework these settings into their own context object
           var current_user_sha = this.currentUser && this.currentUser.sha;
           this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a, i) {
             return a.user && a.user.sha == current_user_sha;
           }));
-          this.set('paper.current_role', this.paper.current_assignment && this.paper.current_assignment.role || 'none');
           this.set('paper.can_view_annotations', this.paper.current_assignment   && this.paper.state != 'submitted'   );
           this.set('paper.can_edit_annotations', this.paper.can_view_annotations && this.paper.state == 'under_review');
-          this.fire('route-changed', this.menuSectionForRole(this.paper.current_role));
+
+          var best_role_match = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
+          var menu_highlight  = this.menuSectionForRole(best_role_match);
+          this.fire('route-changed', menu_highlight);
         }
       },
 
@@ -254,7 +257,7 @@
       },
 
       pageClicked: function(event, position) {
-        console.log('pageClicked:', position);
+        // console.log('pageClicked:', position);
         var annotation = this.newAnnotation(position);
         this.addAnnotation(annotation);
       },

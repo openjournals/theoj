@@ -3,12 +3,15 @@
   <template>
 
       <div class="tools">
-          <paper-icon-button id="resolve"
-                             icon="icons:check-circle"
-                             name="Resolve"
-                             title="Resolved"
-                             disabled$="{{isResolved(annotation, annotation.state)}}"
-                             on-click="resolveState"></paper-icon-button>
+
+          <template is="dom-if" if="{{isResolved(annotation, annotation.state)}}">
+              <span class="state">Resolved</span>
+          </template>
+
+          <template is="dom-if" if="{{canResolve(paper, annotation, annotation.state)}}">
+              <a class="action" href="#" on-click="resolveAnnotation">Resolve</a>
+          </template>
+
       </div>
 
       <api-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></api-request>
@@ -16,31 +19,20 @@
       <style>
 
           :host{
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
           }
 
-          paper-icon-button {
-              padding: 2px;
+          .action {
+              text-decoration: underline;
+              margin-right:    4px;
+              margin-left:     4px;
           }
 
-          paper-icon-button {
-              width:        24px;
-              height:       24px;
-
-              stroke-width: 1px;
-              --iron-icon-fill-color:   white;
-              --iron-icon-stroke-color: currentcolor;
-
-              --paper-icon-button: {
-                  color:        black;
-              };
-              --paper-icon-button-hover: {
-                  color:        #54d1b8;
-                  stroke-width: 2px;
-              };
-          }
-          paper-icon-button[disabled] {
-              --iron-icon-fill-color:   transparent;
-              --iron-icon-stroke-color: #808080;
+          .state {
+              margin-right:    4px;
+              margin-left:     4px;
           }
 
       </style>
@@ -72,7 +64,8 @@
         enabled ? Polymer.dom(this).removeAttribute('hidden') : Polymer.dom(this).setAttribute('hidden', '');
       },
 
-      resolveState: function(event) {
+      resolveAnnotation: function(event) {
+        event.stopPropagation();
         event.preventDefault();
         this.changeState('resolve');
       },
@@ -86,12 +79,15 @@
       putStateChangeSuccess: function (event, response) {
         $.extend(this.annotation, response);
         this.notifyPath('annotation.state');
-        this.$.resolve.updateStyles();
         this.fire('annotation-changed', response);
       },
 
       isResolved: function (annotation) {
         return annotation.state == 'resolved';
+      },
+
+      canResolve: function(paper, annotation) {
+          return !this.isResolved(annotation) &&  this.hasRole(this.paper, 'editor');
       },
 
       behaviors: [

@@ -66,6 +66,17 @@
                 default:
                     return '';
             }
+        },
+
+        dbgString: function(x) {
+            if (x===undefined)
+                return '[undefined]';
+            else if (x===null)
+                return '[null]';
+            else if (x.toString)
+                return x.toString();
+            else
+                return x;
         }
 
     };
