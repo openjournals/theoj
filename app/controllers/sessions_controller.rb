@@ -1,6 +1,7 @@
 require 'open-uri'
 
 class SessionsController < ApplicationController
+
   def new
   end
 
@@ -38,11 +39,15 @@ class SessionsController < ApplicationController
   def auth_hash
     request.env['omniauth.auth']
   end
-  
+
+  #@todo refactor this into a class
   def orcid_name_for(orcid_id)
-    data = JSON.parse(open("https://pub.orcid.org/v1.1/#{orcid_id}/orcid-bio", "Accept" => "application/orcid+json").read)
+    uri  = "https://pub.orcid.org/v1.1/#{orcid_id}/orcid-bio"
+    logger.debug("URI: #{uri.inspect}")
+    raw  = open(uri, "Accept" => 'application/orcid+json') { |f| f.read }
+    data = JSON.parse(raw)
     given_name = data['orcid-profile']['orcid-bio']['personal-details']['given-names']['value']
-    surname = data['orcid-profile']['orcid-bio']['personal-details']['family-name']['value']
+    surname    = data['orcid-profile']['orcid-bio']['personal-details']['family-name']['value']
     
     "#{given_name} #{surname}"
   end

@@ -29,7 +29,7 @@
                        on-annotation-opened="annotationOpened"
                        on-annotation-closed="annotationClosed"
                        on-annotation-added="annotationAdded"
-                       style$="{{_computeStyle(a, a.list_top)}}"></oj-annotation>
+                       style$="{{_computeStyle(a, a.list_top, a.open)}}"></oj-annotation>
       </template>
 
     </div>
@@ -50,7 +50,7 @@
         },
         annotationVerticalShift: {  /* Annotations are shifted up this much, about half the header height */
           type:  Number,
-          value: 15
+          value: 5
         },
         collapsedAnnotationHeight: {
           type:  Number,
@@ -185,7 +185,8 @@
       _computeStyle: function (annotation) {
         return this.styleObject({
             top:     annotation.list_top,
-            display: 'block'
+            display: 'block',
+            zIndex:  annotation.open ? 1000 : 1
         });
       },
 

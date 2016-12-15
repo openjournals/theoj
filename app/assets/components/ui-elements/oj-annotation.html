@@ -2,88 +2,83 @@
 
   <template>
 
-    <!-- Saved Annotation --> <template is="dom-if" if="{{!annotation.new}}">
+      <div id='container' class$="{{containerClass(annotation.open, transitioning)}}">
 
-        <!-- Collapsed Display -->
+          <div class="container-inner" on-tap="toggle" >
 
-        <div class$="{{containerClass('collapsed', annotation, annotation.state)}}">
-
-            <div class="container-inner">
-
-              <div on-tap="expand" class="header">
-                  <div class="text">{{headerDisplay(annotation.body, annotation.assignment, paper)}}</div>
-                  <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
-                  <div class="filler layout flex"></div>
-                  <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
-                  <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
-              </div>
-
-            </div>
-        </div>
-
-        <!-- Expanded Display -->
-        <!-- Overlay this to get animated expansion to work nicely -->
-
-        <iron-collapse id="collapsible" opened="{{annotation.open}}" on-iron-resize="annotationAfterOpen">
-          <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
-
-          <div class$="{{containerClass('expanded', annotation, annotation.state)}}">
-              <div class="container-inner" on-tap="collapse" >
-
+              <!-- Header, only for existing annotations -->
+              <template is="dom-if" if="{{!annotation.new}}">
                   <div class="header">
+
+                    <template is="dom-if" if="{{!annotation.open}}">
+                      <div class="text">{{headerDisplay(annotation.body, annotation.assignment, paper)}}</div>
+                      <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
+                      <div class="filler layout flex"></div>
+                      <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
+                    </template>
+
+                    <template is="dom-if" if="{{annotation.open}}">
                       <div class="text">{{author}}</div>
                       <div class="date">{{dateDisplay(annotation)}}</div>
                       <div class="filler layout flex"></div>
-                      <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+                    </template>
+
+                    <oj-reviewer-annotation-controls paper="{{paper}}"
+                                                     annotation="{{annotation}}"></oj-reviewer-annotation-controls>
                   </div>
+              </template>
 
-                  <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
+              <!-- Expanded Display -->
 
-                  <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}"
-                                                  on-new-response-shown="newResponseShown"></oj-annotation-comments>
+              <iron-collapse id="collapsible" opened="{{annotation.open}}" transitioning="{{transitioning}}" on-iron-resize="annotationAfterOpen">
 
-              </div>
+                  <!-- Existing Annotations -->
+                  <template is="dom-if" if="{{!annotation.new}}">
+                      <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
+                      <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
+                      <oj-annotation-comments id="comments"
+                                               paper="{{paper}}"
+                                               annotation="{{annotation}}"
+                                               on-new-response-shown="newResponseShown"></oj-annotation-comments>
+                  </template>
+
+                  <!-- New Annotations -->
+                  <template is="dom-if" if="{{annotation.new}}">
+
+                      <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
+                      <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
+
+                      <markdown-text-area id="annotationTextArea"
+                                          class="issue"
+                                          value="{{text}}"
+                                          placeholder="Make a Comment"
+                                          preview-button-label="{{previewButtonLabel}}"></markdown-text-area>
+
+                      <div class="actions layout horizontal">
+                          <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!text}}">{{previewButtonLabel}}</a>
+                          <span class="filler layout flex"></span>
+                          <a class="action" href="#" on-click="submitAnnotation" data-disabled$="{{savingDisabled(text, saving)}}">Add</a>
+                          <a class="action" href="#" on-click="close" data-disabled$="{{saving}}">Cancel</a>
+                      </div>
+
+                  </template>
+
+              </iron-collapse>
+
           </div>
 
-        </iron-collapse>
-
-    </template> <!-- Saved Annotation -->
-
-    <!-- New Annotations --> <template is="dom-if" if="{{annotation.new}}">
-
-      <div class$="{{containerClass('new', annotation, annotation.state)}}">
-          <div class="container-inner">
-
-              <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
-              <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
-              <markdown-text-area id="annotationTextArea"
-                                  class="issue"
-                                  value="{{text}}"
-                                  placeholder="Make a Comment"
-                                  preview-button-label="{{previewButtonLabel}}"></markdown-text-area>
-
-              <div class="actions layout horizontal">
-                  <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!text}}">{{previewButtonLabel}}</a>
-                  <span class="filler layout flex"></span>
-                  <a class="action" href="#" on-click="submitAnnotation" data-disabled$="{{savingDisabled(text, saving)}}">Add</a>
-                  <a class="action" href="#" on-click="close" data-disabled$="{{saving}}">Cancel</a>
-              </div>
-
-
-          </div>
       </div>
 
-    </template> <!-- New Annotations -->
-
-    <api-request id="saveAnnotationRequest"
-                 method="post"
-                 loading="{{saving}}"
-                 api="{{paperAnnotationsApi(paper)}}"
-                 on-success="annotationSaved"
-                 on-error="annotationError"></api-request>
+      <api-request id="saveAnnotationRequest"
+                   method="post"
+                   loading="{{saving}}"
+                   api="{{paperAnnotationsApi(paper)}}"
+                   on-success="annotationSaved"
+                   on-error="annotationError"></api-request>
 
       <style>
           :host{
+              cursor:      default;
           }
 
           .container {
@@ -98,21 +93,21 @@
               font-weight:      400;
               padding:          2px;
           }
-          .expanded .container-inner, .new .container-inner {
-              background-color: #f7f7f7;
+          .open .container-inner, .transitioning .container-inner {
+              box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
           }
 
+
           iron-collapse {
-              position: absolute;
-              top:      0;
-              left:     0;
-              right:    0;
-              z-index:  1;
+              background-color: #f7f7f7;
           }
 
           .header {
               @apply(--layout-horizontal);
               @apply(--layout-end);
+          }
+          .open .header, .transitioning .header {
+              background: #f7f7f7;
           }
 
           .header .text {
@@ -144,21 +139,13 @@
               margin-bottom: 4px;
           }
 
-          .collapsed .header {
-              overflow: hidden;
-          }
-
           .issue {
               font-family: Roboto;
               color:       black;
               font-size:   14px;/* Approximation due to font substitution */
               font-weight: 400;
 
-              cursor:     pointer;
               min-height:  25px;
-          }
-          .collapsed .issue {
-              height: 25px;
           }
 
           .actions {
@@ -213,6 +200,9 @@
         saving: {
             notify: true
         },
+        transitioning: {
+            type:   Boolean
+        },
         previewButtonLabel: {
             notify : true
         }
@@ -260,7 +250,7 @@
 
         var spacing = 10; /*px*/
         var top = this.offsetTop;
-        var height = this.$$('#collapsible').offsetHeight;
+        var height = this.offsetHeight;
         top = top + list.offsetTop;
 
         var newTop;
@@ -333,6 +323,16 @@
         this.fire('annotation-opened', this);
       },
 
+      toggle: function() {
+          if (this.annotation.new)
+              return;
+
+          if (this.annotation.open)
+              this.collapse();
+          else
+              this.expand();
+      },
+
       togglePreview: function(event) {
           event.preventDefault();
           if (!this.text)
@@ -346,8 +346,8 @@
         if (this.savingDisabled(this.text, this.saving))
             return;
 
-        this.set('$.saveAnnotationRequest.data', this.annotationData());
-        this.$$('#saveAnnotationRequest').go();
+        this.$.saveAnnotationRequest.data = this.annotationData();
+        this.$.saveAnnotationRequest.go();
       },
 
       annotationSaved: function(event, response) {
@@ -380,12 +380,14 @@
         return Oj.paperHelpers.assignmentFromSha(paper, assignment);
       },
 
-      containerClass: function(mode, annotation, state) {
-        return 'container state-' + annotation.state + ' ' + mode;
-      },
-
       savingDisabled: function(text, saving) {
         return !text || saving;
+      },
+
+      containerClass: function() {
+         return 'container' + (this.transitioning    ? ' transitioning' : '') +
+                              (this.annotation.open  ? ' open'          : '') +
+                              (this.annotation.new   ? ' new'           : '');
       },
 
       behaviors: [
