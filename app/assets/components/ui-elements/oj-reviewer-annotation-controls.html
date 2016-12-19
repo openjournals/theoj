@@ -65,9 +65,8 @@
       },
 
       resolveAnnotation: function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        this.changeState('resolve');
+          Oj.globalExpressions.ignoreEvent(event);
+          this.changeState('resolve');
       },
 
       changeState: function (newState) {

@@ -57,8 +57,7 @@
       },
 
       annotationClicked: function(event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
+        Oj.globalExpressions.ignoreEvent(event);
         this.set('annotation.open', true);
       },
 

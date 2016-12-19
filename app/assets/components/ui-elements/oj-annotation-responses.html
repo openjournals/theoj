@@ -82,8 +82,7 @@
       /***** API *******/
 
       showNewResponse: function(event) {
-          event && event.preventDefault();
-          event &&  event.stopPropagation();
+          Oj.globalExpressions.ignoreEvent(event);
           this.$.newResponse.show();
       },
 

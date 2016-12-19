@@ -4,7 +4,7 @@
   <template>
 
       <template is="dom-if" if="{{visible}}">
-          <div on-click="ignoreClicks">
+          <div on-click="ignoreEvent">
 
               <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
               <iron-a11y-keys keys="shift+enter" on-keys-pressed="submit"></iron-a11y-keys>
@@ -105,14 +105,12 @@
       },
 
       close: function(event) {
-        event && event.preventDefault();
-        event &&  event.stopPropagation();
-        this.visible = false;
+          Oj.globalExpressions.ignoreEvent(event);
+          this.visible = false;
       },
 
       submit: function(event) {
-          event && event.preventDefault();
-          event &&  event.stopPropagation();
+          Oj.globalExpressions.ignoreEvent(event);
 
           if (this.$.newResponseRequest.loading)
               return;
@@ -124,17 +122,11 @@
       },
 
       togglePreview: function(event) {
-          event && event.preventDefault();
-          event &&  event.stopPropagation();
+          Oj.globalExpressions.ignoreEvent(event);
           if (!this.text)
               return;
 
           this.$$('markdown-text-area').togglePreview();
-      },
-
-      ignoreClicks: function(event) {
-          event && event.preventDefault();
-          event &&  event.stopPropagation();
       },
 
       responseParams: function() {
@@ -162,6 +154,7 @@
       },
 
       behaviors: [
+        Oj.globalExpressions,
         Oj.api
       ]
 

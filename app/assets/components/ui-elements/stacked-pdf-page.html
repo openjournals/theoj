@@ -154,10 +154,9 @@
       },
 
       annotationClicked: function (event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
-        var annotation = event.target.templateInstance.model.annotation;
-        annotation.open = true;
+          Oj.globalExpressions.ignoreEvent(event);
+          var annotation = event.target.templateInstance.model.annotation;
+          annotation.open = true;
       },
 
       render: function (pageContent) {
