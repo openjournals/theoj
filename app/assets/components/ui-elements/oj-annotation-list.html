@@ -29,7 +29,7 @@
                        on-annotation-opened="annotationOpened"
                        on-annotation-closed="annotationClosed"
                        on-annotation-added="annotationAdded"
-                       style$="{{_computeStyle(a, a.list_top, a.open)}}"></oj-annotation>
+                       style$="{{annotationStyle(a, a.list_top, a.open)}}"></oj-annotation>
       </template>
 
     </div>
@@ -182,7 +182,7 @@
         });
       },
 
-      _computeStyle: function (annotation) {
+      annotationStyle: function (annotation) {
         return this.styleObject({
             top:     annotation.list_top,
             display: 'block',

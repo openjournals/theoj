@@ -12,10 +12,11 @@
           </div>
       </template>
 
-      <oj-annotation-respoonse-new id="newResponse"
-                                   paper="[[paper]]"
-                                   annotation="[[annotation]]"
-                                   visible="{{newAnnotationVisible}}"></oj-annotation-respoonse-new>
+      <oj-annotation-response-new id="newResponse"
+                                  paper="[[paper]]"
+                                  annotation="[[annotation]]"
+                                  visible="{{newResponseVisible}}"
+                                  on-response-added="responseAdded"></oj-annotation-response-new>
 
       <template is="dom-if" if="{{showActions(newResponseVisible, paper)}}">
           <div class="actions layout horizontal">
@@ -80,8 +81,15 @@
 
       /***** API *******/
 
-      showNewResponse: function() {
+      showNewResponse: function(event) {
+          event && event.preventDefault();
+          event &&  event.stopPropagation();
           this.$.newResponse.show();
+      },
+
+      responseAdded: function(event, response) {
+          this.push('annotation.responses', response);
+          this.fire('notification', 'Reply saved');
       },
 
       showActions: function(newResponseVisible, paper) {
