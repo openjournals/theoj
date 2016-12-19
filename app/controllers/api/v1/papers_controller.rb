@@ -156,7 +156,7 @@ class Api::V1::PapersController < Api::V1::ApplicationController
   end
 
   def recent
-    respond_with_papers Paper.recent.accepted
+    respond_with_papers Paper.recent.published
   end
 
   def search

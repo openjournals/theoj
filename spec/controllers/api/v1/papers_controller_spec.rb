@@ -761,23 +761,24 @@ describe Api::V1::PapersController do
   shared_examples_for "#recent" do |action_name|
 
     it "should return papers" do
+      puts ">> #{action_name}"
       user1 = authenticate
       user2 = create(:user)
-      create(:paper, :accepted, submittor:user1)
-      create(:paper, :accepted, submittor:user2)
+      create(:paper, :published, submittor:user1)
+      create(:paper, :published, submittor:user2)
 
       get action_name
 
       expect(response).to have_http_status(:success)
-      expect(response_json.size).to be(2)
+      expect(response_json.size).to eq(2)
     end
 
     it "should return papers even if you are not authenticated" do
       user1 = create(:user)
       user2 = create(:user)
       not_authenticated!
-      create(:paper, :accepted, submittor:user1)
-      create(:paper, :accepted, submittor:user2)
+      create(:paper, :published, submittor:user1)
+      create(:paper, :published, submittor:user2)
 
       get action_name
 
@@ -785,21 +786,24 @@ describe Api::V1::PapersController do
       expect(response_json.size).to be(2)
     end
 
-    it "should only return accepted papers" do
-      p1 = create(:paper, :accepted)       # should be returned
+    it "should only return published papers" do
+      p1 = create(:paper, :submitted)       # should not be returned
       p2 = create(:paper, :under_review)   # should not be returned
-      p3 = create(:paper, :rejected)       # should not be returned
+      p3 = create(:paper, :review_completed)   # should not be returned
+      p4 = create(:paper, :accepted)       # should not be returned
+      p5 = create(:paper, :published)
 
       get action_name
 
       expect(response).to have_http_status(:success)
       expect(response_json.size).to be(1)
-      expect(response_json.first['typed_provider_id']).to eq(p1.typed_provider_id)
+      expect(response_json.first['typed_provider_id']).to eq(p5.typed_provider_id)
     end
 
     it "should not return inactive papers" do
-      p1 = create(:paper, :accepted)   # should be returned
+      p1 = create(:paper, :published)
       p2 = create(:paper, :superceded) # should not be returned
+      p3 = create(:paper, :rejected)   # should not be returned
 
       get action_name
 
