@@ -11,14 +11,14 @@
                   <div class="header">
 
                     <template is="dom-if" if="{{!annotation.open}}">
-                      <div class="text">{{headerDisplay(annotation.body, annotation.assignment, paper)}}</div>
+                      <div class="text">{{headerDisplay(paper, annotation.assignment, annotation.body)}}</div>
                       <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
                       <div class="filler layout flex"></div>
                       <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
                     </template>
 
                     <template is="dom-if" if="{{annotation.open}}">
-                      <div class="text">{{author}}</div>
+                      <div class="text">{{authorOrRoleFor(paper, annotation.assignment)}}</div>
                       <div class="date">{{dateDisplay(annotation)}}</div>
                       <div class="filler layout flex"></div>
                     </template>
@@ -188,9 +188,6 @@
         paper: {
             notify: true
         },
-        author: {
-            computed: 'authorFor(paper, annotation.assignment)'
-        },
         firstLine: {
             computed: 'getFirstLine(annotation.body)'
         },
@@ -270,8 +267,8 @@
 
       /***********************/
 
-      headerDisplay: function(assignment) {
-          return this.author || this.firstLine;
+      headerDisplay: function(paper, assignment, body) {
+          return this.authorFor(this.paper, assignment, false) || this.firstLine;
       },
 
       latestDateDisplay: function() {

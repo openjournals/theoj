@@ -4,7 +4,7 @@
   <template>
 
     <div class="header">
-          <div class="text">{{author}}</div>
+          <div class="text">{{authorOrRoleFor(paper, response.assignment)}}</div>
           <div class="date">{{dateDisplay(response)}}</div>
     </div>
 
@@ -53,9 +53,6 @@
         paper: {
         },
         response: {
-        },
-        author: {
-          computed: 'authorFor(paper, response.assignment)'
         }
       },
 
