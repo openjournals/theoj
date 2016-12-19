@@ -62,9 +62,22 @@
           this.successCallback(event, detail.response);
       },
       error: function (event, detail) {
-        this.fire('error', detail.request.xhr.responseText);
+        var text = this.errorText(detail);
+        this.fire('error', text);
         if (this.errorCallback)
-          this.errorCallback(event, detail.request.xhr.responseText);
+          this.errorCallback(event, text);
+      },
+
+      errorText: function(detail) {
+          // For some reason accessing responseText throws an error (Firefox)
+          var responseText;
+          try {
+              responseText = detail.request.xhr.responseText;
+          } catch(ex) {
+              responseText = null;
+          }
+
+          return responseText || detail.error;
       },
 
       apiUrl: function(api) {
