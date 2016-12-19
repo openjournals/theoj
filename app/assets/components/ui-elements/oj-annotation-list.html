@@ -69,6 +69,10 @@
         }
       },
 
+      listeners: {
+         'click': 'click'
+      },
+
       observers: [
         'annotationsChanged(annotations.*)'
       ],
@@ -155,6 +159,13 @@
           var t = this.firstPageOffset + this.pageHeight * page_no + this.pageSpacing * (page_no - 1) + y;
           return Math.max(t, 0);
         }
+      },
+
+      click: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+          event = Polymer.dom(event);
+          if (event.rootTarget==this)
+            this.collapseAnnotations();
       },
 
       annotationOpened: function (event, element) {
