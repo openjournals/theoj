@@ -1,0 +1,79 @@
+
+<dom-module id="oj-annotation-response">
+
+  <template>
+
+    <div class="header">
+          <div class="text">{{author}}</div>
+          <div class="date">{{dateDisplay(response)}}</div>
+    </div>
+
+    <markdown-content markdown="{{response.body}}"></markdown-content>
+
+  </template>
+
+      <style>
+
+          .header {
+              @apply(--layout-horizontal);
+              @apply(--layout-end);
+          }
+
+          .header .text {
+              font-family: Neuton;
+              color:         #192023;
+              font-size:     16px;/* Approximation due to font substitution */
+              font-weight:   700;
+              line-height:   14px;
+              @apply(--ellipses);
+          }
+          .header .date {
+              font-family: Roboto;
+              color:         #b3b3b3;
+              font-size:     12px;/* Approximation due to font substitution */
+              font-style:    italic;
+              margin-bottom: -3px;
+              margin-left:   6px;
+              white-space:   nowrap;
+          }
+
+          markdown-text-area {
+              width: 100%;
+          }
+
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-annotation-response',
+
+      properties: {
+        paper: {
+        },
+        response: {
+        },
+        author: {
+          computed: 'authorFor(paper, response.assignment)'
+        }
+      },
+
+
+      dateDisplay: function() {
+        if (!this.response)
+            return null;
+        var date = this.response.created_at;
+        return this.shortDateString(date);
+      },
+
+      behaviors: [
+        Oj.paperHelpers,
+        Oj.utils,
+        Oj.globalExpressions
+      ]
+
+    });
+
+  </script>
+</dom-module>

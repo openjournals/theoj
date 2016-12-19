@@ -80,17 +80,6 @@ body /deep/ {
 
   }
 
-  oj-user-label {
-
-      @each $role, $color in $oj-paper-roles-fg {
-        &.role-#{$role} {
-          border-top-color: $color;
-          background-color: $color !important;
-        }
-      }
-
-  }
-
   oj-user-tag {
 
     @each $role, $color in $oj-paper-roles-fg {

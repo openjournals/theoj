@@ -1,0 +1,94 @@
+
+<dom-module id="oj-annotation-responses">
+
+  <template>
+
+      <template is="dom-if" if="{{annotation.responses.length}}">
+          <div class="responses">
+              <template is="dom-repeat" items="{{annotation.responses}}" as="response">
+                  <oj-annotation-response paper="[[paper]]"
+                                          response="[[response]]"></oj-annotation-response>
+              </template>
+          </div>
+      </template>
+
+      <oj-annotation-respoonse-new id="newResponse"
+                                   paper="[[paper]]"
+                                   annotation="[[annotation]]"
+                                   visible="{{newAnnotationVisible}}"></oj-annotation-respoonse-new>
+
+      <template is="dom-if" if="{{showActions(newResponseVisible, paper)}}">
+          <div class="actions layout horizontal">
+              <span class="filler layout flex"></span>
+              <a class="action" href="#" on-click="showNewResponse">Reply</a>
+          </div>
+      </template>
+
+      <style>
+
+          :host {
+              display:     block;
+              margin-left: 18px;
+          }
+          .responses {
+              box-sizing: border-box;
+              padding:     0;
+              font-size:   0.9em;
+          }
+
+          oj-annotation-response, oj-annotation-respoonse-new {
+              margin-top: 6px;
+          }
+
+          .actions {
+              line-height:     18px;
+          }
+          .action {
+              text-decoration: underline;
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
+              margin-right:    4px;
+              margin-left:     4px;
+          }
+          .action[data-disabled] {
+              text-decoration: none;
+              color:           #b0b0b0;
+              cursor:          default;
+          }
+
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-annotation-responses',
+
+      properties: {
+        paper: {
+            notify: true
+        },
+        annotation: {
+            notify: true
+        },
+        newResponseVisible: {
+            type: Boolean,
+            value: false
+        }
+      },
+
+      /***** API *******/
+
+      showNewResponse: function() {
+          this.$.newResponse.show();
+      },
+
+      showActions: function(newResponseVisible, paper) {
+        return !newResponseVisible && paper.can_edit_annotations;
+      }
+
+    });
+
+  </script>
+</dom-module>

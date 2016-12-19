@@ -36,10 +36,10 @@
                   <template is="dom-if" if="{{!annotation.new}}">
                       <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
                       <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
-                      <oj-annotation-comments id="comments"
+                      <oj-annotation-responses id="responses"
                                                paper="{{paper}}"
                                                annotation="{{annotation}}"
-                                               on-new-response-shown="newResponseShown"></oj-annotation-comments>
+                                               on-new-response-shown="newResponseShown"></oj-annotation-responses>
                   </template>
 
                   <!-- New Annotations -->
@@ -215,7 +215,7 @@
       ready: function() {
         if (this.annotation && this.annotation.new) {
           var component = this;
-                    this.async(function () {
+          this.async(function () {
               var edit = component.$$('#annotationTextArea');
               edit.focus();
               edit.select();
@@ -231,10 +231,6 @@
           if (this.saving)
               return;
           this.collapse();
-      },
-
-      showNewResponse: function() {
-          this.$$('#comments').showNewComment();
       },
 
       scrollAnnotationIntoView: function(prioritize_top) {
