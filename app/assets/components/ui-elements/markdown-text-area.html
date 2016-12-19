@@ -6,10 +6,10 @@
                         hidden$="{{!previewVisible}}"></markdown-content>
 
       <iron-autogrow-textarea id="autogrow"
-                              rows="3"
-                              maxrows="12"
+                              rows="[[rows]]"
+                              max-rows="[[maxRows]]"
                               placeholder="{{placeholder}}"
-                              value="{{value}}"
+                              bind-value="{{value}}"
                               hidden$="{{previewVisible}}"></iron-autogrow-textarea>
 
       <style>
@@ -73,6 +73,16 @@
         value: {
             notify:   true,
             observer: 'valueChanged'
+        },
+        rows: {
+            type:   Number,
+            value:  3,
+            notify: true
+        },
+        maxRows: {
+            type:   Number,
+            value:  3,
+            notify: true
         }
       },
 
@@ -111,7 +121,7 @@
       },
 
       valueChanged: function(value) {
-           var minHeight = this.$.autogrow.clientHeight;
+          var minHeight = this.$.autogrow.clientHeight;
           this.$.markdown.style.minHeight = minHeight + 'px';
       }
 

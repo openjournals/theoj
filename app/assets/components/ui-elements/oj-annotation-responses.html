@@ -15,15 +15,9 @@
       <oj-annotation-response-new id="newResponse"
                                   paper="[[paper]]"
                                   annotation="[[annotation]]"
+                                  hidden$="{{!paper.can_edit_annotations}}"
                                   visible="{{newResponseVisible}}"
                                   on-response-added="responseAdded"></oj-annotation-response-new>
-
-      <template is="dom-if" if="{{showActions(newResponseVisible, paper)}}">
-          <div class="actions layout horizontal">
-              <span class="filler layout flex"></span>
-              <a class="action" href="#" on-click="showNewResponse">Reply</a>
-          </div>
-      </template>
 
       <style>
 
@@ -72,27 +66,12 @@
         },
         annotation: {
             notify: true
-        },
-        newResponseVisible: {
-            type: Boolean,
-            value: false
         }
-      },
-
-      /***** API *******/
-
-      showNewResponse: function(event) {
-          Oj.globalExpressions.ignoreEvent(event);
-          this.$.newResponse.show();
       },
 
       responseAdded: function(event, response) {
           this.push('annotation.responses', response);
           this.fire('notification', 'Reply saved');
-      },
-
-      showActions: function(newResponseVisible, paper) {
-        return !newResponseVisible && paper.can_edit_annotations;
       }
 
     });

@@ -3,28 +3,26 @@
 
   <template>
 
-      <template is="dom-if" if="{{visible}}">
-          <div on-click="ignoreEvent">
+      <div on-click="ignoreEvent">
 
-              <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
-              <iron-a11y-keys keys="shift+enter" on-keys-pressed="submit"></iron-a11y-keys>
+          <iron-a11y-keys keys="esc" on-keys-pressed="reset"></iron-a11y-keys>
+          <iron-a11y-keys keys="shift+enter" on-keys-pressed="submit"></iron-a11y-keys>
 
-              <markdown-text-area id="responseTextArea"
-                                  class="response"
-                                  value="{{text}}"
-                                  preview-button-label="{{previewButtonLabel}}"
-                                  placeholder="Add a Reply"
-                                  value="{{text}}"></markdown-text-area>
+          <markdown-text-area id="responseTextArea"
+                              class="response"
+                              value="{{responseText}}"
+                              rows="2"
+                              preview-button-label="{{previewButtonLabel}}"
+                              placeholder="Add a Reply"></markdown-text-area>
 
-              <div class="actions layout horizontal">
-                  <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!text}}">{{previewButtonLabel}}</a>
-                  <span class="filler layout flex"></span>
-                  <a class="action" href="#" on-click="submit" data-disabled$="{{savingDisabled(text, saving)}}">Add</a>
-                  <a class="action" href="#" on-click="close" data-disabled$="{{saving}}">Cancel</a>
-              </div>
-
+          <div class="actions layout horizontal" hidden$="{{!actionsVisible}}">
+              <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!responseText}}">{{previewButtonLabel}}</a>
+              <span class="filler layout flex"></span>
+              <a class="action" href="#" on-click="submit" data-disabled$="{{savingDisabled(responseText, saving)}}">Add</a>
+              <a class="action" href="#" on-click="reset" data-disabled$="{{saving}}">Cancel</a>
           </div>
-      </template>
+
+      </div>
 
       <api-request id="newResponseRequest"
                    api="{{addIssueApi(paper)}}"
@@ -72,13 +70,14 @@
         },
         annotation: {
         },
-        text: {
-            type: String
+        responseText: {
+            value:    '',
+            type:     String,
+            observer: 'responseTextChanged'
         },
-        visible: {
+        actionsVisible: {
           type:   Boolean,
-          value:  false,
-          notify: true
+          value:  false
         },
         saving: {
           type: Boolean,
@@ -104,9 +103,10 @@
 
       },
 
-      close: function(event) {
+      reset: function(event) {
           Oj.globalExpressions.ignoreEvent(event);
-          this.visible = false;
+          this.responseText = '';
+          this.actionsVisible = false;
       },
 
       submit: function(event) {
@@ -114,7 +114,7 @@
 
           if (this.$.newResponseRequest.loading)
               return;
-          if (!this.text)
+          if (!this.responseText)
               return;
         
           this.$.newResponseRequest.data = this.responseParams();
@@ -123,7 +123,7 @@
 
       togglePreview: function(event) {
           Oj.globalExpressions.ignoreEvent(event);
-          if (!this.text)
+          if (!this.responseText)
               return;
 
           this.$$('markdown-text-area').togglePreview();
@@ -132,25 +132,28 @@
       responseParams: function() {
         return {
           annotation: {
-            body:      this.text,
+            body:      this.responseText,
             parent_id: this.annotation.id
           }
         };
       },
 
       responseSaved: function(event, response) {
-          console.log('response', response, this.response);
+          this.reset();
           this.fire('response-added', response);
-          this.text = '';
-          this.close();
       },
 
       responseError: function(event) {
           this.fire('notification', 'Error saving reply');
       },
 
-      savingDisabled: function(text, ajaxLoading) {
-        return !text || ajaxLoading;
+      responseTextChanged: function() {
+          if (this.responseText)
+              this.actionsVisible = true;
+      },
+
+      savingDisabled: function(responseText, ajaxLoading) {
+        return !responseText || ajaxLoading;
       },
 
       behaviors: [

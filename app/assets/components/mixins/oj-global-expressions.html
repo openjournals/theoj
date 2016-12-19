@@ -5,7 +5,10 @@
         MONTH_NAMES: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
 
         ignoreEvent: function(event) {
-            event && event.preventDefault() || event.stopPropagation();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         },
 
         isArray: function(obj) {
