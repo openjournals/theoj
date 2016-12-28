@@ -522,9 +522,27 @@ describe Paper do
     #   assert ability.can?(:update, paper)
     # end
 
-    it "should not allow a user to update their own paper" do
+    it "should allow a user to update their own paper" do
       user = create(:user)
       paper = create(:paper, :submitted, submittor:user)
+
+      ability = Ability.new(user, paper)
+
+      assert ability.can?(:update, paper)
+    end
+
+    it "should not allow a user to update their own paper if it is accepted" do
+      user = create(:user)
+      paper = create(:paper, :accepted, submittor:user)
+
+      ability = Ability.new(user, paper)
+
+      assert ability.cannot?(:update, paper)
+    end
+
+    it "should not allow a user to update their own paper if it is published" do
+      user = create(:user)
+      paper = create(:paper, :published, submittor:user)
 
       ability = Ability.new(user, paper)
 
@@ -559,10 +577,10 @@ describe Paper do
     end
 
     it "an editor can change the state of a paper" do
-      user  = create(:editor)
-      paper = create(:paper, :submitted, submittor:create(:user))
+      editor = create(:editor)
+      paper  = create(:paper, :submitted, submittor:create(:user), editor: editor)
 
-      ability = Ability.new(user, paper)
+      ability = Ability.new(editor, paper)
 
       expect(ability).to be_able_to(:start_review, paper)
     end

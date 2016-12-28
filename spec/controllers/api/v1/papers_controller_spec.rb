@@ -327,8 +327,8 @@ describe Api::V1::PapersController do
   describe "PUT #transition" do
 
     it "AS EDITOR responds successfully with a correct status and accept paper" do
-      authenticate(:editor)
-      paper = create(:paper, :review_completed)
+      editor = authenticate(:editor)
+      paper = create(:paper, :review_completed, editor: editor)
 
       put :transition, identifier:paper.typed_provider_id, transition: :accept
 
@@ -337,8 +337,8 @@ describe Api::V1::PapersController do
     end
 
     it "AS EDITOR responds with an unprocessable entity for an invalid transition" do
-      authenticate(:editor)
-      paper = create(:paper, :submitted)
+      editor = authenticate(:editor)
+      paper = create(:paper, :submitted, editor: editor)
 
       put :transition, identifier:paper.typed_provider_id, transition: :accept
 
@@ -761,7 +761,6 @@ describe Api::V1::PapersController do
   shared_examples_for "#recent" do |action_name|
 
     it "should return papers" do
-      puts ">> #{action_name}"
       user1 = authenticate
       user2 = create(:user)
       create(:paper, :published, submittor:user1)

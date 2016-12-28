@@ -87,7 +87,7 @@ class Api::V1::PapersController < Api::V1::ApplicationController
 
   def transition
     transition = params[:transition].to_sym
-    authorize! transition, paper
+    ability_with(current_user, paper).authorize! transition, paper
 
     if paper.aasm.may_fire_event?(transition)
       paper.send("#{transition.to_s}!")

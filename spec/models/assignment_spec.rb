@@ -27,7 +27,7 @@ describe Assignment do
   it "AS EDITOR: should be able to assign papers" do
     editor = create(:editor)
     reviewer = create(:user)
-    paper = create(:paper, :submitted)
+    paper = create(:paper, :submitted, editor: editor)
 
     ability = Ability.new(editor, paper)
     assert ability.can?(:create, Assignment.new(:paper => paper, :user => reviewer, :role => "reviewer"))
@@ -36,10 +36,10 @@ describe Assignment do
   it "AS EDITOR: should be able to delete paper assignments" do
     editor = create(:editor)
     reviewer = create(:user)
-    paper = create(:paper, :submitted)
+    paper = create(:paper, :submitted, editor: editor)
     assignment = create(:assignment, :reviewer, user:reviewer, paper:paper)
 
-    ability = Ability.new(editor)
+    ability = Ability.new(editor, paper)
 
     assert ability.can?(:destroy, assignment)
   end

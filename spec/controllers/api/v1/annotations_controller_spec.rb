@@ -112,10 +112,10 @@ describe Api::V1::AnnotationsController do
   shared_examples "a state change" do
 
     it "AS EDITOR responds successfully with a correct status and changed issue" do
-      authenticate(:editor)
-      user = create(:user)
+      editor = authenticate(:editor)
+      user   = create(:user)
 
-      paper = create(:paper, :under_review, submittor:user)
+      paper = create(:paper, :under_review, submittor:user, editor: editor)
       issue = create(:issue, initial_state.to_sym, paper:paper, user:user)
 
       put method, paper_identifier:paper.typed_provider_id, id:issue.id
