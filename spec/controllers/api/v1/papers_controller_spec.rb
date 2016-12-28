@@ -373,7 +373,7 @@ describe Api::V1::PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id, accept:'t'
+      post :complete, identifier:paper.typed_provider_id, result:'accept_with_minor'
 
       expect(response).to have_http_status(:success)
       expect(response_json["state"]).to eq("review_completed")
@@ -384,7 +384,7 @@ describe Api::V1::PapersController do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id, accept:'t'
+      post :complete, identifier:paper.typed_provider_id, result:'accept_with_major'
 
       expect(paper.reviewer_assignments.reload.first.completed).to be_truthy
     end
@@ -395,12 +395,15 @@ describe Api::V1::PapersController do
         user = authenticate
 
         paper = create(:paper, :under_review, reviewer:user)
-        post :complete, identifier:paper.typed_provider_id, accept:accept_value
-        expect(paper.reviewer_assignments.reload.first.reviewer_accept).to be(accept_value)
+        post :complete, identifier:paper.typed_provider_id, result: accept_value
+        expect(paper.reviewer_assignments.reload.first.reviewer_accept).to eq(accept_value)
+        expect(paper.reviewer_assignments.reload.first.completed).to be_truthy
       end
 
-      it "should work for true"  do test(true)  end
-      it "should work for false" do test(false) end
+      it "should work for accept"            do test('accept')            end
+      it "should work for accept_with_minor" do test('accept_with_minor') end
+      it "should work for accept_with_major" do test('accept_with_major') end
+      it "should work for reject"            do test('reject')            end
     end
 
     it "should fail if the user is not authorized" do
@@ -426,7 +429,7 @@ describe Api::V1::PapersController do
       user = authenticate
       paper = create(:paper, :submitted, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id, accept:true
+      post :complete, identifier:paper.typed_provider_id, result:'accept'
 
       expect(response).to have_http_status(:unprocessable_entity)
     end

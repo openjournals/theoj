@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161009043324) do
+ActiveRecord::Schema.define(version: 20161228023050) do
 
   create_table "annotations", force: :cascade do |t|
     t.integer  "assignment_id", limit: 4
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 20161009043324) do
     t.string   "sha",             limit: 255,                 null: false
     t.boolean  "public",          limit: 1,   default: false, null: false
     t.boolean  "completed",       limit: 1,   default: false, null: false
-    t.boolean  "reviewer_accept", limit: 1
+    t.string   "reviewer_accept", limit: 20
   end
 
   add_index "assignments", ["paper_id"], name: "index_assignment_paper_id", using: :btree

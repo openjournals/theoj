@@ -121,7 +121,7 @@ describe Assignment do
       user     = create(:user, name:'John Smith', email:'jsmith@example.com')
       editor   = set_paper_editor( create(:user, email:'editor@example.com') )
       reviewer = create(:user, email:'reviewer@example.com')
-      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1)
       original.add_assignee(reviewer)
       original.reload
       deliveries.clear
@@ -137,7 +137,7 @@ describe Assignment do
     it "sends the correct emails when a user is assigned after the paper is updated" do
       user     = create(:user, name:'John Smith', email:'jsmith@example.com')
       editor   = set_paper_editor( create(:user, email:'editor@example.com') )
-      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1)
       updated  = original.create_updated!(arxiv_doc)
       deliveries.clear
 

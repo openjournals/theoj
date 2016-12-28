@@ -101,9 +101,9 @@ class Api::V1::PapersController < Api::V1::ApplicationController
   def complete
     authorize! :complete, paper
 
-    render_error(:bad_request, 'accept parameter not supplied') if params[:accept].nil?
+    render_error(:bad_request, 'accept parameter not supplied') if params[:result].nil?
 
-    if paper.mark_review_completed!(current_user, params[:accept])
+    if paper.mark_review_completed!(current_user, params[:result])
       paper.assignments.reload
       render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
     else
