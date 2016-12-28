@@ -40,12 +40,16 @@
           }
 
           #notification {
-              border-radius:0;
+              border-radius: 0;
               padding-right: 60px;
-              position: fixed;
-              outline: none;
-              z-index: 24;
-              box-sizing: border-box;
+              position:      fixed;
+              outline:       none;
+              z-index:       24;
+              box-sizing:    border-box;
+              font-size:     20px;
+              font-weigth:   700;
+              --paper-toast-background-color: #a9ffe2;
+              --paper-toast-color:            black;
           }
 
       </style>
@@ -122,7 +126,7 @@
 
       showNotification: function (text) {
         console.info('Notification: ', text);
-        this.set('$.notification.text', text);
+        this.$.notification.text = text;
         this.$.notification.show();
       },
 
