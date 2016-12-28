@@ -20,27 +20,36 @@
             <div id="rhs">
 
                 <div id="rhs-tabs" hidden$="{{!paper.can_view_annotations}}">
-                    <div id="tab-info"  class$="{{tabClass('info',  activeTab)}}" title="Info"  on-tap="tabTap"></div>
-                    <div id="tab-edits" class$="{{tabClass('edits', activeTab)}}" title="Edits" on-tap="tabTap"></div>
+                    <div id="tab-info"  class$="{{tabClass('info',  activePane)}}" title="Info"  on-tap="tabTap"></div>
+                    <div id="tab-edits" class$="{{tabClass('edits', activePane)}}" title="Edits" on-tap="tabTap"></div>
                 </div>
 
-                <oj-review-paper-info hidden$="{{tabHidden('info', activeTab)}}"
-                                       user="{{currentUser}}"
-                                       paper="{{paper}}"
-                                       annotations="{{annotations}}">
-                      ></oj-review-paper-info>
+                <div id="panes">
 
-                <template is="dom-if" if="{{paper.can_view_annotations}}">
-                    <oj-annotation-list id="annotation_list"
-                                        hidden$="{{tabHidden('edits', activeTab)}}"
+                    <oj-review-paper-info hidden$="{{paneHidden('info', activePane)}}"
+                                          user="{{currentUser}}"
+                                          paper="{{paper}}"
+                                          annotations="{{annotations}}">
+                          ></oj-review-paper-info>
+
+                    <template is="dom-if" if="{{paper.can_view_annotations}}">
+                        <oj-annotation-list id="annotation_list"
+                                            hidden$="{{paneHidden('edits', activePane)}}"
+                                            paper="{{paper}}"
+                                            annotations="{{annotations}}"
+                                            first-page-offset="{{annotationFirstPageOffset}}"
+                                            page-height="{{pdfClientHeight}}"
+                                            page-spacing="{{pageSpacing}}"
+                                            on-annotation-changed="onChangeAnnotation"
+                                            on-annotation-opened="onAnnotationOpened"></oj-annotation-list>
+                    </template>
+
+                </div>
+
+                <oj-review-page-actions user="{{user}}"
                                         paper="{{paper}}"
-                                        annotations="{{annotations}}"
-                                        first-page-offset="{{annotationFirstPageOffset}}"
-                                        page-height="{{pdfClientHeight}}"
-                                        page-spacing="{{pageSpacing}}"
-                                        on-annotation-changed="onChangeAnnotation"
-                                        on-annotation-opened="onAnnotationOpened"></oj-annotation-list>
-                </template>
+                                        annotations="{{annotations}}" ></oj-review-page-actions>
+
             </div>
 
           </div>
@@ -58,9 +67,10 @@
       :host {
           @apply(--layout);
           @apply(--layout-fit);
-          background:  white;
-          font-family: Neuton;
-          color:       #192023;
+          background:   white;
+          font-family:  Neuton;
+          color:        #192023;
+          --panel-width: 505px;
       }
 
       #progress {
@@ -95,7 +105,7 @@
       #rhs {
           position:      relative;     /* So that we can extend annotation list to full height */
           box-sizing:    border-box;
-          width:         505px;
+          width:         var(--panel-width);
           height:        100%;
           left:          -3px;
           background:    #eeeeee;
@@ -149,27 +159,40 @@
           background-image: url(/assets/paper_edits-active.png)
       }
 
+      #panes {
+      }
+
       oj-review-paper-info, oj-annotation-list {
           box-sizing:    border-box;
           padding-right: 38px; /* Width of tabs */
           background:    #eeeeee;
       }
 
-      oj-review-paper-info {
+      oj-review-page-actions {
+          box-sizing:   border-box;
           position:     fixed;
-          width:         505px;
+          bottom:       0;
+          right:        0;
+          width:        var(--panel-width);
+          z-index:      1100;
+      }
+
+      oj-review-paper-info {
+          width:        var(--panel-width);
+          position:     fixed;
           height:       100%;
       }
 
       oj-annotation-list {
           position:   absolute;
           height:     100%;
-          width:      505px;
+          width:      var(--panel-width);
       }
 
       stacked-pdf-reader {
           overflow-y: visible;
       }
+
     </style>
 
   </template>
@@ -207,7 +230,7 @@
                          notify: true,
                          value:  20
                      },
-        activeTab:   {
+        activePane:  {
                          type:  String,
                          notify: true,
                          value:  'info'
@@ -252,7 +275,7 @@
 
       onAnnotationOpened: function(event, annotation) {
           if (this.paper.can_view_annotations)
-              this.activeTab = 'edits';
+              this.activePane = 'edits';
       },
 
       newAnnotation: function(properties) {
@@ -278,20 +301,20 @@
       addAnnotation: function(annotation) {
         if (this.paper.can_edit_annotations) {
           this.push('annotations', annotation);
-          this.activeTab = 'edits';
+          this.activePane = 'edits';
         }
       },
 
       tabClass: function(tabName) {
-          return tabName == this.activeTab ? 'active' : '';
+          return tabName == this.activePane ? 'active' : '';
       },
 
       tabTap: function(event, detail) {
-        this.activeTab = event.target.id.slice(4);
+        this.activePane = event.target.id.slice(4);
       },
 
-      tabHidden: function(tabName) {
-        return tabName != this.activeTab;
+      paneHidden: function(paneName) {
+        return paneName != this.activePane;
       },
 
       behaviors: [

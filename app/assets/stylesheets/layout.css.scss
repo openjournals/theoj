@@ -62,7 +62,7 @@ body /deep/ {
       border-color: silver;
     }
 
-    &[dismissive]:not(:hover) {
+    &[dialog-dismiss]:not(:hover) {
       border-color: silver;
       color: silver;
     }

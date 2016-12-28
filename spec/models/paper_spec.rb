@@ -780,6 +780,18 @@ describe Paper do
       is_expected.to have_sent_email.to('editor@example.com').matching_subject(/- Review Completed/)
     end
 
+    it "should create a comment if one is provided" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.mark_review_completed!(reviewers.first, 'reject', 'some comment')
+      expect(paper.annotations.first.body).to eq('some comment')
+    end
+
+    it "should not create a comment if none is provided" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.mark_review_completed!(reviewers.first, 'reject', ' ')
+      expect(paper.annotations).to be_empty
+    end
+
   end
 
   describe "#make_reviewer_public!!" do

@@ -188,14 +188,17 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def mark_review_completed!(reviewer, result)
+  def mark_review_completed!(reviewer, result, comments=nil)
     errors.add(:base, 'Review cannot be marked as complete') and return unless may_complete_review?
     assignment = assignments.for_user(reviewer, :reviewer)
     errors.add(:base, 'Assignee is not a reviewer') and return unless assignment
 
-    return true if assignment.completed?
-
     assignment.update_attributes!(completed:true, reviewer_accept:result)
+
+    if comments.present?
+      annotation = annotations.create(assignment: assignment,
+                                      body:       comments    )
+    end
 
     all_reviews_completed = reviewer_assignments.all?(&:completed?)
     complete_review! if all_reviews_completed

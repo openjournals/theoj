@@ -99,11 +99,12 @@ class Api::V1::PapersController < Api::V1::ApplicationController
   end
 
   def complete
+    render_error(:unprocessable_entity) unless paper.under_review?
     authorize! :complete, paper
 
     render_error(:bad_request, 'accept parameter not supplied') if params[:result].nil?
 
-    if paper.mark_review_completed!(current_user, params[:result])
+    if paper.mark_review_completed!(current_user, params[:result], params[:comments])
       paper.assignments.reload
       render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
     else

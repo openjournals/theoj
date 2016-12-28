@@ -406,6 +406,26 @@ describe Api::V1::PapersController do
       it "should work for reject"            do test('reject')            end
     end
 
+    it "adds a comment annotation" do
+      user  = authenticate
+      paper = create(:paper, :under_review, reviewer:user)
+
+      post :complete, identifier:paper.typed_provider_id, result:'accept_with_major', comments:'some comment'
+
+      expect(paper.annotations.first.body).to eq('some comment')
+    end
+
+    it "doesn't add an unncessary annotation" do
+      user  = authenticate
+      paper = create(:paper, :under_review, reviewer:user)
+
+      post :complete, identifier:paper.typed_provider_id, result:'accept_with_major'
+      expect(paper.annotations.reload).to be_empty
+
+      post :complete, identifier:paper.typed_provider_id, result:'accept_with_major', comments:' '
+      expect(paper.annotations.reload).to be_empty
+    end
+
     it "should fail if the user is not authorized" do
       user = authenticate
       paper = create(:paper, :under_review, reviewer:true)
@@ -415,9 +435,9 @@ describe Api::V1::PapersController do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "should fail if the accept field isn't provided" do
+    it "should fail if the result field isn't provided" do
       user = authenticate
-      paper = create(:paper, :submitted, reviewer:user)
+      paper = create(:paper, :under_review, reviewer:user)
 
       post :complete, identifier:paper.typed_provider_id
 
@@ -425,11 +445,11 @@ describe Api::V1::PapersController do
       expect(response_json['text']).to eq('accept parameter not supplied')
     end
 
-    it "should fail if the paper could not be updated for some reason" do
+    it "should fail if the paper isn't under review" do
       user = authenticate
-      paper = create(:paper, :submitted, reviewer:user)
+      paper = create(:paper, :accepted, reviewer:user)
 
-      post :complete, identifier:paper.typed_provider_id, result:'accept'
+      post :complete, identifier:paper.typed_provider_id
 
       expect(response).to have_http_status(:unprocessable_entity)
     end

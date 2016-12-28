@@ -56,6 +56,13 @@
             return paper.current_assignment.sha == annotation.assignment;
         },
 
+        hasOwnAnnotation: function(annotations, paper) {
+            var sha = paper.current_assignment.sha;
+            return annotations.find( function(a) {
+               return a.assignment == sha && !a.new;
+            });
+        },
+
         // Given a assignment sha returns the assignment object from the paper
         // With some additional metadata
         assignmentFromSha: function(paper, assignment_sha) {

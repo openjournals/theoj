@@ -160,8 +160,6 @@
       },
 
       filterReviewerList: function(event, suggestions) {
-          event.result = suggestions;
-          return;
         var paper = this.paper;
         event.result = suggestions.filter(function (item) {
           for (var i = 0; i < paper.assigned_users.length; i++) {

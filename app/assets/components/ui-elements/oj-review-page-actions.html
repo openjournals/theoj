@@ -1,120 +1,131 @@
 
 <dom-module id="oj-review-page-actions">
 
-  <style>
-
-      :host {
-          @apply(--layout);
-          @apply(--layout-horizontal);
-      }
-
-      .spacer {
-          @apply(--layout);
-          @apply(--flex);
-      }
-
-      paper-button {
-          color:         rgb(154, 154, 154) !important;
-          border:        1px solid rgb(154, 154, 154) !important;
-          padding-top:   1px !important;
-          box-shadow:    0 4px 0 0 rgba(218, 218, 218, 0.3) !important;
-      }
-      paper-button iron-icon {
-          width: 16px !important;
-          height: 16px !important;
-          padding: 0;
-          margin-top: -8px;
-          margin-bottom: -8px;
-          margin-right: 4px;
-      }
-      paper-button:not([disabled]):hover, paper-button:not([disabled]):active {
-          color:   rgb(120, 120, 120) !important;
-          border:  1px solid rgb(120, 120, 120) !important;
-      }
-      paper-button[disabled] {
-        color:      rgb(180,180,180) !important;
-      }
-    </style>
   <template>
 
     <template is="dom-if" if="{{hasRole(paper, 'editor')}}">
 
       <paper-button id="start-review"
+                    class="grey"
                     on-tap="startReviewClick"
-                    hidden$="{{canStartReview(paper, paper.state)}}"
+                    hidden$="{{!canStartReview(paper, paper.state)}}"
                     disabled$="{{hasNoReviewers(paper.assigned_users)}}">
           <iron-icon icon="icons:arrow-forward"></iron-icon>
           Reviewer Selection Complete
       </paper-button>
 
-      <div class="spacer"></div>
-
       <paper-button id="accept"
+                    class="grey"
                     on-tap="acceptClick"
-                    hidden$="{{canAccept(paper, paper.state)}}"
+                    hidden$="{{!canAccept(paper, paper.state)}}"
                     >
           <iron-icon icon="icons:thumb-up"></iron-icon>
           Accept
       </paper-button>
 
       <paper-button id="reject"
+                    class="grey"
                     on-tap="rejectClick"
-                    hidden$="{{canReject(paper, paper.state)}}"
+                    hidden$="{{!canReject(paper, paper.state)}}"
                     >
           <iron-icon icon="icons:thumb-down"></iron-icon>
           Reject
       </paper-button>
 
-      <paper-button id="delete" on-tap="deleteClick"
-                    hidden$="{{canDelete(paper, paper.state)}}"
+      <paper-button id="delete"
+                    class="grey"
+                    on-tap="deleteClick"
+                    hidden$="{{!canDelete(paper, paper.state)}}"
                     >
           <iron-icon icon="icons:delete"></iron-icon>
           Delete Paper
       </paper-button>
 
-  </template>
+    </template>
+
+    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
+
+      <div hidden$="{{!canCompleteReview(paper, paper.state, paper.current_assignment.completed)}}">
+
+          <div class="note" hidden?="!hasOwnAnnotation(annotations, paper)">
+              <iron-icon icon="icons:info"></iron-icon>
+              <div>You've added comments to this paper!</div>
+          </div>
+
+          <paper-button id="mark-review-complete"
+                        class="grey"
+                        on-tap="markReviewCompleteClick">
+              <iron-icon icon="icons:check"></iron-icon>
+              Finish Your Review
+          </paper-button>
+
+      </div>
+
+    </template>
 
     <template is="dom-if" if="{{canCheckForUpdate(paper, paper.state)}}">
-      <div class="spacer"></div>
       <paper-button id="check-for-update"
+                    class="grey"
                     on-tap="checkForUpdateClick" >
           <iron-icon icon="icons:refresh"></iron-icon>
           Check for Update
       </paper-button>
     </template>
 
-      <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
-
-      <paper-button id="mark-review-complete"
-                    on-tap="markReviewCompleteClick"
-                    hidden$="{{canCompleteReview(paper, paper.state)}}">
-          <iron-icon icon="icons:check"></iron-icon>
-          Make Publication Recommendation
-      </paper-button>
-
-      <div class="spacer"></div>
+    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
 
       <paper-button id="make-name-public"
+                    class="grey"
                     on-tap="makePublicClick"
-                    hidden$="{{canMakePublic(paper, paper.state)}}">
-          <iron-icon icon="icons:perm-identity"></iron-icon>
-          Make Public
+                    hidden$="{{!canMakePublic(paper, paper.state, paper.current_assignment.public)}}">
+          <iron-icon icon="social:person"></iron-icon>
+          Make Name Public
       </paper-button>
 
       <paper-button id="hide-name-public"
+                    class="grey"
                     on-tap="makePublicClick"
-                    hidden$="{{canHidePublic(paper, paper.state)}}">
-          <iron-icon icon="icons:perm-identity"></iron-icon>
-          Hide Public
+                    hidden$="{{!canHidePublic(paper, paper.state, paper.current_assignment.public)}}">
+          <iron-icon icon="social:person-outline"></iron-icon>
+          Hide Your Name
       </paper-button>
 
-  </template>
+    </template>
 
-    <paper-dialog id="dialog" backdrop="" layered="false">
-        <p></p>
-        <paper-button class="first" affirmative=""></paper-button>
-        <paper-button class="second" affirmative=""></paper-button>
-        <paper-button dismissive="" autofocus="">Cancel</paper-button>
+    <paper-dialog id="dialog" with-backdrop>
+        <div class="dialog-inner">
+            <p></p>
+            <paper-button dialog-confirm></paper-button>
+            <paper-button dialog-dismiss>Cancel</paper-button>
+        </div>
+    </paper-dialog>
+
+    <paper-dialog id="completeReviewDialog" with-backdrop>
+        <div class=dialog-inner">
+            <p>
+                Thank you for reviewing this paper.
+                <br/>
+                Make a publication recommendation:
+            </p>
+
+            <select id="completeReviewDialog_result">
+                <option value="accept"           >Accept with No Revisions</option>
+                <option value="accept_with_minor">Accept with Minor Revisions</option>
+                <option value="accept_with_major">Accept with Major Revisions</option>
+                <option value="reject"           >Reject</option>
+            </select>
+
+            <p class="small">
+                Leave a general comment for the author <span class="optional">(optional)</span>
+            </p>
+
+            <textarea id="completeReviewDialog_comments"
+                      rows="2"
+                      max-rows="2"
+                      placeholder="Add your comments to the author here&hellip;"></textarea>
+
+            <paper-button dialog-confirm class="only" on-tap="markReviewCompleteConfirmClick">Submit Recommendation</paper-button>
+        </div>
     </paper-dialog>
 
     <api-request id="statusChangeRequest" method="put"    on-success="statusChangeRequestSuccess"></api-request>
@@ -122,6 +133,171 @@
     <api-request id="completedRequest"    method="post"   on-success="completedRequestSuccess" on-error="requestError"></api-request>
     <api-request id="deleteRequest"       method="delete"                                      on-error="requestError"></api-request>
     <api-request id="publicRequest"                                                            on-error="requestError"></api-request>
+
+    <style>
+
+          :host {
+              @apply(--layout);
+              @apply(--layout-vertical);
+              box-model:        border-box;
+              padding:          20px 80px 20px 80px;
+              background-color: #54d1b8;
+              font-family:      Roboto;
+              color:            #f6ff00;
+              font-size:        26px;/* Approximation due to font substitution */
+              font-weight:      500;
+          }
+
+          .note {
+              @apply(--layout-horizontal);
+              margin-top:   20px;
+              font-family:  Roboto;
+              color:        #f6ff00;
+              font-size:    20px;/* Approximation due to font substitution */
+              font-weight:  500;
+          }
+
+          .note iron-icon {
+              height:       47px;
+              width:        47px;
+              margin-right: 18px;
+          }
+
+          paper-button.grey {
+              width:         100%;
+              border-radius: 3px;
+              border:        solid 3px #ffffff;
+              box-sizing:    border-box;
+              background:    #ffffff;
+              box-shadow:    0 4px 0 0 rgba(0, 0, 0, 0.05);
+              height:        80px;
+              font-family:   Roboto;
+              color:         #54d1b8;
+              font-size:     30px;/* Approximation due to font substitution */
+              font-weight:   500;
+              text-align:    center;
+              padding-top:   24px;
+              margin:        20px 0 20px 0;
+          }
+          paper-button.grey iron-icon {
+              width:         30px !important;
+              height:        30px !important;
+              padding:       0;
+              margin-top:    -8px;
+              margin-bottom: -8px;
+              margin-right:  4px;
+          }
+          paper-button.grey:not([disabled]):hover, paper-button.grey:not([disabled]):active {
+              color:       #44a995 ! important;
+              border:      none;
+              background:  #f8f8f8;
+          }
+          paper-button.grey[disabled] {
+              color:   rgb(180, 180, 180) !important;
+          }
+
+          paper-dialog {
+              box-sizing:    border-box;
+              background:    white;
+              font-family:   Neuton;
+              color:         #192023;
+              font-size:     36px;/* Approximation due to font substitution */
+              font-weight:   700;
+              text-align:    center;
+              line-height:   36px;
+          }
+
+          paper-dialog .dialog-inner {
+              width:     100%;
+              margin:    0;
+              padding:   0;
+          }
+
+          paper-dialog p {
+              margin: 18px 0 24px 0;
+          }
+
+          paper-dialog .small {
+              margin-bottom:  0;
+              font-family:    Roboto;
+              font-size:      18px;/* Approximation due to font substitution */
+              font-weight:    700;
+              text-align:     left;
+          }
+
+          paper-dialog .optional {
+              font-weight: 400;
+          }
+
+          paper-dialog select {
+              width:         100%;
+              height:        57px;
+              padding:       12px;
+              font-family:   Roboto;
+              color:         #525252;
+              font-size:     24px;/* Approximation due to font substitution */
+              font-weight:   400;
+              border:        solid 1px #ccc;
+          }
+
+          paper-dialog textarea {
+              box-sizing:    border-box;
+              width:         100%;
+              padding:       12px;
+              margin-bottom: 40px;
+              font-family:   Roboto;
+              color:         #525252;
+              font-size:     18px;/* Approximation due to font substitution */
+              border:        solid 1px #ccc;
+          }
+          paper-dialog textarea::-webkit-input-placeholder {
+              color: silver;
+          }
+          paper-dialog textarea:-moz-placeholder { /* Firefox 18- */
+              color: silver;
+          }
+          paper-dialog textarea::-moz-placeholder {  /* Firefox 19+ */
+              color: silver;
+          }
+          paper-dialog textarea:-ms-input-placeholder {
+              color: silver;
+          }
+
+          paper-dialog paper-button {
+              box-sizing:       border-box;
+              height:           75px;
+              padding-top:      20px;
+              margin:           0 0 20px 20px;
+              background-color: #44a995;
+              border:           2px solid white;
+              border-radius:    5px;
+              box-shadow:       0 2px 0 0 rgba(218, 218, 218, 0.1);
+              font-family:      Roboto;
+              color:            white;
+              font-size:        30px;/* Approximation due to font substitution */
+              font-weight:      500;
+              text-align:       center;
+              text-transform:   capitalize;
+          }
+          paper-dialog paper-button.only {
+              width:              100%;
+              margin-left:        0;
+              margin-bottom:      0;
+          }
+          paper-dialog paper-button[dialog-dismiss] {
+              background:        #54d1b8;
+              color:             white !important;
+              border:            2px solid white;
+          }
+          paper-dialog paper-button:last-child {
+              margin-right:      20px;
+          }
+          paper-dialog paper-button:hover, paper-dialog paper-button[dialog-dismiss]:hover {
+              color:             white;
+              border-color:      #398d7c;
+          }
+
+      </style>
 
   </template>
 
@@ -132,10 +308,14 @@
 
       properties: {
         paper: {
-          notify: true,
+          notify:   true,
           observer: 'paperChanged'
         },
-        user: { notify: true }
+        annotations: {
+        },
+        user: {
+            notify: true
+        }
       },
 
       paperChanged: function () {
@@ -162,48 +342,65 @@
       },
 
       markReviewCompleteClick: function () {
-        this.showDialog('Do you really want to mark this paper as completed?', 'Recommend Acceptance', 'Recommend Rejection', function (event) {
-          var accept = event.target.className == 'first';
+          var $dialog  = this.$.completeReviewDialog;
+          this.appendChild($dialog.backdropElement);
+          $dialog.open();
+      },
+
+      markReviewCompleteConfirmClick: function() {
           var $request = this.$.completedRequest;
           $request.api = Oj.api.paperCompleteApi(this.paper);
-          $request.data = { accept: accept };
+          $request.data = {
+                            result:   this.$.completeReviewDialog_result.value,
+                            comments: this.$.completeReviewDialog_comments.value
+                          };
           $request.go();
-        });
       },
 
       completedRequestSuccess: function (event, detail) {
+        this.set('paper.current_assignment.completed', true);
         var message = 'You have finished reviewing the paper.';
         this.fire('notification', message);
-        this.paper = detail;
       },
 
       makePublicClick: function (event, detail, target) {
-        var make_public = target.id == 'make-name-public';
-        var html = make_public ? 'Do you really want to make your name public?' : 'Do you really want to hide your public name?';
-        var button = make_public ? 'Make Name Public' : 'Hide Name';
+        var make_public = ! this.paper.current_assignment.public;
+        var html   = make_public ? 'Do you really want to <br/>make your name public?'
+                                 : 'Do you really want to <br/>hide your name?';
+        var button = make_public ? 'Make Name Public'
+                                 : 'Hide Name';
+        var msg    = make_public ? 'Your name has been made public.'
+                                 : 'Your name has now been hidden';
+
         this.showDialog(html, button, function () {
+
           var $request = this.$.publicRequest;
           var api = Oj.api.paperMakePublicApi(this.paper, make_public);
           $request.api = api;
           $request.method = make_public ? 'post' : 'delete';
           $request.go(function (event, detail) {
-            var msg = make_public ? 'Your name has been made public.' : 'Your name has now been hidden';
-            this.fire('notificaion', msg);
-            this.paper = detail;
+
+            this.fire('notification', msg);
+            this.set('paper.current_assignment.public', make_public);
+
           }.bind(this));
         });
       },
 
       deleteClick: function () {
-        this.showDialog('Do you want to delete this paper?<br/>' + 'All versions of the paper will be permanently removed from the system.', 'Delete Paper', function () {
-          var $request = this.$.deleteRequest;
-          $request.api = Oj.api.paperApi(this.paper);
-          $request.go(function (event, detail) {
-            var msg = 'The paper has been deleted';
-            this.fire('notificaion', msg);
-            this.fire('go-default');
-          }.bind(this));
-        });
+        this.showDialog('Do you want to delete this paper?<br/>' +
+                        'All versions of the paper will be permanently removed from the system.',
+                        'Delete Paper',
+            function () {
+              var $request = this.$.deleteRequest;
+              $request.api = Oj.api.paperApi(this.paper);
+              $request.go(function (event, detail) {
+                var msg = 'The paper has been deleted';
+                this.fire('notificaion', msg);
+                this.fire('go-default');
+              }.bind(this));
+            }
+        );
       },
 
       checkForUpdateClick: function () {
@@ -218,24 +415,19 @@
         this.fire('review', detail);
       },
 
-      showDialog: function (html, button1Text, button2Text, onSuccess) {
-        if ($.isFunction(button2Text)) {
-          onSuccess = button2Text;
-          button2Text = undefined;
-        }
+      showDialog: function (html, buttonText, onSuccess) {
 
         var $dialog  = this.$.dialog;
+
         var $content = Polymer.dom($dialog).querySelector('p');
         Polymer.dom($content).innerHTML = html;
-        var $button1 = Polymer.dom($dialog).querySelector('.first');
-        Polymer.dom($button1).innerHTML = button1Text;
-        $($button1).off('tap');
-        $($button1).on('tap', onSuccess.bind(this));
-        var $button2 = Polymer.dom($dialog).querySelector('.second');
-        Polymer.dom($button2).innerHTML = button2Text;
-        Polymer.dom($button2).setAttribute('style', button2Text ? '' : 'display:none');
-        $($button2).off('tap');
-        $($button2).on('tap', onSuccess.bind(this));
+
+        var $button = Polymer.dom($dialog).querySelector('paper-button');
+        Polymer.dom($button).innerHTML = buttonText;
+        $($button).off('tap');
+        $($button).on('tap', onSuccess.bind(this));
+
+        this.appendChild($dialog.backdropElement);
         $dialog.open();
       },
 
@@ -259,35 +451,36 @@
       },
 
       canStartReview: function (paper) {
-        return paper.state != 'submitted';
+        return paper.state == 'submitted';
       },
 
       canAccept: function (paper) {
-        return paper.state != 'review_completed';
+        return paper.state == 'review_completed' || paper.state == 'under_review';
       },
 
       canReject: function (paper) {
-        return paper.state != 'under_review' && paper.state != 'review_completed';
+        return paper.state == 'review_completed' || paper.state == 'under_review';
       },
 
       canDelete: function (paper) {
-        return paper.state != 'submitted';
+        return paper.state == 'submitted';
       },
 
       canCheckForUpdate: function (paper) {
-        return paper.state != 'submitted' && paper.state != 'under_review' && this.hasRole(paper, 'submittor', 'editor')
+        return this.hasRole(paper, 'editor') ||
+               (this.hasRole(paper, 'submittor') && paper.state != 'accepted' && paper.state != 'published' );
       },
 
       canCompleteReview: function (paper) {
-        return paper.state != 'under_review' || paper.current_assignment.completed;
+        return paper.state == 'under_review' && !paper.current_assignment.completed;
       },
 
       canMakePublic: function (paper) {
-        return true || paper.state == 'superceded' || paper.current_assignment.public;
+        return paper.state != 'superceded' && !paper.current_assignment.public;
       },
 
       canHidePublic: function (paper) {
-        return paper.state == 'superceded' || !paper.current_assignment.public;
+          return paper.state != 'superceded' && paper.current_assignment.public;
       },
 
       behaviors: [

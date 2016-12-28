@@ -3,7 +3,10 @@
   <template>
 
       <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
-          <iron-icon id=completion-icon icon="{{getCompletionIcon(assignment)}}" title="{{getCompletionTip(assignment)}}"></iron-icon>
+          <iron-icon id=completion-icon
+                     class$="{{assignment.reviewer_accept)}}"
+                     icon="{{getCompletionIcon(assignment)}}"
+                     title="{{getCompletionTip(assignment)}}"></iron-icon>
       </template>
 
       <span class="name">
@@ -38,6 +41,18 @@
               vertical-align: -2px !important;
               background:     #e4e4e4;
               color:          black;
+          }
+          #completion-icon.accept {
+              color:         black;
+          }
+          #completion-icon.accept {
+              color:         blue;
+          }
+          #completion-icon.accept {
+              color:         orange;
+          }
+          #completion-icon.reject {
+              color:         red;
           }
 
       </style>
@@ -76,9 +91,13 @@
 
       getCompletionIcon: function (assignment) {
         switch (assignment.reviewer_accept) {
-        case true:
-          return 'icons:done';
-        case false:
+        case 'accept':
+          return 'icons:check-all';
+        case 'accept_with_minor':
+          return 'icons:check-circle';
+        case 'accept_with_major':
+          return 'icons:check-box';
+        case 'reject':
           return 'icons:clear';
         default:
           return '';
@@ -87,10 +106,14 @@
 
       getCompletionTip: function (assignment) {
         switch (assignment.reviewer_accept) {
-        case true:
-          return 'Recommended Acceptance';
-        case false:
-          return 'Recommended Rejection';
+        case 'accept':
+          return 'Accept with No Revisions';
+        case 'accept_with_minor':
+          return 'Accept with Minor Revisions';
+        case 'accept_with_major':
+          return 'Accept with Major Revisions';
+        case 'reject':
+          return 'Reject';
         default:
           return 'Review Not Complete';
         }
