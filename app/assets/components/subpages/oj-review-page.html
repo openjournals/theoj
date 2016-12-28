@@ -2,7 +2,9 @@
 
   <template>
 
-      <paper-progress id="progress" hidden$="{{!showProgress(loadProgress)}}" value="{{loadProgress}}"></paper-progress>
+      <paper-progress id="progress"
+                      hidden$="{{!showProgress(loadProgress)}}"
+                      value="{{loadProgress}}"></paper-progress>
 
       <div id="scroller" class="layout vertical">
 
@@ -33,7 +35,7 @@
                           ></oj-review-paper-info>
 
                     <template is="dom-if" if="{{paper.can_view_annotations}}">
-                        <oj-annotation-list id="annotation_list"
+                        <oj-annotation-list id="annotation-list"
                                             hidden$="{{paneHidden('edits', activePane)}}"
                                             paper="{{paper}}"
                                             annotations="{{annotations}}"
@@ -41,12 +43,14 @@
                                             page-height="{{pdfClientHeight}}"
                                             page-spacing="{{pageSpacing}}"
                                             on-annotation-changed="onChangeAnnotation"
-                                            on-annotation-opened="onAnnotationOpened"></oj-annotation-list>
+                                            on-annotation-opened="onAnnotationOpened"
+                                            on-annotation-scroll-into-view="onAnnotationScrollIntoView"></oj-annotation-list>
                     </template>
 
                 </div>
 
-                <oj-review-page-actions user="{{user}}"
+                <oj-review-page-actions id="actions"
+                                        user="{{user}}"
                                         paper="{{paper}}"
                                         annotations="{{annotations}}" ></oj-review-page-actions>
 
@@ -111,8 +115,8 @@
           background:    #eeeeee;
       }
 
-      /* iron-collapse doesn't work correctly when it is hidden with display:none */
-      #rhs [hidden] {
+      /* iron-collapse doesn't work correctly when the list is hidden with display:none */
+      oj-annotation-list[hidden] {
           display:    block  !important;
           visibility: hidden !important;
       }
@@ -276,6 +280,47 @@
       onAnnotationOpened: function(event, annotation) {
           if (this.paper.can_view_annotations)
               this.activePane = 'edits';
+      },
+
+      onAnnotationScrollIntoView: function(event, options) {
+          var annotation = options.annotation;
+          if (! annotation.open)
+              return;
+
+          this.async( function() {
+
+              var element  = options.element;
+              var scroller = this.$.scroller;
+              var actions  = this.$$('#actions');
+
+              var prioritizeTop   = options.prioritize_top;  // When false shows the bottom (for responses)
+              var spacing         = 10; /*px*/ //Between top/bottom
+              var elHeight        = element.offsetHeight;
+              var containerHeight = scroller.clientHeight - actions.offsetHeight;
+              var elTop           = element.offsetTop; // + annotation_list.offsetTop;
+              var scrollTop       = scroller.scrollTop;
+              var newScrollTop;
+
+              if (prioritizeTop && elTop < scrollTop) {
+                  newScrollTop = elTop - spacing;
+
+              } else if (elTop + elHeight > scrollTop + containerHeight) {
+                  newScrollTop = elTop + elHeight + spacing - containerHeight;
+                  if (prioritizeTop && elTop < newScrollTop)
+                      newScrollTop = elTop;
+
+              } else if (!prioritizeTop && elTop < scrollTop) {
+                  newScrollTop = elTop - spacing;
+
+              }
+
+              if (newScrollTop) {
+                var change = Math.abs(newScrollTop - scrollTop);
+                if (change > 5) // Avoid irritating small changes
+                    $(scroller).animate({ scrollTop: newScrollTop }, 500);
+              }
+
+          }.bind(this) );
       },
 
       newAnnotation: function(properties) {

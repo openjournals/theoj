@@ -2,95 +2,98 @@
 <dom-module id="oj-review-page-actions">
 
   <template>
+      <div id="inner">
 
-    <template is="dom-if" if="{{hasRole(paper, 'editor')}}">
+        <template is="dom-if" if="{{hasRole(paper, 'editor')}}">
 
-      <paper-button id="start-review"
-                    class="grey"
-                    on-tap="startReviewClick"
-                    hidden$="{{!canStartReview(paper, paper.state)}}"
-                    disabled$="{{hasNoReviewers(paper.assigned_users)}}">
-          <iron-icon icon="icons:arrow-forward"></iron-icon>
-          Reviewer Selection Complete
-      </paper-button>
-
-      <paper-button id="accept"
-                    class="grey"
-                    on-tap="acceptClick"
-                    hidden$="{{!canAccept(paper, paper.state)}}"
-                    >
-          <iron-icon icon="icons:thumb-up"></iron-icon>
-          Accept
-      </paper-button>
-
-      <paper-button id="reject"
-                    class="grey"
-                    on-tap="rejectClick"
-                    hidden$="{{!canReject(paper, paper.state)}}"
-                    >
-          <iron-icon icon="icons:thumb-down"></iron-icon>
-          Reject
-      </paper-button>
-
-      <paper-button id="delete"
-                    class="grey"
-                    on-tap="deleteClick"
-                    hidden$="{{!canDelete(paper, paper.state)}}"
-                    >
-          <iron-icon icon="icons:delete"></iron-icon>
-          Delete Paper
-      </paper-button>
-
-    </template>
-
-    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
-
-      <div hidden$="{{!canCompleteReview(paper, paper.state, paper.current_assignment.completed)}}">
-
-          <div class="note" hidden?="!hasOwnAnnotation(annotations, paper)">
-              <iron-icon icon="icons:info"></iron-icon>
-              <div>You've added comments to this paper!</div>
-          </div>
-
-          <paper-button id="mark-review-complete"
+          <paper-button id="start-review"
                         class="grey"
-                        on-tap="markReviewCompleteClick">
-              <iron-icon icon="icons:check"></iron-icon>
-              Finish Your Review
+                        on-tap="startReviewClick"
+                        hidden$="{{!canStartReview(paper, paper.state)}}"
+                        disabled$="{{hasNoReviewers(paper.assigned_users)}}">
+              <iron-icon icon="icons:arrow-forward"></iron-icon>
+              Reviewer Selection Complete
           </paper-button>
 
-      </div>
+          <paper-button id="accept"
+                        class="grey"
+                        on-tap="acceptClick"
+                        hidden$="{{!canAccept(paper, paper.state)}}"
+                        >
+              <iron-icon icon="icons:thumb-up"></iron-icon>
+              Accept
+          </paper-button>
 
-    </template>
+          <paper-button id="reject"
+                        class="grey"
+                        on-tap="rejectClick"
+                        hidden$="{{!canReject(paper, paper.state)}}"
+                        >
+              <iron-icon icon="icons:thumb-down"></iron-icon>
+              Reject
+          </paper-button>
 
-    <template is="dom-if" if="{{canCheckForUpdate(paper, paper.state)}}">
-      <paper-button id="check-for-update"
-                    class="grey"
-                    on-tap="checkForUpdateClick" >
-          <iron-icon icon="icons:refresh"></iron-icon>
-          Check for Update
-      </paper-button>
-    </template>
+          <paper-button id="delete"
+                        class="grey"
+                        on-tap="deleteClick"
+                        hidden$="{{!canDelete(paper, paper.state)}}"
+                        >
+              <iron-icon icon="icons:delete"></iron-icon>
+              Delete Paper
+          </paper-button>
 
-    <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
+        </template>
 
-      <paper-button id="make-name-public"
-                    class="grey"
-                    on-tap="makePublicClick"
-                    hidden$="{{!canMakePublic(paper, paper.state, paper.current_assignment.public)}}">
-          <iron-icon icon="social:person"></iron-icon>
-          Make Name Public
-      </paper-button>
+        <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
 
-      <paper-button id="hide-name-public"
-                    class="grey"
-                    on-tap="makePublicClick"
-                    hidden$="{{!canHidePublic(paper, paper.state, paper.current_assignment.public)}}">
-          <iron-icon icon="social:person-outline"></iron-icon>
-          Hide Your Name
-      </paper-button>
+          <div hidden$="{{!canCompleteReview(paper, paper.state, paper.current_assignment.completed)}}">
 
-    </template>
+              <div class="note" hidden?="!hasOwnAnnotation(annotations, paper)">
+                  <iron-icon icon="icons:info"></iron-icon>
+                  <div>You've added comments to this paper!</div>
+              </div>
+
+              <paper-button id="mark-review-complete"
+                            class="grey"
+                            on-tap="markReviewCompleteClick">
+                  <iron-icon icon="icons:check"></iron-icon>
+                  Finish Your Review
+              </paper-button>
+
+          </div>
+
+        </template>
+
+        <template is="dom-if" if="{{canCheckForUpdate(paper, paper.state)}}">
+          <paper-button id="check-for-update"
+                        class="grey"
+                        on-tap="checkForUpdateClick" >
+              <iron-icon icon="icons:refresh"></iron-icon>
+              Check for Update
+          </paper-button>
+        </template>
+
+        <template is="dom-if" if="{{hasRole(paper, 'reviewer')}}">
+
+          <paper-button id="make-name-public"
+                        class="grey"
+                        on-tap="makePublicClick"
+                        hidden$="{{!canMakePublic(paper, paper.state, paper.current_assignment.public)}}">
+              <iron-icon icon="social:person"></iron-icon>
+              Make Name Public
+          </paper-button>
+
+          <paper-button id="hide-name-public"
+                        class="grey"
+                        on-tap="makePublicClick"
+                        hidden$="{{!canHidePublic(paper, paper.state, paper.current_assignment.public)}}">
+              <iron-icon icon="social:person-outline"></iron-icon>
+              Hide Your Name
+          </paper-button>
+
+        </template>
+
+    </div>
 
     <paper-dialog id="dialog" with-backdrop>
         <div class="dialog-inner">
@@ -137,6 +140,9 @@
     <style>
 
           :host {
+          }
+
+          #inner {
               @apply(--layout);
               @apply(--layout-vertical);
               box-model:        border-box;
@@ -315,11 +321,27 @@
         },
         user: {
             notify: true
+        },
+        hidden: {
+            type:               Boolean,
+            value:              false,
+            reflectToAttribute: true
         }
+      },
+
+      listeners: {
+        'dom-change': 'updateHidden'
       },
 
       paperChanged: function () {
         this.submitted = this.paper && this.paper.state == 'submitted';
+      },
+
+      updateHidden: function() {
+          this.debounce('actions.updateHidden', function() {
+            var count = $(this.$.inner).children(':visible').length;
+            this.hidden = (count == 0);
+          }.bind(this));
       },
 
       hasNoReviewers: function (assigned_users) {
@@ -330,15 +352,24 @@
       },
 
       startReviewClick: function () {
-        this.changeState('start_review', 'Do you really want to start reviewing this paper?', 'Start Review', 'Thank You. The paper will now be available for review.');
+        this.changeState('start_review',
+                         'Do you really want to start reviewing this paper?',
+                         'Start Review',
+                         'Thank You. The paper will now be available for review.');
       },
 
       acceptClick: function () {
-        this.changeState('accept', 'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.', 'Accept', 'The paper has been accepted.');
+        this.changeState('accept',
+                         'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.',
+                         'Accept',
+                         'The paper has been accepted.');
       },
 
       rejectClick: function () {
-        this.changeState('reject', 'Do you really want to reject this paper?', 'Reject', 'The paper has been rejected.');
+        this.changeState('reject',
+                         'Do you really want to reject this paper?',
+                         'Reject',
+                         'The paper has been rejected.');
       },
 
       markReviewCompleteClick: function () {
@@ -361,6 +392,7 @@
         this.set('paper.current_assignment.completed', true);
         var message = 'You have finished reviewing the paper.';
         this.fire('notification', message);
+        this.updateHidden();
       },
 
       makePublicClick: function (event, detail, target) {
@@ -378,10 +410,12 @@
           var api = Oj.api.paperMakePublicApi(this.paper, make_public);
           $request.api = api;
           $request.method = make_public ? 'post' : 'delete';
+
           $request.go(function (event, detail) {
 
             this.fire('notification', msg);
             this.set('paper.current_assignment.public', make_public);
+            this.updateHidden();
 
           }.bind(this));
         });
@@ -395,9 +429,11 @@
               var $request = this.$.deleteRequest;
               $request.api = Oj.api.paperApi(this.paper);
               $request.go(function (event, detail) {
+
                 var msg = 'The paper has been deleted';
-                this.fire('notificaion', msg);
+                this.fire('notification', msg);
                 this.fire('go-default');
+
               }.bind(this));
             }
         );
@@ -433,6 +469,7 @@
 
       changeState: function (newState, html, buttonText, successMessage) {
         this.showDialog(html, buttonText, function () {
+
           this.successMessage = successMessage;
           var api = Oj.api.paperTransitionApi(this.paper, newState);
           var $request = this.$.statusChangeRequest;
