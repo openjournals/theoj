@@ -132,6 +132,19 @@ describe Paper do
         paper.complete_review!
       }.to change { deliveries.size }.by(1)
 
+      expect {
+        paper.accept!
+      }.to change { deliveries.size }.by(1)
+
+      expect {
+        paper.doi = 'some doi'
+        paper.publish!
+      }.to change { deliveries.size }.by(1)
+
+      expect {
+        paper.state = :under_review
+        paper.reject!
+      }.to change { deliveries.size }.by(1)
     end
 
     it "doesn't send an email when the paper is superceded" do

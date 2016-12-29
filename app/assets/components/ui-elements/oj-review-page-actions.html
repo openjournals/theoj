@@ -214,13 +214,15 @@
           }
 
           paper-dialog .dialog-inner {
+              box-sizing:    border-box;
               width:     100%;
               margin:    0;
               padding:   0;
           }
 
           paper-dialog p {
-              margin: 18px 0 24px 0;
+              box-sizing:    border-box;
+              margin: 18px 20px 24px 20px;
           }
 
           paper-dialog .small {
@@ -360,7 +362,9 @@
 
       acceptClick: function () {
         this.changeState('accept',
-                         'Do you really want to accept this paper?<br/>This will close all open issues and mark the paper as accepted.',
+                         'Do you really want to accept this paper?'
+                         + '<br/>This will close all open issues '
+                         + '<br/>and mark the paper as accepted.',
                          'Accept',
                          'The paper has been accepted.');
       },

@@ -87,13 +87,18 @@ class Api::V1::PapersController < Api::V1::ApplicationController
 
   def transition
     transition = params[:transition].to_sym
+    logger.debug('trans 1')
     ability_with(current_user, paper).authorize! transition, paper
+    logger.debug('trans 2')
 
     if paper.aasm.may_fire_event?(transition)
+      logger.debug('trans 3')
       paper.send("#{transition.to_s}!")
+      logger.debug('trans 4')
       render json:paper, location:paper_review_url(paper), serializer:FullPaperSerializer
 
     else
+      logger.debug('trans e')
       render_errors(paper)
     end
   end

@@ -59,7 +59,7 @@ class Paper < ActiveRecord::Base
     end
 
     event :supercede do
-      transitions from: [:submitted, :under_review],
+      transitions from: [:submitted, :under_review, :review_completed, :rejected, :accepted],
                   to:   :superceded
     end
 
@@ -69,11 +69,11 @@ class Paper < ActiveRecord::Base
     end
 
     event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
-      transitions from: :review_completed,
+      transitions from: [:under_review, :review_completed],
                   to:   :accepted
     end
 
-    event :publish, guard: :doi  do
+    event :publish, guard: :doi, after_commit: :send_state_change_emails do
       transitions from: :accepted,
                   to:   :published
     end

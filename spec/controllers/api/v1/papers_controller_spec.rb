@@ -569,7 +569,7 @@ describe Api::V1::PapersController do
 
     it "should fail if the original version cannot be superceded" do
       user  = authenticate
-      paper = create(:paper, :accepted, submittor:user, arxiv_id:'1311.1653')
+      paper = create(:paper, :published, submittor:user, arxiv_id:'1311.1653')
 
       put :check_for_update, identifier:paper.typed_provider_id
 
