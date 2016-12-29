@@ -530,7 +530,7 @@ describe Api::V1::PapersController do
 
       expect(response).to have_http_status(:created)
       expect(response.content_type).to eq("application/json")
-      assert_serializer PaperSerializer
+      assert_serializer BasicPaperSerializer
       expect(response_json['typed_provider_id']).to eq('arxiv:1311.1653v2')
     end
 

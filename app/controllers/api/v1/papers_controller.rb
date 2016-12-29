@@ -149,11 +149,14 @@ class Api::V1::PapersController < Api::V1::ApplicationController
     provider = latest_paper.provider
     document_attributes = provider.get_attributes(latest_paper.provider_id)
 
-    render_error(:conflict, 'There is no new version of this document.') unless document_attributes[:version] > latest_paper.version
+    if document_attributes[:version] <= latest_paper.version
+      render_error(:conflict, 'There is no new version of this document.')
+    end
 
     new_paper = latest_paper.create_updated!(document_attributes)
-
-    render json:new_paper, status: :created
+    render json:       new_paper,
+           serializer: BasicPaperSerializer,
+           status:     :created
   end
 
   def recent

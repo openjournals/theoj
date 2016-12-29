@@ -70,12 +70,17 @@
 
       errorText: function(detail) {
           // For some reason accessing responseText throws an error (Firefox)
-          var responseText;
+          var responseText = null;
           try {
-              responseText = detail.request.xhr.responseText;
-          } catch(ex) {
-              responseText = null;
-          }
+              try {
+                  var resp = detail.request.parseResponse();
+                  responseText = resp && (resp.text || resp.error);
+
+              } catch (ex1) { }
+
+              if (!responseText) responseText = detail.request.xhr.responseText;
+
+          } catch (ex2) { }
 
           return responseText || detail.error;
       },

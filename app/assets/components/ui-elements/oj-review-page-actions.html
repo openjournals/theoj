@@ -504,8 +504,8 @@
       },
 
       canCheckForUpdate: function (paper) {
-        return this.hasRole(paper, 'editor') ||
-               (this.hasRole(paper, 'submittor') && paper.state != 'accepted' && paper.state != 'published' );
+        return (this.hasRole(paper, 'editor'   ) && paper.state != 'published' && paper.state != 'superceded' ) ||
+               (this.hasRole(paper, 'submittor') && paper.state != 'published' && paper.state != 'superceded' && paper.state != 'accepted');
       },
 
       canCompleteReview: function (paper) {
