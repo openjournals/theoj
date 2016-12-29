@@ -41,7 +41,8 @@
                            on-remove-user="removeReviewer"></oj-user-tag>
           </template>
 
-          <oj-user-tag class="reviewer anonymous" assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
+          <oj-user-tag class="reviewer anonymous"
+                       assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
 
           <template is="dom-if" if="{{editable}}">
               <div class=add_reviewer>+ Add a Reviewer:</div>
@@ -115,6 +116,9 @@
         underReview:   {
             notify: true
         },
+        reviewCompleted:   {
+            notify: true
+        },
         showCompleted: {
             notify: true
         },
@@ -133,11 +137,12 @@
       ],
 
       modelsChanged: function() {
-        var can_edit        = this.user && ( this.user.admin || this.hasRole(this.paper, 'editor') );
-        this.submitted      = this.paper && this.paper.state == 'submitted';
-        this.underReview    = this.paper && this.paper.state == 'under_review';
-        this.showCompleted  = this.paper && can_edit && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
-        this.editable       = this.submitted && can_edit;
+        var can_edit         = this.user && ( this.user.admin || this.hasRole(this.paper, 'editor') );
+        this.submitted       = this.paper && this.paper.state == 'submitted';
+        this.underReview     = this.paper && this.paper.state == 'under_review';
+        this.reviewCompleted = this.paper && this.paper.state == 'review_completed';
+        this.showCompleted   = can_edit && (this.underReview || this.reviewCompleted);
+        this.editable        = can_edit && (this.submitted || this.underReview || this.reviewCompleted);
       },
 
       userColor: function(assignment) {
@@ -146,12 +151,13 @@
       },
 
       removeReviewer: function(event, assignment) {
-        this.set('$.removeReviewer.api', Oj.api.removeAssigneeApi(this.paper, assignment));
+        this.$.removeReviewer.api = Oj.api.removeAssigneeApi(this.paper, assignment);
         this.$.removeReviewer.go();
       },
 
       addReviewer: function(event, user) {
-        this.set('$.addReviewer.api', Oj.api.addAssigneeApi(this.paper, user));
+        this.$.addReviewer.api = Oj.api.addAssigneeApi(this.paper, user);
+        this.$.addReviewer.data = { user: user.sha };
         this.$.addReviewer.go();
       },
 

@@ -6,14 +6,14 @@
 
         <template is="dom-if" if="{{hasRole(paper, 'editor')}}">
 
-          <paper-button id="start-review"
-                        class="grey"
-                        on-tap="startReviewClick"
-                        hidden$="{{!canStartReview(paper, paper.state)}}"
-                        disabled$="{{hasNoReviewers(paper.assigned_users)}}">
-              <iron-icon icon="icons:arrow-forward"></iron-icon>
-              Reviewer Selection Complete
-          </paper-button>
+          <!--<paper-button id="start-review"-->
+                        <!--class="grey"-->
+                        <!--on-tap="startReviewClick"-->
+                        <!--hidden$="{{!canStartReview(paper, paper.state)}}"-->
+                        <!--disabled$="{{hasNoReviewers(paper.assigned_users)}}">-->
+              <!--<iron-icon icon="icons:arrow-forward"></iron-icon>-->
+              <!--Reviewer Selection Complete-->
+          <!--</paper-button>-->
 
           <paper-button id="accept"
                         class="grey"
@@ -500,7 +500,7 @@
       },
 
       canReject: function (paper) {
-        return paper.state == 'review_completed' || paper.state == 'under_review';
+        return paper.state == 'review_completed' || paper.state == 'under_review' || paper.state == 'submitted';
       },
 
       canDelete: function (paper) {

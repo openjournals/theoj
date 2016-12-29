@@ -12,14 +12,18 @@ class Api::V1::AssignmentsController < Api::V1::ApplicationController
     user  = User.find_by_sha(params[:user])
     role  = params[:role] || 'reviewer'
 
-    if role != 'reviewer' && role != 'collaborator'
-      render :json => 'invalid role', :status => :bad_request
+    if !paper.submitted? && !paper.under_review?
+      render json: 'invalid state', status: :bad_request
+
+    elsif role != 'reviewer' && role != 'collaborator'
+      render json: 'invalid role', status: :bad_request
 
     elsif user && paper.add_assignee(user, role)
-      render :json => paper.assignments, :status => :created, :location => paper_review_url(paper)
+      paper.start_review! unless paper.under_review?
+      render json: paper.assignments, status: :created, location: paper_review_url(paper)
 
     else
-      render :json => paper.errors, :status => :unprocessable_entity
+      render json: paper.errors, status: :unprocessable_entity
 
     end
   end
@@ -28,14 +32,14 @@ class Api::V1::AssignmentsController < Api::V1::ApplicationController
     if assignment && assignment.destroy
       render json:paper.assignments, status: :ok, location: paper_review_url(paper)
     else
-      render :json => paper.errors, :status => :unprocessable_entity
+      render json: paper.errors, status: :unprocessable_entity
     end
   end
 
   private
 
   def assignment
-    @annotation ||= paper.assignments.find_by_sha(params[:id])
+    @assignment ||= paper.assignments.find_by_sha(params[:id])
   end
 
   def paper

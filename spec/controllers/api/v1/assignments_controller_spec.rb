@@ -64,7 +64,7 @@ describe Api::V1::AssignmentsController do
     it "the editor should be allowed to add reviewers" do
       authenticate(:editor)
 
-      paper = create(:paper)
+      paper = create(:paper, :submitted)
 
       reviewer = create(:user)
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
@@ -75,7 +75,7 @@ describe Api::V1::AssignmentsController do
     it "the editor should add a reviewer" do
       authenticate(:editor)
 
-      paper = create(:paper)
+      paper = create(:paper, :submitted)
 
       reviewer = create(:user)
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
@@ -87,7 +87,7 @@ describe Api::V1::AssignmentsController do
     it "the editor should return the list of reviewers" do
       set_paper_editor authenticate(:editor)
 
-      paper = create(:paper)
+      paper = create(:paper, :submitted)
 
       reviewer = create(:user)
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
@@ -101,7 +101,7 @@ describe Api::V1::AssignmentsController do
       authenticate(:editor)
 
       submittor = create(:user)
-      paper = create(:paper, submittor:submittor)
+      paper = create(:paper, :submitted, submittor: submittor)
 
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:submittor.sha
 
@@ -112,7 +112,7 @@ describe Api::V1::AssignmentsController do
       authenticate(:editor)
 
       collaborator = create(:user)
-      paper = create(:paper, collaborator:collaborator)
+      paper = create(:paper, :submitted, collaborator: collaborator)
 
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:collaborator.sha
 
@@ -128,6 +128,55 @@ describe Api::V1::AssignmentsController do
       post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "should be possible to add a reviewer when the state is submitted" do
+      authenticate(:editor)
+
+      paper = create(:paper, :submitted)
+      expect(paper.assignments.reload.length).to eq(1)
+
+      reviewer = create(:user)
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
+
+      expect(response).to have_http_status(:success)
+      expect(paper.assignments.reload.length).to eq(2)
+    end
+
+    it "should change the state to under_review automatically" do
+      authenticate(:editor)
+
+      paper = create(:paper, :submitted)
+
+      reviewer = create(:user)
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
+
+      expect(paper.reload).to be_under_review
+    end
+
+    it "should be possible to add a reviewer when the state is under review" do
+      authenticate(:editor)
+
+      paper = create(:paper, :under_review)
+      expect(paper.assignments.reload.length).to eq(1)
+
+      reviewer = create(:user)
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
+
+      expect(response).to have_http_status(:success)
+      expect(paper.assignments.reload.length).to eq(2)
+    end
+
+    it "should not be possible to add a reviewer when the state is review completed" do
+      authenticate(:editor)
+
+      paper = create(:paper, :review_completed)
+
+      reviewer = create(:user)
+      post :create, paper_identifier:paper.typed_provider_id, format: :json, user:reviewer.sha
+
+      expect(response).to have_http_status(:bad_request)
+      expect(paper.assignments.reload.length).to eq(1)
     end
 
   end

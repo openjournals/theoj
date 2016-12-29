@@ -7,12 +7,12 @@
             return paper_or_id ? "papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
         },
 
-        addAssigneeApi: function(paper, user) {
-            return "papers/"+paper.typed_provider_id+"/assignments?user=" + user.sha ;
+        addAssigneeApi: function(paper) {
+            return "papers/" + paper.typed_provider_id + "/assignments";
         },
 
         removeAssigneeApi: function(paper, assignment) {
-            return "papers/"+paper.typed_provider_id+"/assignments/" + assignment.sha;
+            return "papers/" + paper.typed_provider_id + "/assignments/" + assignment.sha;
         },
 
         getAllIssuesApi: function(paper) {
