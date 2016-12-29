@@ -1,31 +1,7 @@
 <dom-module id="oj-main-menu">
-  <style>
-
-            :host {
-                background-color: white;
-            }
-
-            paper-menu {
-                font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-            }
-
-            paper-menu /deep/ #drawer {
-                background-color: #7986CB;
-            }
-
-            paper-item a {
-                height: 100%;
-                width: 100%;
-                color:  inherit;
-                background: inherit;
-                text-decoration: none;
-                display: block;
-            }
-
-  </style>
   <template>
 
-        <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" valueattr="id" class="main-menu">
+        <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" attr-for-selected="id" class="main-menu">
 
             <paper-item id="recent">
                 <a is="pushstate-anchor" href="/" target="_self"><iron-icon icon="icons:home"></iron-icon> Recent Papers</a>
@@ -65,15 +41,57 @@
 
         </paper-menu>
 
+      <style>
+
+          :host {
+              background-color: white;
+          }
+
+          paper-menu {
+              font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+              --paper-menu-focused-item-after: {
+                  background-color: inherit;
+              };
+          }
+
+          paper-item {
+              --paper-item-focused-before: {
+                  background-color: inherit;
+              };
+          }
+
+          paper-item:hover {
+              background: #f4f4f4;
+          }
+
+          paper-item a {
+              height: 100%;
+              width: 100%;
+              color:  inherit;
+              background: inherit;
+              text-decoration: none;
+              display: block;
+          }
+
+      </style>
+
     </template>
+
   <script>
     Polymer({
       is: 'oj-main-menu',
+
       properties: {
-        currentUser: { notify: true },
-        route: { observer: 'routeChanged' }
+        currentUser: {
+            notify: true
+        },
+        selectedMenuItem: {
+        },
+        route: {
+            observer: 'routeChanged'
+        }
       },
-      // External API
+
       routeChanged: function (_, detail) {
         var section;
         if ($.isPlainObject(detail)) {
@@ -90,6 +108,7 @@
           });
         }
       },
+
       ////////////////////////////////////////////////////////////////////////////////////////////
       sectionFromPath: function (path) {
         if (path == '/')
@@ -99,6 +118,7 @@
         else
           return undefined;
       }
+
     });
   </script>
 </dom-module>
