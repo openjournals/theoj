@@ -41,7 +41,7 @@
               line-height:     18px;
           }
           .action {
-              text-decoration: underline;
+              text-decoration: none;
               font-size:       12px;
               color:           #888;
               font-variant:    small-caps;
@@ -116,7 +116,7 @@
               return;
           if (!this.responseText)
               return;
-        
+
           this.$.newResponseRequest.data = this.responseParams();
           this.$.newResponseRequest.go();
       },
