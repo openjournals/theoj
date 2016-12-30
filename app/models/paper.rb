@@ -45,8 +45,9 @@ class Paper < ActiveRecord::Base
     state :under_review
     state :review_completed
     state :superceded
-    state :accepted
     state :rejected
+    state :accepted
+    state :published
 
     event :start_review, guard: :has_reviewers?, after_commit: :send_state_change_emails do
       transitions from: :submitted,
@@ -58,17 +59,23 @@ class Paper < ActiveRecord::Base
     end
 
     event :supercede do
-      transitions from: [:submitted, :under_review],
+      transitions from: [:submitted, :under_review, :review_completed, :rejected, :accepted],
                   to:   :superceded
     end
 
-    event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
-      transitions from: :review_completed,
-                  to:   :accepted
-    end
     event :reject, after_commit: :send_state_change_emails do
       transitions from: [:under_review, :review_completed],
                   to:   :rejected
+    end
+
+    event :accept, before: :resolve_all_issues, after_commit: :send_state_change_emails do
+      transitions from: [:under_review, :review_completed],
+                  to:   :accepted
+    end
+
+    event :publish, guard: :doi, after_commit: :send_state_change_emails do
+      transitions from: :accepted,
+                  to:   :published
     end
 
   end
@@ -181,14 +188,17 @@ class Paper < ActiveRecord::Base
     end
   end
 
-  def mark_review_completed!(reviewer, accept)
+  def mark_review_completed!(reviewer, result, comments=nil)
     errors.add(:base, 'Review cannot be marked as complete') and return unless may_complete_review?
     assignment = assignments.for_user(reviewer, :reviewer)
     errors.add(:base, 'Assignee is not a reviewer') and return unless assignment
 
-    return true if assignment.completed?
+    assignment.update_attributes!(completed:true, reviewer_accept:result)
 
-    assignment.update_attributes!(completed:true, reviewer_accept:accept)
+    if comments.present?
+      annotation = annotations.create(assignment: assignment,
+                                      body:       comments    )
+    end
 
     all_reviews_completed = reviewer_assignments.all?(&:completed?)
     complete_review! if all_reviews_completed

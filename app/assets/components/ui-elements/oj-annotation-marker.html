@@ -1,21 +1,27 @@
 <dom-module id="oj-annotation-marker">
 
-  <style>
-          iron-icon {
-            display:      block !important;
-            stroke-width: 2px;
-            transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
-            color:        #ff601e;
-            --iron-icon: {
+  <template>
+        <iron-icon icon="custom-icons:selected"
+                   on-click="annotationClicked"
+                   title="{{stripped(annotation.body)}}"
+                   class$="{{computeClass(annotation, annotation.open)}}"></iron-icon>
 
-            }
+      <style>
+          iron-icon {
+              display:      block !important;
+              stroke-width: 2px;
+              transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+              color:        #ff601e;
+              --iron-icon: {
+
+              }
           }
           iron-icon.closed {
-            height:       8px;
-            width:        8px;
-            margin-top:   -4px;
-            margin-left:  -4px;
-            cursor:       pointer;
+              height:       8px;
+              width:        8px;
+              margin-top:   -4px;
+              margin-left:  -4px;
+              cursor:       pointer;
           }
           iron-icon.closed:hover {
               stroke-width: 3px;
@@ -25,23 +31,18 @@
               margin-left:  -5px;
           }
           iron-icon.open {
-            height:       16px;
-            width:        16px;
-            margin-top:   -8px;
-            margin-left:  -8px;
-            cursor:       default;
+              height:       16px;
+              width:        16px;
+              margin-top:   -8px;
+              margin-left:  -8px;
+              cursor:       default;
           }
           iron-icon ::shadow svg {
               overflow: visible;
           }
 
-    </style>
+      </style>
 
-  <template>
-        <iron-icon icon="custom-icons:selected"
-                   on-click="annotationClicked"
-                   title="{{stripped(annotation.body)}}"
-                   class$="{{computeClass(annotation)}}"></iron-icon>
   </template>
 
   <script>
@@ -56,8 +57,7 @@
       },
 
       annotationClicked: function(event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
+        Oj.globalExpressions.ignoreEvent(event);
         this.set('annotation.open', true);
       },
 

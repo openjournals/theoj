@@ -3,11 +3,10 @@
   <template>
 
       <template is="dom-if" if="{{loaded}}">
-          <paper-material elevation="1" on-click="fireClick">
+          <paper-material elevation="1">
             <canvas id="canvas"></canvas>
-            <div id="textLayer"></div>
-            <template is="dom-if" if="{{canRender(annotations, rendered)}}">
-                <div id="iconlayer">
+            <template is="dom-if" if="{{canRenderAnnotations(annotations, rendered)}}">
+                <div id="iconlayer" on-click="fireClick">
                     <template is="dom-repeat" items="{{annotations}}" as="a" observe="pageNo" filter="samePageFilter">
                       <oj-annotation-marker annotation="{{a}}" style$="{{computeStyle(a, a.page_x, a.page_y)}}"></oj-annotation-marker>
                     </template>
@@ -37,7 +36,7 @@
               width: 100%;
               height: 100%;
           }
-          #textLayer, #iconlayer {
+          #iconlayer {
               position: absolute;
               left: 0;
               top: 0;
@@ -51,39 +50,6 @@
 
           #iconlayer oj-annotation-marker {
               position: absolute;
-          }
-
-          /* CSS for text highlighting overlay */
-
-          #textLayer > div {
-              color: transparent;
-              position: absolute;
-              line-height: 1;
-              white-space: pre;
-              cursor: text;
-          }
-
-          #textLayer .highlight {
-              margin: -1px;
-              padding: 1px;
-              background-color: rgba(180, 0, 170, 0.2);
-              border-radius: 4px;
-          }
-
-          #textLayer .highlight.begin {
-              border-radius: 4px 0 0 4px;
-          }
-
-          #textLayer .highlight.end {
-              border-radius: 0 4px 4px 0;
-          }
-
-          #textLayer .highlight.middle {
-              border-radius: 0;
-          }
-
-          #textLayer .highlight.selected {
-              background-color: rgba(0, 100, 0, 0.2);
           }
 
       </style>
@@ -101,8 +67,8 @@
           notify:   true
         },
         loaded: {
-          type:  Boolean,
-          value: false
+          type:     Boolean,
+          value:    false
         },
         page: {
            // PDF Page Object
@@ -111,8 +77,13 @@
            observer: 'pageChanged'
         },
         pageNo: {
-            notify: true
+            notify:  true
+        },
+        rendered: {
+            type:    Boolean,
+            notify:  true
         }
+
       },
 
       observers: [
@@ -120,8 +91,8 @@
       ],
 
       ready: function () {
-            $(window).resize( this.adjustClientSizes.bind(this) );
-        },
+         $(window).resize( this.adjustClientSizes.bind(this) );
+      },
 
       annotationsChanged: function () {
         if (!this.annotations || !this.clientHeight)
@@ -154,7 +125,7 @@
             clientHeight: this.clientHeight
           });
 
-        // Add a delay since we're reizing inside a mouse drag
+        // Add a delay since we're resizing inside a mouse drag
         this.debounce('update-annotation-list-locations # ' + this.pageNo,
                       this.addLocationToAnnotations, 150);
       },
@@ -183,33 +154,29 @@
       },
 
       annotationClicked: function (event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
-        var annotation = event.target.templateInstance.model.annotation;
-        annotation.open = true;
+          Oj.globalExpressions.ignoreEvent(event);
+          var annotation = event.target.templateInstance.model.annotation;
+          annotation.open = true;
       },
 
-      render: function () {
+      render: function (pageContent) {
         // Get the best scaling to fit the canvas
-        var scale = this.clientWidth / this.pageContent.getViewport(1).width;
-        this.viewport = this.pageContent.getViewport(scale);
-        this.textLayerDiv = this.$$('#textLayer');
-        var canvas = this.$$('#canvas');
-        canvas.width = this.viewport.width;
-        canvas.height = this.viewport.height;
-        this.pageContent.getTextContent().then(function (textContent) {
-          this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
-          this.textLayer.setTextContent(textContent);
-          var context = canvas.getContext('2d');
-          this.pageContent.render({
-            canvasContext: context,
-            viewport: this.viewport,
-            textLayer: this.textLayer
-          }).then(function () {
-          }.bind(this));
+        var scale         = this.clientWidth / pageContent.getViewport(1).width;
+        var viewport      = pageContent.getViewport(scale);
+        var canvas        = this.$$('#canvas');
+        var context       = canvas.getContext('2d');
+        canvas.width      = viewport.width;
+        canvas.height     = viewport.height;
+
+        // this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
+        pageContent.render({
+          canvasContext: context,
+          viewport:      viewport
+        }).then(function () {
+           this.adjustClientSizes();
+           this.rendered = true;
         }.bind(this));
-        this.adjustClientSizes();
-        this.rendered = true;
+
       },
 
       pageChanged: function() {
@@ -221,13 +188,13 @@
               this.pageContent = pageContent;
 
               setTimeout(function () {
-                  this.render();
+                  this.render(pageContent);
               }.bind(this), 600);
 
           }.bind(this));
       },
 
-      canRender: function(annotations, rendered) {
+      canRenderAnnotations: function(annotations, rendered) {
         return rendered && annotations;
       },
 

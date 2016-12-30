@@ -8,9 +8,15 @@
           width:       100%;
       }
 
+      .layout {
+          box-sizing:   border-box;
+      }
+
       oj-annotation {
-        display: none;
-        width:   100%;
+        box-sizing:    border-box;
+        position:      absolute;
+        display:       none;
+        width:         100%;
       }
 
     </style>
@@ -23,7 +29,7 @@
                        on-annotation-opened="annotationOpened"
                        on-annotation-closed="annotationClosed"
                        on-annotation-added="annotationAdded"
-                       style$="{{_computeStyle(a, a.list_top)}}"></oj-annotation>
+                       style$="{{annotationStyle(a, a.list_top, a.open)}}"></oj-annotation>
       </template>
 
     </div>
@@ -42,21 +48,29 @@
           type:   Array,
           notify: true
         },
+        annotationVerticalShift: {  /* Annotations are shifted up this much, about half the header height */
+          type:  Number,
+          value: 5
+        },
         collapsedAnnotationHeight: {
-          type: Number,
-          value: 42
+          type:  Number,
+          value: 30
         },
         firstPageOffset: {
             notify: true
         },
         pageHeight: {
-          type: Number,
-          notify: true,
+          type:     Number,
+          notify:   true,
           observer: 'pageHeightChanged'
         },
         pageSpacing: {
           notify: true
         }
+      },
+
+      listeners: {
+         'click': 'click'
       },
 
       observers: [
@@ -140,10 +154,18 @@
           return 0;
 
         } else {
-          var y = annotation.yStart;
-          var t = this.firstPageOffset + this.pageHeight * page_no + this.pageHeight * y + this.pageSpacing * (page_no - 1);
+          var y = this.pageHeight * annotation.yStart - this.annotationVerticalShift;
+          y = Math.max(y, 0);
+          var t = this.firstPageOffset + this.pageHeight * page_no + this.pageSpacing * (page_no - 1) + y;
           return Math.max(t, 0);
         }
+      },
+
+      click: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+          event = Polymer.dom(event);
+          if (event.rootTarget==this)
+            this.collapseAnnotations();
       },
 
       annotationOpened: function (event, element) {
@@ -159,7 +181,8 @@
       },
 
       annotationAdded: function (event, annotation) {
-        this.push('annotations', annotation);
+        this.fire('notification', 'Annotation saved.');
+        this.collapseAnnotations();
       },
 
       collapseAnnotations: function (exclude) {
@@ -170,10 +193,11 @@
         });
       },
 
-      _computeStyle: function (annotation) {
+      annotationStyle: function (annotation) {
         return this.styleObject({
             top:     annotation.list_top,
-            display: 'block'
+            display: 'block',
+            zIndex:  annotation.open ? 1000 : 1
         });
       },
 

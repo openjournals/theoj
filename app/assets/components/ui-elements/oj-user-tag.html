@@ -2,10 +2,6 @@
 
   <template>
 
-      <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
-          <iron-icon id=completion-icon icon="{{getCompletionIcon(assignment)}}" title="{{getCompletionTip(assignment)}}"></iron-icon>
-      </template>
-
       <span class="name">
           <template is="dom-if" if="{{assignment.user}}">
               <span>{{assignment.user.name}}</span>
@@ -17,9 +13,18 @@
 
       <template is="dom-if" if="{{showRemover(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
 
+      <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
+          <iron-icon id=completion-icon
+                     class$="{{assignment.reviewer_accept}}"
+                     icon="{{getCompletionIcon(assignment)}}"
+                     title="{{getCompletionTip(assignment)}}"></iron-icon>
+          <span id="completion-text" hidden?="{{!assignment.reviewer_accept}}">{{getCompletionTip(assignment)}}</span>
+      </template>
+
       <style>
 
           :host {
+              display:       block;
               font-size:     32px;/* Approximation due to font substitution */
               font-weight:   700;
               line-height:   30px;/* Approximation due to font substitution */
@@ -32,11 +37,30 @@
           }
 
           #completion-icon {
-              width:          16px !important;
-              height:         16px !important;
-              vertical-align: -2px !important;
+              width:          24px !important;
+              height:         24px !important;
+              margin-left:    12px;
               background:     #e4e4e4;
-              color:          black;
+              color:          hotpink;
+          }
+          #completion-icon.accept {
+              color:         black;
+          }
+          #completion-icon.accept_with_minor {
+              color:         blue;
+          }
+          #completion-icon.accept_with_major {
+              color:         orange;
+          }
+          #completion-icon.reject {
+              color:         red;
+          }
+
+          #completion-text {
+              display:     inline-block;
+              color:       #7d7d7d;
+              font-weight: 400;
+              font-size:   14px;
           }
 
       </style>
@@ -75,9 +99,13 @@
 
       getCompletionIcon: function (assignment) {
         switch (assignment.reviewer_accept) {
-        case true:
-          return 'icons:done';
-        case false:
+        case 'accept':
+          return 'icons:check-all';
+        case 'accept_with_minor':
+          return 'icons:check-circle';
+        case 'accept_with_major':
+          return 'icons:check-box';
+        case 'reject':
           return 'icons:clear';
         default:
           return '';
@@ -86,10 +114,14 @@
 
       getCompletionTip: function (assignment) {
         switch (assignment.reviewer_accept) {
-        case true:
-          return 'Recommended Acceptance';
-        case false:
-          return 'Recommended Rejection';
+        case 'accept':
+          return 'Accepted with No Revisions';
+        case 'accept_with_minor':
+          return 'Accepted with Minor Revisions';
+        case 'accept_with_major':
+          return 'Accepted with Major Revisions';
+        case 'reject':
+          return 'Rejected';
         default:
           return 'Review Not Complete';
         }

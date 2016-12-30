@@ -1,11 +1,10 @@
 class FullPaperSerializer < PaperSerializer
 
   attributes :paper_id,
-             :authors,
              :document_location
 
   has_many :assigned_users
-  has_many :versions,       each_serialzier: BasicPaperSerializer
+  has_many :versions,     each_serializer: BasicPaperSerializer
 
   def paper_id
     object.id

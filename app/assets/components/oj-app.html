@@ -26,6 +26,10 @@
 
           paper-drawer-panel {
               border-right: 1px solid #ccc;
+              --paper-drawer-panel-main-container: {
+                  margin-left: 6px;
+                  box-shadow:  0 -2px 2px  0   rgba(0, 0, 0, 0.14), 0 -1px 5px  0   rgba(0, 0, 0, 0.12), 0 -3px 1px -2px rgba(0, 0, 0, 0.2 );
+              }
           }
 
           oj-toolbar {
@@ -36,12 +40,16 @@
           }
 
           #notification {
-              border-radius:0;
+              border-radius: 0;
               padding-right: 60px;
-              position: fixed;
-              outline: none;
-              z-index: 24;
-              box-sizing: border-box;
+              position:      fixed;
+              outline:       none;
+              z-index:       24;
+              box-sizing:    border-box;
+              font-size:     20px;
+              font-weigth:   700;
+              --paper-toast-background-color: #a9ffe2;
+              --paper-toast-color:            black;
           }
 
       </style>
@@ -118,7 +126,7 @@
 
       showNotification: function (text) {
         console.info('Notification: ', text);
-        this.set('$.notification.text', text);
+        this.$.notification.text = text;
         this.$.notification.show();
       },
 

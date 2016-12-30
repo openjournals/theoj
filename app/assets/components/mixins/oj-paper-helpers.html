@@ -38,11 +38,29 @@
             return false;
         },
 
+        roleForAssignment: function(a) {
+            // Assumes that assignments are ordered with 1 editor and 1 submittor followed by the reviewers
+
+            if (!a || !a.role)
+                return null;
+            else if (a.role == 'reviewer' && a.index)
+                return 'Reviewer #' + (a.index-1);
+            else
+                return Oj.globalExpressions.capitalize(a.role);
+        },
+
         isOwnAnnotation: function(annotation, paper) {
             if (!annotation || !paper)
               return false;
 
             return paper.current_assignment.sha == annotation.assignment;
+        },
+
+        hasOwnAnnotation: function(annotations, paper) {
+            var sha = paper.current_assignment.sha;
+            return annotations.find( function(a) {
+               return a.assignment == sha && !a.new;
+            });
         },
 
         // Given a assignment sha returns the assignment object from the paper
@@ -71,6 +89,28 @@
             return paper.assignmentsBySha[assignment_sha];
         },
 
+        authorFor: function(paper, assignment_sha) {
+          var a = this.assignmentFromSha(paper, assignment_sha);
+          if (!a)
+              return null;
+
+          if (a.user)
+              return a.user.name;
+          else
+              return null;
+        },
+
+        authorOrRoleFor: function(paper, assignment_sha) {
+            var a = this.assignmentFromSha(paper, assignment_sha);
+            if (!a)
+                return null;
+
+            if (a.user)
+                return a.user.name;
+            else
+                return this.roleForAssignment(a);
+        },
+
         sortAssignments: function(assignments) {
             if (!assignments)
               return assignments;
@@ -87,6 +127,18 @@
                         else
                             return -1;
                   });
+        },
+
+        latestDateForAnnotation: function(annotation) {
+          var date = Oj.utils.normalizeDate(annotation.created_at);
+          if (annotation.responses) {
+              for (var i = 0; i < annotation.responses.length; i++) {
+                  var response_date = window.Oj.paperHelpers.latestDateForAnnotation( annotation.responses[i] );
+                  if (response_date > date)
+                     date = response_date;
+              }
+          }
+          return date;
         },
 
         providerPart: function(typed_provider_id) {

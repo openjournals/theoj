@@ -3,6 +3,59 @@
 
   <template>
 
+      <div id=inner>
+
+          <paper-dropdown-menu id="version"
+                               on-iron-select="versionSelected"
+                               noink no-animations no-label-float
+                               vertical-align=bottom
+                               horizontal-align=left>
+              <paper-listbox id="versionMenu"
+                             class="dropdown-content dropdown"
+                             attr-for-selected="version"
+                             selected="[[paper.typed_provider_id]]">
+                  <template is="dom-repeat" items="{{paper.versions}}" as="version">
+                      <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
+                  </template>
+              </paper-listbox>
+          </paper-dropdown-menu>
+
+          <template is="dom-if" if="{{paper.dio}}">
+              <div class="doi">DOI: <span>{{paper.doi}}</span></div>
+          </template>
+
+          <div class="title" title="{{paper.title}}">{{paper.title}}</div>
+
+          <div class="authors" title="{{paper.authors}}">{{paper.authors}}</div>
+
+          <br/>
+
+          <oj-assigned-users-list paper="{{paper}}" user="{{user}}"></oj-assigned-users-list>
+
+          <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
+
+              <div class="separator"></div>
+
+              <div class="block-row">
+
+                  <div class="block-item status">
+                      <div class="label">Status:</div>
+                      <div class="text">{{capitalize(paper.state)}}</div>
+                  </div>
+
+                  <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
+                      <div class="block-item count">
+                          <div class="text">{{countOpen}}</div>
+                          <div class="label">Open<br>Issues</div>
+                      </div>
+                  </template>
+
+              </div>
+
+          </template>
+
+      </div>
+
       <style>
 
           :host {
@@ -29,7 +82,7 @@
                   color:      black;
               };
               --paper-dropdown-menu-input: {
-                padding-left: 4px;
+                  padding-left: 4px;
               };
               --paper-input-container: {
                   padding: 0;
@@ -58,13 +111,24 @@
               min-height:   0;
               padding:      2px 4px;
           }
+          paper-item:hover {
+              background:   #dddddd;
+          }
+
+          #version {
+              margin-bottom:  20px;
+          }
+
+          .doi {
+              font-size:   32px;/* Approximation due to font substitution */
+              font-weight: 700;
+          }
 
           .title {
-              margin-top:  20px;
               font-size:   32px;/* Approximation due to font substitution */
               font-weight: 700;
               /*line-height: 30px;/* Approximation due to font substitution */
-              max-height:  96px;
+              max-height:  92px;
               overflow-y:  scroll;
           }
 
@@ -72,24 +136,24 @@
               font-family: Roboto;
               font-size:   17px;/* Approximation due to font substitution */
               font-style:  italic;
+              margin-top:  8px;
               /*line-height: 22px;/* Approximation due to font substitution */
               max-height:  44px;
               overflow-y:  scroll;
           }
 
           .block-row {
-              margin-top: 12px;
+              margin-top: 24px;
               @apply(--layout-horizontal);
           }
 
           .block-item {
-              border-right: solid 1px #bbb;
-              padding: 0 20px 0 0;
+              padding: 0 32px 0 0;
               color: #7d7d7d;
           }
 
           .block-item .label {
-              font-size: 12px;
+              font-size:   12px;
               font-weight: 700;
           }
           .block-item .text {
@@ -98,67 +162,29 @@
           }
 
           .block-item.count .label {
-              font-size: 14px;
+              font-size:   14px;
               font-weight: 400;
-              float:     left;
+              float:       left;
           }
           .block-item.count .text {
-              font-size:    36px;
+              font-size:    48px;
               float:        left;
-              margin:       -4px 4px 0 0;
+              margin:       -16px 4px 0 0;
           }
 
           oj-assigned-users-list {
               margin-top:  24px;
           }
 
-          oj-review-page-actions {
-              @apply(--layout);
-              @apply(--layout-flex);
+          .separator {
+              margin:              12px 0;
+              box-sizing:          border-box;
+              border-top:          1px solid #a0a0a0;
+              height:              0;
+              width:               100%;
           }
 
       </style>
-
-      <div id=inner>
-
-          <paper-dropdown-menu on-iron-select="versionSelected" noink no-animations no-label-float vertical-align=bottom horizontal-align=left>
-              <paper-listbox id="versionMenu" class="dropdown-content dropdown" attr-for-selected="version" selected="{{paper.typed_provider_id}}">
-                  <template is="dom-repeat" items="{{paper.versions}}" as="version">
-                      <paper-item version="{{version.typed_provider_id}}">{{providerPart(version.typed_provider_id)}}</paper-item>
-                  </template>
-              </paper-listbox>
-          </paper-dropdown-menu>
-
-          <div class="title" title="{{paper.title}}">{{paper.title}}</div>
-
-          <div class="authors" title="{{paper.authors}}">{{paper.authors}}</div>
-
-          <br/>
-
-          <oj-assigned-users-list paper="{{paper}}" user="{{user}}"></oj-assigned-users-list>
-
-          <template is="dom-if" if="{{showBottomDetails(paper, paper.state, paper.can_view_annotations)}}">
-              <div class="block-row">
-
-                  <div class="block-item status">
-                      <div class="label">Status:</div>
-                      <div class="text">{{capitalize(paper.state)}}</div>
-                  </div>
-
-                  <template is="dom-if" if="{{showCounts(paper, paper.state, paper.can_view_annotations)}}">
-                      <div class="block-item count">
-                          <div class="text">{{countOpen}}</div>
-                          <div class="label">Open<br>Issues</div>
-                      </div>
-                  </template>
-
-              </div>
-
-              <oj-review-page-actions user="{{user}}" paper="{{paper}}"></oj-review-page-actions>
-
-          </template>
-
-      </div>
 
   </template>
 

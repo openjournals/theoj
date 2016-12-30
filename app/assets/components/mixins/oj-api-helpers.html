@@ -1,0 +1,64 @@
+<script>
+
+    window.Oj.api = {
+
+        // Take either a paper object or a typed id
+        paperApi: function(paper_or_id) {
+            return paper_or_id ? "papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
+        },
+
+        addAssigneeApi: function(paper) {
+            return "papers/" + paper.typed_provider_id + "/assignments";
+        },
+
+        removeAssigneeApi: function(paper, assignment) {
+            return "papers/" + paper.typed_provider_id + "/assignments/" + assignment.sha;
+        },
+
+        getAllIssuesApi: function(paper) {
+            return "papers/" + (paper.typed_provider_id || paper) + "/annotations";
+        },
+
+        previewApi: function(paper) {
+          return paper ? "papers/"+ (paper.typed_provider_id || paper) + "/preview" : '';
+        },
+
+        paperVersionsApi: function(paper) {
+            return paper && "papers/"+paper.typed_provider_id+"/versions" ;
+        },
+
+        paperCheckForUpdateApi: function(paper) {
+            return "papers/"+paper.typed_provider_id+"/check_for_update";
+        },
+
+        paperAnnotationsApi: function(paper){
+          return "papers/"+paper.typed_provider_id+"/annotations";
+        },
+
+        addIssueApi: function(paper) {
+            return "papers/"+paper.paper_id+"/annotations";
+        },
+
+        paperAnnotationApi: function(paper, annotation){
+            return "papers/"+paper.paper_id+"/annotations/" + annotation.id;
+        },
+
+        paperAnnotationStateChangeApi: function(paper, annotation, state){
+            return "papers/"+paper.paper_id+"/annotations/" + annotation.id + "/" + state;
+        },
+
+        paperCompleteApi: function(paper){
+            return  paper && "papers/" + paper.typed_provider_id + "/complete";
+        },
+
+        paperMakePublicApi: function(paper, make_public){
+            return  paper && "papers/" + paper.typed_provider_id + "/public";
+        },
+
+        paperTransitionApi: function(paper, transition){
+          return  paper && "papers/" + paper.typed_provider_id + "/transition?transition=" + transition;
+        }
+
+    };
+
+</script>

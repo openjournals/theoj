@@ -7,7 +7,11 @@ class Assignment < ActiveRecord::Base
   # set when the paper is being updated from an original
   attr_accessor :copied
 
-  validates :role, inclusion:{ in:['submittor', 'collaborator', 'reviewer', 'editor'] }
+  validates :role,
+            inclusion:{ in:['submittor', 'collaborator', 'reviewer', 'editor'] }
+
+  validates :reviewer_accept,
+            inclusion:{ in:['accept', 'accept_with_minor', 'accept_with_major', 'reject'], allow_nil: true }
 
   before_create  :set_initial_values
   before_destroy :check_for_annotations!
@@ -18,7 +22,8 @@ class Assignment < ActiveRecord::Base
   def self.build_copy(original)
     # Note we don't copy the 'completed' field
     attrs = original.attributes.symbolize_keys.slice(:role, :user_id, :public)
-    new attrs.merge(copied:true)
+    attrs[:copied] = true
+    self.new attrs
   end
 
   def use_completed?

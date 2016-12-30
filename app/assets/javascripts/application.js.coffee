@@ -5,6 +5,7 @@
 #= stub    pdfjs-dist/build/pdf.worker
 #= stub    pdf.worker
 #= stub    bootstrap
+#= stub    textlayerbuilder
 #= require pdfjs-dist/build/pdf
 #= require_tree .
 
@@ -23,9 +24,13 @@ $ ->
     showMathMenu: false
     tex2jax:
       preview:     'none',
-      inlineMath:  [['$','$']],
-      displayMath: [['$$','$$']]
+      inlineMath:  [ ['$','$'],   ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
   )
 
-
+  MathJax.typeset = (element) ->
+      element = element.node || element;  # Handle Polymer wrapped nodes
+      MathJax.Hub.Queue(
+        ['Typeset', MathJax.Hub, element ]
+      );
 

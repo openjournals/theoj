@@ -11,6 +11,7 @@
               @apply(--layout-horizontal);
               @apply(--layout-flex);
               @apply(--layout-center);
+              @apply(--disable-selection);
 
               width:             100%;
               height:            108px;
@@ -73,7 +74,7 @@
 
       </style>
 
-        <div class="toolbar disable-selection">
+        <div class="toolbar">
             <paper-icon-button icon="icons:menu" on-tap="toggleDrawer" hidden$="{{!narrow}}"></paper-icon-button>
             <span class="title">The Open Journal</span>
             <!-- <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp"> -->

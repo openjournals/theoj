@@ -189,25 +189,26 @@ describe Annotation do
         paper = create(:paper)
         ability = Ability.new(user, paper)
 
-        assert ability.cannot?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+        assert ability.cannot?(:create, Annotation.new(paper: paper, body: "Blah"))
       end
 
       it "AS REVIEWER: should be possible to annotate paper" do
-        user = create(:user)
-        paper = create(:paper)
-        create(:assignment, :reviewer, user:user, paper:paper)
-        ability = Ability.new(user, paper)
+        user       = create(:user)
+        paper      = create(:paper)
+        assignment = create(:assignment, :reviewer, user:user, paper:paper)
 
-        assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+        ability    = Ability.new(user, paper)
+
+        assert ability.can?(:create, Annotation.new(paper: paper, assignment: assignment, body: "Blah"))
       end
 
       it "AS EDITOR: should be possible to annotate paper" do
-        user = create(:editor)
-        paper = create(:paper)
+        editor = create(:editor)
+        paper = create(:paper, editor: editor)
 
-        ability = Ability.new(user, paper)
+        ability = Ability.new(editor, paper)
 
-        assert ability.can?(:create, Annotation.new(:paper => paper, :body => "Blah"))
+        assert ability.can?(:create, Annotation.new(paper: paper, body: "Blah"))
       end
 
     end
@@ -238,7 +239,7 @@ describe Annotation do
         user = create(:user)
         paper = create(:paper) # note user doesn't own paper
         ability = Ability.new(user, paper)
-        annotation = create(:annotation, :paper => paper)
+        annotation = create(:annotation, paper: paper)
 
         assert ability.cannot?(:read, annotation)
       end
@@ -246,8 +247,8 @@ describe Annotation do
       it "AS EDITOR: should be possible to read annotation on paper" do
         editor = create(:editor)
         user   = create(:user)
-        paper  = create(:paper, submittor:user)
-        annotation = create(:annotation, :paper => paper)
+        paper  = create(:paper, submittor:user, editor:editor)
+        annotation = create(:annotation, paper: paper)
 
         ability = Ability.new(editor, paper, annotation)
         assert ability.can?(:read, annotation)
@@ -278,7 +279,7 @@ describe Annotation do
       it "AS AUTHOR: should not be able to delete own annotations" do
         user = create(:user)
         paper = create(:paper, :submitted, submittor:user)
-        annotation = create(:annotation, :user => user, :paper => paper)
+        annotation = create(:annotation, user: user, paper: paper)
 
         ability = Ability.new(user, paper, annotation)
         assert ability.cannot?(:destroy, annotation)
@@ -287,7 +288,7 @@ describe Annotation do
       it "AS EDITOR: should be possible to delete annotations" do
         editor = create(:editor)
         user = create(:user)
-        paper = create(:paper, submittor:user)
+        paper = create(:paper, submittor:user, editor:editor)
         annotation = create(:annotation, paper:paper)
 
         ability = Ability.new(editor, paper, annotation)
@@ -356,7 +357,7 @@ describe Annotation do
         user = create(:user)
         paper = create(:paper) # note user doesn't own paper
         ability = Ability.new(user, paper)
-        annotation = create(:annotation, :paper => paper)
+        annotation = create(:annotation, paper: paper)
 
         assert ability.cannot?(:dispute, annotation)
       end
@@ -365,7 +366,7 @@ describe Annotation do
         user = create(:user)
         paper = create(:paper) # note user doesn't own paper
         ability = Ability.new(user, paper)
-        annotation = create(:annotation, :paper => paper)
+        annotation = create(:annotation, paper: paper)
 
         assert ability.cannot?(:resolve, annotation)
       end
@@ -374,7 +375,7 @@ describe Annotation do
         user = create(:user)
         paper = create(:paper) # note user doesn't own paper
         ability = Ability.new(user, paper)
-        annotation = create(:annotation, :paper => paper)
+        annotation = create(:annotation, paper: paper)
 
         assert ability.cannot?(:unresolve, annotation)
       end
@@ -382,8 +383,8 @@ describe Annotation do
       it "AS EDITOR: should be possible to dispute annotation on paper" do
         editor = create(:editor)
         user = create(:user)
-        paper = create(:paper, submittor:user)
-        annotation = create(:annotation, :paper => paper)
+        paper = create(:paper, submittor:user, editor: editor)
+        annotation = create(:annotation, paper: paper)
 
         ability = Ability.new(editor, paper, annotation)
         assert ability.can?(:dispute, annotation)
@@ -392,7 +393,7 @@ describe Annotation do
       it "AS EDITOR: should be possible to resolve annotation on paper" do
         editor = create(:editor)
         user = create(:user)
-        paper = create(:paper, submittor:user)
+        paper = create(:paper, submittor:user, editor: editor)
         annotation = create(:annotation, paper:paper)
 
         ability = Ability.new(editor, paper, annotation)
@@ -402,7 +403,7 @@ describe Annotation do
       it "AS EDITOR: should be possible to unresolve annotation on paper" do
         editor = create(:editor)
         user = create(:user)
-        paper = create(:paper, submittor:user)
+        paper = create(:paper, submittor:user, editor:editor)
         annotation = create(:annotation, paper:paper)
 
         ability = Ability.new(editor, paper, annotation)

@@ -8,7 +8,8 @@
                     items="{{sortedAssignments}}"
                     filter="isSubmittor"
                     as="assignment">
-              <oj-user-tag assignment="{{assignment}}"></oj-user-tag>
+              <oj-user-tag class="submittor"
+                           assignment="{{assignment}}"></oj-user-tag>
           </template>
       </div>
 
@@ -20,7 +21,8 @@
                     items="{{sortedAssignments}}"
                     filter="isEditor"
                     as="assignment">
-              <oj-user-tag assignment="{{assignment}}"></oj-user-tag>
+              <oj-user-tag class="editor"
+                           assignment="{{assignment}}"></oj-user-tag>
           </template>
       </div>
 
@@ -32,13 +34,15 @@
                     items="{{sortedAssignments}}"
                     filter="isReviewer"
                     as="assignment">
-              <oj-user-tag assignment="{{assignment}}"
-                           showcompleted="{{showCompleted}}"
+              <oj-user-tag class="reviewer"
+                           assignment="{{assignment}}"
+                           show-completed="{{showCompleted}}"
                            removable="{{editable}}"
                            on-remove-user="removeReviewer"></oj-user-tag>
           </template>
 
-          <oj-user-tag assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
+          <oj-user-tag class="reviewer anonymous"
+                       assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
 
           <template is="dom-if" if="{{editable}}">
               <div class=add_reviewer>+ Add a Reviewer:</div>
@@ -49,8 +53,8 @@
 
       </div>
 
-    <json-request id="addReviewer"    method="post"   on-success="updateReviewers"></json-request>
-    <json-request id="removeReviewer" method="delete" on-success="updateReviewers"></json-request>
+    <api-request id="addReviewer"    method="post"   on-success="updateReviewers"></api-request>
+    <api-request id="removeReviewer" method="delete" on-success="updateReviewers"></api-request>
 
       <style>
 
@@ -62,6 +66,13 @@
               color:       #c0cbcf;
               font-size:   20px;/* Approximation due to font substitution */
               font-weight: 500;
+          }
+
+          oj-user-tag.anonymous {
+              color:       #678492;
+              font-size:   24px;
+              font-style:  italic;
+              font-weight: 400;
           }
 
           oj-user-tag, oj-user-lookup {
@@ -105,6 +116,9 @@
         underReview:   {
             notify: true
         },
+        reviewCompleted:   {
+            notify: true
+        },
         showCompleted: {
             notify: true
         },
@@ -123,11 +137,12 @@
       ],
 
       modelsChanged: function() {
-        var can_edit        = this.user && ( this.user.admin || this.hasRole(this.paper, 'editor') );
-        this.submitted      = this.paper && this.paper.state == 'submitted';
-        this.underReview    = this.paper && this.paper.state == 'under_review';
-        this.showCompleted  = this.paper && can_edit && (this.paper.state == 'under_review' || this.paper.state == 'review_completed');
-        this.editable       = this.submitted && can_edit;
+        var can_edit         = this.user && ( this.user.admin || this.hasRole(this.paper, 'editor') );
+        this.submitted       = this.paper && this.paper.state == 'submitted';
+        this.underReview     = this.paper && this.paper.state == 'under_review';
+        this.reviewCompleted = this.paper && this.paper.state == 'review_completed';
+        this.showCompleted   = can_edit && (this.underReview || this.reviewCompleted);
+        this.editable        = can_edit && (this.submitted || this.underReview || this.reviewCompleted);
       },
 
       userColor: function(assignment) {
@@ -136,12 +151,13 @@
       },
 
       removeReviewer: function(event, assignment) {
-        this.set('$.removeReviewer.url', Oj.urls.removeAssigneePath(this.paper, assignment));
+        this.$.removeReviewer.api = Oj.api.removeAssigneeApi(this.paper, assignment);
         this.$.removeReviewer.go();
       },
 
       addReviewer: function(event, user) {
-        this.set('$.addReviewer.url', Oj.urls.addAssigneePath(this.paper, user));
+        this.$.addReviewer.api = Oj.api.addAssigneeApi(this.paper, user);
+        this.$.addReviewer.data = { user: user.sha };
         this.$.addReviewer.go();
       },
 
@@ -150,8 +166,6 @@
       },
 
       filterReviewerList: function(event, suggestions) {
-          event.result = suggestions;
-          return;
         var paper = this.paper;
         event.result = suggestions.filter(function (item) {
           for (var i = 0; i < paper.assigned_users.length; i++) {

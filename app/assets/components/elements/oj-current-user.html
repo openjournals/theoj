@@ -1,7 +1,7 @@
 <dom-module id="oj-current-user">
   <template>
 
-    <json-request method="get" auto="true" url="/api/user" on-success="isReady"></json-request>
+    <api-request method="get" auto="true" api="user" on-success="isReady"></api-request>
 
   </template>
   <script>
@@ -11,13 +11,13 @@
         var user;
         if (event.detail && event.detail.name) {
           user = event.detail;
-          this.fire('user-logged-in', user); //mro todo asyncFire
+          this.fire('user-logged-in', user);
         } else {
           user = null;
-          this.fire('user-logged-out'); //mRo todo asyncFire
+          this.fire('user-logged-out');
         }
         window.current_user = user;
-        this.fire('user', user); //mRo todo asyncFire
+        this.fire('user', user);
       }
     });
   </script>

@@ -1,0 +1,25 @@
+<%- Paper.aasm.states.each do |state| %>
+  <div style="padding-bottom:10px; border-bottom: solid 2px black; margin-bottom:10px;margin-left:20px">
+
+    <% papers = Paper.with_state(state.name) %>
+    <h3><%= papers.count %> <%= state.name %> papers</h3>
+
+    <%- papers.each do |p| %>
+      <div style="margin-bottom:12px">
+        <div style="font-weight:bold"><%= p.typed_provider_id %>: <%= p.title %> <%= link_to '[review]', paper_review_path(p.typed_provider_id), target:'_blank' %></div>
+        <ul style="margin:0">
+          <li>PDF: <%= p.document_location %> <%= link_to '[open]', p.document_location, {target:'_blank'} %></li>
+          <%- if p.doi %>
+              <li>DOI: <%= p.doi %></li>
+          <%- end %>
+          <li>Authors: <%= p.authors %></li>
+          <li>Submittor: <%= p.submittor.name %> &middot; <%= p.submittor.email %> &middot; <%= link_to "ORCID", orcid_account_path(p.submittor.uid) %></li>
+          <li>Editors: <%= p.editors.collect(&:name).join(', ') %></li>
+          <li>Reviewers: <%= p.reviewers.collect(&:name).join(', ') %></li>
+          <li>Submitted at: <%= p.created_at %>, Last Update: <%= p.updated_at %></li>
+        </ul>
+      </div>
+    <% end %>
+
+  </div>
+<% end %>

@@ -38,7 +38,11 @@ class ApplicationController < ActionController::Base
 
   #@mro, @todo - needs to be rewritten (should be editor of Paper)
   def require_editor
-    render_error :forbidden unless (current_user && current_user.editor?)
+    render_error :forbidden unless current_user && current_user.editor?
+  end
+
+  def require_admin
+    render_error :forbidden unless current_user && current_user.admin?
   end
 
   def current_user

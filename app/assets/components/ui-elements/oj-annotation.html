@@ -1,168 +1,178 @@
 <dom-module id="oj-annotation">
 
-  <style>
-      :host{
-          width: 100%;
-          position:absolute;
-      }
-      .container {
-          box-sizing: border-box;
-      }
-      .container-inner {
-          padding: 10px 10px 10px;
-          box-sizing: border-box;
-          background-color: #efefef;
-          color: #7d7d7d;
-          font-weight: 400;
-          min-height: 40px;
-      }
-      .container-inner.expanded {
-          padding-bottom: 6px;
-      }
-      iron-collapse {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 1;
-      }
-      .header {
-      }
-      .issue {
-        cursor: pointer;
-        font-size: 0.9em;
-        padding: 10px 5px 5px 5px;
-        min-height: 25px;
-      }
-
-      .collapsed .header {
-          overflow: hidden;
-      }
-
-      .collapsed .issue {
-          height: 25px;
-      }
-      .collapsed .issue::shadow #renderedContent {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-      }
-
-      .count {
-          font-size: 0.7em;
-          margin-left: 12px;
-      }
-
-      :host .container /deep/ paper-button {
-          padding-top:    0;
-          padding-bottom: 0;
-          margin:         4px 0 0 4px;
-          color:          rgb(120, 120, 120);
-          border:         1px solid rgb(120, 120, 120);
-          box-shadow:     0 4px 0 0 rgba(218, 218, 218, 0.3);
-          height:         28px;
-          line-height:    11px;
-      }
-      :host .container /deep/ paper-button iron-icon {
-          width:         16px;
-          height:        16px;
-          padding:       0;
-          margin:        -8px 4px 8px;
-      }
-      :host .container /deep/ paper-button:not([disabled]):hover, paper-button:not([disabled]):active {
-          color:        rgb( 90,  90,  90);
-          border-color: rgb( 90,  90,  90);
-      }
-      :host .container /deep/ paper-button[disabled] {
-          border-color:  rgb(200,200,200);
-          color:         rgb(200,200,200);
-      }
-
-      oj-reviewer-annotation-controls {
-          position: absolute;
-          top:      0;
-          right:    6px;
-      }
-
-      markdown-text-area {
-          width: 100%;
-      }
-      markdown-text-area::shadow a.toggle {
-          bottom: -45px;
-          right:  154px;
-          font-size: 12px;
-          color:  #888;
-          text-transform: capitalize;
-      }
-      markdown-text-area::shadow markdown-content::shadow #renderedContent {
-          padding: 4px;
-      }
-
-    </style>
-
   <template>
 
-    <div class$="{{_computeClass(annotation)}}">
-        <div class="container-inner">
+      <div id='container' class$="{{containerClass(annotation.open, transitioning)}}">
 
-          <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+          <div class="container-inner" on-tap="toggle" >
 
-          <div on-tap="expand" class="header layout horizontal">
-              <oj-user-label assignment="{{getAssignment(paper, annotation.assignment)}}"></oj-user-label>
-              <markdown-simplified class="issue layout flex" markdown="{{annotation.body}}"></markdown-simplified>
-              <div class="count"><span>{{responseCount(annotation)}}</span> replies</div>
-          </div>
-
-        </div>
-    </div>
-
-    <!-- Overlay this to get animated expansion to work nicely -->
-
-    <iron-collapse id="collapsible" opened="{{annotation.open}}" on-resize="annotationAfterOpen">
-      <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
-
-      <div class$="{{_computeClass2(annotation)}}">
-          <div class="container-inner">
-
-              <oj-reviewer-annotation-controls paper="{{paper}}" annotation="{{annotation}}"></oj-reviewer-annotation-controls>
-
+              <!-- Header, only for existing annotations -->
               <template is="dom-if" if="{{!annotation.new}}">
-                  <div on-tap="collapse" class="header layout horizontal">
-                      <oj-user-label assignment="{{getAssignment(paper, annotation.assignment)}}"></oj-user-label>
-                      <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
-                  </div>
+                  <div class="header">
 
-                  <oj-annotation-comments id="comments" paper="{{paper}}" annotation="{{annotation}}"
-                                              on-new-comment-shown="newCommentShown"></oj-annotation-comments>
+                    <template is="dom-if" if="{{!annotation.open}}">
+                      <div class="text">{{headerDisplay(paper, annotation.assignment, annotation.body)}}</div>
+                      <div class="date">{{latestDateDisplay(annotation, annotation.responses)}}</div>
+                      <div class="filler layout flex"></div>
+                      <div class="count">{{replyCountDisplay(annotation.responses)}}</div>
+                    </template>
+
+                    <template is="dom-if" if="{{annotation.open}}">
+                      <div class="text">{{authorOrRoleFor(paper, annotation.assignment)}}</div>
+                      <div class="date">{{dateDisplay(annotation)}}</div>
+                      <div class="filler layout flex"></div>
+                    </template>
+
+                    <oj-reviewer-annotation-controls paper="{{paper}}"
+                                                     annotation="{{annotation}}"></oj-reviewer-annotation-controls>
+                  </div>
               </template>
 
-              <template is="dom-if" if="{{annotation.new}}">
+              <!-- Expanded Display -->
 
-                  <div class="header">
+              <iron-collapse id="collapsible" opened="{{annotation.open}}" transitioning="{{transitioning}}" on-iron-resize="annotationAfterOpen">
+
+                  <!-- Existing Annotations -->
+                  <template is="dom-if" if="{{!annotation.new}}">
+                      <iron-a11y-keys keys="esc" on-keys-pressed="collapse"></iron-a11y-keys>
+                      <markdown-content class="issue" markdown="{{annotation.body}}"></markdown-content>
+                      <oj-annotation-responses id="responses"
+                                               paper="{{paper}}"
+                                               annotation="{{annotation}}"
+                                               on-new-response-shown="newResponseShown"></oj-annotation-responses>
+                  </template>
+
+                  <!-- New Annotations -->
+                  <template is="dom-if" if="{{annotation.new}}">
+
                       <iron-a11y-keys keys="esc" on-keys-pressed="close"></iron-a11y-keys>
                       <iron-a11y-keys keys="shift+enter" on-keys-pressed="submitAnnotation"></iron-a11y-keys>
-                      <markdown-text-area id="annotationTextArea" class="issue" value="{{text}}"></markdown-text-area>
-                  </div>
 
-                  <div class="layout horizontal">
-                      <span class="layout flex"></span>
-                      <paper-button on-click="submitAnnotation" disabled$="{{_computeDisabled(text, saving)}}">Add</paper-button>
-                      <paper-button on-click="close" disabled$="{{saving}}">Cancel</paper-button>
-                  </div>
+                      <markdown-text-area id="annotationTextArea"
+                                          class="issue"
+                                          value="{{text}}"
+                                          placeholder="Make a Comment"
+                                          preview-button-label="{{previewButtonLabel}}"></markdown-text-area>
 
-              </template>
+                      <div class="actions layout horizontal">
+                          <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!text}}">{{previewButtonLabel}}</a>
+                          <span class="filler layout flex"></span>
+                          <a class="action" href="#" on-click="submitAnnotation" data-disabled$="{{savingDisabled(text, saving)}}">Add</a>
+                          <a class="action" href="#" on-click="close" data-disabled$="{{saving}}">Cancel</a>
+                      </div>
+
+                  </template>
+
+              </iron-collapse>
 
           </div>
+
       </div>
 
-    </iron-collapse>
+      <api-request id="saveAnnotationRequest"
+                   method="post"
+                   loading="{{saving}}"
+                   api="{{paperAnnotationsApi(paper)}}"
+                   on-success="annotationSaved"
+                   on-error="annotationError"></api-request>
 
-      <json-request id="saveAnnotationRequest"
-                    method="post"
-                    loading="{{saving}}"
-                    url="{{paperAnnotationsPath(paper)}}"
-                    on-success="annotationSaved"
-                    on-error="annotationError"></json-request>
+      <style>
+          :host{
+              cursor:      default;
+          }
+
+          .container {
+              box-sizing: border-box;
+              padding:    0 18px;
+              @apply(--disable-selection);
+          }
+          .container-inner {
+              box-sizing:       border-box;
+              background-color: #efefef;
+              color:            #7d7d7d;
+              font-weight:      400;
+              padding:          2px;
+          }
+          .open .container-inner, .transitioning .container-inner {
+              box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+          }
+
+
+          iron-collapse {
+              background-color: #f7f7f7;
+          }
+
+          .header {
+              @apply(--layout-horizontal);
+              @apply(--layout-end);
+          }
+          .open .header, .transitioning .header {
+              background: #f7f7f7;
+          }
+
+          .header .text {
+              font-family: Neuton;
+              color:         #192023;
+              font-size:     20px;/* Approximation due to font substitution */
+              font-weight:   700;
+              line-height:   30px;
+              @apply(--ellipses);
+          }
+          .header .date {
+              font-family: Roboto;
+              color:         #b3b3b3;
+              font-size:     14px;/* Approximation due to font substitution */
+              font-style:    italic;
+              margin-bottom: 4px;
+              margin-left:   6px;
+              white-space:   nowrap;
+          }
+          .header .count {
+              font-size:     0.7em;
+              text-align:    right;
+              margin-left:   6px;
+              margin-right:  6px;
+              margin-bottom: 4px;
+              white-space:   nowrap;
+          }
+          .header oj-reviewer-annotation-controls {
+              margin-bottom: 4px;
+          }
+
+          .issue {
+              font-family: Roboto;
+              color:       black;
+              font-size:   14px;/* Approximation due to font substitution */
+              font-weight: 400;
+
+              min-height:  25px;
+          }
+
+          .actions {
+              line-height:     18px;
+          }
+          .action {
+              text-decoration: underline;
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
+              margin-right:    4px;
+              margin-left:     4px;
+          }
+          .action:first-child {
+              margin-left:     4px;
+          }
+          .action[data-disabled] {
+              text-decoration: none;
+              color:           #b0b0b0;
+              cursor:          default;
+          }
+
+          markdown-text-area {
+              width: 100%;
+          }
+
+      </style>
 
   </template>
 
@@ -173,79 +183,89 @@
 
       properties: {
         annotation: {
-          notify:     true,
+          notify:     true
         },
         paper: {
             notify: true
+        },
+        firstLine: {
+            computed: 'getFirstLine(annotation.body)'
         },
         text: {
             notify: true
         },
         saving: {
             notify: true
+        },
+        transitioning: {
+            type:   Boolean
+        },
+        previewButtonLabel: {
+            notify : true
         }
       },
 
       observers: [
-        'annotationChanged(paper, annotation)',
         'annotationOpenChanged(annotation.open)'
       ],
 
       ready: function() {
         if (this.annotation && this.annotation.new) {
-            this.async(function () {
-                var edit = this.$$('#annotationTextArea');
-                edit.focus();
-                edit.select();
-            });
+          var component = this;
+          this.async(function () {
+              var edit = component.$$('#annotationTextArea');
+              edit.focus();
+              edit.select();
+          }, 50);
         }
       },
 
       /**** API *****/
 
-      close: function() {
-        this.collapse();
+      close: function(event) {
+          if (event)
+            event.preventDefault();
+          if (this.saving)
+              return;
+          this.collapse();
       },
 
       scrollAnnotationIntoView: function(prioritize_top) {
-        if (!this.annotation.open)
-          return;
-        var list = this.offsetParent;
-        if (list.tagName != 'OJ-ANNOTATION-LIST')
-          console.error('annotation parent is not the oj-annotation-list');
-        var container = list.offsetParent;
-        if (container.id != 'scroller')
-          console.error('annotation-list parent is not the #scroller');
-        var spacing = 10;
-        /*px*/
-        var top = this.offsetTop;
-        var height = this.$.collapsible.offsetHeight;
-        top = top + list.offsetTop;
-        var newTop;
-        if (prioritize_top && top < container.scrollTop) {
-          newTop = top - spacing;
-        } else if (top + height > container.scrollTop + container.offsetHeight) {
-          newTop = top + height + spacing - container.offsetHeight;
-          if (prioritize_top && top < newTop)
-            newTop = top;
-        } else if (!prioritize_top && top < container.scrollTop) {
-          newTop = top - spacing;
+        if (this.annotation.open) {
+            this.fire('annotation-scroll-into-view',
+                        {
+                          element:        this,
+                          annotation:     this.annotation,
+                          prioritize_top: prioritize_top
+                        }
+                     );
         }
-        if (newTop !== undefined)
-          $(container).animate({ scrollTop: newTop }, 500);
       },
 
       /***********************/
 
-      showNewComment: function() {
-        this.$.comments.showNewComment();
+      headerDisplay: function(paper, assignment, body) {
+          return this.authorFor(this.paper, assignment, false) || this.firstLine;
       },
 
-      annotationChanged: function() {
+      latestDateDisplay: function() {
         if (!this.annotation)
-          return;
-        var assignment = Oj.paperHelpers.assignmentFromSha(this.paper, this.annotation.assignment);
-        this.role = assignment && assignment.role;
+            return null;
+        var date = this.latestDateForAnnotation(this.annotation);
+        return this.shortDateString(date);
+      },
+
+      dateDisplay: function() {
+          if (!this.annotation)
+              return null;
+          var date = this.annotation.created_at;
+          return this.shortDateString(date);
+      },
+
+      replyCountDisplay: function() {
+        var r = this.annotation.responses;
+        var c = r ? r.length : 0;
+        return c.toString() + (c==1 ? ' reply' : ' replies');
       },
 
       annotationOpenChanged: function() {
@@ -259,7 +279,7 @@
         this.scrollAnnotationIntoView(true);
       },
 
-      newCommentShown: function(event) {
+        newResponseShown: function(event) {
         this.scrollAnnotationIntoView(false);
       },
 
@@ -273,19 +293,40 @@
         this.fire('annotation-opened', this);
       },
 
-      submitAnnotation: function() {
-        if (this.$.saveAnnotationRequest.loading)
-          return;
-        if (!this.text)
-          return;
-        this.set('$.saveAnnotationRequest.data', this.annotationData());
+      toggle: function() {
+          if (this.annotation.new)
+              return;
+
+          if (this.annotation.open)
+              this.collapse();
+          else
+              this.expand();
+      },
+
+      togglePreview: function(event) {
+          event.preventDefault();
+          if (!this.text)
+              return;
+
+          this.$$('markdown-text-area').togglePreview();
+      },
+
+      submitAnnotation: function(event) {
+        event.preventDefault();
+        if (this.savingDisabled(this.text, this.saving))
+            return;
+
+        this.$.saveAnnotationRequest.data = this.annotationData();
         this.$.saveAnnotationRequest.go();
       },
 
       annotationSaved: function(event, response) {
-        this.annotation = response;
+        $.extend(this.annotation, response);
+        this.annotation.new = false;
+        this.notifyPath('annotation.new');
+        this.notifyPath('annotation.state');
+        this.notifyPath('annotation.assignment');
         this.fire('annotation-added', this.annotation);
-        this.fire('notification', 'Annotation saved.');
         this.text = '';
         this.close();
       },
@@ -309,24 +350,21 @@
         return Oj.paperHelpers.assignmentFromSha(paper, assignment);
       },
 
-      _computeClass: function(annotation) {
-        return 'container state-' + annotation.state + ' collapsed';
-      },
-
-      _computeClass2: function(annotation) {
-        return 'container state-' + annotation.state + ' expanded';
-      },
-
-      _computeDisabled: function(text, saving) {
+      savingDisabled: function(text, saving) {
         return !text || saving;
       },
 
-      responseCount: function(annotation) {
-        return annotation.responses && annotation.responses.length || 0;
+      containerClass: function() {
+         return 'container' + (this.transitioning    ? ' transitioning' : '') +
+                              (this.annotation.open  ? ' open'          : '') +
+                              (this.annotation.new   ? ' new'           : '');
       },
 
       behaviors: [
-        Oj.urls
+        Oj.api,
+        Oj.paperHelpers,
+        Oj.utils,
+        Oj.globalExpressions
       ]
 
     });

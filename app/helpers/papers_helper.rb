@@ -10,10 +10,12 @@ module PapersHelper
         image_tag('badges/review.svg')
       when "review_completed"
         image_tag('badges/completed.svg')
-      when "accepted"
-        image_tag('badges/accepted.svg')
       when "rejected"
         image_tag('badges/rejected.svg')
+      when "accepted"
+        image_tag('badges/accepted.svg')
+      when "published"
+        image_tag('badges/published.svg')
       else
         image_tag('badges/unknown.svg')
     end

@@ -1,0 +1,167 @@
+
+<dom-module id="oj-annotation-response-new">
+
+  <template>
+
+      <div on-click="ignoreEvent">
+
+          <iron-a11y-keys keys="esc" on-keys-pressed="reset"></iron-a11y-keys>
+          <iron-a11y-keys keys="shift+enter" on-keys-pressed="submit"></iron-a11y-keys>
+
+          <markdown-text-area id="responseTextArea"
+                              class="response"
+                              value="{{responseText}}"
+                              rows="2"
+                              preview-button-label="{{previewButtonLabel}}"
+                              placeholder="Add a Reply"></markdown-text-area>
+
+          <div class="actions layout horizontal" hidden$="{{!actionsVisible}}">
+              <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!responseText}}">{{previewButtonLabel}}</a>
+              <span class="filler layout flex"></span>
+              <a class="action" href="#" on-click="submit" data-disabled$="{{savingDisabled(responseText, saving)}}">Add</a>
+              <a class="action" href="#" on-click="reset" data-disabled$="{{saving}}">Cancel</a>
+          </div>
+
+      </div>
+
+      <api-request id="newResponseRequest"
+                   api="{{addIssueApi(paper)}}"
+                   method="POST"
+                   loading="{{saving}}"
+                   on-success="responseSaved"
+                   on-error="responseError"></api-request>
+
+      <style>
+
+          markdown-text-area {
+              width: 100%;
+          }
+
+          .actions {
+              line-height:     18px;
+          }
+          .action {
+              text-decoration: underline;
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
+              margin-right:    4px;
+              margin-left:     4px;
+          }
+          .action:first-child {
+              margin-left:     4px;
+          }
+          .action[data-disabled] {
+              text-decoration: none;
+              color:           #b0b0b0;
+              cursor:          default;
+          }
+
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-annotation-response-new',
+
+      properties: {
+        paper: {
+        },
+        annotation: {
+        },
+        responseText: {
+            value:    '',
+            type:     String,
+            observer: 'responseTextChanged'
+        },
+        actionsVisible: {
+          type:   Boolean,
+          value:  false
+        },
+        saving: {
+          type: Boolean,
+          value: false
+        },
+        previewButtonLabel: {
+        }
+
+      },
+
+      /*************************/
+
+      show: function() {
+          this.visible = true;
+
+          var component = this;
+          this.async(function () {
+              var edit = component.$$('#responseTextArea');
+              edit.focus();
+              edit.select();
+              this.fire('new-response-shown');
+          }, 50);
+
+      },
+
+      reset: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+          this.responseText = '';
+          this.actionsVisible = false;
+      },
+
+      submit: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+
+          if (this.$.newResponseRequest.loading)
+              return;
+          if (!this.responseText)
+              return;
+        
+          this.$.newResponseRequest.data = this.responseParams();
+          this.$.newResponseRequest.go();
+      },
+
+      togglePreview: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+          if (!this.responseText)
+              return;
+
+          this.$$('markdown-text-area').togglePreview();
+      },
+
+      responseParams: function() {
+        return {
+          annotation: {
+            body:      this.responseText,
+            parent_id: this.annotation.id
+          }
+        };
+      },
+
+      responseSaved: function(event, response) {
+          this.reset();
+          this.fire('response-added', response);
+      },
+
+      responseError: function(event) {
+          this.fire('notification', 'Error saving reply');
+      },
+
+      responseTextChanged: function() {
+          if (this.responseText)
+              this.actionsVisible = true;
+      },
+
+      savingDisabled: function(responseText, ajaxLoading) {
+        return !responseText || ajaxLoading;
+      },
+
+      behaviors: [
+        Oj.globalExpressions,
+        Oj.api
+      ]
+
+    });
+
+  </script>
+</dom-module>

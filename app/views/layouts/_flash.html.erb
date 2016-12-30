@@ -1,9 +1,9 @@
 <% if flash.present? %>
   <script>
-    <% message = flash.map { |key, value| value }.join("\r\n") %>
-    HTMLImports.whenReady(function(){
-        var app = document.getElementById('oj-app');
-        app.showNotification(<%= raw message.to_json %>);
-    });
+      <% message = flash.map { |key, value| value }.join("\r\n") %>
+      HTMLImports.whenReady(function(){
+          var app = document.querySelector('oj-app');
+          app.showNotification(<%= raw message.to_json %>);
+      });
   </script>
 <% end %>

@@ -1,52 +1,41 @@
 <dom-module id="oj-reviewer-annotation-controls">
-  <style>
 
-        :host{
-        }
-        paper-icon-button {
-          padding: 2px;
-        }
-        paper-icon-button::shadow #icon {
-          width: 16px;
-          height: 16px;
-          fill: white;
-          stroke: black;
-          stroke-width: 1px;
-        }
-        paper-icon-button[disabled]::shadow #icon {
-            fill:   #f6f6f6;
-            stroke: #808080;
-        }
-
-      </style>
   <template>
 
-      <div class="tools" on-tap="changeState">
-          <paper-icon-button id="unresolve"
-                             icon="icons:thumb-down"
-                             name="Unresolve"
-                             title="Unresolve"
-                             disabled$="{{isUnresolved(annotation)}}"></paper-icon-button>
-          <paper-icon-button id="resolve"
-                             icon="icons:thumb-up"
-                             name="Resolve"
-                             title="Resolved / Complete"
-                             disabled$="{{isResolved(annotation)}}"></paper-icon-button>
-          <paper-icon-button id="dispute"
-                             icon="icons:report-problem"
-                             name="Dispute"
-                             title="In Dispute"
-                             disabled$="{{isDisputed(annotation)}}"></paper-icon-button>
+      <div class="tools">
+
+          <template is="dom-if" if="{{isResolved(annotation, annotation.state)}}">
+              <span class="state">Resolved</span>
+          </template>
+
+          <template is="dom-if" if="{{canResolve(paper, annotation, annotation.state)}}">
+              <a class="action" href="#" on-click="resolveAnnotation">Resolve</a>
+          </template>
+
       </div>
 
-      <paper-dialog id="dialog" backdrop="" layered="false">
-          <p>Do you really want to <span>{{newState}}</span> this annotation?</p>
-          <paper-button affirmative="" autofocus="" on-tap="dialogAccepted">{{newAction}}</paper-button>
-          <paper-button dismissive="">Cancel</paper-button>
-      </paper-dialog>
+      <api-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></api-request>
 
+      <style>
 
-      <json-request id="putStateChange" method="put" on-success="putStateChangeSuccess"></json-request>
+          :host{
+              font-size:       12px;
+              color:           #888;
+              font-variant:    small-caps;
+          }
+
+          .action {
+              text-decoration: underline;
+              margin-right:    4px;
+              margin-left:     4px;
+          }
+
+          .state {
+              margin-right:    4px;
+              margin-left:     4px;
+          }
+
+      </style>
 
   </template>
 
@@ -75,36 +64,29 @@
         enabled ? Polymer.dom(this).removeAttribute('hidden') : Polymer.dom(this).setAttribute('hidden', '');
       },
 
-      changeState: function (event) {
-        event.preventDefault();
-        var target = event.target;
-        this.newState = target.id;
-        this.newAction = target.getAttribute('name');
-        if (!this.newAction)
-          return;
-        this.$.dialog.open();
+      resolveAnnotation: function(event) {
+          Oj.globalExpressions.ignoreEvent(event);
+          this.changeState('resolve');
       },
 
-      dialogAccepted: function () {
-        this.set('$.putStateChange.url', Oj.urls.paperAnnotationStateChangePath(this.paper, this.annotation, this.newState));
+      changeState: function (newState) {
+        var api = Oj.api.paperAnnotationStateChangeApi(this.paper, this.annotation, newState);
+        this.$.putStateChange.api = api;
         this.$.putStateChange.go();
       },
 
       putStateChangeSuccess: function (event, response) {
         $.extend(this.annotation, response);
+        this.notifyPath('annotation.state');
         this.fire('annotation-changed', response);
-      },
-
-      isUnresolved: function (annotation) {
-          return annotation.state == 'unresolved';
       },
 
       isResolved: function (annotation) {
         return annotation.state == 'resolved';
       },
 
-      isDisputed: function (annotation) {
-        return annotation.state == 'disputed';
+      canResolve: function(paper, annotation) {
+          return !this.isResolved(annotation) &&  this.hasRole(this.paper, 'editor');
       },
 
       behaviors: [

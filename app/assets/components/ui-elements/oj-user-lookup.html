@@ -12,7 +12,7 @@
         </paper-menu>
     </paper-dropdown>
 
-    <json-request id="lookUpSearch" method="get" on-success="lookupSuccess"></json-request>
+    <api-request id="lookUpSearch" method="get" on-success="lookupSuccess"></api-request>
 
       <style>
 
@@ -104,7 +104,7 @@
       searchChanged: function () {
         this.debounce('user_search', function () {
           if (this.search.length > 2) {
-            this.$.lookUpSearch.url = '/api/user/lookup?guess=' + encodeURIComponent(this.search);
+            this.$.lookUpSearch.api = 'user/lookup?guess=' + encodeURIComponent(this.search);
             this.$.lookUpSearch.go();
           }
         }, 300);
