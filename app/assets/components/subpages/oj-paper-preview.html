@@ -16,10 +16,10 @@
       }
 
       #details {
-          margin-top:  12px;
+          /*margin-top:  12px;*/
           box-sizing:  border-box;
-          padding:     8px 20px;
-
+          padding:     20px;
+          background-color: #efefef;
           width:       400px;
           max-width:   50%;
       }
@@ -31,20 +31,27 @@
       }
 
       #title {
-          font-size:   26px;
-          font-weight: 700;
-          line-height: 30px;
-          margin-top:  12px;
+        font-family: Neuton;
+        color: #192023;
+        font-size: 32px; /* Approximation due to font substitution */
+        font-weight: 700;
+        line-height: 30px; /* Approximation due to font substitution */
+        text-align: left;
       }
 
       .authors {
+        font-family: Roboto;
+        color: #192023;
+        font-size: 17px; /* Approximation due to font substitution */
+        font-style: italic;
+        line-height: 22px; /* Approximation due to font substitution */
+        text-align: left;
         list-style:  none;
         margin-left: 0;
         padding:     0;
         margin-top:  12px;
+        margin-bottom: 12px;
         font-size:   14px;
-        line-height: 20px;
-        color:       rgb(154, 154, 154);
       }
 
       .authors li{
@@ -58,9 +65,20 @@
         text-align: justify;
       }
 
-      paper-button {
-        margin-top:  12px;
-        margin-left: -1px;
+      paper-button#submit-button {
+        font-family: Roboto;
+        color: #ffffff;
+        font-size: 20px; /* Approximation due to font substitution */
+        font-weight: 500;
+        line-height: 20px; /* Approximation due to font substitution */
+        text-align: center;
+        border: 2px solid #54d1b8;
+        border-radius: 3px;
+        background-color:  #54d1b8;
+        box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.05);
+        margin-left: 0px;
+        height: 50px;
+        width: 100%;
       }
 
     </style>
@@ -76,8 +94,8 @@
 
         <div id="details">
 
-          <div id="preview-text">Preview</div>
-          <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
+          <!-- <div id="preview-text">Preview</div> -->
+          <!-- <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button> -->
 
           <div id="title">{{paper_details.title}}</div>
 
@@ -93,8 +111,8 @@
             <div class="authors">{{paper_details.authors}}</div>
           </template>
 
-          <div id="summary">{{paper_details.summary}}</div>
-          <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
+          <!-- <div id="summary">{{paper_details.summary}}</div> -->
+          <paper-button id="submit-button" raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
 
         </div>
     </template>
