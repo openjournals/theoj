@@ -16,33 +16,39 @@
 
           :host {
               font-family: Roboto;
-              color:       #c5c5c5;
               font-size:   12px;/* Approximation due to font substitution */
               font-weight: 400;
+              color:  #5c5c5c;
               padding:     0;
           }
 
           iron-autogrow-textarea {
               box-sizing:     border-box;
-              width:          100%;
               border:         none;
               border-bottom:  solid 1px #c9c9c9;
               background:     white;
+              margin-left:    10px;
+              margin-top:     5px;
+              width:          95%;
+              min-height:     40px;
+
               --iron-autogrow-textarea: {
                   font-family: Roboto;
                   color:       #858585;
                   font-size:   14px;/* Approximation due to font substitution */
                   font-weight: 400;
                   box-sizing:  border-box;
-                  padding:     0;
+                  padding:     10px;
                   border:      none;
               }
           }
 
           markdown-content {
-              width:   100%;
+              font-family: Roboto;
+              width:   95%;
+              font-size:   14px;
               height:  100%;
-              margin:  0;
+              margin:  0 0 0 10px;
               padding: 0;
               cursor:  default;
               border:         none;

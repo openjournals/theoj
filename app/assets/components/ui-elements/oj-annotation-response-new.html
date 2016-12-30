@@ -19,7 +19,7 @@
               <a class="action" href="#" on-click="togglePreview" data-disabled$="{{!responseText}}">{{previewButtonLabel}}</a>
               <span class="filler layout flex"></span>
               <a class="action" href="#" on-click="submit" data-disabled$="{{savingDisabled(responseText, saving)}}">Add</a>
-              <a class="action" href="#" on-click="reset" data-disabled$="{{saving}}">Cancel</a>
+              <a class="action right" href="#" on-click="reset" data-disabled$="{{saving}}">Cancel</a>
           </div>
 
       </div>
@@ -39,17 +39,25 @@
 
           .actions {
               line-height:     18px;
+              width:           95%;
+              margin-top:      3px;
           }
           .action {
+              font-family: Roboto;
               text-decoration: none;
-              font-size:       12px;
-              color:           #888;
-              font-variant:    small-caps;
-              margin-right:    4px;
-              margin-left:     4px;
+              font-size:       14px;
+              color:           #54d1b8;
+              margin-right:    10px;
+          }
+          .action:hover{
+            color: #44a995;
+            text-decoration: underline;
           }
           .action:first-child {
-              margin-left:     4px;
+              margin-left: 10px;
+          }
+          .action:last-child {
+              margin-right: 0px;
           }
           .action[data-disabled] {
               text-decoration: none;
