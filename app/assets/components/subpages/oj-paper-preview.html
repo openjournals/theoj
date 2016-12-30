@@ -1,59 +1,10 @@
-<polymer-element name='oj-paper-preview' attributes='user paper_id' fit layout horizontal>
-  <template>
-
-    <template if="{{paper_details && !paper_details.is_existing}}">
-
-        <template if={{hidePDF}}>
-          <div flex id=preview>
-            <iframe src="{{paper_details | googlePreviewPath}}"  frameborder="0"></iframe>
-          </div>
-        </template>
-
-        <div id="details">
-
-          <div id=preview-text>Preview</div>
-          <paper-button raised role='button' on-tap={{submitForReview}}>Submit for review</paper-button>
-
-          <div id=title>{{paper_details.title}}</div>
-
-          <template if="{{paper_details.authors | isArray}}">
-              <ul id=authors>
-                <template repeat="{{author in paper_details.authors}}">
-                    <li>{{author.name}}</li>
-                </template>
-              </ul>
-          </template>
-
-          <template if="{{paper_details.authors | isNotArray}}">
-            <div id=authors>{{paper_details.authors}}</div>
-          </template>
-
-          <div id=summary>{{paper_details.summary}}</div>
-          <paper-button raised role='button' on-tap={{submitForReview}}>Submit for review</paper-button>
-
-        </div>
-    </template>
-
-    <template if={{$.detailsRequest.loading}}>
-      <paper-spinner active></paper-spinner>
-    </template>
-
-    <json-post id=postRequest
-               on-success={{onPostRepsonse}}
-               on-error={{onPostError}}>
-    </json-post>
-
-    <json-get  id=detailsRequest
-               auto=true
-               url="{{paper_id | previewPath}}"
-               result={{paper_details}}
-               on-success={{onDetailsResponse}}
-               on-error={{onDetailsError}}
-    ></json-get>
-
-    <core-media-query query="min-width: 600px" queryMatches="{{hidePDF}}"></core-media-query>
-
-    <style>
+<dom-module id="oj-paper-preview">
+  <style>
+      :host {
+          @apply(--layout);
+          @apply(--layout-horizontal);
+          @apply(--layout-fit);
+      }
 
       #preview {
           height: 100%;
@@ -65,10 +16,10 @@
       }
 
       #details {
-          margin-top:  12px;
+          /*margin-top:  12px;*/
           box-sizing:  border-box;
-          padding:     8px 20px;
-
+          padding:     20px;
+          background-color: #efefef;
           width:       400px;
           max-width:   50%;
       }
@@ -80,23 +31,30 @@
       }
 
       #title {
-          font-size:   26px;
-          font-weight: 700;
-          line-height: 30px;
-          margin-top:  12px;
+        font-family: Neuton;
+        color: #192023;
+        font-size: 32px; /* Approximation due to font substitution */
+        font-weight: 700;
+        line-height: 30px; /* Approximation due to font substitution */
+        text-align: left;
       }
 
-      #authors {
+      .authors {
+        font-family: Roboto;
+        color: #192023;
+        font-size: 17px; /* Approximation due to font substitution */
+        font-style: italic;
+        line-height: 22px; /* Approximation due to font substitution */
+        text-align: left;
         list-style:  none;
         margin-left: 0;
         padding:     0;
         margin-top:  12px;
+        margin-bottom: 12px;
         font-size:   14px;
-        line-height: 20px;
-        color:       rgb(154, 154, 154);
       }
 
-      #authors li{
+      .authors li{
         display:      inline;
         padding-left: 0;
       }
@@ -107,59 +65,142 @@
         text-align: justify;
       }
 
-      paper-button {
-        margin-top:  12px;
-        margin-left: -1px;
+      paper-button#submit-button {
+        font-family: Roboto;
+        color: #ffffff;
+        font-size: 20px; /* Approximation due to font substitution */
+        font-weight: 500;
+        line-height: 20px; /* Approximation due to font substitution */
+        text-align: center;
+        border: 2px solid #54d1b8;
+        border-radius: 3px;
+        background-color:  #54d1b8;
+        box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.05);
+        margin-left: 0px;
+        height: 50px;
+        width: 100%;
       }
 
     </style>
+  <template>
+
+    <template is="dom-if" if="{{notExisting(paper_details)}}">
+
+        <template is="dom-if" if="{{hidePDF}}">
+          <div class="layout flex" id="preview">
+            <iframe src="{{googlePreviewPath(paper_details)}}" frameborder="0"></iframe>
+          </div>
+        </template>
+
+        <div id="details">
+
+          <!-- <div id="preview-text">Preview</div> -->
+          <!-- <paper-button raised="" role="button" on-tap="submitForReview">Submit for review</paper-button> -->
+
+          <div id="title">{{paper_details.title}}</div>
+
+          <template is="dom-if" if="{{isArray(paper_details.authors)}}">
+              <ul class="authors">
+                <template is="dom-repeat" items="{{paper_details.authors}}" as="author">
+                    <li>{{author.name}}</li>
+                </template>
+              </ul>
+          </template>
+
+          <template is="dom-if" if="{{isNotArray(paper_details.authors)}}">
+            <div class="authors">{{paper_details.authors}}</div>
+          </template>
+
+          <!-- <div id="summary">{{paper_details.summary}}</div> -->
+          <paper-button id="submit-button" raised="" role="button" on-tap="submitForReview">Submit for review</paper-button>
+
+        </div>
+    </template>
+
+    <template is="dom-if" if="{{loading}}">
+      <paper-spinner active=""></paper-spinner>
+    </template>
+
+    <api-request id="postRequest" method="post" on-success="onPostRepsonse" on-error="onPostError"></api-request>
+
+    <api-request id="detailsRequest" method="get" auto="true" api="{{previewApi(paper_id)}}" result="{{paper_details}}" on-success="onDetailsResponse" on-error="onDetailsError"></api-request>
+
+    <iron-media-query query="min-width: 600px" query-matches="{{hidePDF}}"></iron-media-query>
 
   </template>
 
   <script>
+
     Polymer({
+      is: 'oj-paper-preview',
 
-      onDetailsResponse: function(event) {
-          if (this.paper_details.is_existing) {
-              event.preventDefault();
-              this.fire("notification", "Paper "+this.paper_details.title+" already exists.");
-
-              if (this.paper_details.is_self_owned)
-                  this.fire('review', this.paper_details);
-              else
-                  this.fire('go', "/submit");
-          }
+      properties: {
+        loading:  {
+            notify: true,
+            value: true
+        },
+        paper_id: {
+            notify: true }
+            ,
+        user:     {
+            notify: true
+        }
       },
-      onDetailsError: function(event, detail) {
-          detail = JSON.parse(detail);
-          if (detail.code == 404)
-              var message = 'The paper could not be found. Please try again.';
+
+      onDetailsResponse: function (event) {
+        this.loading = false;
+        if (this.paper_details.is_existing) {
+          event.preventDefault();
+          this.fire('notification', 'Paper ' + this.paper_details.title + ' already exists.');
+          if (this.paper_details.is_self_owned)
+            this.fire('review', this.paper_details);
           else
-              var message = 'There was an error retrieving the paper: ' + (detail.text||detail.error) + ' (' + detail.code + ')';
+            this.fire('go', '/submit');
+        }
+      },
 
-          this.fire("notification", message);
-          this.fire('go', "/submit");
-      },
-      submitForReview:function(event) {
-          this.$.postRequest.url = Oj.urls.paperPath(this.paper_details);
-          this.$.postRequest.go()
-      },
-      onPostRepsonse:function(response){
-          this.fire("notification", "Paper "+this.paper_details.title+" submitted");
-          this.fire('go', "/submitted")
-      },
-      onPostError: function(event) {
-        var xhr = event.detail.xhr;
-
-        if (xhr.status == 409)
-            var message = 'The paper already exists in the database.';
+      onDetailsError: function (event, detail) {
+        this.loading = false;
+        detail = JSON.parse(detail);
+        if (detail.code == 404)
+          var message = 'The paper could not be found. Please try again.';
         else
-            var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+          var message = 'There was an error retrieving the paper: ' + (detail.text || detail.error) + ' (' + detail.code + ')';
+        this.fire('notification', message);
+        this.fire('go', '/submit');
+      },
 
-        this.fire("notification", message);
-      }
+      submitForReview: function (event) {
+        this.set('$.postRequest.api', Oj.api.paperApi(this.paper_details));
+        this.$.postRequest.go();
+      },
 
-    })
+      onPostRepsonse: function (response) {
+        this.fire('notification', 'Paper ' + this.paper_details.title + ' submitted');
+        this.fire('go', '/submitted');
+      },
+
+      onPostError: function (event) {
+        var xhr = event.detail.xhr;
+        if (xhr.status == 409)
+          var message = 'The paper already exists in the database.';
+        else
+          var message = 'There was an error submitting the paper: ' + xhr.statusText + ' (' + xhr.status + ')';
+        this.fire('notification', message);
+      },
+
+      notExisting: function (paper_details) {
+        return paper_details && !paper_details.is_existing;
+      },
+
+      behaviors: [
+          Oj.urls,
+          Oj.api,
+          Oj.globalExpressions
+      ]
+
+    });
+
   </script>
 
-</polymer-element>
+</dom-module>

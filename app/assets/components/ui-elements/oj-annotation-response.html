@@ -1,0 +1,84 @@
+
+<dom-module id="oj-annotation-response">
+
+  <template>
+
+    <div class="header">
+          <div class="text">{{authorOrRoleFor(paper, response.assignment)}}</div>
+          <div class="date">{{dateDisplay(response)}}</div>
+    </div>
+
+    <markdown-content markdown="{{response.body}}"></markdown-content>
+
+  </template>
+
+      <style>
+
+          .header {
+              @apply(--layout-horizontal);
+              @apply(--layout-end);
+          }
+
+          .header .text {
+              font-family: Neuton;
+              color:         #192023;
+              font-size:     20px;/* Approximation due to font substitution */
+              font-weight:   400;
+              line-height:   30px;
+              @apply(--ellipses);
+          }
+          .header .date {
+              font-family: Roboto;
+              color:         #b3b3b3;
+              font-size:     14px;/* Approximation due to font substitution */
+              font-style:    italic;
+              margin-left:   6px;
+              margin-bottom: 4px;
+              white-space:   nowrap;
+          }
+
+          markdown-content {
+            font-family: Roboto;
+            color:       black;
+            font-size:   14px;/* Approximation due to font substitution */
+            font-weight: 400;
+            min-height:  25px;
+          }
+
+          markdown-text-area {
+              width: 100%;
+          }
+
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-annotation-response',
+
+      properties: {
+        paper: {
+        },
+        response: {
+        }
+      },
+
+
+      dateDisplay: function() {
+        if (!this.response)
+            return null;
+        var date = this.response.created_at;
+        return this.shortDateString(date);
+      },
+
+      behaviors: [
+        Oj.paperHelpers,
+        Oj.utils,
+        Oj.globalExpressions
+      ]
+
+    });
+
+  </script>
+</dom-module>

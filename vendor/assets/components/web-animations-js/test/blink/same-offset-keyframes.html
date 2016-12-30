@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<script src="testharness/testharness.js"></script>
-<script src="testharness/testharnessreport.js"></script>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
 <script src="resources/keyframes-test.js"></script>
 <script>
 test(function() {
@@ -14,7 +14,7 @@ test(function() {
     0.25: {opacity: '0.25', left: '25px'},
     0.5: {opacity: '0.75', left: '75px'},
     0.75: {opacity: '0.5', left: '50px'},
-  })
+  });
 },
 'element.animate() with keyframes at the same offset with overlapping properties',
 {
@@ -37,7 +37,7 @@ test(function() {
     0.25: {opacity: '0.375', left: '37.5px'},
     0.5: {opacity: '0.75', left: '75px'},
     0.75: {opacity: '0.5', left: '50px'},
-  })
+  });
 },
 'element.animate() with keyframes at the same offset with disjoint properties',
 {

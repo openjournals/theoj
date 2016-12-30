@@ -25,7 +25,7 @@ class Provider
 
             title:             manuscript.title,
             summary:           manuscript.summary,
-            document_location: manuscript.pdf_url,
+            document_location: manuscript.pdf_url.sub('http://', 'https://'),
             authors:           manuscript.authors.collect{|a| a.name}.join(", ")
         }
       end

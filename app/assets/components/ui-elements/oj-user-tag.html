@@ -1,105 +1,152 @@
-<polymer-element name='oj-user-tag' attributes='assignment removable showCompleted showColor tagColor' >
+<dom-module id="oj-user-tag">
 
   <template>
-      <template if="{{showCompleted && assignment.role=='reviewer' && assignment.user}}">
-          <core-icon icon="{{assignment | getCompletionIcon }}"
-                     title="{{assignment | getCompletionTip }}"
-                  ></core-icon>
-      </template>
-      <span class=name>
-          <template if={{assignment.user}}>
-              {{assignment.role|capitalize}}: {{assignment.user.name}}
+
+      <span class="name">
+          <template is="dom-if" if="{{assignment.user}}">
+              <span>{{assignment.user.name}}</span>
           </template>
-          <template if={{assignment.text}}>
-              {{assignment.text}}
+          <template is="dom-if" if="{{assignment.text}}">
+              <span>{{assignment.text}}</span>
           </template>
       </span>
 
-      <template if="{{removable && assignment.role=='reviewer' && assignment.user}}"><a class='remover' href='#' on-click={{remove}} >&times</a></template>
-      <!-- <template if={{showColor}}><span class='color' style="{{ {backgroundColor:tagColor} | styleObject}}"></span></template> -->
+      <template is="dom-if" if="{{showRemover(assignment, removable)}}"><a class="remover" href="#" on-click="remove">×</a></template>
 
-    <style>
+      <template is="dom-if" if="{{showCompletionCheckbox(assignment, showCompleted)}}">
+          <iron-icon id=completion-icon
+                     class$="{{assignment.reviewer_accept}}"
+                     icon="{{getCompletionIcon(assignment)}}"
+                     title="{{getCompletionTip(assignment)}}"></iron-icon>
+          <span id="completion-text" hidden?="{{!assignment.reviewer_accept}}">{{getCompletionTip(assignment)}}</span>
+      </template>
 
-      :host {
-        display: inline-block;
-        background-color:black;
-        color: white;
-        box-sizing: border-box;
-        padding: 2px 10px;
-        border-radius: 6px;
-      }
+      <style>
 
-      :host([showcolor]) {
-          padding-right: 4px;
-      }
+          :host {
+              display:       block;
+              font-size:     24px;/* Approximation due to font substitution */
+              font-weight:   400;
+              line-height:   24px;/* Approximation due to font substitution */
+          }
 
-      .remover {
-        color:white;
-        text-decoration:none;
-      }
+          .remover {
+              color:           #a7b4bb;
+              text-decoration: none;
+              font-weight:     normal;
+          }
 
-      .color {
-          display: inline-block;
-          box-sizing: border-box;;
-          background-color: white;
-          width:  12px;
-          height: 12px;
-          /*border-radius: 6px;*/
-          margin: 0;
-          vertical-align: middle;
-      }
+          #completion-icon {
+              width:          20px !important;
+              height:         20px !important;
+              margin-top:     -4px;
+              margin-left:    12px;
+              background:     #e4e4e4;
+              color:          hotpink;
+          }
+          #completion-icon.accept {
+              color:         black;
+          }
+          #completion-icon.accept_with_minor {
+              color:         blue;
+          }
+          #completion-icon.accept_with_major {
+              color:         orange;
+          }
+          #completion-icon.reject {
+              color:         red;
+          }
 
-      core-icon {
-          width:          16px !important;
-          height:         16px !important;
-          vertical-align: -2px !important;
-          background:     #e4e4e4;
-          color:          black;
-      }
+          #completion-text {
+              font-family: Roboto;
+              display:     inline-block;
+              color:       #7d7d7d;
+              font-weight: 400;
+              font-size:   14px;
+          }
 
-    </style>
+      </style>
+
   </template>
 
   <script>
     Polymer({
+      is: 'oj-user-tag',
 
-      removable:false,
-
-      assignmentChanged: function() {
-        if (this.assignment ) {
-            if (!this.assignment.user && !this.assignment.text)
-                this.setAttribute('hidden', '');
-            else
-                this.removeAttribute('hidden');
-
-            this.className = this.className + ' role-'+this.assignment.role;
-            if (this.assignment.user && this.assignment.user.email)
-                this.title = this.assignment.user.email;
+      properties: {
+        assignment: {
+          notify: true,
+          observer: 'assignmentChanged'
+        },
+        removable: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        showCompleted: {
+            notify: true
         }
       },
 
-      getCompletionIcon: function(assignment) {
-          switch (assignment.reviewer_accept) {
-              case true:  return 'done';
-              case false: return 'clear';
-              default:    return '';
-          }
-      },
-      getCompletionTip: function(assignment) {
-          switch (assignment.reviewer_accept) {
-              case true:  return 'Recommended Acceptance';
-              case false: return 'Recommended Rejection';
-              default:    return 'Review Not Complete';
-          }
+      assignmentChanged: function () {
+        if (this.assignment) {
+          if (!this.assignment.user && !this.assignment.text)
+            Polymer.dom(this).setAttribute('hidden', '');
+          else
+            Polymer.dom(this).removeAttribute('hidden');
+          if (this.assignment.user && this.assignment.user.email)
+            this.title = this.assignment.user.email;
+        }
       },
 
-      remove: function(event){
+      getCompletionIcon: function (assignment) {
+        switch (assignment.reviewer_accept) {
+        case 'accept':
+          return 'icons:check-all';
+        case 'accept_with_minor':
+          return 'icons:check-circle';
+        case 'accept_with_major':
+          return 'icons:check-box';
+        case 'reject':
+          return 'icons:clear';
+        default:
+          return '';
+        }
+      },
+
+      getCompletionTip: function (assignment) {
+        switch (assignment.reviewer_accept) {
+        case 'accept':
+          return 'Accepted with No Revisions';
+        case 'accept_with_minor':
+          return 'Accepted with Minor Revisions';
+        case 'accept_with_major':
+          return 'Accepted with Major Revisions';
+        case 'reject':
+          return 'Rejected';
+        default:
+          return 'Review Not Complete';
+        }
+      },
+
+      remove: function (event) {
         event.preventDefault();
-          if (this.removable)
-            this.fire("remove-user", this.assignment)
-      }
+        if (this.removable)
+          this.fire('remove-user', this.assignment);
+      },
 
-    })
+      showCompletionCheckbox: function (assignment, showCompleted) {
+        return showCompleted && assignment.role == 'reviewer' && assignment.user;
+      },
+
+      showRemover: function (assignment, removable) {
+        return removable && assignment.role == 'reviewer' && assignment.user;
+      },
+
+      behaviors: [
+          Oj.globalExpressions
+      ]
+
+    });
   </script>
-
-</polymer-element>
+</dom-module>

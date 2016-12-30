@@ -1,0 +1,4 @@
+Move <style> tags inside <templates> for performance
+Run a code formatter
+Add spacing to JS
+Update to Polymer 2.0

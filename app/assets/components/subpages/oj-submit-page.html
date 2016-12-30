@@ -1,47 +1,12 @@
 
-<polymer-element name="oj-submit-page" attributes='paper_title paper_location'>
-  <template>
-    <section layout vertical class="boiler-plate">
-      <h1>Submit a Paper</h1>
+<dom-module id="oj-submit-page">
 
-        <paper-shadow id=form flex center-justified vertical layout left z=1>
-          <core-a11y-keys keys="enter" on-keys-pressed="{{submit}}"></core-a11y-keys>
-
-          <div class=input layout horizontal>
-              <paper-input   flex label="arXiv identifier" value="{{paperIdentifier}}"></paper-input>
-              <paper-button  raised disabled?={{!paperValid}} on-tap={{submit}} role=button>Submit</paper-button>
-          </div>
-
-          <div id=examples>
-            <p>Please enter the id, abstract URL or PDF URL of a paper from the arXiv.</p>
-            <p>Examples:</p>
-            <ul>
-              <li>1502.00003</li>
-              <li>1401.0003</li>
-              <li>http://arxiv.org/abs/1401.0003</li>
-              <li>http://arxiv.org/pdf/1401.0003.pdf</li>
-            </ul>
-          </div>
-
-        </paper-shadow>
-
-        <paper-url-resolver       text={{paperIdentifier}}
-                                  paperId={{paperId}}
-                                  paperFullId={{paperFullId}}
-                                  paperTypedId={{paperTypedId}}
-                                  paperVersion={{paperVersion}}
-                                  paperURL={{paperURL}}
-                                  resolved={{paperValid}}>
-        </paper-url-resolver>
-
-    </section>
-
-    <style>
+  <style>
       section {
         height:100%;
         min-height:400px;
       }
-      paper-shadow {
+      paper-material {
           padding-left: 40px;
       }
       .input {
@@ -67,18 +32,55 @@
           list-style-type: none;
       }
     </style>
+  <template>
+    <section class="boiler-plate layout vertical">
+      <h1>Submit a Paper</h1>
+
+        <paper-material id="form" class="layout flex center-justified vertical left" elevation="1">
+          <iron-a11y-keys keys="enter" on-keys-pressed="submit"></iron-a11y-keys>
+
+          <div class="input layout horizontal">
+              <paper-input class="layout flex" label="arXiv identifier" value="{{paperIdentifier}}"></paper-input>
+              <paper-button raised="" on-tap="submit" role="button" disabled$="{{!paperValid}}">Submit</paper-button>
+          </div>
+
+          <div id="examples">
+            <p>Please enter the id, abstract URL or PDF URL of a paper from the arXiv.</p>
+            <p>Examples:</p>
+            <ul>
+              <li>1502.00003</li>
+              <li>1401.0003</li>
+              <li>https://arxiv.org/abs/1401.0003</li>
+              <li>https://arxiv.org/pdf/1401.0003.pdf</li>
+            </ul>
+          </div>
+
+        </paper-material>
+
+        <paper-url-resolver text="{{paperIdentifier}}"
+                            paper-id="{{paperId}}"
+                            paper-full-id="{{paperFullId}}"
+                            paper-typed-id="{{paperTypedId}}"
+                            paper-version="{{paperVersion}}"
+                            paper-url="{{paperURL}}"
+                            resolved="{{paperValid}}">
+        </paper-url-resolver>
+
+    </section>
 
 
   </template>
-
   <script>
     Polymer({
-
-      submit:function(){
+      is: 'oj-submit-page',
+      properties: {
+        paper_location: { notify: true },
+        paper_title: { notify: true }
+      },
+      submit: function () {
         if (this.paperValid)
-            this.fire('go', '/submit/' + this.paperTypedId);
+          this.fire('go', '/submit/' + this.paperTypedId);
       }
-
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

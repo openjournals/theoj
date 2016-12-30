@@ -37,35 +37,49 @@
   function processRafCallbacks(t) {
     var processing = rafCallbacks;
     rafCallbacks = [];
-    tick(t);
+    if (t < timeline.currentTime)
+      t = timeline.currentTime;
+    timeline._animations.sort(compareAnimations);
+    timeline._animations = tick(t, true, timeline._animations)[0];
     processing.forEach(function(entry) { entry[1](t); });
-    if (needsRetick)
-      tick(t);
     applyPendingEffects();
+    _now = undefined;
   }
 
-  function comparePlayers(leftPlayer, rightPlayer) {
-    return leftPlayer._sequenceNumber - rightPlayer._sequenceNumber;
+  function compareAnimations(leftAnimation, rightAnimation) {
+    return leftAnimation._sequenceNumber - rightAnimation._sequenceNumber;
   }
 
   function InternalTimeline() {
-    this._players = [];
+    this._animations = [];
     // Android 4.3 browser has window.performance, but not window.performance.now
     this.currentTime = window.performance && performance.now ? performance.now() : 0;
   };
 
   InternalTimeline.prototype = {
-    _play: function(source) {
-      source._timing = shared.normalizeTimingInput(source.timing);
-      var player = new scope.Player(source);
-      player._idle = false;
-      player._timeline = this;
-      this._players.push(player);
+    _play: function(effect) {
+      effect._timing = shared.normalizeTimingInput(effect.timing);
+      var animation = new scope.Animation(effect);
+      animation._idle = false;
+      animation._timeline = this;
+      this._animations.push(animation);
       scope.restart();
-      scope.invalidateEffects();
-      return player;
+      scope.applyDirtiedAnimation(animation);
+      return animation;
     }
   };
+
+  var _now = undefined;
+
+  if (WEB_ANIMATIONS_TESTING) {
+    var now = function() { return timeline.currentTime; };
+  } else {
+    var now = function() {
+      if (_now == undefined)
+        _now = window.performance && performance.now ? performance.now() : Date.now();
+      return _now;
+    };
+  }
 
   var ticking = false;
   var hasRestartedThisFrame = false;
@@ -79,65 +93,84 @@
     return hasRestartedThisFrame;
   };
 
-  var needsRetick = false;
-  scope.invalidateEffects = function() {
-    needsRetick = true;
+  // RAF is supposed to be the last script to occur before frame rendering but not
+  // all browsers behave like this. This function is for synchonously updating an
+  // animation's effects whenever its state is mutated by script to work around
+  // incorrect script execution ordering by the browser.
+  scope.applyDirtiedAnimation = function(animation) {
+    if (inTick) {
+      return;
+    }
+    animation._markTarget();
+    var animations = animation._targetAnimations();
+    animations.sort(compareAnimations);
+    var inactiveAnimations = tick(scope.timeline.currentTime, false, animations.slice())[1];
+    inactiveAnimations.forEach(function(animation) {
+      var index = timeline._animations.indexOf(animation);
+      if (index !== -1) {
+        timeline._animations.splice(index, 1);
+      }
+    });
+    applyPendingEffects();
   };
 
   var pendingEffects = [];
   function applyPendingEffects() {
     pendingEffects.forEach(function(f) { f(); });
+    pendingEffects.length = 0;
   }
 
-  var originalGetComputedStyle = window.getComputedStyle;
-  Object.defineProperty(window, 'getComputedStyle', {
-    configurable: true,
-    enumerable: true,
-    value: function() {
-      if (needsRetick) tick(timeline.currentTime);
-      applyPendingEffects();
-      return originalGetComputedStyle.apply(this, arguments);
-    },
-  });
+  var t60hz = 1000 / 60;
 
-  function tick(t) {
+  var inTick = false;
+  function tick(t, isAnimationFrame, updatingAnimations) {
+    inTick = true;
     hasRestartedThisFrame = false;
     var timeline = scope.timeline;
+
     timeline.currentTime = t;
-    timeline._players.sort(comparePlayers);
     ticking = false;
-    var updatingPlayers = timeline._players;
-    timeline._players = [];
 
     var newPendingClears = [];
     var newPendingEffects = [];
-    updatingPlayers = updatingPlayers.filter(function(player) {
-      player._inTimeline = player._tick(t);
+    var activeAnimations = [];
+    var inactiveAnimations = [];
+    updatingAnimations.forEach(function(animation) {
+      animation._tick(t, isAnimationFrame);
 
-      if (!player._inEffect)
-        newPendingClears.push(player._source);
-      else
-        newPendingEffects.push(player._source);
+      if (!animation._inEffect) {
+        newPendingClears.push(animation._effect);
+        animation._unmarkTarget();
+      } else {
+        newPendingEffects.push(animation._effect);
+        animation._markTarget();
+      }
 
-      if (!player.finished && !player.paused && !player._idle)
+      if (animation._needsTick)
         ticking = true;
 
-      return player._inTimeline;
+      var alive = animation._inEffect || animation._needsTick;
+      animation._inTimeline = alive;
+      if (alive) {
+        activeAnimations.push(animation);
+      } else {
+        inactiveAnimations.push(animation);
+      }
     });
 
-    pendingEffects.length = 0;
+    // FIXME: Should remove dupliactes from pendingEffects.
     pendingEffects.push.apply(pendingEffects, newPendingClears);
     pendingEffects.push.apply(pendingEffects, newPendingEffects);
 
-    timeline._players.push.apply(timeline._players, updatingPlayers);
-    needsRetick = false;
-
     if (ticking)
       requestAnimationFrame(function() {});
+
+    inTick = false;
+    return [activeAnimations, inactiveAnimations];
   };
 
   if (WEB_ANIMATIONS_TESTING) {
-    testing.tick = processRafCallbacks;
+    testing.tick = function(t) { timeline.currentTime = t; processRafCallbacks(t); };
     testing.isTicking = function() { return ticking; };
     testing.setTicking = function(newVal) { ticking = newVal; };
   }

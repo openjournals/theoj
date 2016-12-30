@@ -6,6 +6,16 @@ Simple right  ?
 
 You can read more about our motivations for working on this [here](http://theoj.org).
 
+## Getting it running
+
+Install Ruby (Currently at 2.3.0)
+
+Install `node` and `npm`
+
+`npm install -g bower`
+`bundle install`
+`rake bower:install` or `rake bower:update`
+
 ## Does it work?
 
 ### Current status

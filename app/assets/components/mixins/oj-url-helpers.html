@@ -2,76 +2,9 @@
 
     window.Oj.urls = {
 
-        // Take either a paper object or a typed id
-        paperPath: function(paper_or_id) {
-            return paper_or_id ? "/api/papers/"+ (paper_or_id.typed_provider_id || paper_or_id) : '';
-        },
-
-        annotationsFirebasePath: function(paper_or_id) {
-            var id = paper_or_id ? (paper_or_id.typed_provider_id || paper_or_id) : '';
-            id = Oj.utils.clean_firebase_key(id);
-            return "https://theoj.firebaseio.com/papers/" + id + "/annotations/";
-        },
-
-        addAssigneePath: function(paper, user) {
-            return "/api/papers/"+paper.typed_provider_id+"/assignments?user=" + user.sha ;
-        },
-
-        removeAssigneePath: function(paper, assignment) {
-            return "/api/papers/"+paper.typed_provider_id+"/assignments/" + assignment.sha;
-        },
-
-        getIssuesPath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/annotations";
-        },
-
-        getAllIssuesPath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/annotations/all";
-        },
-
-        previewPath: function(paper) {
-          return paper ? "/api/papers/"+ (paper.typed_provider_id || paper) + "/preview" : '';
-        },
-
-        paperVersionsPath: function(paper) {
-            return paper && "/api/papers/"+paper.typed_provider_id+"/versions" ;
-        },
-
-        paperCheckForUpdatePath: function(paper) {
-            return "/api/papers/"+paper.typed_provider_id+"/check_for_update";
-        },
-
         googlePreviewPath: function(paper){
           var link = paper.document_location;
-          return "http://docs.google.com/gview?embedded=true&url=" + link;
-        },
-
-        paperAnnotationsPath: function(paper){
-          return "/api/papers/"+paper.typed_provider_id+"/annotations";
-        },
-
-        addIssuePath: function(paper) {
-            return "/api/papers/"+paper.paper_id+"/annotations";
-        },
-
-        paperAnnotationPath: function(paper, annotation){
-            return "/api/papers/"+paper.paper_id+"/annotations/" + annotation.id;
-        },
-
-        paperAnnotationStateChangePath: function(paper, annotation, state){
-            return "/api/papers/"+paper.paper_id+"/annotations/" + annotation.id + "/" + state;
-        },
-
-        paperCompletePath: function(paper){
-            return  paper && "/api/papers/" + paper.typed_provider_id + "/complete";
-        },
-
-        paperMakePublicPath: function(paper, make_public){
-            return  paper && "/api/papers/" + paper.typed_provider_id + "/public";
-        },
-
-        paperTransitionPath: function(paper, transition){
-          return  paper && "/api/papers/" + paper.typed_provider_id + "/transition?transition=" + transition;
+          return "https://docs.google.com/gview?embedded=true&url=" + link;
         }
 
     };

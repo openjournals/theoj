@@ -1,103 +1,124 @@
-<polymer-element name="oj-main-menu" attributes="currentUser" >
-    <template>
+<dom-module id="oj-main-menu">
+  <template>
 
-        <core-menu id='mainMenu' selected='{{selectedMenuItem}}' valueattr='id' class="main-menu">
+        <paper-menu id="mainMenu" selected="{{selectedMenuItem}}" attr-for-selected="id" class="main-menu">
 
-            <core-item id='recent' icon="home" label="Recent Papers">
-                <a is='pushstate-anchor' href="/" target="_self"></a>
-            </core-item>
+            <paper-item id="recent">
+                <a is="pushstate-anchor" href="/" target="_self"><iron-icon icon="icons:home"></iron-icon> Recent Papers</a>
+            </paper-item>
 
-            <template if={{currentUser}}>
+            <template is="dom-if" if="{{currentUser}}">
 
-                <core-item id='submitted' icon="receipt" label="Papers You Submitted">
-                    <a is='pushstate-anchor' href="/submitted" target="_self"></a>
-                </core-item>
+                <paper-item id="submitted">
+                    <a is="pushstate-anchor" href="/submitted" target="_self"><iron-icon icon="icons:receipt"></iron-icon> Papers You Submitted</a>
+                </paper-item>
 
-                <core-item id=review icon="speaker-notes" label="Papers You Are Reviewing">
-                    <a is='pushstate-anchor' href="/review" target="_self"></a>
-                </core-item>
+                <paper-item id="review">
+                    <a is="pushstate-anchor" href="/review" target="_self"><iron-icon icon="icons:speaker-notes"></iron-icon> Papers You Are Reviewing</a>
+                </paper-item>
 
-                <template if={{currentUser.editor}}>
+                <template is="dom-if" if="{{currentUser.editor}}">
 
-                    <core-item id=editing icon="speaker-notes" label="Papers You Are Editing">
-                        <a is='pushstate-anchor' href="/editing" target="_self"></a>
-                    </core-item>
+                    <paper-item id="editing">
+                        <a is="pushstate-anchor" href="/editing" target="_self"><iron-icon icon="icons:speaker-notes"></iron-icon> Papers You Are Editing</a>
+                    </paper-item>
 
                 </template>
 
-                <core-item id='submit' icon="send" label="Submit">
-                    <a is='pushstate-anchor' href="/submit" target="_self"></a>
-                </core-item>
+                <paper-item id="submit">
+                    <a is="pushstate-anchor" href="/submit" target="_self"><iron-icon icon="icons:send"></iron-icon> Submit</a>
+                </paper-item>
 
-                <core-item id=settings icon="settings" label="Settings">
-                    <a is='pushstate-anchor' href="/settings" target="_self"></a>
-                </core-item>
+                <paper-item id="settings">
+                    <a is="pushstate-anchor" href="/settings" target="_self"><iron-icon icon="icons:settings"></iron-icon> Settings</a>
+                </paper-item>
 
             </template>
 
-            <core-item id='about' icon="info-outline" label="About">
-                <a is='pushstate-anchor' href="/about" target="_self"></a>
-            </core-item>
+            <paper-item id="about">
+                <a is="pushstate-anchor" href="/about" target="_self"><iron-icon icon="icons:info-outline"></iron-icon> About</a>
+            </paper-item>
 
-        </core-menu>
+        </paper-menu>
 
-        <style>
+      <style>
 
-            :host {
-                background-color: white;
-            }
+          :host {
+              background-color: white;
+          }
 
-            core-menu {
-                font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-            }
+          paper-menu {
+              font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+              --paper-menu-focused-item-after: {
+                  background-color: inherit;
+              };
+          }
 
-            core-menu /deep/ #drawer{
-                background-color: #7986CB;
-            }
+          paper-item {
+              --paper-item-focused-before: {
+                  background-color: inherit;
+              };
+          }
 
-        </style>
+          paper-item:hover {
+              background: #f4f4f4;
+          }
+
+          paper-item a {
+              height: 100%;
+              width: 100%;
+              color:  inherit;
+              background: inherit;
+              text-decoration: none;
+              display: block;
+          }
+
+      </style>
 
     </template>
 
-    <script>
+  <script>
     Polymer({
+      is: 'oj-main-menu',
 
-        // External API
-
-        routeChanged: function(detail) {
-            var section;
-
-            if ($.isPlainObject(detail) ) {
-                section = detail.instance && detail.instance.getSectionName && detail.instance.getSectionName();
-
-                if (!section)
-                    section = this.sectionFromPath(detail.path);
-
-            } else {
-                section = this.sectionFromPath(detail);
-            }
-
-            // Make sure any other menu tap events are handled first
-            if (section != 'none') {
-                this.async( function() {
-                    this.selectedMenuItem = section || 'recent';
-                });
-            }
+      properties: {
+        currentUser: {
+            notify: true
         },
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
-        sectionFromPath: function(path) {
-            if (path=='/')
-                return '';
-            else if (path)
-                return path.split("/")[1] || path;
-            else
-                return undefined;
+        selectedMenuItem: {
+        },
+        route: {
+            observer: 'routeChanged'
         }
+      },
 
-    })
+      routeChanged: function (_, detail) {
+        var section;
+        if ($.isPlainObject(detail)) {
+          section = detail.instance && detail.instance.getSectionName && detail.instance.getSectionName();
+          if (!section)
+            section = this.sectionFromPath(detail.path);
+        } else {
+          section = this.sectionFromPath(detail);
+        }
+        // Make sure any other menu tap events are handled first
+        if (section != 'none') {
+          this.async(function () {
+            this.selectedMenuItem = section || 'recent';
+          });
+        }
+      },
+
+      ////////////////////////////////////////////////////////////////////////////////////////////
+      sectionFromPath: function (path) {
+        if (path == '/')
+          return '';
+        else if (path)
+          return path.split('/')[1] || path;
+        else
+          return undefined;
+      }
+
+    });
   </script>
-
-</polymer-element>
+</dom-module>

@@ -1,76 +1,82 @@
 suite('effect-callback', function() {
   setup(function() {
-    document.timeline._players = [];
-    webAnimations1.timeline._players = [];
+    document.timeline._animations = [];
+    webAnimations1.timeline._animations = [];
   });
 
   test('animations starting in the future are not in effect', function() {
     var fractions = [];
     tick(100);
-    var player = document.body.animate(function(fraction) { fractions.push(fraction); }, 1000);
-    player.startTime = 1000;
+    var effect = new KeyframeEffect(null, [], 1000);
+    effect.onsample = function(fraction) {
+      fractions.push(fraction);
+    };
+    var animation = document.timeline.play(effect);
+    animation.startTime = 1000;
     tick(200);
     tick(1000);
     tick(1100);
-    assert.deepEqual(fractions, [null, 0, 0.1]);
+    assert.deepEqual(fractions, [0, 0.1]);
   });
 
-  test('duration 0 players get sampled at least once', function() {
+  test('duration 0 animations get sampled at least once', function() {
     var timeFraction;
     tick(0);
-    var player = document.body.animate(function(t) {
+    var effect = new KeyframeEffect(null, [], {duration: 0, fill: 'both'});
+    effect.onsample = function(t) {
       timeFraction = t;
-    }, {duration: 0, fill: 'both'});
+    };
+    var animation = document.timeline.play(effect);
     tick(100);
     assert.equal(timeFraction, 1);
     assert.equal(isTicking(), false);
   });
 
-  test('players added during custom effect callbacks get updated in the same tick', function() {
-    var player;
+  test('animations added during custom effect callbacks get updated in the same tick', function() {
+    var animation;
     var called = false;
     tick(0);
-    document.body.animate(function() {
-      player = document.body.animate(function() {
-        called = true;
-      }, 1);
-    }, 2);
+    var effect = new KeyframeEffect(null, [], 2);
+    var effect2 = new KeyframeEffect(null, [], 1);
+    effect.onsample = function() {
+      animation = document.timeline.play(effect2);
+    };
+    effect2.onsample = function() {
+      called = true;
+    };
+    document.timeline.play(effect);
     tick(1);
-    assert.isTrue(player.startTime >= 0);
+    assert.isTrue(animation.startTime >= 0);
     assert.isFalse(called);
   });
 
   test('custom effect should be called after cancel', function() {
     var fractions = [];
-    var player = document.body.animate(function(fraction) { fractions.push(fraction); }, 1000);
+    var effect = new KeyframeEffect(null, [], 1000);
+    effect.onsample = function(fraction) {
+      fractions.push(fraction);
+    };
+    var animation = document.timeline.play(effect);
     tick(0);
     tick(500);
-    player.cancel();
+    animation.cancel();
     tick(501);
     assert.deepEqual(fractions, [0, 0.5, null]);
   });
 
-  test('element.animate is given animation', function() {
+  test('Custom callback is given effect and animation', function() {
+    var callbackEffect;
     var callbackAnim;
-    var player = document.body.animate(function(t, target, a) {
+    var effect = new KeyframeEffect(document.body, [], 100);
+    effect.onsample = function(t, e, a) {
+      callbackEffect = e;
       callbackAnim = a;
-    }, 100);
+    };
+    var animation = document.timeline.play(effect);
     tick(50);
     tick(150);
     assert.equal(isTicking(), false);
-    assert(callbackAnim, 'callback should be set');
-    assert.equal(callbackAnim.target, document.body);
-  });
-
-  test('effect callback on animation is given source animation', function() {
-    var callbackAnim;
-    var anim = new Animation(document.body, function(t, target, a) {
-      callbackAnim = a;
-    }, 1000);
-    var player = document.timeline.play(anim);
-    tick(50);
-    tick(550);
-    assert.equal(player.currentTime, 500);
-    assert.equal(callbackAnim, anim);
+    assert.equal(callbackAnim, animation);
+    assert.equal(callbackEffect.target, document.body);
   });
 });

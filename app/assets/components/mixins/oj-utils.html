@@ -1,5 +1,7 @@
 <script>
 
+    //#@todo: Refactor this with Oj.GlobalExpressions
+
     window.Oj.utils = {
 
         EMAIL_REGEX: /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i,
@@ -9,6 +11,23 @@
                 if (callback.call(thisObj, array[i], i, array) )
                     return i;
             return -1;
+        },
+
+        normalizeDate: function(date) {
+            if (!date)
+                return undefined;
+            else if (typeof date == 'string')
+                return new Date(date);
+            else
+                return date;
+        },
+
+        trim: function(string) {
+            return $.trim(string);
+        },
+
+        getFirstLine: function(string) {
+            return $.trim(string || '').split('\n')[0];
         },
 
         detect: function(array, callback, thisObj) {
@@ -34,12 +53,30 @@
                 return (error && error.toString()) || 'An error occurred.'
         },
 
-        INVALID_FIREBASE_CHARS: /[~\.\$\#\[\]]/gi, // Added ~ since we use it as an escape, Also '/' but we don't worry about that
+        menuSectionForRole: function (role) {
+            switch (role) {
+                case 'editor':
+                    return 'editing';
+                case 'reviewer':
+                    return 'review';
+                case 'submittor':
+                    return 'submitted';
+                case 'collaborator':
+                    return 'submitted';
+                default:
+                    return '';
+            }
+        },
 
-        clean_firebase_key: function(key) {
-            return key.toString().replace(this.INVALID_FIREBASE_CHARS, function(c) {
-                return '~' + c.charCodeAt(0).toString(16);
-            });
+        dbgString: function(x) {
+            if (x===undefined)
+                return '[undefined]';
+            else if (x===null)
+                return '[null]';
+            else if (x.toString)
+                return x.toString();
+            else
+                return x;
         }
 
     };

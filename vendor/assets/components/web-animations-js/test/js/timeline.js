@@ -1,36 +1,53 @@
 suite('timeline-tests', function() {
   setup(function() {
-    document.timeline._players = [];
-    webAnimations1.timeline._players = [];
+    document.timeline._animations = [];
+    webAnimations1.timeline._animation = [];
   });
 
-  test('no current players', function() {
-    assert.equal(document.timeline.getAnimationPlayers().length, 0);
+  test('no current animations', function() {
+    assert.equal(document.timeline.getAnimations().length, 0);
   });
 
-  test('getAnimationPlayers', function() {
+  test('timeline.play with null argument', function() {
+    assert.notEqual(document.timeline.play(), null);
+  });
+
+  test('getAnimations', function() {
     tick(90);
-    assert.equal(document.timeline.getAnimationPlayers().length, 0);
-    var player = document.body.animate([], {duration: 500, iterations: 1});
+    assert.equal(document.timeline.getAnimations().length, 0);
+    var animation = document.body.animate([], {duration: 500, iterations: 1});
     tick(300);
-    assert.equal(document.timeline.getAnimationPlayers().length, 1);
+    assert.equal(document.timeline.getAnimations().length, 1);
 
-    var player2 = document.body.animate([], {duration: 1000});
-    assert.equal(document.timeline.getAnimationPlayers().length, 2);
+    var animation2 = document.body.animate([], {duration: 1000});
+    assert.equal(document.timeline.getAnimations().length, 2);
     tick(800);
-    assert.equal(player.finished, true);
-    assert.equal(document.timeline.getAnimationPlayers().length, 1);
+    assert.equal(animation.playState, 'finished');
+    assert.equal(document.timeline.getAnimations().length, 1);
     tick(2000);
-    assert.equal(document.timeline.getAnimationPlayers().length, 0);
+    assert.equal(document.timeline.getAnimations().length, 0);
   });
 
-  test('getAnimationPlayers checks cancelled animation', function() {
+  test('getAnimations checks cancelled animation', function() {
     tick(90);
-    assert.equal(document.timeline.getAnimationPlayers().length, 0);
-    var player = document.body.animate([], {duration: 500, iterations: 1});
+    assert.equal(document.timeline.getAnimations().length, 0);
+    var animation = document.body.animate([], {duration: 500, iterations: 1});
     tick(300);
-    assert.equal(document.timeline.getAnimationPlayers().length, 1);
-    player.cancel();
-    assert.equal(document.timeline.getAnimationPlayers().length, 0);
+    assert.equal(document.timeline.getAnimations().length, 1);
+    animation.cancel();
+    assert.equal(document.timeline.getAnimations().length, 0);
+  });
+
+  test('playing a finished animation puts it back in the timeline', function() {
+    tick(0);
+    assert.equal(document.timeline.getAnimations().length, 0);
+    var animation = document.body.animate([], {duration: 500, iterations: 1});
+    tick(1);
+    tick(300);
+    assert.equal(document.timeline.getAnimations().length, 1);
+    tick(700);
+    assert.equal(document.timeline.getAnimations().length, 0);
+    animation.play();
+    assert.equal(document.timeline.getAnimations().length, 1);
   });
 });

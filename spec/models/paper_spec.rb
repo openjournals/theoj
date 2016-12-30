@@ -8,7 +8,7 @@ describe Paper do
         provider_id:       "1311.1653",
         version:           2,
         authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        document_location: "https://arxiv.org/pdf/1311.1653v2.pdf",
         title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
         summary:           "We present photometry.*in a second paper."
     }
@@ -37,6 +37,14 @@ describe Paper do
       expect(p.assignments.first.user).to  eq(editor)
       expect(p.assignments.second.role).to eq('submittor')
       expect(p.assignments.second.user).to eq(submittor)
+    end
+
+    it "The submittor will become the editor if they are capable [for testing]" do
+      editor    = set_paper_editor
+      submittor = create(:user, editor:true)
+      p = create(:paper, submittor:submittor)
+
+      expect(p.editors.first).to eq(submittor)
     end
 
   end
@@ -124,6 +132,19 @@ describe Paper do
         paper.complete_review!
       }.to change { deliveries.size }.by(1)
 
+      expect {
+        paper.accept!
+      }.to change { deliveries.size }.by(1)
+
+      expect {
+        paper.doi = 'some doi'
+        paper.publish!
+      }.to change { deliveries.size }.by(1)
+
+      expect {
+        paper.state = :under_review
+        paper.reject!
+      }.to change { deliveries.size }.by(1)
     end
 
     it "doesn't send an email when the paper is superceded" do
@@ -296,7 +317,7 @@ describe Paper do
       expect(new_paper.version).to eq(2)
       expect(new_paper.title).to eq("A photometric comprehensive study of circumnuclear star forming rings: the sample")
       expect(new_paper.summary).to match /^We present.*paper.$/
-      expect(new_paper.document_location).to eq("http://arxiv.org/pdf/1311.1653v2.pdf")
+      expect(new_paper.document_location).to eq("https://arxiv.org/pdf/1311.1653v2.pdf")
       expect(new_paper.authors).to eq("Mar Álvarez-Álvarez, Angeles I. Díaz")
     end
 
@@ -514,9 +535,27 @@ describe Paper do
     #   assert ability.can?(:update, paper)
     # end
 
-    it "should not allow a user to update their own paper" do
+    it "should allow a user to update their own paper" do
       user = create(:user)
       paper = create(:paper, :submitted, submittor:user)
+
+      ability = Ability.new(user, paper)
+
+      assert ability.can?(:update, paper)
+    end
+
+    it "should not allow a user to update their own paper if it is accepted" do
+      user = create(:user)
+      paper = create(:paper, :accepted, submittor:user)
+
+      ability = Ability.new(user, paper)
+
+      assert ability.cannot?(:update, paper)
+    end
+
+    it "should not allow a user to update their own paper if it is published" do
+      user = create(:user)
+      paper = create(:paper, :published, submittor:user)
 
       ability = Ability.new(user, paper)
 
@@ -551,10 +590,10 @@ describe Paper do
     end
 
     it "an editor can change the state of a paper" do
-      user  = create(:editor)
-      paper = create(:paper, :submitted, submittor:create(:user))
+      editor = create(:editor)
+      paper  = create(:paper, :submitted, submittor:create(:user), editor: editor)
 
-      ability = Ability.new(user, paper)
+      ability = Ability.new(editor, paper)
 
       expect(ability).to be_able_to(:start_review, paper)
     end
@@ -694,7 +733,7 @@ describe Paper do
     it "should return an error if the paper is not in a reviewable state" do
       paper = create(:paper, reviewer:reviewers)
 
-      expect(paper.mark_review_completed!(reviewers.first, false)).to be_falsy
+      expect(paper.mark_review_completed!(reviewers.first, 'accept')).to be_falsy
       expect(paper.errors).to be_present
       expect(paper.reload.reviewer_assignments.first.completed).to be_falsy
     end
@@ -702,15 +741,24 @@ describe Paper do
     it "should return an error if the user is not a reviewer" do
       paper = create(:paper, :under_review, reviewer:true)
 
-      expect(paper.mark_review_completed!(paper.submittor, false)).to be_falsy
+      expect(paper.mark_review_completed!(paper.submittor, 'accept')).to be_falsy
       expect(paper.errors).to be_present
       expect(paper.reload.submittor_assignment.completed).to be_falsy
+    end
+
+    it "should return an error if the reviewer_accept attribute is invalid" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+
+      expect {
+        paper.mark_review_completed!(reviewers.first, 'unknown')
+      }.to raise_exception(ActiveRecord::RecordInvalid)
+      expect(paper.reload.reviewer_assignments.first.completed).to be_falsy
     end
 
     it "should mark the reviewer as completed" do
       paper = create(:paper, :under_review, reviewer:reviewers)
 
-      expect(paper.mark_review_completed!(reviewers.first, false)).to be_truthy
+      expect(paper.mark_review_completed!(reviewers.first, 'accept')).to be_truthy
       expect(paper.errors).to be_empty
 
       expect(paper.reviewer_assignments.first.completed).to be_truthy
@@ -719,15 +767,15 @@ describe Paper do
 
     it "should set the reviewer_accept attribute" do
       paper = create(:paper, :under_review, reviewer:reviewers)
-      paper.mark_review_completed!(reviewers.first, false)
-      expect(paper.reviewer_assignments.first.reviewer_accept).to be(false)
+      paper.mark_review_completed!(reviewers.first, 'reject')
+      expect(paper.reviewer_assignments.first.reviewer_accept).to eq('reject')
     end
 
     it "when the last review is completed the state of the paper should change" do
       paper = create(:paper, :under_review, reviewer:reviewers)
       paper.reviewer_assignments.first.update_attributes(completed:true)
 
-      expect(paper.mark_review_completed!(reviewers.second, false)).to be_truthy
+      expect(paper.mark_review_completed!(reviewers.second, 'accept_with_minor')).to be_truthy
       expect(paper.reviewer_assignments.second.completed).to be_truthy
       expect(paper).to be_review_completed
     end
@@ -739,10 +787,22 @@ describe Paper do
       paper.reviewer_assignments.first.update_attributes(completed:true)
 
       expect {
-        paper.mark_review_completed!(reviewers.second, false)
+        paper.mark_review_completed!(reviewers.second, 'accept_with_major')
       }.to change { deliveries.count }.by(1)
 
       is_expected.to have_sent_email.to('editor@example.com').matching_subject(/- Review Completed/)
+    end
+
+    it "should create a comment if one is provided" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.mark_review_completed!(reviewers.first, 'reject', 'some comment')
+      expect(paper.annotations.first.body).to eq('some comment')
+    end
+
+    it "should not create a comment if none is provided" do
+      paper = create(:paper, :under_review, reviewer:reviewers)
+      paper.mark_review_completed!(reviewers.first, 'reject', ' ')
+      expect(paper.annotations).to be_empty
     end
 
   end

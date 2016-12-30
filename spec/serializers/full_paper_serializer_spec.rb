@@ -5,17 +5,23 @@ describe FullPaperSerializer do
   it "should initialize properly" do
     user = create(:user)
 
-    paper = create(:paper, document_location:"http://example.com", title:"Teh awesomeness", submittor:user)
+    paper = create(:paper, document_location:"https://example.com", title:"Teh awesomeness", submittor:user)
     serializer = FullPaperSerializer.new(paper)
     hash = hash_from_json(serializer.to_json)
 
     expect(hash.keys).to contain_exactly("paper_id",
                                          "typed_provider_id",
-                                         "user_permissions", "document_location", "state",
-                                         "submitted_at", "title",
+                                         "user_permissions",
+                                         "document_location",
+                                         "state",
+                                         "submitted_at",
+                                         "authors",
+                                         "title",
                                          "pending_issues_count",
                                          "submittor",
-                                         "assigned_users", "versions")
+                                         "assigned_users",
+                                         "doi",
+                                         "versions" )
   end
 
   it "should serialize a list of assignments" do

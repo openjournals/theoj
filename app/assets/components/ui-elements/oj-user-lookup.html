@@ -1,106 +1,135 @@
-<polymer-element name='oj-user-lookup' attributes='placeholder' >
+<dom-module id="oj-user-lookup">
+
   <template>
 
-    <input id=input placeholder={{placeholder}} value={{search}}></input>
+    <input id="input" placeholder="{{placeholder}}" value="{{search::input}}">
 
-    <core-dropdown id=suggestions relatedTarget={{$.input}} valign=bottom autoCloseDisabled=true autoFocusDisabled="true">
-        <core-menu>
-          <template repeat="{{suggestion in suggestions}}">
-            <core-item on-tap={{selectUser}}>{{suggestion.name}}</core-item>
+    <paper-dropdown id="suggestions" position-target="input" vertical-align="bottom">
+        <paper-menu>
+          <template is="dom-repeat" items="{{suggestions}}" as="suggestion">
+            <paper-item on-tap="selectUser">{{suggestion.name}}</paper-item>
           </template>
-        </core-menu>
-    </core-dropdown>
+        </paper-menu>
+    </paper-dropdown>
 
-    <json-get  id=lookUpSearch
-               on-success={{lookupSuccess}}
-               ></json-get>
+    <api-request id="lookUpSearch" method="get" on-success="lookupSuccess"></api-request>
 
-    <style>
-      :host {
-          display: inline-block;
-          position: relative;
-      }
+      <style>
 
-      input {
-          font-size:      14px;
-          padding:        0 4px;
-          vertical-align: top;
-      }
+          :host {
+              display: inline-block;
+              position: relative;
+          }
 
-      #suggestions {
-        display:   none;
-        position:  absolute;
-        z-index:   100;
-        min-width: 250px;
-        top:       20px;
-      }
-      #suggestions core-menu {
-          margin: 0;
-      }
+          input {
+              padding:        0 4px;
+              margin-top:     10px;
+              vertical-align: top;
+              display:  block;
+              width: 100%;
+              font-family:    Roboto;
+              color:          #192023;
+              font-size:      20px;/* Approximation due to font substitution */
+              line-height:    40px;
+              font-weight:    400;
+          }
+          input::-webkit-input-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
+          input:-ms-input-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
+          input::-moz-placeholder {
+              color:        #439982;
+              font-weight:  normal;
+          }
 
-      core-item {
-        box-sizing: border-box;
-        padding:    5px 10px;
-        background-color: #f8f8f8;
-        color:black;
-        border-bottom: 1px solid black;
-        cursor: pointer;
-      }
-      core-item:hover {
-          background-color: #ffffff;
-      }
-      core-item:last-child {
-          border-bottom: none;
-      }
-      core-item.core-selected {
-          font-weight: normal;
-      }
+          #suggestions {
+              display:   none;
+              position:  absolute;
+              z-index:   100;
+              min-width: 100%;
+              top:       40px;
+              left:      -1px;
+          }
+          #suggestions paper-menu {
+              margin:    0;
+          }
 
-      /* Only show the drop down when the edit is focused */
-      input:focus + #suggestions, #suggestions:active, #suggestions:focus {
-          display: block;
-      }
+          paper-item {
+              box-sizing:     border-box;
+              padding:        5px 10px;
+              background:     #f8f8f8;
+              color:          black;
+              border-top:     1px solid #888;
+              cursor:         pointer;
+              font-family:    Neuton;
+              color:          #192023;
+              font-size:      32px;/* Approximation due to font substitution */
+          }
+          paper-item:hover {
+              background-color: #ffffff;
+          }
+          paper-item:first-child {
+              border-top: none;
+          }
+          paper-item.selected {
+              font-weight: normal;
+          }
 
-    </style>
+          /* Only show the drop down when the edit is focused */
+          input:focus + #suggestions, #suggestions:active, #suggestions:focus {
+              display: block;
+          }
+
+      </style>
+
   </template>
 
   <script>
     Polymer({
+      is: 'oj-user-lookup',
 
-      created: function() {
-          this.suggestions = [];
+      properties: {
+        suggestions: {
+            value: function() { return [] }
+        },
+        placeholder:  {
+            notify: true
+        },
+        search: {
+            observer: 'searchChanged'
+        }
       },
 
-      searchChanged:function(){
-       this.job('user_search', function() {
+      searchChanged: function () {
+        this.debounce('user_search', function () {
           if (this.search.length > 2) {
-            this.$.lookUpSearch.url = '/api/user/lookup?guess=' + encodeURIComponent(this.search);
+            this.$.lookUpSearch.api = 'user/lookup?guess=' + encodeURIComponent(this.search);
             this.$.lookUpSearch.go();
           }
-       }, 300);
+        }, 300);
       },
 
-      lookupSuccess: function(event, suggestions) {
-          this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
-
-          if (this.suggestions.length) {
-            this.async( function() {
-                this.$.suggestions.opened = true;
-                this.$.suggestions.discoverDimensions();
-                this.$.suggestions.resetTargetDimensions();
-            } );
-          }
+      lookupSuccess: function (event, suggestions) {
+        this.suggestions = this.fire('filter-suggestions', suggestions).result || suggestions;
+        if (this.suggestions.length) {
+          this.async(function () {
+            this.$.suggestions.opened = true;
+          });
+        }
       },
 
-      selectUser:function(event, detail, sender){
-          var user = event.target.templateInstance.model.suggestion;
-          this.$.suggestions.opened = false;
-          this.search = "";
-          this.suggestions = [];
-          this.fire("user-selected", user);
+      selectUser: function (event, detail, sender) {
+        var user = event.model.suggestion;
+        this.$.suggestions.opened = false;
+        this.search = '';
+        this.suggestions = [];
+        this.fire('user-selected', user);
       }
 
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

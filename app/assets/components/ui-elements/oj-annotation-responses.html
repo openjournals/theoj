@@ -1,0 +1,88 @@
+
+<dom-module id="oj-annotation-responses">
+
+  <template>
+
+      <template is="dom-if" if="{{annotation.responses.length}}">
+          <div class="responses">
+              <template is="dom-repeat" items="{{annotation.responses}}" as="response">
+                  <oj-annotation-response paper="[[paper]]"
+                                          response="[[response]]"></oj-annotation-response>
+              </template>
+          </div>
+      </template>
+
+      <oj-annotation-response-new id="newResponse"
+                                  paper="[[paper]]"
+                                  annotation="[[annotation]]"
+                                  hidden$="{{!paper.can_edit_annotations}}"
+                                  visible="{{newResponseVisible}}"
+                                  on-response-added="responseAdded"></oj-annotation-response-new>
+
+      <style>
+
+          :host {
+              display:     block;
+          }
+          .responses {
+              box-sizing: border-box;
+              padding:     0;
+              margin-left: 10px;
+          }
+
+          oj-annotation-response, oj-annotation-response-new {
+              margin-top: 6px;
+          }
+
+          .actions {
+              line-height:     18px;
+          }
+          .action {
+              font-family: Roboto;
+              text-decoration: none;
+              font-size:       14px;
+              color:           #54d1b8;
+              margin-right:    10px;
+          }
+          .action:hover{
+            color: #44a995;
+            text-decoration: underline;
+          }
+          .action:first-child {
+              margin-left: 10px;
+          }
+          .action:last-child {
+              margin-right: 0px;
+          }
+          .action[data-disabled] {
+              text-decoration: none;
+              color:           #b0b0b0;
+              cursor:          default;
+          }
+
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-annotation-responses',
+
+      properties: {
+        paper: {
+            notify: true
+        },
+        annotation: {
+            notify: true
+        }
+      },
+
+      responseAdded: function(event, response) {
+          this.push('annotation.responses', response);
+          this.fire('notification', 'Reply saved');
+      }
+
+    });
+
+  </script>
+</dom-module>

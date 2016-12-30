@@ -2,6 +2,15 @@
 
     window.Oj.globalExpressions = {
 
+        MONTH_NAMES: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
+
+        ignoreEvent: function(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        },
+
         isArray: function(obj) {
             return Array.isArray(obj);
         },
@@ -23,11 +32,20 @@
             return text && text.replace(/[_-]/g,' ').replace(/(^|\W)\w/g, function(c) { return c.toUpperCase() } );
         },
 
-        date: function(date) {
-            if (!date) return undefined;
-            if (typeof date == 'string')
-                date = new Date(date);
-            return date.toDateString()
+        dateString: function(date) {
+            date = Oj.utils.normalizeDate(date);
+            if (date)
+                return date.toDateString();
+            else
+                return undefined;
+        },
+
+        shortDateString: function(date) {
+            date = Oj.utils.normalizeDate(date);
+            if (date)
+                return this.MONTH_NAMES[ date.getMonth() ] + ' ' + date.getDate();
+            else
+                return undefined;
         },
 
         log: function(value, args) {
@@ -35,6 +53,33 @@
             args.splice(1, 0, value);
             console.info.apply(console, args);
             return value;
+        },
+
+        // Replacements for Polymer 0.5 functions
+
+        convertStylePropertyName: function(name) {
+            return String(name).replace(/[A-Z]/g, function(c) {
+                return '-' + c.toLowerCase();
+            });
+        },
+
+        styleObject: function(values) {
+            var parts = [];
+            for (var key in values) {
+                if (values.hasOwnProperty(key)) {
+                    var name = this.convertStylePropertyName(key);
+                    parts.push(name + ': ' + values[key]);
+                }
+            }
+            return parts.join('; ');
+        },
+
+        tokenList: function(values) {
+            var tokens = [];
+            for (var key in values)
+                if (values.hasOwnProperty(key) && values[key])
+                  tokens.push(key);
+            return tokens.join(' ');
         }
 
     };

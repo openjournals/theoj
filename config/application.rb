@@ -30,12 +30,13 @@ module Theoj
 
     config.sass.preferred_syntax = :sass
     Rails.application.config.assets.precompile.push( "webcomponentsjs/webcomponents.js" )
+    Rails.application.config.assets.precompile.push( "pdf.worker.js" )
     config.i18n.enforce_available_locales = true
 
     config.active_record.raise_in_transactional_callbacks = true
 
     config.generators do |g|
-      g.test_framework  :rspec
+      g.test_framework   :rspec
       g.integration_tool :rspec
     end
 

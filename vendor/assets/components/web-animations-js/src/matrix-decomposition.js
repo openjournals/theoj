@@ -97,8 +97,6 @@
               v1[0] * v2[1] - v1[1] * v2[0]];
     }
 
-    // TODO: Implement 2D matrix decomposition.
-    // http://dev.w3.org/csswg/css-transforms/#decomposing-a-2d-matrix
     function decomposeMatrix(matrix) {
       var m3d = [
         matrix.slice(0, 4),
@@ -255,31 +253,32 @@
     ];
   }
 
-  // TODO: This can probably be made smaller.
+  function toRadians(arg) {
+    var rads = arg.rad || 0;
+    var degs = arg.deg || 0;
+    var grads = arg.grad || 0;
+    var turns = arg.turn || 0;
+    var angle = (degs / 360 + grads / 400 + turns) * (2 * Math.PI) + rads;
+    return angle;
+  }
+
   function convertItemToMatrix(item) {
     switch (item.t) {
-      // TODO: Handle units other than rads and degs.
       case 'rotatex':
-        var rads = item.d[0].rad || 0;
-        var degs = item.d[0].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[0]);
         return [1, 0, 0, 0,
                 0, Math.cos(angle), Math.sin(angle), 0,
                 0, -Math.sin(angle), Math.cos(angle), 0,
                 0, 0, 0, 1];
       case 'rotatey':
-        var rads = item.d[0].rad || 0;
-        var degs = item.d[0].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[0]);
         return [Math.cos(angle), 0, -Math.sin(angle), 0,
                 0, 1, 0, 0,
                 Math.sin(angle), 0, Math.cos(angle), 0,
                 0, 0, 0, 1];
       case 'rotate':
       case 'rotatez':
-        var rads = item.d[0].rad || 0;
-        var degs = item.d[0].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[0]);
         return [Math.cos(angle), Math.sin(angle), 0, 0,
                 -Math.sin(angle), Math.cos(angle), 0, 0,
                 0, 0, 1, 0,
@@ -288,9 +287,7 @@
         var x = item.d[0];
         var y = item.d[1];
         var z = item.d[2];
-        var rads = item.d[3].rad || 0;
-        var degs = item.d[3].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[3]);
 
         var sqrLength = x * x + y * y + z * z;
         if (sqrLength === 0) {
@@ -350,35 +347,25 @@
                 0, item.d[1], 0, 0,
                 0, 0, item.d[2], 0,
                 0, 0, 0, 1];
-      // FIXME: Skew behaves differently in Blink, FireFox and here. Need to work out why.
       case 'skew':
-        var xDegs = item.d[0].deg || 0;
-        var xRads = item.d[0].rad || 0;
-        var yDegs = item.d[1].deg || 0;
-        var yRads = item.d[1].rad || 0;
-        var xAngle = (xDegs * Math.PI / 180) + xRads;
-        var yAngle = (yDegs * Math.PI / 180) + yRads;
+        var xAngle = toRadians(item.d[0]);
+        var yAngle = toRadians(item.d[1]);
         return [1, Math.tan(yAngle), 0, 0,
                 Math.tan(xAngle), 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1];
       case 'skewx':
-        var rads = item.d[0].rad || 0;
-        var degs = item.d[0].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[0]);
         return [1, 0, 0, 0,
                 Math.tan(angle), 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1];
       case 'skewy':
-        var rads = item.d[0].rad || 0;
-        var degs = item.d[0].deg || 0;
-        var angle = (degs * Math.PI / 180) + rads;
+        var angle = toRadians(item.d[0]);
         return [1, Math.tan(angle), 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1];
-      // TODO: Work out what to do with non-px values.
       case 'translate':
         var x = item.d[0].px || 0;
         var y = item.d[1].px || 0;

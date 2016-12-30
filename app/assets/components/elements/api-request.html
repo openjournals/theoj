@@ -1,0 +1,103 @@
+<dom-module id="api-request">
+
+    <template>
+        <iron-ajax id="request"
+                   url="[[ apiUrl(api) ]]"
+                   auto="{{auto}}"
+                   handle-as="json"
+                   content-type="application/json"
+                   method="{{method}}"
+                   loading="{{loading}}"
+                   last-response="{{result}}"
+                   body="{{json(data)}}"
+                   on-response="success"
+                   on-error="error">
+        </iron-ajax>
+    </template>
+
+  <script>
+    Polymer( {
+      is: 'api-request',
+
+      properties: {
+        auto: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        data: {
+          type: Object,
+          value: function () {
+            return {};
+          },
+          notify: true
+        },
+        loading: {
+            type:    Boolean,
+            value:   false,
+            notify:  true
+        },
+        method: {
+          type: String,
+          value: 'get',
+          notify: true
+        },
+        result: {
+          notify: true
+        },
+        api: {
+          notify: true
+        }
+      },
+
+      go: function(successCallback, errorCallback) {
+        this.successCallback = successCallback;
+        this.errorCallback   = errorCallback;
+        this.$.request.generateRequest();
+      },
+
+      success: function (event, detail) {
+        this.fire('success', detail.response);
+        if (this.successCallback)
+          this.successCallback(event, detail.response);
+      },
+      error: function (event, detail) {
+        var text = this.errorText(detail);
+        this.fire('error', text);
+        if (this.errorCallback)
+          this.errorCallback(event, text);
+      },
+
+      errorText: function(detail) {
+          // For some reason accessing responseText throws an error (Firefox)
+          var responseText = null;
+          try {
+              try {
+                  var resp = detail.request.parseResponse();
+                  responseText = resp && (resp.text || resp.error);
+
+              } catch (ex1) { }
+
+              if (!responseText) responseText = detail.request.xhr.responseText;
+
+          } catch (ex2) { }
+
+          return responseText || detail.error;
+      },
+
+      apiUrl: function(api) {
+        if (!api)
+          return api;
+
+        if (api[0]=='/')
+            api = api.slice(1);
+        return '/api/v1/' + api;
+      },
+
+      behaviors: [
+        Oj.globalExpressions
+      ]
+    }
+  )
+  </script>
+</dom-module>

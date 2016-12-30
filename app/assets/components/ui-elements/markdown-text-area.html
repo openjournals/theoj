@@ -1,90 +1,138 @@
-<polymer-element name="markdown-text-area" attributes='value placeholder'>
+<dom-module id="markdown-text-area">
 
   <template>
-    <div id='content_wrapper'>
+      <markdown-content id="markdown"
+                        markdown="{{value}}"
+                        hidden$="{{!previewVisible}}"></markdown-content>
 
-      <template if={{previewVisible}}>
-          <markdown-content markdown={{value}}></markdown-content>
-          <a href='#' class=toggle on-click="{{hidePreview}}">Show content</a>
-      </template>
+      <iron-autogrow-textarea id="autogrow"
+                              rows="[[rows]]"
+                              max-rows="[[maxRows]]"
+                              placeholder="{{placeholder}}"
+                              bind-value="{{value}}"
+                              hidden$="{{previewVisible}}"></iron-autogrow-textarea>
 
-      <div hidden?={{previewVisible}}>
-        <paper-autogrow-textarea id=autogrow rows=3 maxRows=12>
-          <textarea class='niceTextArea' placeholder={{placeholder}} id=input value={{value}}></textarea>
-        </paper-autogrow-textarea>
-        <a href='#' class=toggle on-click="{{showPreview}}">Show Preview</a>
-      </div>
+      <style>
 
-    </div>
+          :host {
+              font-family: Roboto;
+              font-size:   12px;/* Approximation due to font substitution */
+              font-weight: 400;
+              color:  #5c5c5c;
+              padding:     0;
+          }
 
-    <style>
-      #content_wrapper{
-          width:100%;
-          box-sizing: border-box;
-          position: relative;
-          color: black;
-          background-color: #e0e0e0;
-      }
-      paper-autogrow-textarea {
-          position:relative;
-          box-sizing: border-box;
-          width: 100%;
-      }
-      textarea#input {
-          resize: none;
-          box-sizing: border-box;
-          width: 100%;
-          padding: 5px;
-          border: 1px solid #cccccc;
-          font-size: 13px;
-      }
-      markdown-content {
-        width:   100%;
-        height:  100%;
-        margin:  0;
-        padding: 0;
-      }
-      a.toggle {
-        position:absolute;
-        bottom: 0;
-        right: 0;
-        color: blue;
-        text-decoration: none;
-        z-index:1;
-      }
-      a.toggle:hover {
-        text-decoration: underline;
-      }
-    </style>
+          iron-autogrow-textarea {
+              box-sizing:     border-box;
+              border:         none;
+              border-bottom:  solid 1px #c9c9c9;
+              background:     white;
+              margin-left:    10px;
+              margin-top:     5px;
+              width:          95%;
+              min-height:     40px;
+
+              --iron-autogrow-textarea: {
+                  font-family: Roboto;
+                  color:       #858585;
+                  font-size:   14px;/* Approximation due to font substitution */
+                  font-weight: 400;
+                  box-sizing:  border-box;
+                  padding:     10px;
+                  border:      none;
+              }
+          }
+
+          markdown-content {
+              font-family: Roboto;
+              width:   95%;
+              font-size:   14px;
+              height:  100%;
+              margin:  0 0 0 10px;
+              padding: 0;
+              cursor:  default;
+              border:         none;
+              border-bottom:  solid 1px #c9c9c9;
+          }
+
+      </style>
 
   </template>
 
   <script>
     Polymer({
-      previewVisible:false,
-      domReady: function() {
-        this.$.autogrow.update( this.$.input );
+      is: 'markdown-text-area',
+
+      properties: {
+        placeholder: {
+            notify: true
+        },
+        previewVisible: {
+            type:     Boolean,
+            value:    false
+        },
+        previewButtonLabel: {
+            type:     String,
+            notify:   true,
+            computed: 'computePreviewButtonLabel(previewVisible)'
+        },
+        value: {
+            notify:   true,
+            observer: 'valueChanged'
+        },
+        rows: {
+            type:   Number,
+            value:  3,
+            notify: true
+        },
+        maxRows: {
+            type:   Number,
+            value:  3,
+            notify: true
+        }
       },
-      showPreview: function(event){
-        event.preventDefault();
-        this.previewVisible = true;
+
+      showPreview: function () {
+          this.previewVisible = true;
       },
-      hidePreview: function(event){
-        event.preventDefault();
-        this.previewVisible = false;
-        this.async(  function() { this.$.autogrow.update( this.$.input ); } );
+
+      hidePreview: function () {
+          this.previewVisible = false;
       },
-      focus: function() {
-          var textarea = this.shadowRoot.querySelector('#input');
-          if (textarea)
-              textarea.focus();
+
+      togglePreview: function () {
+          if (this.previewVisible || this.value)
+              this.previewVisible = ! this.previewVisible;
       },
-      select: function() {
-          var textarea = this.shadowRoot.querySelector('#input');
-          if (textarea)
-              textarea.select();
+
+      focus: function () {
+        var textarea = this.$.autogrow.textarea;
+        if (textarea)
+          textarea.focus();
+      },
+
+      select: function () {
+        var textarea = this.$.autogrow.textarea;
+        if (textarea)
+          textarea.select();
+      },
+
+      ready: function () {
+        //#@todo
+        //        this.$.autogrow.update(this.$.input);
+      },
+
+      computePreviewButtonLabel: function(previewVisible) {
+          return previewVisible ? 'Edit' : 'Preview';
+      },
+
+      valueChanged: function(value) {
+          var minHeight = this.$.autogrow.clientHeight;
+          this.$.markdown.style.minHeight = minHeight + 'px';
       }
-    })
+
+    });
+
   </script>
 
-</polymer-element>
+</dom-module>

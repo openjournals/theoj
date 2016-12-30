@@ -1,9 +1,5 @@
-<polymer-element name="markdown-simplified" attributes='markdown'>
-
-  <template>
-    <div id='renderedContent'></div>
-
-    <style>
+<dom-module id="markdown-simplified">
+  <style>
       :host {
         width: 100%;
         height: 100%;
@@ -19,18 +15,29 @@
         padding:0;
       }
     </style>
+  <template>
+    <div id="renderedContent"></div>
 
   </template>
-
   <script>
     Polymer({
-      showPreview:false,
-      markdown: '',
-      markdownChanged:function(){
-        var parsed = simplified_markdown( this.markdown );
-        this.$.renderedContent.innerHTML = parsed;
+      is: 'markdown-simplified',
+      properties: {
+        markdown: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: 'markdownChanged'
+        },
+        showPreview: {
+          type: Boolean,
+          value: false
+        }
+      },
+      markdownChanged: function () {
+        var parsed = simplified_markdown(this.markdown);
+        this.set('$.renderedContent.innerHTML', parsed);
       }
-    })
+    });
   </script>
-
-</polymer-element>
+</dom-module>

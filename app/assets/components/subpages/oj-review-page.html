@@ -1,169 +1,372 @@
-<polymer-element name="oj-review-page" attributes='paper_id currentUser' fit>
+<dom-module id="oj-review-page">
+
   <template>
 
-    <div id=scroller layout vertical>
+      <paper-progress id="progress"
+                      hidden$="{{!showProgress(loadProgress)}}"
+                      value="{{loadProgress}}"></paper-progress>
 
-        <oj-review-page-header
-                id=header
-                style="min-height: 170px"
-                user={{currentUser}}
-                paper={{paper}}
-                annotations={{annotations}}
-                loadProgress={{loadProgress}}
-                on-add-paper-annotation={{addPaperAnnotation}}
-                ></oj-review-page-header>
+      <div id="scroller" class="layout vertical">
 
-        <template if="{{paper}}">
-          <div id=main layout horizontal>
+        <template is="dom-if" if="{{paper}}">
+          <div id="main" class="layout horizontal">
 
-            <div layout vertical id=pdf-pane flex>
-
-              <stacked-pdf-reader src={{paper.document_location}}
-                                  annotations={{annotations}}
-                                  pageOffset={{pageOffset}}
-                                  loadProgress={{loadProgress}}
-                                  on-page-clicked={{pageClicked}}
-                                  on-pdf-client-changed={{pdfClientChanged}}
-                      ></stacked-pdf-reader>
+            <div id="pdf-pane">
+              <stacked-pdf-reader src="{{paper.document_location}}"
+                                  annotations="{{annotations}}"
+                                  load-progress="{{loadProgress}}"
+                                  on-page-clicked="pageClicked"
+                                  on-pdf-client-changed="pdfClientChanged"></stacked-pdf-reader>
             </div>
 
-            <template if={{paper.can_view_annotations}}>
-                <oj-annotation-list id=annotation_list
-                                    paper={{paper}}
-                                    annotations={{annotations}}
-                                    firstPageOffset={{20}}
-                                    pageHeight={{pdfClientHeight}}
-                                    pageSpacing={{20}}
-                                    on-annotation-changed={{onChangeAnnotation}}
-                        ></oj-annotation-list>
-            </template>
+            <div id="rhs">
+
+                <div id="rhs-tabs" hidden$="{{!paper.can_view_annotations}}">
+                    <div id="tab-info"  class$="{{tabClass('info',  activePane)}}" title="Paper Information"  on-tap="tabTap"></div>
+                    <div id="tab-edits" class$="{{tabClass('edits', activePane)}}" title="Paper Comments" on-tap="tabTap"></div>
+                </div>
+
+                <div id="panes">
+
+                    <oj-review-paper-info hidden$="{{paneHidden('info', activePane)}}"
+                                          user="{{currentUser}}"
+                                          paper="{{paper}}"
+                                          annotations="{{annotations}}">
+                          ></oj-review-paper-info>
+
+                    <template is="dom-if" if="{{paper.can_view_annotations}}">
+                        <oj-annotation-list id="annotation-list"
+                                            hidden$="{{paneHidden('edits', activePane)}}"
+                                            paper="{{paper}}"
+                                            annotations="{{annotations}}"
+                                            first-page-offset="{{annotationFirstPageOffset}}"
+                                            page-height="{{pdfClientHeight}}"
+                                            page-spacing="{{pageSpacing}}"
+                                            on-annotation-changed="onChangeAnnotation"
+                                            on-annotation-opened="onAnnotationOpened"
+                                            on-annotation-scroll-into-view="onAnnotationScrollIntoView"></oj-annotation-list>
+                    </template>
+
+                </div>
+
+                <oj-review-page-actions id="actions"
+                                        user="{{user}}"
+                                        paper="{{paper}}"
+                                        annotations="{{annotations}}" ></oj-review-page-actions>
+
+            </div>
+
           </div>
         </template>
 
     </div>
 
+    <api-request     method="get" auto="true"  api="{{paperApi(paper_id)}}"    result="{{paper}}"      ></api-request>
+    <template is="dom-if" if="{{paper.can_view_annotations}}">
+        <api-request method="get" auto="true" api="{{getAllIssuesApi(paper)}}" result="{{annotations}}"></api-request>
+    </template>
+
     <style>
-        #scroller {
-            position:      relative;
-            overflow-y:    auto;
-            height:        100%;
-            margin-bottom: 18px;
-        }
 
-      oj-review-page-header {
+      :host {
+          @apply(--layout);
+          @apply(--layout-fit);
+          background:    #eeeeee;
+          font-family:  Neuton;
+          color:        #192023;
+          --panel-width: 505px;
+      }
 
+      #progress {
+          position: absolute;
+          width:    100%;
+          top:      0;
+          left:     0;
+          right:    0;
+          --paper-progress-container-color: transparent;
+          --paper-progress-active-color:    #00cc00;
+      }
+
+      #scroller {
+          position:      relative;
+          overflow-y:    auto;
+          height:        100%;
+          width:         100%;
+          margin-bottom: 18px;
       }
 
       #pdf-pane {
           box-sizing: border-box;
           width: 65%;
           margin-right: 4px;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
       }
-      #add-document-issue paper-button {
-          box-sizing: border-box;
-          width: 100%;
-      }
+
       #main {
       }
 
+      #rhs {
+          position:      relative;     /* So that we can extend annotation list to full height */
+          box-sizing:    border-box;
+          width:         var(--panel-width);
+          height:        100%;
+          left:          -3px;
+          background:    #eeeeee;
+      }
+
+      /* iron-collapse doesn't work correctly when the list is hidden with display:none */
+      oj-annotation-list[hidden] {
+          display:    block  !important;
+          visibility: hidden !important;
+      }
+
+      #rhs-tabs {
+          position:         fixed;
+          top:              145px;
+          right:            0;
+          z-index:          100;
+      }
+
+      #rhs-tabs div {
+          width:         36px;
+          height:        38px;
+          margin-bottom: 2px;
+          cursor:        pointer;
+          box-shadow:    0 3px 15px 0 rgba(0, 0, 0, 0.08);
+          font-family:   "Roboto Slab";
+          color:         #cfcfcf;
+          background:    white center/20px no-repeat;
+          font-size:     20px;/* Approximation due to font substitution */
+          font-weight:   700;
+          line-height:   42px;/* Approximation due to font substitution */
+          text-align:    center;
+      }
+      #rhs-tabs div.active {
+          cursor:        default;
+          color:         #54d1b8;
+      }
+      #rhs-tabs div:hover {
+          color:         #54d1b8;
+      }
+
+      #rhs-tabs #tab-info::before {
+          content: 'i';
+      }
+      #rhs-tabs #tab-edits {
+          background-image: url(/assets/paper_edits.png)
+      }
+      #rhs-tabs #tab-edits.active {
+          background-image: url(/assets/paper_edits-active.png)
+      }
+      #rhs-tabs #tab-edits:hover {
+          background-image: url(/assets/paper_edits-active.png)
+      }
+
+      #panes {
+      }
+
+      oj-review-paper-info, oj-annotation-list {
+          box-sizing:    border-box;
+          padding-right: 38px; /* Width of tabs */
+          background:    #eeeeee;
+      }
+
+      oj-review-page-actions {
+          box-sizing:   border-box;
+          position:     fixed;
+          bottom:       0;
+          right:        0;
+          width:        var(--panel-width);
+          z-index:      1100;
+      }
+
+      oj-review-paper-info {
+          width:        var(--panel-width);
+          position:     fixed;
+          height:       100%;
+      }
+
       oj-annotation-list {
-          width: 350px;
-          left: -3px;
+          position:   absolute;
+          height:     100%;
+          width:      var(--panel-width);
       }
 
       stacked-pdf-reader {
-        overflow-y: visible;
+          overflow-y: visible;
       }
 
     </style>
-
-    <json-get auto=true url="{{paper_id | paperPath}}" result={{paper}}></json-get>
-
-    <template if={{paper.can_view_annotations}}>
-      <firebase-element
-        id=annotation-firebase
-        location="{{paper_id | annotationsFirebasePath }}"
-        data={{data}}
-        keys={{keys}}
-        data-change={{updateAnnotations}}
-      ></firebase-element>
-
-    </template>
 
   </template>
 
   <script>
     Polymer({
+      is: 'oj-review-page',
 
-      /**** external API *********/
-
-      getSectionName: function() {
-          return 'none';
+      properties: {
+        currentUser: {
+                         notify: true
+                     },
+        data:        {
+                         type: Array
+                     },
+        paper:       {
+                        observer: 'paperChanged'
+                     },
+        annotations: {
+                       notify: true,
+                       type:   Array,
+                       value:  null
+                     },
+        paper_id:    {
+                         notify: true
+                     },
+        pdfClient:   {
+                         observer: 'pdfClientChanged'
+                     },
+        annotationFirstPageOffset: {
+                         notify: true,
+                         value:  20
+                     },
+        pageSpacing: {
+                         notify: true,
+                         value:  20
+                     },
+        activePane:  {
+                         type:  String,
+                         notify: true,
+                         value:  'info'
+                     }
       },
 
-      /*** Polymer callbacks *****/
+      /**** External API *********/
 
-      created: function() {
-        this.annotations = [];
+      getSectionName: function() {
+        return 'none';
       },
 
       paperChanged: function() {
-          if (this.paper) {
-              var current_user_sha            = this.currentUser && this.currentUser.sha;
-              this.paper.current_assignment   = Oj.utils.detect(this.paper.assigned_users, function(a) {return a.user && a.user.sha == current_user_sha} );
-              this.paper.current_role         = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
-              this.paper.can_view_annotations = this.paper.current_assignment;
-              this.paper.can_edit_annotations = this.paper.can_view_annotations && this.paper.state == 'under_review';
+        if (this.paper) {
+          //Rework these settings into their own context object
+          var current_user_sha = this.currentUser && this.currentUser.sha;
+          this.set('paper.current_assignment', Oj.utils.detect(this.paper.assigned_users, function (a, i) {
+            return a.user && a.user.sha == current_user_sha;
+          }));
+          this.set('paper.can_view_annotations', this.paper.current_assignment   && this.paper.state != 'submitted'   );
+          this.set('paper.can_edit_annotations', this.paper.can_view_annotations && this.paper.state == 'under_review');
 
-              this.fire('route-changed', this.menuSectionForRole(this.paper.current_role) );
-          }
+          var best_role_match = (this.paper.current_assignment && this.paper.current_assignment.role) || 'none';
+          var menu_highlight  = this.menuSectionForRole(best_role_match);
+          this.fire('route-changed', menu_highlight);
+        }
       },
 
-     /******************************/
+      /******************************/
 
-     menuSectionForRole: function(role) {
-          switch (role) {
-              case     'editor':       return 'editing';
-              case     'reviewer':     return 'review';
-              case     'submittor':    return 'submitted';
-              case     'collaborator': return 'submitted';
-              default:                 return '';
-          }
+      showProgress: function(loadProgress) {
+          return loadProgress < 100;
       },
+
       pdfClientChanged: function(event, detail) {
-        this.pdfClientHeight = detail.clientHeight;
+          this.pdfClientHeight = detail.clientHeight;
       },
-      onChangeAnnotation:function(event, annotation) {
-        this.$.header.updateCounts();
+
+      onChangeAnnotation: function(event, annotation) {
+          this.$$('oj-review-paper-info').updateCounts();
       },
-      keysChanged:function(){
-        // console.log('mapping ');
-        // console.log(this.keys.map(function(key){return this.data[key]}.bind(this)));
-        this.annotations = this.keys.map(function(key){return this.data[key]}.bind(this));
+
+      onAnnotationOpened: function(event, annotation) {
+          if (this.paper.can_view_annotations)
+              this.activePane = 'edits';
       },
-      updateAnnotations:function(event){
-          // console.log("UPDATING ANNOTAITONS");
-          // console.log($.extend({},event));
+
+      onAnnotationScrollIntoView: function(event, options) {
+          var annotation = options.annotation;
+          if (! annotation.open)
+              return;
+
+          this.async( function() {
+
+              var element  = options.element;
+              var scroller = this.$.scroller;
+              var actions  = this.$$('#actions');
+
+              var prioritizeTop   = options.prioritize_top;  // When false shows the bottom (for responses)
+              var spacing         = 10; /*px*/ //Between top/bottom
+              var elHeight        = element.offsetHeight;
+              var containerHeight = scroller.clientHeight - actions.offsetHeight;
+              var elTop           = element.offsetTop; // + annotation_list.offsetTop;
+              var scrollTop       = scroller.scrollTop;
+              var newScrollTop;
+
+              if (prioritizeTop && elTop < scrollTop) {
+                  newScrollTop = elTop - spacing;
+
+              } else if (elTop + elHeight > scrollTop + containerHeight) {
+                  newScrollTop = elTop + elHeight + spacing - containerHeight;
+                  if (prioritizeTop && elTop < newScrollTop)
+                      newScrollTop = elTop;
+
+              } else if (!prioritizeTop && elTop < scrollTop) {
+                  newScrollTop = elTop - spacing;
+
+              }
+
+              if (newScrollTop) {
+                var change = Math.abs(newScrollTop - scrollTop);
+                if (change > 5) // Avoid irritating small changes
+                    $(scroller).animate({ scrollTop: newScrollTop }, 500);
+              }
+
+          }.bind(this) );
       },
+
       newAnnotation: function(properties) {
-          return $.extend( {state:'new', new:true, open:true}, properties);
+        return $.extend({
+          state:      'new',
+          new:        true,
+          open:       true,
+          assignment: this.paper.current_assignment
+        }, properties);
       },
-      pageClicked:function(event, position){
-          console.log('position', position);
-          var annotation = this.newAnnotation( position );
-          this.addAnnotation(annotation);
+
+      pageClicked: function(event, position) {
+        // console.log('pageClicked:', position);
+        var annotation = this.newAnnotation(position);
+        this.addAnnotation(annotation);
       },
+
       addPaperAnnotation: function(event) {
-          var annotation = this.newAnnotation();
-          this.addAnnotation(annotation);
+        var annotation = this.newAnnotation();
+        this.addAnnotation(annotation);
       },
+
       addAnnotation: function(annotation) {
-          if (this.paper.can_edit_annotations) {
-              this.annotations.push(annotation);
-          }
-      }
+        if (this.paper.can_edit_annotations) {
+          this.push('annotations', annotation);
+          this.activePane = 'edits';
+        }
+      },
 
-    })
+      tabClass: function(tabName) {
+          return tabName == this.activePane ? 'active' : '';
+      },
+
+      tabTap: function(event, detail) {
+        this.activePane = event.target.id.slice(4);
+      },
+
+      paneHidden: function(paneName) {
+        return paneName != this.activePane;
+      },
+
+      behaviors: [
+          Oj.utils,
+          Oj.api
+      ]
+
+    });
   </script>
-
-</polymer-element>
+</dom-module>

@@ -14,32 +14,56 @@
 
 
 (function(shared, scope, testing) {
+  var originalRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = function(f) {
+    return originalRequestAnimationFrame(function(x) {
+      scope.timeline._updateAnimationsPromises();
+      f(x);
+      scope.timeline._updateAnimationsPromises();
+    });
+  };
 
   scope.AnimationTimeline = function() {
-    this._players = [];
+    this._animations = [];
     this.currentTime = undefined;
   };
 
   scope.AnimationTimeline.prototype = {
-    // FIXME: This needs to return the wrapped players in Web Animations Next
-    // TODO: Does this need to be sorted?
-    // TODO: Do we need to consider needsRetick?
-    getAnimationPlayers: function() {
-      this._discardPlayers();
-      return this._players.slice();
+    getAnimations: function() {
+      this._discardAnimations();
+      return this._animations.slice();
     },
-    _discardPlayers: function() {
-      this._players = this._players.filter(function(player) {
-        return player.playState != 'finished' && player.playState != 'idle';
+    _updateAnimationsPromises: function() {
+      scope.animationsWithPromises = scope.animationsWithPromises.filter(function(animation) {
+        return animation._updatePromises();
       });
     },
-    play: function(source) {
-      var player = new scope.Player(source);
-      this._players.push(player);
-      scope.restartWebAnimationsNextTick();
-      player.play();
-      return player;
+    _discardAnimations: function() {
+      this._updateAnimationsPromises();
+      this._animations = this._animations.filter(function(animation) {
+        return animation.playState != 'finished' && animation.playState != 'idle';
+      });
     },
+    _play: function(effect) {
+      var animation = new scope.Animation(effect, this);
+      this._animations.push(animation);
+      scope.restartWebAnimationsNextTick();
+      // Use animation._animation.play() here, NOT animation.play().
+      //
+      // Timeline.play calls new scope.Animation(effect) which (indirectly) calls Timeline.play on
+      // effect's children, and Animation.play is also recursive. We only need to call play on each
+      // animation in the tree once.
+      animation._updatePromises();
+      animation._animation.play();
+      animation._updatePromises();
+      return animation;
+    },
+    play: function(effect) {
+      if (effect) {
+        effect.remove();
+      }
+      return this._play(effect);
+    }
   };
 
   var ticking = false;
@@ -52,10 +76,10 @@
   };
 
   function webAnimationsNextTick(t) {
-    var timeline = window.document.timeline;
+    var timeline = scope.timeline;
     timeline.currentTime = t;
-    timeline._discardPlayers();
-    if (timeline._players.length == 0)
+    timeline._discardAnimations();
+    if (timeline._animations.length == 0)
       ticking = false;
     else
       requestAnimationFrame(webAnimationsNextTick);

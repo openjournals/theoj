@@ -1,5 +1,27 @@
 ## app-router change log
 
+#### master
+- Adding `hashbang` mode in addition to the existing `auto`, `hash`, and `pushstate`.
+- Fixed URL change bug when only changing the hash.
+
+#### 2.6.0
+- Adding ability to bundle templates and select by ID `<app-route path="/home" import="pages/bundled-templates.html" template="homepage"></app-route>`.
+- Adding `async` flag to `<app-route>` HTML imports. By default HTML imports block rendering of the page. The router waits for the link's `load` event to fire before using the imported document so this will speed up rendering when navigating between routes.
+
+#### 2.5.0
+- Adding `onUrlChange="reload|updateModel|noop"` attribute to `<app-route>`. This is useful when you have nested routers and you only want to change the inner most route.
+
+#### v2.4.2
+- Fixing bug where navigating multiple times before any page finishes importing will lose the reference to the currently loaded route (`previousRoute`) before it is removed from the DOM.
+- Adding `route.importLink` reference.
+
+#### v2.4.1
+- Fixed bug where navigating to the same link twice with `core-animated-pages` would remove the page after 5 seconds.
+
+#### v2.4.0
+- Adding globstar `**` support.
+- Adding relative paths `users/:userId` which is the same as `/**/users/:userId`.
+
 #### v2.3.2
 - Fixed bug where calling `router.go('/path')` on the current path wouldn't reload the page.
 - Switched `router.go('/path')` to fire a `popstate` event instead of directly calling `stateChange()` in order to support multiple routers on the same page.

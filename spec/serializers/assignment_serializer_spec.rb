@@ -19,7 +19,7 @@ describe AssignmentSerializer do
   end
 
   it "A reviewer should include the reviewer_accept field when completed" do
-    assignment = create(:assignment, :reviewer, completed:true, reviewer_accept:false)
+    assignment = create(:assignment, :reviewer, completed:true, reviewer_accept:'accept_with_minor')
     serializer = AssignmentSerializer.new(assignment)
     hash = hash_from_json(serializer.to_json)
 

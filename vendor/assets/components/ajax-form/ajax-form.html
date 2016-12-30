@@ -1,5 +1,3 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../core-ajax/core-ajax.html">
 <script src="ajax-form.js"></script>
 
 <!--
@@ -10,7 +8,7 @@ Also allows the `<file-input>` custom element (and any other custom element form
 that have a `name` attribute and a `value`) to be submitted along with other traditional
 form elements.
 
-Check out the GitHub repository at https://github.com/garstasio/ajax-form.
+Check out the GitHub repository at https://github.com/rnicholus/ajax-form.
 
 ### What's wrong with a traditional `<form>`?
 
@@ -34,7 +32,7 @@ Check out the GitHub repository at https://github.com/garstasio/ajax-form.
 1. Callbacks when form validation fails, just before the form is submitted, and after the server has responded.
 2. The ability to send custom headers to the server with the submit request.
 3. Prevention of a page reload/redirect on submit.
-4. The ability to include the [`<file-input>` custom element](https://github.com/garstasio/file-input) as a `<form>` field.
+4. The ability to include the [`<file-input>` custom element](https://github.com/rnicholus/file-input) as a `<form>` field.
 
 ### Submitting
 Submit your form just as you would any other form.  For example:
@@ -43,12 +41,12 @@ Submit your form just as you would any other form.  For example:
 3. By calling `submit()` on the `<form>` element.
 
 If you are, for example, using a [`<paper-button>`](https://www.polymer-project.org/docs/elements/paper-elements.html#paper-button),
-you'll need to [attach a click handler to the button](https://github.com/garstasio/ajax-form/issues/27#issuecomment-64512558)
+you'll need to [attach a click handler to the button](https://github.com/rnicholus/ajax-form/issues/27#issuecomment-64512558)
 and submit the form when this handler is invoked.
 
 ### Integration with `<file-input>` custom element
 Want a better `<input type="file">` element that can be easily styled, has built-in,
-customizable validation, and provides an improved API?  Check out the [`<file-input>` custom element](https://github.com/garstasio/file-input).
+customizable validation, and provides an improved API?  Check out the [`<file-input>` custom element](https://github.com/rnicholus/file-input).
 `ajax-form` allows `<file-input>` custom element to be submitted along with other standard
 form fields.  Just include your `<file-input>` element as a child of your `<form is="ajax-form">`.
 That's it!
@@ -87,23 +85,11 @@ response data **if the request is a cross-origin request**.  Also, requests with
 will be preflighted as well, so your server must handle these correctly.  [Read more about
 CORS on Mozilla Developer Network](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS).
 
-__Don't forget to [vulcanize](http://www.polymer-project.org/articles/concatenating-web-components.html)
-your main/parent HTML file before deploying into production.  This will ensure
-that all of your HTML imports are concatenated into one file.__
-
 @element ajax-form
-@status beta
 @homepage index.html
 -->
-<polymer-element name="ajax-form" extends="form" attributes="cookies headers">
-
-    <template>
-
-        <content></content>
-
-        <core-ajax url={{action}} headers={{headers}} method={{acceptableMethod}}></core-ajax>
-
-    </template>
+<template class="ajax-form-template">
+    <content></content>
 
     <script>
         /**
@@ -148,9 +134,17 @@ that all of your HTML imports are concatenated into one file.__
          * If you would like to modify or add to the form data before it is sent
          * to the server, do so here by making changes directly to `detail.formData`.
          *
+         * To prevent the form from being submitted, simply invoke the `preventDefault()`
+         * function on the `Event` object passed into your handler function.
+         *
          * NOTE: Do not deviate from the flat structure of the data unless the `enctype`
          * is "application/json".  Doing so for other encoding types may produce surprising
          * results.
+         *
+         * NOTE: Form fields that share the same name will be represented as entries inside
+         * of a mutli-dimensional array. For example, if there are two text inputs, both with
+         * a name of "someName", with the first input having a value of "foo" and the second "bar",
+         * the entry in the `detailFormData` object will be `'someName': [['foo'], ['bar']`.
          *
          *     form.addEventListener('submitting',
          *         function(event) {
@@ -163,8 +157,6 @@ that all of your HTML imports are concatenated into one file.__
          */
 
         /**
-         * <b>This is a required attribute.</b>
-         *
          * Same as the action attribute of a non-ajax `<form>`.
          * This will hold the path to your server that is set to handle
          * the request.
@@ -224,6 +216,11 @@ that all of your HTML imports are concatenated into one file.__
          * - multipart/form-data
          * - application/json
          *
+         * NOTE: For "application/json" forms, form fields that share the same name will be represented
+         * as entries inside of a mutli-dimensional array. For example, if there are two text inputs,
+         * both with a name of "someName", with the first input having a value of "foo" and the second "bar",
+         * the entry in the submit request will be `'someName': [['foo'], ['bar']`.
+         *
          * @attribute enctype
          * @type string
          * @default 'application/x-www-form-urlencoded'
@@ -249,11 +246,9 @@ that all of your HTML imports are concatenated into one file.__
          */
 
         /**
-         * <b>This is a required attribute.</b>
-         *
          * Same as the method attribute of a non-ajax `<form>`.
          * The method to use when sending the request. Currently,
-         * GET, POST, and PUT are allowed.
+         * GET, POST, PUT, PATCH and DELETE are allowed.
          *
          *     <form is="ajax-form"
          *         method="put"
@@ -267,8 +262,5 @@ that all of your HTML imports are concatenated into one file.__
          * @type string
          * @default 'GET'
          */
-
-        Polymer('ajax-form', ajaxForm);
     </script>
-
-</polymer-element>
+</template>

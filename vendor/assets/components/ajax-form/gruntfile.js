@@ -7,29 +7,47 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: config('jshint'),
-        'wct-test': {
-            desktop: {
-                options: {
-                    browsers: ['chrome', 'firefox', 'safari'],
-                    remote: false
-                }
-            },
-            remote: {
-                options: {remote: true}
-            }
-        },
         watch: {
             files: ['ajax-form.js', 'grunt_tasks/*.js', 'test/unit/*'],
             tasks: ['jshint', 'karma:dev']
+        },
+        copy: {
+            npmPreRelease: {
+                files: [
+                    {src: 'README.md', dest: 'dist/'},
+                    {src: 'LICENSE', dest: 'dist/'},
+                    {src: 'ajax-form.html', dest: 'dist/'},
+                    {src: 'ajax-form.js', dest: 'dist/'},
+                    {src: 'package.json', dest: 'dist/'}
+                ]
+            }
+        },
+        shell: {
+            npmRelease: {
+                command: [
+                    'cd dist',
+                    'npm publish'
+                ].join('&&')
+            },
+            wctLocal: {
+                command: [
+                    '$(npm bin)/wct --plugin local'
+                ].join('&&')
+            },
+            wctSauce: {
+                command: [
+                    '$(npm bin)/wct --plugin sauce'
+                ].join('&&')
+            }
         }
     });
 
-    grunt.loadNpmTasks('web-component-tester');
-
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-shell');
 
-
-    grunt.registerTask('default', ['jshint', 'wct-test:desktop']);
-    grunt.registerTask('travis', ['jshint', 'wct-test:remote']);
+    grunt.registerTask('default', ['jshint', 'shell:wctLocal']);
+    grunt.registerTask('travis', ['jshint', 'shell:wctSauce']);
+    grunt.registerTask('publishToNpm', ['jshint', 'shell:wctLocal', 'copy:npmPreRelease', 'shell:npmRelease']);
 };

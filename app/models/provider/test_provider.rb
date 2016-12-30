@@ -16,7 +16,7 @@ class Provider
             provider_id:       parsed[:provider_id],
             version:           parsed[:version] || 9,
             authors:           "author list",
-            document_location: "http://example.com/document/123-9.pdf",
+            document_location: "https://example.com/document/123-9.pdf",
             title:             "title",
             summary:           "summary"
         }

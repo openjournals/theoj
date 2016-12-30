@@ -48,4 +48,5 @@
         prototype: HTMLPushStateAnchorElement,
         extends: 'a'
     });
+
 })();

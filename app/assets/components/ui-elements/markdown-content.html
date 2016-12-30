@@ -1,37 +1,55 @@
-<polymer-element name="markdown-content" attributes='markdown'>
+<dom-module id="markdown-content">
 
   <template>
-    <div id='renderedContent'></div>
+    <div id="renderedContent"></div>
 
-    <style>
-      :host {
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        display:inline;
-      }
-      #renderedContent {
-        padding: 0;
-      }
-      p {
-        margin:0;
-        padding:0;
-      }
-    </style>
+      <style>
+          :host {
+              display: block;
+              width:   100%;
+              height:  100%;
+              padding: 0;
+              margin:  0;
+          }
+          #renderedContent {
+              padding: 5px 0 5px 0px;
+          }
+          p, h1, h2, h3, h4, h5, h6, ul, ol {
+              margin-top: 0;
+          }
+          p:last-child, h1:last-child, h2:last-child, h3:last-child,
+          h4:last-child, h5:last-child, h6:last-child, ul:last-child, ol:last-child {
+              margin-bottom: 0;
+          }
+      </style>
 
   </template>
 
   <script>
     Polymer({
-      showPreview:false,
-      markdown: '',
-      markdownChanged:function(){
-        var parsed = marked(this.markdown || '');
-        this.$.renderedContent.innerHTML =parsed;
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$.renderedContent ]);
-      }
-    })
-  </script>
+      is: 'markdown-content',
 
-</polymer-element>
+      properties: {
+        markdown: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: 'markdownChanged'
+        },
+        showPreview: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      markdownChanged: function () {
+        var element       = Polymer.dom(this.$.renderedContent);
+        var parsed        = marked(this.markdown || '');
+        element.innerHTML = parsed;
+
+        MathJax.typeset(element);
+      }
+
+    });
+  </script>
+</dom-module>

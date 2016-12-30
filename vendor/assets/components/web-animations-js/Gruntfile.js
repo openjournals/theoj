@@ -1,3 +1,17 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+//     You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//     See the License for the specific language governing permissions and
+// limitations under the License.
+
 module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-gjslint');
@@ -102,31 +116,33 @@ module.exports = function(grunt) {
     WEB_ANIMATIONS_TESTING: false
   };
 
-  function buildWebAnimations1(target) {
+  function build(target) {
     var config = targetConfig[target];
-    return genTarget(target).concat([
-      concat(config.scopeSrc.concat(config.sharedSrc).concat(config.webAnimations1Src), 'inter-raw-' + target + '.js', concatDefines),
-      guard('inter-raw-' + target + '.js', 'inter-' + target + '.js'),
-      compress('inter-' + target + '.js', target + '.min.js', concatDefines)
-    ]);
-  }
-
-  function buildWebAnimationsNext(target) {
-    var config = targetConfig[target];
-    return genTarget(target).concat([
+    var steps = [
       concat(config.scopeSrc.concat(config.sharedSrc), 'inter-' + target + '-preamble.js', concatDefines),
-      concat(config.webAnimations1Src, 'inter-component-' + target + 'web-animations-1.js', concatDefines),
-      guard('inter-component-' + target + 'web-animations-1.js', 'inter-guarded-' + target + '-web-animations-1.js'),
-      concat(config.webAnimationsNextSrc, 'inter-component-' + target + '.js', concatDefines),
-      concatWithMaps(['inter-' + target + '-preamble.js', 'inter-guarded-' + target + '-web-animations-1.js', 'inter-component-' + target + '.js'],
-          'inter-' + target + '.js'),
+      concat(config.webAnimations1Src, 'inter-component-' + target + '-web-animations-1.js', concatDefines),
+      guard('inter-component-' + target + '-web-animations-1.js', 'inter-guarded-' + target + '-web-animations-1.js'),
+      concat(config.webAnimations1BonusSrc, 'inter-bonus-' + target + '.js', concatDefines),
+    ];
+    var filenames = [
+      'inter-' + target + '-preamble.js',
+      'inter-guarded-' + target + '-web-animations-1.js',
+      'inter-bonus-' + target + '.js',
+    ];
+    if (config.webAnimationsNextSrc.length > 0) {
+      steps.push(concat(config.webAnimationsNextSrc, 'inter-component-' + target + '.js', concatDefines));
+      filenames.push('inter-component-' + target + '.js');
+    }
+    steps.push(
+      concatWithMaps(filenames, 'inter-' + target + '.js'),
       compress('inter-' + target + '.js', target + '.min.js', concatDefines)
-    ]);
+    );
+    return genTarget(target).concat(steps);
   }
 
-  grunt.registerTask('web-animations', buildWebAnimations1('web-animations'));
-  grunt.registerTask('web-animations-next', buildWebAnimationsNext('web-animations-next'));
-  grunt.registerTask('web-animations-next-lite', buildWebAnimationsNext('web-animations-next-lite'));
+  grunt.registerTask('web-animations', build('web-animations'));
+  grunt.registerTask('web-animations-next', build('web-animations-next'));
+  grunt.registerTask('web-animations-next-lite', build('web-animations-next-lite'));
 
   var testTargets = {'web-animations': {}, 'web-animations-next': {}};
 
@@ -166,30 +182,117 @@ module.exports = function(grunt) {
       }
     },
     test: testTargets,
+    debug: testTargets,
     sauce: testTargets,
   });
 
 
-  grunt.task.registerMultiTask('test', 'Run <target> tests under Karma', function() {
-    var done = this.async();
-    var karmaConfig = require('karma/lib/config').parseConfig(require('path').resolve('test/karma-config.js'), {});
-    var config = targetConfig[this.target];
-    karmaConfig.files = ['test/runner.js'].concat(config.src, config.test);
-    var karmaServer = require('karma').server;
-    karmaServer.start(karmaConfig, function(exitCode) {
-      done(exitCode === 0);
+  function runKarma(configCallback) {
+    return new Promise(function(resolve) {
+      var karmaConfig = require('karma/lib/config').parseConfig(require('path').resolve('test/karma-config.js'), {});
+      configCallback(karmaConfig);
+      var karmaServer = require('karma').server;
+      karmaServer.start(karmaConfig, function(exitCode) {
+        resolve(exitCode == 0);
+      });
     });
+  }
+
+  function runTests(task, configCallback, testFilter) {
+    var done = task.async();
+    var config = targetConfig[task.target];
+    if (testFilter) {
+      testFilter = new Set(testFilter.split(','));
+    }
+
+    function filterTests(testFiles) {
+      if (!testFilter) {
+        return testFiles;
+      }
+      return testFiles.filter(file => testFilter.has(file));
+    }
+
+    function runPolyfillTests() {
+      var testFiles = filterTests(config.polyfillTests);
+      if (testFiles.length == 0) {
+        return Promise.resolve(true);
+      }
+
+      console.info('Running polyfill tests...');
+      return runKarma(function(karmaConfig) {
+        configCallback(karmaConfig);
+        karmaConfig.plugins.push('karma-mocha', 'karma-chai');
+        karmaConfig.frameworks.push('mocha', 'chai');
+        karmaConfig.files = ['test/karma-mocha-setup.js'].concat(config.src, testFiles);
+      });
+    }
+    function runWebPlatformTests() {
+      var testFiles = filterTests(grunt.file.expand(config.webPlatformTests));
+      if (testFiles.length == 0) {
+        return Promise.resolve(true);
+      }
+
+      console.info('Running web-platform-tests/web-animations tests...');
+      return runKarma(function(karmaConfig) {
+        configCallback(karmaConfig);
+        karmaConfig.client.testharnessTests = require('./test/web-platform-tests-expectations.js');
+        karmaConfig.client.testharnessTests.testURLList = testFiles;
+        karmaConfig.proxies['/base/polyfill.js'] = '/base/' + task.target + '.min.js';
+        karmaConfig.files.push('test/karma-testharness-adapter.js');
+        var servedFiles = [
+          'test/web-platform-tests/resources/**',
+          'test/web-platform-tests/web-animations/**',
+          'test/resources/*',
+          'src/**',
+          '*.js*',
+
+          // TODO(alancutter): Make a separate grunt task for serving these imported Blink tests.
+          'test/blink/**',
+        ];
+        for (var pattern of servedFiles) {
+          karmaConfig.files.push({pattern, included: false, served: true, nocache: true});
+        }
+      });
+    }
+
+    var polyfillTestsPassed = false;
+    runPolyfillTests().then(success => {
+      polyfillTestsPassed = success;
+    }).then(runWebPlatformTests).then(webPlatformTestsPassed => {
+      done(polyfillTestsPassed && webPlatformTestsPassed);
+    }).catch(function(error) {
+      console.error(error);
+      done(false);
+    });
+  }
+
+  grunt.task.registerMultiTask('test', 'Run <target> tests under Karma', function(testFilter) {
+    runTests(this, function(karmaConfig) {
+      karmaConfig.singleRun = true;
+    }, testFilter);
+  });
+
+  grunt.task.registerMultiTask('debug', 'Debug <target> tests under Karma', function(testFilter) {
+    if (testFilter) {
+      console.log('Test file URLs:');
+      for (var testFile of testFilter.split(',')) {
+        console.log('http://localhost:9876/base/' + testFile);
+      }
+    } else {
+      console.log('Test runner URL: http://localhost:9876/debug.html');
+    }
+    runTests(this, function(karmaConfig) {
+      karmaConfig.browsers = [];
+      karmaConfig.singleRun = false;
+    }, testFilter);
   });
 
   grunt.task.registerMultiTask('sauce', 'Run <target> tests under Karma on Saucelabs', function() {
-    var done = this.async();
-    var karmaConfig = require('karma/lib/config').parseConfig(require('path').resolve('test/karma-config-ci.js'), {});
-    var config = targetConfig[this.target];
-    karmaConfig.files = ['test/runner.js'].concat(config.src, config.test);
-    karmaConfig.sauceLabs.testName = 'web-animation-next ' + this.target + ' Unit tests';
-    var karmaServer = require('karma').server;
-    karmaServer.start(karmaConfig, function(exitCode) {
-      done(exitCode === 0);
+    var target = this.target;
+    runTests(this, function(karmaConfig) {
+      karmaConfig.singleRun = true;
+      karmaConfig.plugins.push('karma-saucelabs-launcher');
+      karmaConfig.sauceLabs = {testName: 'web-animation-next ' + target + ' Unit tests'};
     });
   });
 
@@ -268,12 +371,18 @@ module.exports = function(grunt) {
       grunt.file.write(this.target + '.map', outMapGenerator.toString());
     });
 
-  grunt.task.registerTask('clean', 'Remove files generated by grunt', function() {
-    grunt.file.expand('web-animations*').concat(grunt.file.expand('test/runner-*.html')).concat(grunt.file.expand('inter-*')).forEach(function(file) {
-      grunt.file.delete(file);
-      grunt.log.writeln('File ' + file + ' removed');
+  grunt.task.registerTask('clean', 'Remove files generated by grunt', function(arg) {
+    var filePatterns = ['inter-*'];
+    if (arg != 'inter') {
+      filePatterns.push('*min.js*');
+    }
+    filePatterns.forEach(function(filePattern) {
+      grunt.file.expand(filePattern).forEach(function(file) {
+        grunt.file.delete(file);
+        grunt.log.writeln('File ' + file + ' removed');
+      });
     });
   });
 
-  grunt.task.registerTask('default', ['web-animations', 'web-animations-next', 'web-animations-next-lite', 'gjslint']);
+  grunt.task.registerTask('default', ['web-animations', 'web-animations-next', 'web-animations-next-lite', 'gjslint', 'clean:inter']);
 };

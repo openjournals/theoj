@@ -1,4 +1,4 @@
-ruby '2.1.2'
+ruby '2.3.0'
 
 source 'https://rubygems.org'
 
@@ -12,7 +12,7 @@ gem 'mysql2'
 gem 'sass-rails'
 
 # Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
+gem 'uglifier', '>= 3.0'
 
 gem 'unicorn', '~> 4.9.0'
 
@@ -20,14 +20,14 @@ gem 'unicorn', '~> 4.9.0'
 gem 'coffee-rails', '~> 4.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer', platforms: :ruby
+gem 'therubyracer', platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'active_model_serializers'
-
+gem 'quiet_assets', group: :development
 
 gem 'bower-rails'
 # gem 'emcee', github: 'openjournals/emcee', branch:'fix_attempt'
@@ -62,7 +62,7 @@ group :test do
   gem 'test_after_commit'
   gem 'shoulda-matchers', '~> 2.6.1'
   gem 'factory_girl_rails', '~> 4.4.1'
-  gem 'webmock', '~> 1.18.0'
+  gem 'webmock', '~> 2.1.0'
 end
 
 # Use ActiveModel has_secure_password

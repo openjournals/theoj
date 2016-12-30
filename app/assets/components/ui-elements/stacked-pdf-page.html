@@ -1,195 +1,218 @@
-<polymer-element name="stacked-pdf-page" attributes='pageNo page annotations'>
+<dom-module id="stacked-pdf-page">
+
   <template>
 
-      <template if={{loaded}}>
-          <paper-shadow z=1 on-click={{fireClick}} >
-            <canvas id=canvas></canvas>
-            <div id=textLayer></div>
-            <template if="{{ rendered && annotations}}">
-                <div id=iconlayer>
-                    <template repeat="{{a in annotations}}">
-                      <template if="{{ a.page == pageNo }}">
-                        <oj-annotation-marker annotation={{a}}
-                                   style="{{ { top:a.page_y, left:a.page_x } | styleObject }}" ></oj-annotation-marker>
-                      </template>
+      <template is="dom-if" if="{{loaded}}">
+          <paper-material elevation="1">
+            <canvas id="canvas"></canvas>
+            <template is="dom-if" if="{{canRenderAnnotations(annotations, rendered)}}">
+                <div id="iconlayer" on-click="fireClick">
+                    <template is="dom-repeat" items="{{annotations}}" as="a" observe="pageNo" filter="samePageFilter">
+                      <oj-annotation-marker annotation="{{a}}" style$="{{computeStyle(a, a.page_x, a.page_y)}}"></oj-annotation-marker>
                     </template>
                 </div>
             </template>
-          </paper-shadow>
+          </paper-material>
       </template>
 
       <style>
           :host {
-            background-color: white;
-            display: block;
-            width: 100%;
-            position:relative;
-            top:0;
-            left:0;
+              background-color: white;
+              display: block;
+              width: 100%;
+              position:relative;
+              top:0;
+              left:0;
           }
 
-          paper-shadow{
-            top: -1px;
-            left: -2px;
+          paper-material {
+              top: -1px;
+              left: -2px;
           }
-          canvas{
-            /*position:absolute;*/
-            /*top:0px;*/
-            /*left:0px;*/
-            width: 100%;
-            height: 100%;
+          canvas {
+              /*position:absolute;*/
+              /*top:0px;*/
+              /*left:0px;*/
+              width: 100%;
+              height: 100%;
           }
-          #textLayer, #iconlayer {
-            position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            color: blue;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+          #iconlayer {
+              position: absolute;
+              left: 0;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              color: blue;
+              width: 100%;
+              height: 100%;
+              overflow: hidden;
           }
 
           #iconlayer oj-annotation-marker {
               position: absolute;
           }
 
-          /* CSS for text highlighting overlay */
+      </style>
 
-          #textLayer > div {
-            color: transparent;
-            position: absolute;
-            line-height: 1;
-            white-space: pre;
-            cursor: text;
-          }
-
-          #textLayer .highlight {
-            margin: -1px;
-            padding: 1px;
-            background-color: rgba(180, 0, 170, 0.2);
-            border-radius: 4px;
-          }
-
-          #textLayer .highlight.begin {
-            border-radius: 4px 0 0 4px;
-          }
-
-          #textLayer .highlight.end {
-            border-radius: 0 4px 4px 0;
-          }
-
-          #textLayer .highlight.middle {
-            border-radius: 0;
-          }
-
-          #textLayer .highlight.selected {
-            background-color: rgba(0, 100, 0, 0.2);
-          }
-
-    </style>
 
   </template>
 
   <script>
     Polymer({
-      loaded: false,
-      domReady: function(){
-        $(window).resize( this.adjustClientSizes.bind(this) );
+      is: 'stacked-pdf-page',
 
-        this.page.then(function(pageContent){
-          this.loaded = true;
-          this.pageContent = pageContent;
-          setTimeout(function(){
-            this.render();
-          }.bind(this), 600)
-        }.bind(this));
-      },
-      annotationsChanged: function() {
-          this.addLocationToAnnotations();
-      },
-      pageHeightChanged: function(oldValue, newValue) {
+      properties: {
+        annotations: {
+          type:     Array,
+          notify:   true
+        },
+        loaded: {
+          type:     Boolean,
+          value:    false
+        },
+        page: {
+           // PDF Page Object
+           type:     Object,
+           notify:   true,
+           observer: 'pageChanged'
+        },
+        pageNo: {
+            notify:  true
+        },
+        rendered: {
+            type:    Boolean,
+            notify:  true
+        }
 
-          if (oldValue==0) {
-              // Do it immediately
-              this.addLocationToAnnotations();
-          } else {
-              // Add a delay since we're reizing inside a mouse drag
-              this.job('update-annotation-list-locations', this.addLocationToAnnotations, 150 );
-          }
-
-      },
-
-      fireClick:function(event) {
-          // var canvas = this.shadowRoot.getElementById("canvas");
-          // var canvasRect = canvas.getClientRects()[0];
-
-          // pdf convertToPdfPoint doesn't sem accurate
-          // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
-
-          var x  = event.offsetX || event.layerX;
-          var y  = event.offsetY || event.layerY;
-          var rx = x / this.clientWidth;
-          var ry = y / this.clientHeight;
-          var o = $(this).position();
-          this.fire("page-clicked", {page:this.pageNo, xStart:rx, yStart:ry} );
       },
 
-      adjustClientSizes: function(event) {
-        if (this.pageNo==0)
-          this.asyncFire('pdf-client-changed', {pageNo:this.pageNo, clientHeight:this.clientHeight});
-        this.addLocationToAnnotations();
+      observers: [
+        'annotationsChanged(annotations.*)'
+      ],
+
+      ready: function () {
+         $(window).resize( this.adjustClientSizes.bind(this) );
       },
-      addLocationToAnnotations: function() {
-          if (!this.annotations)
+
+      annotationsChanged: function () {
+        if (!this.annotations || !this.clientHeight)
             return;
 
-          for (var i=0; i < this.annotations.length; i++) {
-              var a = this.annotations[i];
-              if (a.page == this.pageNo) {
-                var location = this.annotationLocation(a);
-                $.extend(a, location);
-              }
+        this.addLocationToAnnotations();
+      },
+
+      fireClick: function (event) {
+        // var canvas = Polymer.dom(this).getElementById("canvas");
+        // var canvasRect = canvas.getClientRects()[0];
+        // pdf convertToPdfPoint doesn't sem accurate
+        // var point = this.viewport.convertToPdfPoint(event.offsetX, event.offsetY);
+        var x =  event.offsetX || event.layerX;
+        var y =  event.offsetY || event.layerY;
+        var rx = x / this.clientWidth;
+        var ry = y / this.clientHeight;
+        // var o = $(this).position();
+        this.fire('page-clicked', {
+          page:   this.pageNo,
+          xStart: rx,
+          yStart: ry
+        });
+      },
+
+      adjustClientSizes: function (event) {
+        if (this.pageNo == 0)
+          this.fire('pdf-client-changed', {
+            pageNo:       this.pageNo,
+            clientHeight: this.clientHeight
+          });
+
+        // Add a delay since we're resizing inside a mouse drag
+        this.debounce('update-annotation-list-locations # ' + this.pageNo,
+                      this.addLocationToAnnotations, 150);
+      },
+
+      addLocationToAnnotations: function () {
+        if (!this.annotations)
+          return;
+
+        for (var i = 0; i < this.annotations.length; i++) {
+          var a = this.annotations[i];
+          if (a.page == this.pageNo) {
+            var location = this.annotationLocation(a);
+            if (location.page_x != a.page_x)
+              this.set(['annotations', i, 'page_x'], location.page_x);
+            if (location.page_y != a.page_y)
+              this.set(['annotations', i, 'page_y'], location.page_y);
           }
+        }
       },
-      annotationLocation: function(a) {
-          return {
-              page_y: (a.yStart * this.clientHeight) + 'px',
-              page_x: (a.xStart * this.clientWidth ) + 'px'
-          };
+
+      annotationLocation: function (a) {
+        return {
+          page_y: a.yStart * this.clientHeight + 'px',
+          page_x: a.xStart * this.clientWidth  + 'px'
+        };
       },
-      annotationClicked: function(event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
-        var annotation = event.target.templateInstance.model.annotation;
-        annotation.open = true;
+
+      annotationClicked: function (event, detail) {
+          Oj.globalExpressions.ignoreEvent(event);
+          var annotation = event.target.templateInstance.model.annotation;
+          annotation.open = true;
       },
-      render: function() {
+
+      render: function (pageContent) {
         // Get the best scaling to fit the canvas
-        var scale                 = this.clientWidth / this.pageContent.getViewport(1.0).width;
-        this.viewport             = this.pageContent.getViewport(scale);
+        var scale         = this.clientWidth / pageContent.getViewport(1).width;
+        var viewport      = pageContent.getViewport(scale);
+        var canvas        = this.$$('#canvas');
+        var context       = canvas.getContext('2d');
+        canvas.width      = viewport.width;
+        canvas.height     = viewport.height;
 
-        this.textLayerDiv         = this.shadowRoot.getElementById("textLayer");
-        var canvas                = this.shadowRoot.getElementById("canvas");
-        canvas.width              = this.viewport.width;
-        canvas.height             = this.viewport.height;
-
-        this.pageContent.getTextContent().then(function(textContent) {
-          this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
-          this.textLayer.setTextContent(textContent);
-
-          var context = canvas.getContext('2d');
-          this.pageContent.render({canvasContext: context, viewport: this.viewport,textLayer: this.textLayer}).then( function() {
-              // no-op
-          }.bind(this));
-
+        // this.textLayer = new TextLayerBuilder(this.textLayerDiv, 0);
+        pageContent.render({
+          canvasContext: context,
+          viewport:      viewport
+        }).then(function () {
+           this.adjustClientSizes();
+           this.rendered = true;
         }.bind(this));
 
-        this.adjustClientSizes();
-        this.rendered = true;
-      }
+      },
 
-    })
+      pageChanged: function() {
+          if (!this.page)
+              return;
+
+          this.page.then(function (pageContent) {
+              this.loaded = true;
+              this.pageContent = pageContent;
+
+              setTimeout(function () {
+                  this.render(pageContent);
+              }.bind(this), 600);
+
+          }.bind(this));
+      },
+
+      canRenderAnnotations: function(annotations, rendered) {
+        return rendered && annotations;
+      },
+
+      samePageFilter: function(a) {
+        return a.page == this.pageNo;
+      },
+
+      computeStyle: function (a) {
+        return this.styleObject({
+          top:  a.page_y,
+          left: a.page_x
+        });
+      },
+
+      behaviors: [
+        Oj.globalExpressions
+      ]
+
+    });
   </script>
-</polymer-element>
+</dom-module>

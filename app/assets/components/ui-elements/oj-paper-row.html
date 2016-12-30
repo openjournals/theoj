@@ -1,76 +1,120 @@
-<polymer-element name='oj-paper-row' attributes='paper'>
-<template>
-  <div class='row {{paper | actionForPaper}}' flex>
-      <div class=inner layout horizontal>
-          <div class=lhs flex>
-              <div class=title>{{paper.title}}</div>
-              <div class=detail>
-                  Submitted by <span class=highlight>{{paper.submittor.name}}</span>
-                  on <span class=highlight>{{ paper.submitted_at | date }}</span>
-                  <template if="{{paper.state=='accepted'}}">
-                  , DOI: {{paper.doi}}
-                  </template>
-                  <template if="{{paper.state=='under_review'}}">
-                  | Comments: <span class=highlight>{{paper.pending_issues_count}}</span>
-                  </template>
+<dom-module id="oj-paper-row">
+
+  <template>
+
+      <div class$="{{computeRowClass(paper)}}" on-tap="onTap">
+          <div class="inner">
+
+              <div class="title">{{paper.title}}</div>
+              <div class="authors">{{paper.authors}}</div>
+
+              <div class="detail">
+
+                  <div class="lhs">
+                      Submitted by
+                      <span class="highlight">{{paper.submittor.name}}</span>
+                      on
+                      <span class="highlight">{{dateString(paper.submitted_at)}}</span>
+                      <template is="dom-if" if="{{ifUnderReview(paper)}}">
+                          | Comments: <span class="highlight">{{paper.pending_issues_count}}</span>
+                      </template>
+                  </div>
+
+                  <div class$="{{computeStatusClass(paper)}}">
+                      Status: <span class="highlight">{{capitalize(paper.state)}}</span>
+                  </div>
+
               </div>
-          </div>
-          <div class='rhs action-{{paper | actionForPaper}}' self-end>
-              <div class="status">Status: <span class=highlight>{{paper.state | capitalize}}</span></div>
+
           </div>
       </div>
-  </div>
 
-  <style>
+      <style>
 
-    .row {
-      padding:       0;
-      cursor:        pointer;
-      border-bottom: 1px solid #c2c2c2;
-      color:         black;
-    }
-    .inner {
-        width:       100%;
-        margin:      10px 0;
-    }
-    .inner:hover {
-        background-color: #fcfcfc;
-    }
+          .row {
+              padding:       0;
+              cursor:        pointer;
+              border-bottom: 1px solid #c2c2c2;
+              color:         black;
+              @apply(--layout-flex);
+          }
 
-    .title {
-        font-size:    18px;
-        font-weight:  700;
-        line-height:  24px;
-    }
+          .inner {
+              width:       100%;
+              margin:      10px 0;
+              @apply(--layout-vertical);
+          }
+          .inner:hover {
+              background-color: #fafafa;
+          }
 
-    .detail {
-        font-size:    12px;
-        color:        rgb(125, 125, 125);
-    }
+          .detail {
+              font-size:    12px;
+              color:        rgb(125, 125, 125);
+              width:        100%;
+              @apply(--layout-horizontal);
+          }
 
-    .highlight {
-        font-weight: 700;
-        color:       rgb(81, 81, 81);
-    }
+          .title {
+              font-size:    18px;
+              font-weight:  700;
+          }
 
-    .rhs {
-        width:        140px;
-        height:       100%;
-        text-align:   left;
-        position:     relative;
-        font-size:    12px;
-    }
+          .authors {
+              font-size:    14px;
+              font-weight:  normal;
+              font-style:   italic;
+              color:        #808080;
+          }
 
-    .status {
-        left:   0;
-        bottom: 0;
-    }
+          .highlight {
+              font-weight: 700;
+              color:       rgb(81, 81, 81);
+          }
 
-  </style>
-</template>
+          .lhs {
+              @apply(--layout-flex-auto);
+              padding-left: 24px;
+          }
+          .rhs {
+          }
 
-<script>
-  Polymer({
-  })
-</script>
-</polymer-element>
+      </style>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'oj-paper-row',
+
+      properties: {
+          paper: {
+              notify: true
+          }
+      },
+
+      ifUnderReview: function (paper) {
+        return paper.state == 'under_review';
+      },
+
+      computeRowClass: function (paper) {
+        return 'row ' + this.actionForPaper(paper);
+      },
+
+      computeStatusClass: function (paper) {
+        return 'rhs action-' + this.actionForPaper(paper);
+      },
+
+      onTap: function(event, detail) {
+        this.fire('review', this.paper);
+      },
+
+      behaviors: [
+          Oj.globalExpressions,
+          Oj.paperHelpers
+      ]
+
+    });
+  </script>
+
+</dom-module>

@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :paper do
-    document_location "http://example.com/1234"
+    document_location "https://example.com/1234"
     state              "submitted"
     title              "My awesome paper"
     summary            "Summary of my awesome paper"
@@ -17,6 +17,7 @@ FactoryGirl.define do
     end
 
     ignore do
+      editor       nil
       reviewer     nil
       collaborator nil
       arxiv_id     nil
@@ -29,6 +30,13 @@ FactoryGirl.define do
         paper.provider_type  = 'arxiv'
         paper.provider_id    = parsed[:provider_id]
         paper.version        = parsed[:version] if parsed[:version].present?
+      end
+
+      if factory.editor
+        editors = Array(factory.editor==true ? create(:user) : factory.editor)
+        editors.each do |e|
+          paper.assignments.build(role: :editor, user:e)
+        end
       end
 
       paper.send(:create_assignments) if paper.submittor

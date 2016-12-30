@@ -1,22 +1,28 @@
-<polymer-element name='oj-paper-icon' attributes='paper'>
+<dom-module id="oj-paper-icon">
   <template>
-    <core-item  src="/assets/paper_view.png" label={{paper.title}} vertical>
-      <a href="/vendor/assets/javascripts#/review/{{paper.sha}}" target="_self"></a>
-    </core-item>
+    <paper-item undefined="{{paper.title}}" vertical="">
+      <a target="_self" href$="{{_computeHref(paper)}}"></a>
+    </paper-item>
   </template>
-
   <script>
     Polymer({
-      icon_for_paper:function(paper){
-
-        paper_icon_options = {submitted: "paper_submit", accepted: "paper_accepted",view: "paper_view"};
+      is: 'oj-paper-icon',
+      properties: { paper: { notify: true } },
+      icon_for_paper: function (paper) {
+        paper_icon_options = {
+          submitted: 'paper_submit',
+          accepted: 'paper_accepted',
+          view: 'paper_view'
+        };
         icon = paper_icon_options[this.paper.state];
-        if(!icon){
+        if (!icon) {
           icon = paper_icon_options.view;
         }
-
         return icon;
+      },
+      _computeHref: function (paper) {
+        return '/vendor/assets/javascripts#/review/' + paper.sha;
       }
-    })
+    });
   </script>
-</polymer-element>
+</dom-module>

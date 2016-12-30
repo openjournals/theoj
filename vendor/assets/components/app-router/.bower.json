@@ -1,6 +1,6 @@
 {
   "name": "app-router",
-  "version": "2.3.2",
+  "version": "2.6.1",
   "authors": [
     "Erik Ringsmuth <erik.ringsmuth@gmail.com>"
   ],
@@ -24,19 +24,18 @@
     "package.json"
   ],
   "devDependencies": {
-    "polymer": "~0.5.1",
-    "webcomponentsjs": "~0.5.1",
-    "core-elements": "Polymer/core-elements#~0.5.1",
+    "polymer": "~0.5.4",
+    "webcomponentsjs": "~0.5.4",
+    "core-elements": "Polymer/core-elements#~0.5.4",
     "pushstate-anchor": "~0.3.0"
   },
-  "_release": "2.3.2",
+  "_release": "2.6.1",
   "_resolution": {
     "type": "version",
-    "tag": "v2.3.2",
-    "commit": "b855e7c2a3e90787e02e8420be8582599a36cb8e"
+    "tag": "v2.6.1",
+    "commit": "c01f7757fddb11523e4273b77ce63a071feb01fd"
   },
   "_source": "git://github.com/erikringsmuth/app-router.git",
-  "_target": "~2.3.2",
-  "_originalSource": "app-router",
-  "_direct": true
+  "_target": "^2.6.1",
+  "_originalSource": "app-router"
 }

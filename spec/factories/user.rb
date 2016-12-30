@@ -7,10 +7,12 @@ FactoryGirl.define do
     editor false
 
     factory :admin do
+      name  'John Admin'
       admin true
     end
 
     factory :editor do
+      name   'John the Editor'
       editor true
     end
 

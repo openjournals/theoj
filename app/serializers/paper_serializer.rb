@@ -1,12 +1,13 @@
 class PaperSerializer < BaseSerializer
 
   attributes :typed_provider_id,
+             :doi,
              :user_permissions,
              :state,
              :submitted_at,
              :title,
-             :pending_issues_count,
-             :doi
+             :authors,
+             :pending_issues_count
 
   has_one    :submittor, serializer:BasicUserSerializer
 

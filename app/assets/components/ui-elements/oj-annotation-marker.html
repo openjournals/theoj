@@ -1,57 +1,75 @@
-<polymer-element name=oj-annotation-marker attributes='annotation'>
-  <template>
+<dom-module id="oj-annotation-marker">
 
-        <core-icon icon="custom-icons:selected"
-                   class="{{annotation.open ? 'open' : 'closed' }} state-{{annotation.state}}"
-                   on-click={{annotationClicked}}
-                   title={{stripped(annotation.body)}}
-        ></core-icon>
+  <template>
+        <iron-icon icon="custom-icons:selected"
+                   on-click="annotationClicked"
+                   title="{{stripped(annotation.body)}}"
+                   class$="{{computeClass(annotation, annotation.open)}}"></iron-icon>
 
       <style>
-          core-icon {
-            display:      block !important;
-            stroke-width: 2px;
-            transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+          iron-icon {
+              display:      block !important;
+              stroke-width: 2px;
+              transition:   all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.575);
+              color:        #ff601e;
+              --iron-icon: {
+
+              }
           }
-          core-icon.closed {
-            height:       8px;
-            width:        8px;
-            margin-top:   -4px;
-            margin-left:  -4px;
-            cursor:       pointer;
+          iron-icon.closed {
+              height:       8px;
+              width:        8px;
+              margin-top:   -4px;
+              margin-left:  -4px;
+              cursor:       pointer;
           }
-          core-icon.closed:hover {
+          iron-icon.closed:hover {
               stroke-width: 3px;
               height:       10px;
               width:        10px;
               margin-top:   -5px;
               margin-left:  -5px;
           }
-          core-icon.open {
-            height:       16px;
-            width:        16px;
-            margin-top:   -8px;
-            margin-left:  -8px;
-            cursor:       default;
+          iron-icon.open {
+              height:       16px;
+              width:        16px;
+              margin-top:   -8px;
+              margin-left:  -8px;
+              cursor:       default;
+          }
+          iron-icon ::shadow svg {
+              overflow: visible;
           }
 
-    </style>
+      </style>
 
   </template>
 
   <script>
+
     Polymer({
+      is: 'oj-annotation-marker',
+
+      properties: {
+          annotation: {
+              notify: true
+          }
+      },
 
       annotationClicked: function(event, detail) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.annotation.open = true;
+        Oj.globalExpressions.ignoreEvent(event);
+        this.set('annotation.open', true);
       },
 
       stripped: function(markdown) {
         return stripped_markdown(markdown);
+      },
+
+      computeClass: function(annotation) {
+        return annotation.open ? 'open' : 'closed';
       }
 
-    })
+    });
   </script>
-</polymer-element>
+
+</dom-module>

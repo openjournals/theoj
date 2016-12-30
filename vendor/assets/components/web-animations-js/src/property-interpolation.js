@@ -12,9 +12,15 @@
 //   See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(scope, testing) {
+(function(shared, scope, testing) {
 
   var propertyHandlers = {};
+
+  function toCamelCase(property) {
+    return property.replace(/-(.)/g, function(_, c) {
+      return c.toUpperCase();
+    });
+  }
 
   function addPropertyHandler(parser, merger, property) {
     propertyHandlers[property] = propertyHandlers[property] || [];
@@ -24,19 +30,77 @@
     for (var i = 0; i < properties.length; i++) {
       var property = properties[i];
       WEB_ANIMATIONS_TESTING && console.assert(property.toLowerCase() === property);
-      addPropertyHandler(parser, merger, property);
-      if (/-/.test(property)) {
-        // Add camel cased variant.
-        addPropertyHandler(parser, merger, property.replace(/-(.)/g, function(_, c) {
-          return c.toUpperCase();
-        }));
-      }
+      addPropertyHandler(parser, merger, toCamelCase(property));
     }
   }
   scope.addPropertiesHandler = addPropertiesHandler;
 
+  var initialValues = {
+    backgroundColor: 'transparent',
+    backgroundPosition: '0% 0%',
+    borderBottomColor: 'currentColor',
+    borderBottomLeftRadius: '0px',
+    borderBottomRightRadius: '0px',
+    borderBottomWidth: '3px',
+    borderLeftColor: 'currentColor',
+    borderLeftWidth: '3px',
+    borderRightColor: 'currentColor',
+    borderRightWidth: '3px',
+    // Spec says this should be 0 but in practise it is 2px.
+    borderSpacing: '2px',
+    borderTopColor: 'currentColor',
+    borderTopLeftRadius: '0px',
+    borderTopRightRadius: '0px',
+    borderTopWidth: '3px',
+    bottom: 'auto',
+    clip: 'rect(0px, 0px, 0px, 0px)',
+    color: 'black', // Depends on user agent.
+    fontSize: '100%',
+    fontWeight: '400',
+    height: 'auto',
+    left: 'auto',
+    letterSpacing: 'normal',
+    lineHeight: '120%',
+    marginBottom: '0px',
+    marginLeft: '0px',
+    marginRight: '0px',
+    marginTop: '0px',
+    maxHeight: 'none',
+    maxWidth: 'none',
+    minHeight: '0px',
+    minWidth: '0px',
+    opacity: '1.0',
+    outlineColor: 'invert',
+    outlineOffset: '0px',
+    outlineWidth: '3px',
+    paddingBottom: '0px',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    paddingTop: '0px',
+    right: 'auto',
+    textIndent: '0px',
+    textShadow: '0px 0px 0px transparent',
+    top: 'auto',
+    transform: '',
+    verticalAlign: '0px',
+    visibility: 'visible',
+    width: 'auto',
+    wordSpacing: 'normal',
+    zIndex: 'auto'
+  };
+
   function propertyInterpolation(property, left, right) {
-    var handlers = left == right ? [] : propertyHandlers[property];
+    var ucProperty = property;
+    if (/-/.test(property) && !shared.isDeprecated('Hyphenated property names', '2016-03-22', 'Use camelCase instead.', true)) {
+      ucProperty = toCamelCase(property);
+    }
+    if (left == 'initial' || right == 'initial') {
+      if (left == 'initial')
+        left = initialValues[ucProperty];
+      if (right == 'initial')
+        right = initialValues[ucProperty];
+    }
+    var handlers = left == right ? [] : propertyHandlers[ucProperty];
     for (var i = 0; handlers && i < handlers.length; i++) {
       var parsedLeft = handlers[i][0](left);
       var parsedRight = handlers[i][0](right);
@@ -58,5 +122,5 @@
   }
   scope.propertyInterpolation = propertyInterpolation;
 
-})(webAnimations1, webAnimationsTesting);
+})(webAnimationsShared, webAnimations1, webAnimationsTesting);
 

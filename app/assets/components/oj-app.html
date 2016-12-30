@@ -1,126 +1,141 @@
-<polymer-element name="oj-app"
-                 id="oj-app"
-                 on-notification={{onNotification}}
-                 on-go={{onGo}}
-                 on-go-default={{onGoDefault}}
-                 on-review={{onReview}}>
+<dom-module id="oj-app">
+
   <template>
 
-    <core-header-panel border=true>
+      <style>
 
-        <core-toolbar>
-            <oj-toolbar
-                    currentUser={{currentUser}}
-                    narrow={{narrow}}
-                    on-toggle-drawer={{toggleDrawer}}
-                    ></oj-toolbar>
-        </core-toolbar>
+          :host {
+              height: 100%;
+              @apply(--layout);
+              @apply(--layout-vertical);
+              @apply(--layout-flex);
+          }
 
-        <core-drawer-panel id=drawerPanel
-                           drawerWidth=280px
-                           narrow={{narrow}}>
+          paper-header-panel {
+              height: 100%;
+              @apply(--layout);
+              @apply(--layout-vertical);
+              @apply(--layout-flex);
+              --paper-header-panel-shadow: {
+                  height:     6px;
+                  bottom:     -6px;
+                  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.25)
+                  z-index:    1000;
+              };
+          }
 
-            <oj-main-menu drawer
-                    id=mainmenu
-                    currentUser={{currentUser}}>
+          paper-drawer-panel {
+              border-right: 1px solid #ccc;
+              --paper-drawer-panel-main-container: {
+                  margin-left: 6px;
+                  box-shadow:  0 -2px 2px  0   rgba(0, 0, 0, 0.14), 0 -1px 5px  0   rgba(0, 0, 0, 0.12), 0 -3px 1px -2px rgba(0, 0, 0, 0.2 );
+              }
+          }
+
+          oj-toolbar {
+          }
+
+          :host /deep/ #mainContainer {
+              background-color: white;
+          }
+
+          #notification {
+              border-radius: 0;
+              padding-right: 60px;
+              position:      fixed;
+              outline:       none;
+              z-index:       24;
+              box-sizing:    border-box;
+              font-size:     20px;
+              font-weigth:   700;
+              --paper-toast-background-color: #a9ffe2;
+              --paper-toast-color:            black;
+          }
+
+      </style>
+
+    <paper-header-panel>
+
+        <paper-toolbar>
+            <oj-toolbar currentuser="{{currentUser}}" narrow="{{narrow}}" on-toggle-drawer="toggleDrawer"></oj-toolbar>
+        </paper-toolbar>
+
+        <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
+
+            <oj-main-menu drawer id="mainmenu" current-user="{{currentUser}}">
             </oj-main-menu>
 
-            <core-header-panel main mode=scroll layout vertical>
-                <oj-page-router id=pages
-                                flex layout vertical
-                                on-route-changed={{onRouteChanged}}
-                                currentUser={{currentUser}} >
+            <paper-header-panel main mode="scroll" class="layout flex vertical" >
+                <oj-page-router id="pages" class="layout flex vertical" on-route-changed="onRouteChanged" current-user="{{currentUser}}">
                     </oj-page-router>
-            </core-header-panel>
+            </paper-header-panel>
 
-        </core-drawer-panel>
+        </paper-drawer-panel>
 
-    </core-header-panel>
+    </paper-header-panel>
 
-    <paper-toast id=notification class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
+    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
 
-    <style>
-
-      :host, core-header-panel {
-          height: 100%;
-      }
-
-      [drawer] {
-          border-right: 1px solid #ccc;
-      }
-
-      core-toolbar {
-          height: 50px;
-          color: #fff;
-          font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-          background-color: rgb(51, 85, 117);
-      }
-      oj-toolbar {
-          height: 100%;
-          width:  100%;
-      }
-
-      :host /deep/ #mainContainer {
-        background-color: white;
-      }
-
-      #notification {
-        border-radius:0;
-        padding-right: 60px;
-        position: fixed;
-        outline: none;
-        z-index: 24;
-        box-sizing: border-box;
-      }
-
-    </style>
-
-    <oj-current-user on-user={{onUser}}></oj-current-user>
+    <oj-current-user on-user="onUser"></oj-current-user>
 
   </template>
 
   <script>
+
     Polymer({
 
-      onNotification: function(event, text) {
-          this.showNotification(text);
+      is: 'oj-app',
+
+      properties: {
+        onRoute: { observer: 'onRouteChanged' }
       },
 
-      onGo: function(event, url) {
-          this.$.pages.go(url);
+      listeners: {
+          'notification': 'onNotification',
+          'go':           'onGo',
+          'go-default':   'onGoDefault',
+          'review':       'onReview'
       },
 
-      onGoDefault: function(event) {
-          this.$.pages.gotoDefault();
+      onNotification: function (event, text) {
+        this.showNotification(text);
       },
 
-      onReview: function(event, paper_or_id) {
-          var id = paper_or_id.typed_provider_id || paper_or_id;
-          var url = '/review/' + id;
-          this.$.pages.go(url);
+      onGo: function (event, url) {
+        this.$.pages.go(url);
       },
 
-      onUser: function(event, user) {
-          this.currentUser = user && user.name ? user : null;
-          this.$.pages.init();
+      onGoDefault: function (event) {
+        this.$.pages.gotoDefault();
       },
 
-      onRouteChanged: function(event, detail) {
-          var $menu = this.shadowRoot.querySelector('#mainmenu');
-          $menu.routeChanged(detail);
+      onReview: function (event, paper_or_id) {
+        var id = paper_or_id.typed_provider_id || paper_or_id;
+        var url = '/review/' + id;
+        this.$.pages.go(url);
       },
 
-      showNotification: function(text) {
-          console.info('Notification: ', text);
-          this.$.notification.text = text;
-          this.$.notification.show();
+      onUser: function (event, user) {
+        this.currentUser = user && user.name ? user : null;
+        this.$.pages.init();
       },
 
-      toggleDrawer: function() {
-          this.$.drawerPanel.togglePanel();
+      onRouteChanged: function (event, detail) {
+        this.$.mainmenu.routeChanged(event, detail);
+      },
+
+      showNotification: function (text) {
+        console.info('Notification: ', text);
+        this.$.notification.text = text;
+        this.$.notification.show();
+      },
+
+      toggleDrawer: function () {
+        this.$.drawerPanel.togglePanel();
       }
 
     });
+
   </script>
 
-</polymer-element>
+</dom-module>

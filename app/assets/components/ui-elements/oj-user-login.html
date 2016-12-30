@@ -1,65 +1,87 @@
-<polymer-element name="oj-user-login" attributes="currentUser">
+<dom-module id="oj-user-login">
+
   <template>
 
-    <template if={{currentUser}}>
-      <a class='link username' href='https://orcid.org/my-orcid' target='_blank' >
-          {{currentUser.name}}{{currentUser|roles}}</a>
-      <a class='link signout' href='/signout'>Sign Out</a>
-    </template>
+      <style>
 
-    <template if={{!currentUser}}>
-      <a class='link' href='/auth/orcid'>Sign In</a>
-    </template>
+          :host {
+          }
 
-    <style>
-      a {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 100;
-        font-size: 14px;
-        white-space: nowrap;
-      }
+          a {
+            display:          inline-block;
+            color:            #fff;
+            text-decoration:  none;
+            font-weight:      100;
+            font-size:        14px;
+            white-space:      nowrap;
+          }
 
-      a.username {
-        font-size: 0.6em;
-      }
+          a.username {
+            font-size:        0.6em;
+          }
 
-      a.signout {
-          padding: 8px 12px;
-          border-width: 2px solid rgb(77, 118, 156);
-          border-radius: 5px;
-          background-color: rgb(51, 85, 117);
-          box-shadow: 0 2px 0 0 rgba(45, 74, 102, 0.004);
-      }
+          a.signout {
+              margin-left:   4px;
+              padding:       8px 12px;
+              border:        2px solid rgb(131, 165, 182);
+              border-radius: 5px;
+              background:    rgb(71, 90, 99);;
+              box-shadow:    0 2px 0 0 rgba(45, 74, 102, 0.004);
+          }
 
-      a.signout:hover {
-      }
+          a.signout:hover {
+              background:    rgb(86, 108, 119)
+          }
 
-      a.signout:active {
-          background-color: rgb(37, 62, 86);
-          border: none;
-      }
+          a.signout:active {
+              background:    rgb(104, 131, 145);
+              border:        none;
+          }
 
-    </style>
+        </style>
+
+        <template is="dom-if" if="{{currentUser}}">
+          <a class="link username" href="https://orcid.org/my-orcid" target="_blank">
+              <span>{{currentUser.name}}</span> <span>{{roles}}</span></a>
+          <a class="link signout" href="/signout">Sign Out</a>
+        </template>
+
+        <template is="dom-if" if="{{!currentUser}}">
+          <a class="link" href="/auth/orcid">Sign In</a>
+        </template>
+
   </template>
 
   <script>
     Polymer({
+      is: 'oj-user-login',
+      properties: {
 
-      roles: function(user) {
-          if (!user)
-            return '';
-          else if (user.admin && user.editor)
-              return ' (Admin, Editor)';
-          else if (user.admin)
-            return ' (Admin)';
-          else if (user.editor)
-            return ' (Editor)';
-          else
-            return '';
+          currentUser: {
+              type:   Object,
+              notify: true
+          },
+
+          roles: {
+              type:      String,
+              computed: 'rolesFor(currentUser)'
+          }
+      },
+
+      rolesFor: function (user) {
+        if (!user)
+          return '';
+        else if (user.admin && user.editor)
+          return ' (Admin, Editor)';
+        else if (user.admin)
+          return ' (Admin)';
+        else if (user.editor)
+          return ' (Editor)';
+        else
+          return '';
       }
 
-    })
+    });
   </script>
 
-</polymer-element>
+</dom-module>

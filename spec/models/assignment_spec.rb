@@ -8,7 +8,7 @@ describe Assignment do
         provider_id:       "1311.1653",
         version:           2,
         authors:           "Mar Álvarez-Álvarez, Angeles I. Díaz",
-        document_location: "http://arxiv.org/pdf/1311.1653v2.pdf",
+        document_location: "https://arxiv.org/pdf/1311.1653v2.pdf",
         title:             "A photometric comprehensive study of circumnuclear star forming rings: the sample",
         summary:           "We present photometry.*in a second paper."
     }
@@ -27,7 +27,7 @@ describe Assignment do
   it "AS EDITOR: should be able to assign papers" do
     editor = create(:editor)
     reviewer = create(:user)
-    paper = create(:paper, :submitted)
+    paper = create(:paper, :submitted, editor: editor)
 
     ability = Ability.new(editor, paper)
     assert ability.can?(:create, Assignment.new(:paper => paper, :user => reviewer, :role => "reviewer"))
@@ -36,10 +36,10 @@ describe Assignment do
   it "AS EDITOR: should be able to delete paper assignments" do
     editor = create(:editor)
     reviewer = create(:user)
-    paper = create(:paper, :submitted)
+    paper = create(:paper, :submitted, editor: editor)
     assignment = create(:assignment, :reviewer, user:reviewer, paper:paper)
 
-    ability = Ability.new(editor)
+    ability = Ability.new(editor, paper)
 
     assert ability.can?(:destroy, assignment)
   end
@@ -121,7 +121,7 @@ describe Assignment do
       user     = create(:user, name:'John Smith', email:'jsmith@example.com')
       editor   = set_paper_editor( create(:user, email:'editor@example.com') )
       reviewer = create(:user, email:'reviewer@example.com')
-      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1)
       original.add_assignee(reviewer)
       original.reload
       deliveries.clear
@@ -137,7 +137,7 @@ describe Assignment do
     it "sends the correct emails when a user is assigned after the paper is updated" do
       user     = create(:user, name:'John Smith', email:'jsmith@example.com')
       editor   = set_paper_editor( create(:user, email:'editor@example.com') )
-      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1, submittor:user)
+      original = create(:paper, title:'My Paper', submittor:user, arxiv_id:'1311.1653', version:1)
       updated  = original.create_updated!(arxiv_doc)
       deliveries.clear
 

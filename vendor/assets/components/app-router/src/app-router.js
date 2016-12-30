@@ -1,15 +1,30 @@
-// @license Copyright (C) 2014 Erik Ringsmuth - MIT license
+// @license Copyright (C) 2015 Erik Ringsmuth - MIT license
 (function(window, document) {
   var utilities = {};
   var importedURIs = {};
   var isIE = 'ActiveXObject' in window;
   var previousUrl = {};
 
-  // <app-router [init="auto|manual"] [mode="auto|hash|pushstate"] [trailingSlash="strict|ignore"] [shadow]></app-router>
+  // <app-router
+  //   init="auto|manual"
+  //   mode="auto|hash|hashbang|pushstate"
+  //   trailingSlash="strict|ignore"
+  //   typecast="auto|string"
+  //   bindRouter
+  //   ></app-router>
   var AppRouter = Object.create(HTMLElement.prototype);
   AppRouter.util = utilities;
 
-  // <app-route path="/path" [import="/page/cust-el.html"] [element="cust-el"] [template]></app-route>
+  // <app-route
+  //   path="/path"
+  //   import="/page/cust-el.html"
+  //   element[="cust-el"]
+  //   template[="template-id"]
+  //   regex
+  //   redirect="/path"
+  //   onUrlChange="reload|updateModel|noop"
+  //   bindRouter
+  //   ></app-route>
   document.registerElement('app-route', {
     prototype: Object.create(HTMLElement.prototype)
   });
@@ -35,7 +50,7 @@
       router.setAttribute('trailingSlash', 'strict');
     }
 
-    // mode="auto|hash|pushstate"
+    // mode="auto|hash|hashbang|pushstate"
     if (!router.hasAttribute('mode')) {
       router.setAttribute('mode', 'auto');
     }
@@ -78,7 +93,12 @@
       // when a transition finishes, remove the previous route's content. there is a temporary overlap where both
       // the new and old route's content is in the DOM to animate the transition.
       router.coreAnimatedPages.addEventListener('core-animated-pages-transition-end', function() {
-        transitionAnimationEnd(router.previousRoute);
+        // with core-animated-pages, navigating to the same route twice quickly will set the new route to both the
+        // activeRoute and the previousRoute before the animation finishes. we don't want to delete the route content
+        // if it's actually the active route.
+        if (router.previousRoute && !router.previousRoute.hasAttribute('active')) {
+          deactivateRoute(router.previousRoute);
+        }
       });
     }
 
@@ -110,8 +130,12 @@
   // }
   AppRouter.go = function(path, options) {
     if (this.getAttribute('mode') !== 'pushstate') {
-      // mode == auto or hash
-      path = '#' + path;
+      // mode == auto, hash or hashbang
+      if (this.getAttribute('mode') === 'hashbang') {
+        path = '#!' + path;
+      } else {
+        path = '#' + path;
+      }
     }
     if (options && options.replace === true) {
       window.history.replaceState(null, null, path);
@@ -165,6 +189,7 @@
     // don't load a new route if only the hash fragment changed
     if (url.hash !== previousUrl.hash && url.path === previousUrl.path && url.search === previousUrl.search && url.isHashPath === previousUrl.isHashPath) {
       scrollToHash(url.hash);
+      previousUrl = url;
       return;
     }
     previousUrl = url;
@@ -197,6 +222,11 @@
       return;
     }
 
+    // if we're on the same route and `onUrlChange="noop"` then don't reload the route or update the model
+    if (route === router.activeRoute && route.getAttribute('onUrlChange') === 'noop') {
+      return;
+    }
+
     var eventDetail = {
       path: url.path,
       route: route,
@@ -209,21 +239,15 @@
       return;
     }
 
-    // update the references to the activeRoute and previousRoute. if you switch between routes quickly you may go to a
-    // new route before the previous route's transition animation has completed. if that's the case we need to remove
-    // the previous route's content before we replace the reference to the previous route.
-    if (router.previousRoute && router.previousRoute.transitionAnimationInProgress) {
-      transitionAnimationEnd(router.previousRoute);
-    }
-    if (router.activeRoute) {
-      router.activeRoute.removeAttribute('active');
-    }
-    router.previousRoute = router.activeRoute;
-    router.activeRoute = route;
-    router.activeRoute.setAttribute('active', 'active');
+    // keep track of the route currently being loaded
+    router.loadingRoute = route;
 
+    // if we're on the same route and `onUrlChange="updateModel"` then update the model but don't replace the page content
+    if (route === router.activeRoute && route.getAttribute('onUrlChange') === 'updateModel') {
+      updateModelAndActivate(router, route, url, eventDetail);
+    }
     // import custom element or template
-    if (route.hasAttribute('import')) {
+    else if (route.hasAttribute('import')) {
       importAndActivate(router, route.getAttribute('import'), route, url, eventDetail);
     }
     // pre-loaded custom element
@@ -232,45 +256,74 @@
     }
     // inline template
     else if (route.firstElementChild && route.firstElementChild.tagName === 'TEMPLATE') {
-      activeTemplate(router, route.firstElementChild, route, url, eventDetail);
+      // mark the route as an inline template so we know how to clean it up when we remove the route's content
+      route.isInlineTemplate = true;
+      activateTemplate(router, route.firstElementChild, route, url, eventDetail);
     }
+  }
+
+  // If we are only hiding and showing the route, update the model and activate the route
+  function updateModelAndActivate(router, route, url, eventDetail) {
+    var model = createModel(router, route, url, eventDetail);
+
+    if (route.hasAttribute('template') || route.isInlineTemplate) {
+      // update the template model
+      setObjectProperties(route.lastElementChild.templateInstance.model, model);
+    } else {
+      // update the custom element model
+      setObjectProperties(route.firstElementChild, model);
+    }
+
+    fire('activate-route-end', eventDetail, router);
+    fire('activate-route-end', eventDetail, eventDetail.route);
   }
 
   // Import and activate a custom element or template
   function importAndActivate(router, importUri, route, url, eventDetail) {
     var importLink;
     function importLoadedCallback() {
+      importLink.loaded = true;
       activateImport(router, importLink, importUri, route, url, eventDetail);
     }
 
     if (!importedURIs.hasOwnProperty(importUri)) {
       // hasn't been imported yet
-      importedURIs[importUri] = true;
       importLink = document.createElement('link');
       importLink.setAttribute('rel', 'import');
       importLink.setAttribute('href', importUri);
+      importLink.setAttribute('async', 'async');
       importLink.addEventListener('load', importLoadedCallback);
+      importLink.loaded = false;
       document.head.appendChild(importLink);
+      importedURIs[importUri] = importLink;
     } else {
       // previously imported. this is an async operation and may not be complete yet.
-      importLink = document.querySelector('link[href="' + importUri + '"]');
-      if (importLink.import) {
-        // import complete
-        importLoadedCallback();
-      } else {
-        // wait for `onload`
+      importLink = importedURIs[importUri];
+      if (!importLink.loaded) {
         importLink.addEventListener('load', importLoadedCallback);
+      } else {
+        activateImport(router, importLink, importUri, route, url, eventDetail);
       }
     }
   }
 
   // Activate the imported custom element or template
   function activateImport(router, importLink, importUri, route, url, eventDetail) {
+    // allow referencing the route's import link in the activate-route-end callback
+    route.importLink = importLink;
+
     // make sure the user didn't navigate to a different route while it loaded
-    if (route.hasAttribute('active')) {
+    if (route === router.loadingRoute) {
       if (route.hasAttribute('template')) {
         // template
-        activeTemplate(router, importLink.import.querySelector('template'), route, url, eventDetail);
+        var templateId = route.getAttribute('template');
+        var template;
+        if (templateId) {
+          template = importLink.import.getElementById(templateId);
+        } else {
+          template = importLink.import.querySelector('template');
+        }
+        activateTemplate(router, template, route, url, eventDetail);
       } else {
         // custom element
         activateCustomElement(router, route.getAttribute('element') || importUri.split('/').slice(-1)[0].replace('.html', ''), route, url, eventDetail);
@@ -282,26 +335,26 @@
   function activateCustomElement(router, elementName, route, url, eventDetail) {
     var customElement = document.createElement(elementName);
     var model = createModel(router, route, url, eventDetail);
-    for (var property in model) {
-      if (model.hasOwnProperty(property)) {
-        customElement[property] = model[property];
-      }
-    }
-    activeElement(router, customElement, url, eventDetail);
+    setObjectProperties(customElement, model);
+    activateElement(router, customElement, url, eventDetail);
   }
 
   // Create an instance of the template
-  function activeTemplate(router, template, route, url, eventDetail) {
+  function activateTemplate(router, template, route, url, eventDetail) {
+    console.log('activateTemplate', template);
     var templateInstance;
     if ('createInstance' in template) {
+      console.log('activateTemplate - ci', template);
       // template.createInstance(model) is a Polymer method that binds a model to a template and also fixes
       // https://github.com/erikringsmuth/app-router/issues/19
       var model = createModel(router, route, url, eventDetail);
       templateInstance = template.createInstance(model);
     } else {
+      console.log('activateTemplate - else');
       templateInstance = document.importNode(template.content, true);
     }
-    activeElement(router, templateInstance, url, eventDetail);
+    console.log('activateTemplate - act');
+    activateElement(router, templateInstance, url, eventDetail);
   }
 
   // Create the route's model
@@ -316,15 +369,38 @@
     return eventDetail.model;
   }
 
+  // Copy properties from one object to another
+  function setObjectProperties(object, model) {
+    for (var property in model) {
+      if (model.hasOwnProperty(property)) {
+        object[property] = model[property];
+      }
+    }
+  }
+
   // Replace the active route's content with the new element
-  function activeElement(router, element, url, eventDetail) {
-    // core-animated-pages temporarily needs the old and new route in the DOM at the same time to animate the transition,
-    // otherwise we can remove the old route's content right away.
-    // UNLESS
-    // if the route we're navigating to matches the same app-route (ex: path="/article/:id" navigating from /article/0 to
-    // /article/1), then we have to simply replace the route's content instead of animating a transition.
+  function activateElement(router, element, url, eventDetail) {
+    // when using core-animated-pages, the router doesn't remove the previousRoute's content right away. if you
+    // navigate between 3 routes quickly (ex: /a -> /b -> /c) you might set previousRoute to '/b' before '/a' is
+    // removed from the DOM. this verifies old content is removed before switching the reference to previousRoute.
+    deactivateRoute(router.previousRoute);
+
+    // update references to the activeRoute, previousRoute, and loadingRoute
+    router.previousRoute = router.activeRoute;
+    router.activeRoute = router.loadingRoute;
+    router.loadingRoute = null;
+    if (router.previousRoute) {
+      router.previousRoute.removeAttribute('active');
+    }
+    router.activeRoute.setAttribute('active', 'active');
+
+    // remove the old route's content before loading the new route. core-animated-pages temporarily needs the old and
+    // new route in the DOM at the same time to animate the transition, otherwise we can remove the old route's content
+    // right away. there is one exception for core-animated-pages where the route we're navigating to matches the same
+    // route (ex: path="/article/:id" navigating from /article/0 to /article/1). in this case we have to simply replace
+    // the route's content instead of animating a transition.
     if (!router.hasAttribute('core-animated-pages') || eventDetail.route === eventDetail.oldRoute) {
-      removeRouteContent(router.previousRoute);
+      deactivateRoute(router.previousRoute);
     }
 
     // add the new content
@@ -333,13 +409,7 @@
     // animate the transition if core-animated-pages are being used
     if (router.hasAttribute('core-animated-pages')) {
       router.coreAnimatedPages.selected = router.activeRoute.getAttribute('path');
-
-      // we already wired up transitionAnimationEnd() in init()
-
-      // use to check if the previous route has finished animating before being removed
-      if (router.previousRoute) {
-        router.previousRoute.transitionAnimationInProgress = true;
-      }
+      // the 'core-animated-pages-transition-end' event handler in init() will call deactivateRoute() on the previousRoute
     }
 
     // scroll to the URL hash if it's present
@@ -351,24 +421,21 @@
     fire('activate-route-end', eventDetail, eventDetail.route);
   }
 
-  // Call when the previousRoute has finished the transition animation out
-  function transitionAnimationEnd(previousRoute) {
-    if (previousRoute) {
-      previousRoute.transitionAnimationInProgress = false;
-      removeRouteContent(previousRoute);
-    }
-  }
-
-  // Remove the route's content (but not the <template> if it exists)
-  function removeRouteContent(route) {
+  // Remove the route's content
+  function deactivateRoute(route) {
     if (route) {
+      // remove the route content
       var node = route.firstChild;
+
+      // don't remove an inline <template>
+      if (route.isInlineTemplate) {
+        node = route.querySelector('template').nextSibling;
+      }
+
       while (node) {
         var nodeToRemove = node;
         node = node.nextSibling;
-        if (nodeToRemove.tagName !== 'TEMPLATE') {
-          route.removeChild(nodeToRemove);
-        }
+        route.removeChild(nodeToRemove);
       }
     }
   }
@@ -470,10 +537,10 @@
 
   // testRoute(routePath, urlPath, trailingSlashOption, isRegExp) - Test if the route's path matches the URL's path
   //
-  // Example routePath: '/example/*'
-  // Example urlPath = '/example/path'
+  // Example routePath: '/user/:userId/**'
+  // Example urlPath = '/user/123/bio'
   utilities.testRoute = function(routePath, urlPath, trailingSlashOption, isRegExp) {
-    // this algorithm tries to fail or succeed as quickly as possible for the most common cases
+    // try to fail or succeed as quickly as possible for the most common cases
 
     // handle trailing slashes (options: strict (default), ignore)
     if (trailingSlashOption === 'ignore') {
@@ -496,36 +563,58 @@
       return true;
     }
 
-    // look for wildcards
-    if (routePath.indexOf('*') === -1 && routePath.indexOf(':') === -1) {
-      // no wildcards and we already made sure it wasn't an exact match so the test fails
-      return false;
+    // relative routes a/b/c are the same as routes that start with a globstar /**/a/b/c
+    if (routePath.charAt(0) !== '/') {
+      routePath = '/**/' + routePath;
     }
 
-    // example urlPathSegments = ['', example', 'path']
-    var urlPathSegments = urlPath.split('/');
+    // recursively test if the segments match (start at 1 because 0 is always an empty string)
+    return segmentsMatch(routePath.split('/'), 1, urlPath.split('/'), 1)
+  };
 
-    // example routePathSegments = ['', 'example', '*']
-    var routePathSegments = routePath.split('/');
+  // segmentsMatch(routeSegments, routeIndex, urlSegments, urlIndex, pathVariables)
+  // recursively test the route segments against the url segments in place (without creating copies of the arrays
+  // for each recursive call)
+  //
+  // example routeSegments ['', 'user', ':userId', '**']
+  // example urlSegments ['', 'user', '123', 'bio']
+  function segmentsMatch(routeSegments, routeIndex, urlSegments, urlIndex, pathVariables) {
+    var routeSegment = routeSegments[routeIndex];
+    var urlSegment = urlSegments[urlIndex];
 
-    // there must be the same number of path segments or it isn't a match
-    if (urlPathSegments.length !== routePathSegments.length) {
-      return false;
+    // if we're at the last route segment and it is a globstar, it will match the rest of the url
+    if (routeSegment === '**' && routeIndex === routeSegments.length - 1) {
+      return true;
     }
 
-    // check equality of each path segment
-    for (var i = 0; i < routePathSegments.length; i++) {
-      // the path segments must be equal, be a wildcard segment '*', or be a path parameter like ':id'
-      var routeSegment = routePathSegments[i];
-      if (routeSegment !== urlPathSegments[i] && routeSegment !== '*' && routeSegment.charAt(0) !== ':') {
-        // the path segment wasn't the same string and it wasn't a wildcard or parameter
-        return false;
+    // we hit the end of the route segments or the url segments
+    if (typeof routeSegment === 'undefined' || typeof urlSegment === 'undefined') {
+      // return true if we hit the end of both at the same time meaning everything else matched, else return false
+      return routeSegment === urlSegment;
+    }
+
+    // if the current segments match, recursively test the remaining segments
+    if (routeSegment === urlSegment || routeSegment === '*' || routeSegment.charAt(0) === ':') {
+      // store the path variable if we have a pathVariables object
+      if (routeSegment.charAt(0) === ':' && typeof pathVariables !== 'undefined') {
+        pathVariables[routeSegment.substring(1)] = urlSegments[urlIndex];
+      }
+      return segmentsMatch(routeSegments, routeIndex + 1, urlSegments, urlIndex + 1, pathVariables);
+    }
+
+    // globstars can match zero to many URL segments
+    if (routeSegment === '**') {
+      // test if the remaining route segments match any combination of the remaining url segments
+      for (var i = urlIndex; i < urlSegments.length; i++) {
+        if (segmentsMatch(routeSegments, routeIndex + 1, urlSegments, i, pathVariables)) {
+          return true;
+        }
       }
     }
 
-    // nothing failed. the route matches the URL.
-    return true;
-  };
+    // all tests failed, the route segments do not match the url segments
+    return false;
+  }
 
   // routeArguments(routePath, urlPath, search, isRegExp) - Gets the path variables and query parameter values from the URL
   utilities.routeArguments = function(routePath, urlPath, search, isRegExp, typecast) {
@@ -533,22 +622,16 @@
 
     // regular expressions can't have path variables
     if (!isRegExp) {
-      // example urlPathSegments = ['', example', 'path']
-      var urlPathSegments = urlPath.split('/');
-
-      // example routePathSegments = ['', 'example', '*']
-      var routePathSegments = routePath.split('/');
+      // relative routes a/b/c are the same as routes that start with a globstar /**/a/b/c
+      if (routePath.charAt(0) !== '/') {
+        routePath = '/**/' + routePath;
+      }
 
       // get path variables
       // urlPath '/customer/123'
       // routePath '/customer/:id'
       // parses id = '123'
-      for (var index = 0; index < routePathSegments.length; index++) {
-        var routeSegment = routePathSegments[index];
-        if (routeSegment.charAt(0) === ':') {
-          args[routeSegment.substring(1)] = urlPathSegments[index];
-        }
-      }
+      segmentsMatch(routePath.split('/'), 1, urlPath.split('/'), 1, args);
     }
 
     var queryParameters = search.substring(1).split('&');
