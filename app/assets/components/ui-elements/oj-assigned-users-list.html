@@ -45,8 +45,8 @@
                        assignment="{{anonymousReviewersTag(paper.assigned_users)}}"></oj-user-tag>
 
           <template is="dom-if" if="{{editable}}">
-              <div class=add_reviewer>+ Add a Reviewer:</div>
-              <oj-user-lookup placeholder=" + Add a Reviewer"
+              <!-- <div class=add_reviewer>+ Add a Reviewer:</div> -->
+              <oj-user-lookup placeholder=" + Add a reviewer"
                               on-user-selected="addReviewer"
                               on-filter-suggestions="filterReviewerList"></oj-user-lookup>
           </template>
