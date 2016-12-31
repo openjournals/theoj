@@ -2,7 +2,7 @@
 
 What is this? In short, it's an open review engine for digital media. The goal is to provide a way for a bunch of people to get together (think editorial board) and make comments on a _thing_ (think academic paper). This _thing_ only needs to have a URL (that's open) to be reviewable.
 
-Simple right  ?
+Simple right  ???
 
 You can read more about our motivations for working on this [here](http://theoj.org).
 
