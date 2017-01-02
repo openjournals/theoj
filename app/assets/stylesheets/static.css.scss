@@ -1,0 +1,136 @@
+body {
+  background-image: url('static/wallpaper.jpg');
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+
+#hero {
+  background: -webkit-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+  background: -moz-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+  background: -o-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+  background: -ms-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+  background: linear-gradient(180deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+}
+
+#top-bar {
+  background: rgba(21, 26, 28, 0.70);
+  padding: 30px;
+
+  h1 {
+    font-family: Neuton;
+    color:  rgba(255, 255, 255, 0.8);
+    font-size: 40px;/* Approximation due to font substitution */
+    font-weight: 400;
+    line-height: 60px;/* Approximation due to font substitution */
+    text-align: left;
+    display: inline-block;
+  }
+
+  ul {
+    float: right;
+    list-style: none;
+
+    li {
+      display: inline-block;
+      font-family: Roboto;
+      color:  rgba(255, 255, 255, 0.5);
+      font-size: 16px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 70px;/* Approximation due to font substitution */
+      text-align: right;
+      margin-left: 20px;
+    }
+
+    li:last-child{
+      border-radius: 3px;
+      background-color:  #54d1b8;
+      width: 150px;
+      height: 40px;
+      font-family: Roboto;
+      color:  #1a2023;
+      font-size: 16px;/* Approximation due to font substitution */
+      font-weight: 500;
+      line-height: 40px;/* Approximation due to font substitution */
+      text-align: center;
+    }
+  }
+}
+
+#jumbo {
+  font-family: Neuton;
+  color:  rgba(255, 255, 255, 0.7);
+  font-size: 58px;/* Approximation due to font substitution */
+  font-weight: 400;
+  padding: 70px 0px;
+  line-height: 74px;/* Approximation due to font substitution */
+  text-align: left;
+}
+
+#page {
+  width: 100%;
+  background: #efefef;
+
+  h2.recent {
+    font-family: Neuton;
+    color:  #192023;
+    font-size: 45px;/* Approximation due to font substitution */
+    font-weight: 400;
+    line-height: 70px;/* Approximation due to font substitution */
+    text-align: left;
+    padding: 20px 0px 30px 0px;
+  }
+
+  .papers {
+    width: 1150px;
+    margin: 0px auto;
+  }
+
+  .paper {
+    background-color:  #ffffff;
+    box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.12);
+    width: 345px;
+    height: 360px;
+    padding: 30px;
+    border-bottom: 4px solid #54d1b8;
+    position: relative;
+    display: inline-block;
+
+    .title{
+      font-family: Neuton;
+      color:  #192023;
+      font-size: 23px;/* Approximation due to font substitution */
+      font-weight: 400;
+      line-height: 30px;/* Approximation due to font substitution */
+      min-height: 120px;
+    }
+
+    .doi {
+      font-family: Roboto;
+      color:  #192023;
+      font-size: 15px;/* Approximation due to font substitution */
+      font-weight: 400;
+      line-height: 22px;/* Approximation due to font substitution */
+    }
+
+    .arxiv {
+      font-family: Roboto;
+      color:  #192023;
+      font-size: 15px;/* Approximation due to font substitution */
+      font-weight: 400;
+      line-height: 22px;/* Approximation due to font substitution */
+    }
+
+    .authors {
+      font-family: Roboto;
+      position: absolute;
+      left: 30px;
+      bottom: 0;
+      width: 280px;
+      color:  #192023;
+      font-size: 17px;/* Approximation due to font substitution */
+      font-style: italic;
+      font-weight: 400;
+      line-height: 22px;/* Approximation due to font substitution */
+    }
+  }
+}

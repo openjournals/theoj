@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Open Journal</title>
+
+    <%= javascript_include_tag "static" %>
+    <%= stylesheet_link_tag "static", media: "all" %>
+
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton:400,700">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab:700">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/3.0.1/css/primer.css" />
+    <%= csrf_meta_tags %>
+  </head>
+
+  <body>
+    <div class="main">
+      <div id="hero">
+        <div id="top-bar">
+          <h1>The Open Journal</h2>
+
+          <ul>
+            <li>About</li>
+            <li>Recent Papers</li>
+            <li>My Dashboard</li>
+            <li>Submit a paper</li>
+          </ul>
+        </div>
+        <div id="jumbo" class="container">
+          We're a peer-reviewed, open-access journal for research in astrophysics and cosmology
+        </div>
+      </div>
+      <div id="page">
+        <div class="papers">
+          <h2 class="recent">Recent Papers</h2>
+          <div class="paper" style="margin-right: 30px;">
+            <p class="title">Galaxy Zoo: Mergers - Dynamical Models of Interacting Galaxies</p>
+            <p class="doi">DOI: <a href="http://www.doi2bib.org/#/doi/10.21105/astro.1502.04020" target="_blank">10.21105/astro.1603.07299</a></p>
+            <p class="arxiv"><a href="https://arxiv.org/abs/1604.00435">arXiv:1604.00435</a></p>
+            <p class="authors">Anthony J. Holincheck, John F. Wallin, Kirk Borne, Lucy Fortson, Chris Lintott, Arfon M. Smith, Steven Bamford ...</p>
+          </div>
+          <div class="paper" style="margin-right: 30px;">
+            <p class="title">Dynamical Analysis of Scalar Field Cosmologies with Spatial Curvature</p>
+            <p class="doi">DOI: <a href="http://www.doi2bib.org/#/doi/10.21105/astro.1502.04020" target="_blank">10.21105/astro.1603.07299</a></p>
+            <p class="arxiv"><a href="https://arxiv.org/abs/1502.04020">arXiv:1502.04020</a></p>
+            <p class="authors">Mateja Gosenca, Peter Coles</p>
+          </div>
+          <div class="paper">
+            <p class="title">Space Warps: I. Crowd-sourcing the Discovery of Gravitational Lenses</p>
+            <p class="doi">DOI: <a href="http://www.doi2bib.org/#/doi/10.21105/astro.1603.07299" target="_blank">10.21105/astro.1603.07299</a></p>
+            <p class="arxiv"><a href="https://arxiv.org/abs/1604.00435">arXiv:1604.00435</a></p>
+            <p class="authors">Philip J. Marshall, Aprajita Verma, Anupreeta More, Christopher P. Davis, Surhud More, Amit Kapadia, Michael ...</p>
+          </div>
+        </div>
+      </div>
+      <%= yield %>
+    </div>
+  </body>
+</html>
