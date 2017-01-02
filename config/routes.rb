@@ -1,4 +1,3 @@
-
 Theoj::Application.routes.draw do
 
   namespace :api, format: 'json' do
@@ -61,7 +60,11 @@ Theoj::Application.routes.draw do
   get '/sessions/new',            to: 'sessions#new',     as: 'new_session'
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure',            to: 'sessions#failure'
-  get "/signout",                 to: "sessions#destroy"
+  get '/signout',                 to: 'sessions#destroy'
+
+
+  # TODO: actually hook this up
+  get '/home',                    to: 'home#temp_home'
 
   resources :papers, only: [], param: :identifier, identifier: /[^\/]+/ do
     member do
