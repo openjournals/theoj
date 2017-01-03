@@ -5,6 +5,6 @@ class HomeController < ApplicationController
 
   def temp_home
     @papers = Paper.published
-    render :temp_home, :layout => 'temp_home', :papers => @papers
+    render 'temp_home', layout: 'temp_home', papers: @papers
   end
 end
