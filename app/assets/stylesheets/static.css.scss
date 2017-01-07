@@ -18,13 +18,19 @@ body {
 
   h1 {
     font-family: Neuton;
-    color:  rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 40px;/* Approximation due to font substitution */
-    font-weight: 400;
+    font-weight: 300;
     line-height: 60px;/* Approximation due to font substitution */
     text-align: left;
     display: inline-block;
+
+    a, a:hover {
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.8);
+    }
   }
+
 
   ul {
     float: right;
@@ -41,9 +47,9 @@ body {
       margin-left: 20px;
     }
 
-    li:last-child{
+    li:last-child {
       border-radius: 3px;
-      background-color:  #54d1b8;
+      background-color: #54d1b8;
       width: 150px;
       height: 40px;
       font-family: Roboto;
@@ -52,6 +58,15 @@ body {
       font-weight: 500;
       line-height: 40px;/* Approximation due to font substitution */
       text-align: center;
+
+      a {
+        text-decoration: none;
+        color: #1a2023;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -60,7 +75,7 @@ body {
   font-family: Neuton;
   color:  rgba(255, 255, 255, 0.7);
   font-size: 58px;/* Approximation due to font substitution */
-  font-weight: 400;
+  font-weight: 300;
   padding: 70px 0px;
   line-height: 74px;/* Approximation due to font substitution */
   text-align: left;
@@ -83,6 +98,7 @@ body {
   .papers {
     width: 1150px;
     margin: 0px auto;
+    padding-bottom: 60px;
   }
 
   .paper {
@@ -131,6 +147,57 @@ body {
       font-style: italic;
       font-weight: 400;
       line-height: 22px;/* Approximation due to font substitution */
+    }
+  }
+}
+
+#footer {
+  padding: 60px;
+  background: #151a1c;
+
+  .callout  {
+    font-family: Neuton;
+    color:  rgba(255, 255, 255, 0.8);
+    font-size: 60px;/* Approximation due to font substitution */
+    font-weight: 300;
+    line-height: 70px;/* Approximation due to font substitution */
+    text-align: center;
+  }
+
+  .orcid {
+    font-family: Roboto;
+    color:  #54d1b8;
+    font-size: 25px;/* Approximation due to font substitution */
+    font-weight: 300;
+    line-height: 70px;/* Approximation due to font substitution */
+    text-align: center;
+    padding: 10px 0px 50px 0px;
+
+    a {
+      text-decoration: underline;
+      color:  #54d1b8;
+    }
+  }
+
+  .anchor {
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
+
+    .anchor_name {
+      font-family: Neuton;
+      color:  rgba(255, 255, 255, 0.3);
+      font-size: 24px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 60px;/* Approximation due to font substitution */
+      text-align: left;
+    }
+
+    .copyright {
+      font-family: Roboto;
+      color:  rgba(255, 255, 255, 0.3);
+      font-size: 17px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 60px;/* Approximation due to font substitution */
     }
   }
 }

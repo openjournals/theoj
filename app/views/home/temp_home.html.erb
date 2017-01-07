@@ -1,0 +1,11 @@
+<div class="papers">
+  <h2 class="recent">Recent Papers</h2>
+<% @papers.each do |paper| %>
+  <div class="paper" style="margin-right: 30px;">
+    <p class="title"><%= paper.title %></p>
+    <p class="doi">DOI: <a href="http://www.doi2bib.org/#/doi/<%= paper.doi %>" target="_blank"><%= paper.doi %></a></p>
+    <p class="arxiv"><a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a></p>
+    <p class="authors"><%= paper.authors %></p>
+  </div>
+<% end %>
+</div>
