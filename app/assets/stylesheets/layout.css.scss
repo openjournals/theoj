@@ -126,3 +126,108 @@ body /deep/ {
   }
 
 }
+
+#toolbar {
+
+  display:           flex;
+  align-items:       center;
+
+  width:             100%;
+  height:            108px;
+  box-sizing:        border-box;
+  padding:           0 53px;
+
+  background-color:  #192023;
+  font-family:       Roboto;
+
+  // Disable Selection
+  -ms-user-select:     none;
+  -webkit-user-select: none;
+  -moz-user-select:    none;
+  user-select:         none;
+  cursor:              default;
+
+  .drawer-toggle {
+    font-weight: 700;
+    font-size:   40px;
+    color:       white;
+    cursor:      pointer;
+  }
+
+  .title {
+    flex:         1;
+    font-family:  Neuton;
+    color:        #ffffff;
+    font-size:    39px;
+    line-height:  60px;
+    font-weight:  400;
+  }
+
+  #search {
+    width:          320px;
+    background:     #192023;
+    border:         solid 1px #ccc;
+    border-radius:  8px;
+    color:          white;
+    font-size:      16px;
+    padding-left:   6px;
+    height:         25px;
+  }
+  #search:hover, #search:focus {
+    background:     rgb(71, 90, 99);
+  }
+  ::-webkit-input-placeholder {
+    color: silver;
+  }
+  :-moz-placeholder { /* Firefox 18- */
+    color: silver;
+  }
+  ::-moz-placeholder {  /* Firefox 19+ */
+    color: silver;
+  }
+  :-ms-input-placeholder {
+    color: silver;
+  }
+
+  #search-icon {
+    position: relative;
+    left:     -26px;
+    top:      2px;
+    color:    #ccc;
+  }
+
+  a.signout, a.username {
+    display:          inline-block;
+    color:            #fff;
+    text-decoration:  none;
+    font-weight:      100;
+    font-size:        14px;
+    white-space:      nowrap;
+  }
+
+  a.username {
+    font-size:        1em;
+    font-weight:      700;
+    margin-right:     16px;
+  }
+
+  a.signout {
+    margin-left:   4px;
+    padding:       8px 12px;
+    border:        2px solid rgb(131, 165, 182);
+    border-radius: 5px;
+    background:    rgb(71, 90, 99);;
+    box-shadow:    0 2px 0 0 rgba(45, 74, 102, 0.004);
+    font-weight:   bold;
+  }
+
+  a.signout:hover {
+    background:    rgb(86, 108, 119)
+  }
+
+  a.signout:active {
+    background:    rgb(104, 131, 145);
+    border:        none;
+  }
+
+}

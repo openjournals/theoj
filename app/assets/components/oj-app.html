@@ -2,10 +2,29 @@
 
   <template>
 
-      <style>
+    <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
+
+        <oj-main-menu drawer id="mainmenu" current-user="{{currentUser}}">
+        </oj-main-menu>
+
+        <paper-header-panel main mode="scroll" class="layout flex vertical" >
+            <oj-page-router id="pages"
+                            class="layout flex vertical"
+                            on-route-changed="onRouteChanged"
+                            current-user="{{currentUser}}"></oj-page-router>
+        </paper-header-panel>
+
+    </paper-drawer-panel>
+
+    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
+
+    <oj-current-user on-user="onUser"></oj-current-user>
+
+    <style>
 
           :host {
-              height: 100%;
+              height:   100%;
+              position: relative;
               @apply(--layout);
               @apply(--layout-vertical);
               @apply(--layout-flex);
@@ -32,9 +51,6 @@
               }
           }
 
-          oj-toolbar {
-          }
-
           :host /deep/ #mainContainer {
               background-color: white;
           }
@@ -54,30 +70,6 @@
 
       </style>
 
-    <paper-header-panel>
-
-        <paper-toolbar>
-            <oj-toolbar currentuser="{{currentUser}}" narrow="{{narrow}}" on-toggle-drawer="toggleDrawer"></oj-toolbar>
-        </paper-toolbar>
-
-        <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
-
-            <oj-main-menu drawer id="mainmenu" current-user="{{currentUser}}">
-            </oj-main-menu>
-
-            <paper-header-panel main mode="scroll" class="layout flex vertical" >
-                <oj-page-router id="pages" class="layout flex vertical" on-route-changed="onRouteChanged" current-user="{{currentUser}}">
-                    </oj-page-router>
-            </paper-header-panel>
-
-        </paper-drawer-panel>
-
-    </paper-header-panel>
-
-    <paper-toast id="notification" class="capsule core-transition core-transition-bottom" role="status" touch-action="none" tabindex="-1"></paper-toast>
-
-    <oj-current-user on-user="onUser"></oj-current-user>
-
   </template>
 
   <script>
@@ -96,6 +88,14 @@
           'go-default':   'onGoDefault',
           'review':       'onReview'
       },
+
+      // API ///////////////////////////////////
+
+      toggleDrawer: function () {
+          this.$.drawerPanel.togglePanel();
+      },
+
+      ////////////////////////////////////////
 
       onNotification: function (event, text) {
         this.showNotification(text);
@@ -128,10 +128,6 @@
         console.info('Notification: ', text);
         this.$.notification.text = text;
         this.$.notification.show();
-      },
-
-      toggleDrawer: function () {
-        this.$.drawerPanel.togglePanel();
       }
 
     });
