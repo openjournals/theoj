@@ -7,30 +7,10 @@
 #= stub    bootstrap
 #= stub    textlayerbuilder
 #= require pdfjs-dist/build/pdf
+#= require_self
 #= require_tree .
 
-PDFJS.workerSrc = '/assets/pdf.worker.js'
+window.Oj = {}
 
-$ ->
-
-  marked.setOptions(
-    gfm:      true,
-    breaks:   true,
-    sanitize: true
-  )
-
-  MathJax.Hub.Config(
-    messageStyle: 'none',
-    showMathMenu: false
-    tex2jax:
-      preview:     'none',
-      inlineMath:  [ ['$','$'],   ["\\(","\\)"] ],
-      displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
-  )
-
-  MathJax.typeset = (element) ->
-      element = element.node || element;  # Handle Polymer wrapped nodes
-      MathJax.Hub.Queue(
-        ['Typeset', MathJax.Hub, element ]
-      );
-
+Oj.app = ->
+  document.querySelector('oj-app');
