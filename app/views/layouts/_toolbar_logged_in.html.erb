@@ -2,9 +2,10 @@
 <a is="pushstate-anchor" class="link" href="/recent">Recent Papers</a>
 <a is="pushstate-anchor" class="link" href="/">My Dashboard</a>
 
-<a is="pushstate-anchor" class="link username" href="/settings" target="_blank">
-  <%=current_user.name%><span><%=current_user_roles%></span>
-</a>
+<!-- TODO: move this to the dashboard page. -->
+<!-- <a is="pushstate-anchor" class="link username" href="/settings" target="_blank">
+  <%= current_user.name %><span><%= current_user_roles %></span>
+</a> -->
 
 <a is="pushstate-anchor" class="button" href="/submit">Submit a Paper</a>
 <a class="button" href="/signout">Sign Out</a>

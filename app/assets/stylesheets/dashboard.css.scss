@@ -1,6 +1,4 @@
 #dashboard {
-
-  height:            100%;
   width:             100%;
   background-image:  image-url('static/wallpaper.jpg');
   background-repeat: no-repeat;
@@ -28,7 +26,7 @@
     width:      100%;
     background: #efefef;
 
-    h2.recent {
+    h2.category {
       font-family: Neuton;
       color:       #192023;
       font-size:   45px;/* Approximation due to font substitution */
@@ -38,10 +36,74 @@
       padding:     20px 0 30px 0;
     }
 
+    h2.headline {
+      font-family: Neuton;
+      color:       #192023;
+      font-size:   45px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 70px;/* Approximation due to font substitution */
+      text-align:  center;
+      padding:     50px 100px 30px 100px;
+
+      a {
+        text-decoration: underline;
+        color: #54d1b8;
+      }
+    }
+
+    .banner {
+      background:       #54d1b8;
+      color:            #edf12c;
+      font-family:      Roboto;
+      font-size:        22px;
+      font-weight:      400;
+      padding:          30px 100px;
+
+      a {
+        color:          #edf12c;
+        text-decoration: underline;
+        font-weight:      700;
+      }
+
+      iron-icon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
     .papers {
       width:          1150px;
       margin:         0 auto;
       padding-bottom: 60px;
+
+      .sorry {
+        font-style: italic;
+        font-family: Roboto;
+        color:       #192023;
+        font-size:   15px;/* Approximation due to font substitution */
+        padding-left: 30px;
+      }
+
+      .dashboard_paper {
+        padding: 30px;
+        background: #fff;
+        border-bottom: 1px solid #efefef;
+
+        .title {
+          font-family: Neuton;
+          color:       #192023;
+          font-size:   30px;/* Approximation due to font substitution */
+          font-weight: 400;
+          line-height: 30px;/* Approximation due to font substitution */
+        }
+
+        .meta {
+          font-style: italic;
+          font-family: Roboto;
+          color:       #192023;
+          font-size:   15px;/* Approximation due to font substitution */
+        }
+      }
     }
 
     .paper {
@@ -93,5 +155,4 @@
       }
     }
   }
-
 }

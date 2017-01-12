@@ -1,4 +1,3 @@
-
 #toolbar {
 
   display:           flex;
@@ -33,9 +32,11 @@
     flex:         1;
     font-family:  Neuton;
     color:        #ffffff;
-    font-size:    39px;
+    font-size:    42px;
     line-height:  60px;
-    font-weight:  400;
+    font-weight:  300;
+    padding-left: 10px;
+    padding-bottom: 5px;
   }
 
   #search {
@@ -75,10 +76,10 @@
     display:          inline-block;
     font-family:      Roboto;
     color:            white;
-    font-size:        20px;/* Approximation due to font substitution */
-    font-weight:      500;
+    font-size:        17px;/* Approximation due to font substitution */
+    font-weight:      400;
     text-align:       right;
-    margin-right:     16px;
+    margin-right:     26px;
     text-decoration:  none;
   }
 
