@@ -11,8 +11,8 @@ class HomeController < ApplicationController
   end
 
   def temp_home
-    @papers = Paper.published
-    render 'temp_home', layout: 'temp_home', papers: @papers
+    papers = Paper.published
+    render 'temp_home', locals: { papers: papers }
   end
 
 end

@@ -1,0 +1,97 @@
+#dashboard {
+
+  height:            100%;
+  width:             100%;
+  background-image:  image-url('static/wallpaper.jpg');
+  background-repeat: no-repeat;
+  background-size:   100%;
+
+  #hero {
+    background: -webkit-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+    background: -moz-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+    background: -o-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+    background: -ms-linear-gradient(-90deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+    background: linear-gradient(180deg, #151a1c 0%, rgba(21, 26, 28, 0.81) 18%, rgba(21, 26, 28, 0) 100%);
+  }
+
+  #jumbo {
+    font-family: Neuton;
+    color:       rgba(255, 255, 255, 0.7);
+    font-size:   58px;/* Approximation due to font substitution */
+    font-weight: 300;
+    padding:     70px 0;
+    line-height: 74px;/* Approximation due to font substitution */
+    text-align:  left;
+  }
+
+  #page {
+    width:      100%;
+    background: #efefef;
+
+    h2.recent {
+      font-family: Neuton;
+      color:       #192023;
+      font-size:   45px;/* Approximation due to font substitution */
+      font-weight: 400;
+      line-height: 70px;/* Approximation due to font substitution */
+      text-align:  left;
+      padding:     20px 0 30px 0;
+    }
+
+    .papers {
+      width:          1150px;
+      margin:         0 auto;
+      padding-bottom: 60px;
+    }
+
+    .paper {
+      background-color: #ffffff;
+      box-shadow:       0 8px 8px 0 rgba(0, 0, 0, 0.12);
+      width:            345px;
+      height:           360px;
+      padding:          30px;
+      border-bottom:    4px solid #54d1b8;
+      position:         relative;
+      display:          inline-block;
+
+      .title{
+        font-family: Neuton;
+        color:       #192023;
+        font-size:   23px;/* Approximation due to font substitution */
+        font-weight: 400;
+        line-height: 30px;/* Approximation due to font substitution */
+        min-height:  120px;
+      }
+
+      .doi {
+        font-family: Roboto;
+        color:       #192023;
+        font-size:   15px;/* Approximation due to font substitution */
+        font-weight: 400;
+        line-height: 22px;/* Approximation due to font substitution */
+      }
+
+      .arxiv {
+        font-family: Roboto;
+        color:       #192023;
+        font-size:   15px;/* Approximation due to font substitution */
+        font-weight: 400;
+        line-height: 22px;/* Approximation due to font substitution */
+      }
+
+      .authors {
+        font-family: Roboto;
+        position:    absolute;
+        left:        30px;
+        bottom:      0;
+        width:       280px;
+        color:       #192023;
+        font-size:   17px;/* Approximation due to font substitution */
+        font-style:  italic;
+        font-weight: 400;
+        line-height: 22px;/* Approximation due to font substitution */
+      }
+    }
+  }
+
+}
