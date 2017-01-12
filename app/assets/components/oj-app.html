@@ -4,15 +4,16 @@
 
     <paper-drawer-panel id="drawerPanel" drawer-width="280px" narrow="{{narrow}}">
 
-        <oj-main-menu drawer id="mainmenu" current-user="{{currentUser}}">
+        <oj-main-menu drawer id="mainmenu"
+                      current-user="{{currentUser}}">
         </oj-main-menu>
 
-        <paper-header-panel main mode="scroll" class="layout flex vertical" >
-            <oj-page-router id="pages"
-                            class="layout flex vertical"
-                            on-route-changed="onRouteChanged"
-                            current-user="{{currentUser}}"></oj-page-router>
-        </paper-header-panel>
+        <oj-page-router main
+                        id="pages"
+                        class="layout flex vertical"
+                        class="layout flex vertical"
+                        on-route-changed="onRouteChanged"
+                        current-user="{{currentUser}}"></oj-page-router>
 
     </paper-drawer-panel>
 
