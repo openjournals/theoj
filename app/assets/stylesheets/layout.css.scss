@@ -126,3 +126,56 @@ body /deep/ {
   }
 
 }
+
+#footer {
+  padding:     60px;
+  background:  #151a1c;
+  flex:        0 0 auto;
+
+  .callout  {
+    font-family: Neuton;
+    color:       rgba(255, 255, 255, 0.8);
+    font-size:   60px;/* Approximation due to font substitution */
+    font-weight: 300;
+    line-height: 70px;/* Approximation due to font substitution */
+    text-align:  center;
+  }
+
+  .orcid {
+    font-family:  Roboto;
+    color:        #54d1b8;
+    font-size:    25px;/* Approximation due to font substitution */
+    font-weight:  300;
+    line-height:  70px;/* Approximation due to font substitution */
+    text-align:   center;
+    padding:      10px 0 50px 0;
+
+    a {
+      text-decoration: underline;
+      color:           #54d1b8;
+    }
+  }
+
+  .anchor {
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    width:      100%;
+
+    .anchor_name {
+      font-family: Neuton;
+      color:       rgba(255, 255, 255, 0.3);
+      font-size:   24px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 60px;/* Approximation due to font substitution */
+      text-align:  left;
+    }
+
+    .copyright {
+      font-family: Roboto;
+      color:       rgba(255, 255, 255, 0.3);
+      font-size:   17px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 60px;/* Approximation due to font substitution */
+    }
+  }
+
+}

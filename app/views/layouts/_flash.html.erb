@@ -2,8 +2,7 @@
   <script>
       <% message = flash.map { |key, value| value }.join("\r\n") %>
       HTMLImports.whenReady(function(){
-          var app = document.querySelector('oj-app');
-          app.showNotification(<%= raw message.to_json %>);
+          Oj.app().showNotification(<%= raw message.to_json %>);
       });
   </script>
 <% end %>

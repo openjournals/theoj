@@ -2,21 +2,24 @@
 
     <template>
 
-        <app-router id="router" init="manual" mode="pushstate" class="layout flex="
+        <app-router id="router"
+                    class="layout flex="
+                    init="manual"
+                    mode="pushstate"
                     on-activate-route-start="activateRouteStart"
                     on-before-data-binding="beforeDataBinding"
                     on-activate-route-end="activateRouteEnd">
 
-            <app-route path="/"       noauth element="oj-papers-page" api="papers/recent" header="Recent Papers"></app-route>
-            <app-route path="/search" noauth element="oj-papers-page" api="{{searchApi(q)}}" header="{{searchHeader(q)}}"></app-route>
+            <app-route path="/"       noauth    element="oj-papers-page" api="papers/recent" header="Recent Papers"></app-route>
+            <app-route path="/search" noauth    element="oj-papers-page"></app-route>
 
             <app-route path="/submit/:paper_id" element="oj-paper-preview"></app-route>
-            <app-route path="/submit" element="oj-submit-page" api="papers/as_author"></app-route>
-            <!--<app-route path='/recent' noAuth element="oj-papers-page" src='papers/recent' header="Recent Papers"></app-route>-->
-            <app-route path="/submitted" element="oj-papers-page" api="papers/as_author"   header="Papers You Submitted"></app-route>
-            <app-route path="/review"    element="oj-papers-page" api="papers/as_reviewer" header="Papers You Are Reviewing"></app-route>
-            <app-route path="/editing"   element="oj-papers-page" api="papers/as_editor"   header="Papers You Are Editing"></app-route>
-            <app-route path="/settings"  element="oj-settings-page"></app-route>
+            <app-route path="/submit"           element="oj-submit-page"></app-route>
+            <app-route path='/recent'    noAuth element="oj-papers-page" api='papers/recent'      header="Recent Papers"></app-route>
+            <app-route path="/submitted"        element="oj-papers-page" api="papers/as_author"   header="Papers You Submitted"></app-route>
+            <app-route path="/review"           element="oj-papers-page" api="papers/as_reviewer" header="Papers You Are Reviewing"></app-route>
+            <app-route path="/editing"          element="oj-papers-page" api="papers/as_editor"   header="Papers You Are Editing"></app-route>
+            <app-route path="/settings"         element="oj-settings-page"></app-route>
 
             <app-route path="/review/:paper_id" element="oj-review-page" noauth=""></app-route>
 
@@ -63,9 +66,8 @@
 
       getDefaultPath: function (user) {
         if (!user)
-          return '/';
-
-        if (user.has_papers_as_editor)
+          return '/recent';
+        else if (user.has_papers_as_editor)
           return '/editing';
         else if (user.has_papers_as_reviewer)
           return '/review';
@@ -76,7 +78,8 @@
       },
 
       validateOrRedirectUser: function (event, path, route, initialRequest) {
-        if (initialRequest && path == '/') {
+        // if (initialRequest && path == '/') {
+        if (path == '/') {
           var newPath = this.getDefaultPath(this.currentUser);
           if (newPath && newPath != path) {
             event.preventDefault();
@@ -139,9 +142,16 @@
         return this.validateOrRedirectUser(event, path, route, initialRequest);
       },
 
+      bindSearchRoute: function(model, q) {
+          model.api    = 'papers/search?q=' + q;
+          model.header = 'Search Results For "' + q + '"';
+      },
+
       beforeDataBinding: function(event, detail) {
           this.bindRouteAttributes(detail.route, detail.model);
           this.bindExtraAttributes(detail.model);
+          if (detail.path == '/search')
+            this.bindSearchRoute(detail.model, detail.model.q);
           return true;
       },
 
@@ -156,14 +166,6 @@
           instance: instance,
           firstRequest: !detail.oldRoute  // First page requested
         });
-      },
-
-      searchApi: function(q) {
-        return 'papers/search?q=' + q;
-      },
-
-      searchHeader: function(q) {
-        return 'Search Results For ' + q;
       }
 
     });

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>The Open Journal</title>
+    <title>The Open Journal of Astrophysics</title>
 
     <%= javascript_include_tag "application" %>
 
-    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,">
-    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton:400,700">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:200,300,400,500,700,">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton:200,300,400,700">
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab:700">
 
     <style is="custom-style"><%= Rails.application.assets['application.css'].to_s.html_safe %></style>
@@ -14,10 +14,13 @@
 
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/3.0.1/css/primer.css" />
     <%= csrf_meta_tags %>
   </head>
 
   <body unresolved class="fullbleed layout vertical">
+    <%= render 'layouts/toolbar' %>
+
     <%= yield %>
 
     <%= render 'layouts/flash' %>
