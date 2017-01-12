@@ -308,6 +308,18 @@ describe Paper do
       expect(new_paper.state).to     eq('under_review')
     end
 
+    it "if the paper is in the submitted state it should stay submitted" do
+      original  = create(:paper, :submitted, arxiv_id:'1311.1653')
+      new_paper = original.create_updated!(arxiv_doc)
+      expect(new_paper.state).to     eq('submitted')
+    end
+
+    it "if the paper is in a state past :under_review, the new paper will be :under_review" do
+      original  = create(:paper, :review_completed, arxiv_id:'1311.1653')
+      new_paper = original.create_updated!(arxiv_doc)
+      expect(new_paper.state).to     eq('under_review')
+    end
+
     it "should set the arxiv attributes on the new paper" do
       original  = create(:paper, arxiv_id:'1311.1653')
       new_paper = original.create_updated!(arxiv_doc)

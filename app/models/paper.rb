@@ -113,8 +113,11 @@ class Paper < ActiveRecord::Base
     raise 'Cannot update superceded original' unless original.may_supercede?
     raise 'No new version available'          unless original.version              <  attributes[:version]
 
+    new_state = original.aasm.current_state
+    new_state = 'under_review' if original.aasm.states.index(new_state) > original.aasm.states.index(:under_review)
+
     ActiveRecord::Base.transaction do
-      attributes = attributes.merge(submittor: original.submittor, state: original.state)
+      attributes = attributes.merge(submittor: original.submittor, state: new_state)
       new_paper = Paper.new(attributes)
 
       original.assignments.each do |assignment|
