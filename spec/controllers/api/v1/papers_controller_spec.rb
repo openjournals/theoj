@@ -539,7 +539,39 @@ describe Api::V1::PapersController do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it "should fail if the authenticated user is not the submittor" do
+    it "should succeed if the authenticated user is the submittor" do
+      user = authenticate(:user)
+      paper = create(:paper, submittor:user, arxiv_id:'1311.1653')
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return( fixture('arxiv/1311.1653v2.xml') )
+
+      put :check_for_update, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:created)
+      expect(response_json['typed_provider_id']).to eq('arxiv:1311.1653v2')
+    end
+
+    it "should succeed if the authenticated user is the editor" do
+      user = authenticate(:editor)
+      paper = create(:paper, editor:user, arxiv_id:'1311.1653')
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return( fixture('arxiv/1311.1653v2.xml') )
+
+      put :check_for_update, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:created)
+      expect(response_json['typed_provider_id']).to eq('arxiv:1311.1653v2')
+    end
+
+    it "should fail if the authenticated user is a reviewer" do
+      user = authenticate(:user)
+      paper = create(:paper, reviewer:user, arxiv_id:'1311.1653')
+      stub_request(:get, "http://export.arxiv.org/api/query?id_list=1311.1653").to_return( fixture('arxiv/1311.1653v2.xml') )
+
+      put :check_for_update, identifier:paper.typed_provider_id
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "should fail if the authenticated user is not assigned to the paper" do
       user  = create(:user)
       authenticate
       paper = create(:paper, submittor:user, arxiv_id:'1311.1653')

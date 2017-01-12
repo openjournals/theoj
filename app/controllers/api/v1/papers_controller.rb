@@ -148,7 +148,7 @@ class Api::V1::PapersController < Api::V1::ApplicationController
     latest_paper = paper
 
     render_error(:not_found)    unless latest_paper
-    render_error(:forbidden)    unless latest_paper.submittor == current_user
+    render_error(:forbidden)    unless latest_paper.submittor == current_user or current_user.editor_of?(latest_paper)
     render_error(:conflict)     unless latest_paper.may_supercede?
 
     provider = latest_paper.provider
