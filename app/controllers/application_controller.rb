@@ -54,6 +54,25 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
+  def signed_in?
+    current_user.present?
+  end
+  helper_method :signed_in?
+
+  def authentication_required
+    return if signed_in?
+
+    respond_to do |format|
+      format.html  {
+        url = '/auth/orcid?origin=' + CGI.escape(request.url)
+        redirect_to url, status: :forbidden
+      }
+      format.json {
+        render json: { error: 'Access Denied' }, status: :forbidden
+      }
+    end
+  end
+
   def render_error_internal(status_code, text=nil)
     code    = Rack::Utils::SYMBOL_TO_STATUS_CODE[status_code]
     message = "#{code} #{Rack::Utils::HTTP_STATUS_CODES[code]}"
