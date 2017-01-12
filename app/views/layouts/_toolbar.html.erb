@@ -6,14 +6,10 @@
    <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
    <iron-icon id="search-icon" icon="icons:search"></iron-icon>
 
-  <%- if current_user %>
-    <a class="link username" href="https://orcid.org/my-orcid" target="_blank">
-      <span><%=current_user.name%></span><span><%=current_user_roles%></span></a>
-    <a class="link signout" href="/signout">Sign Out</a>
-
+  <%- if signed_in? %>
+      <%= render 'layouts/toolbar_logged_in' %>
   <%- else %>
-    <a class="link signout" href="/auth/orcid">Sign In</a>
-
+      <%= render 'layouts/toolbar_logged_out' %>
   <%- end %>
 
 </div>
