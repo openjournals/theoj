@@ -1,7 +1,8 @@
 <% if papers.any? %>
   <% papers.each do |paper| %>
   <div class="dashboard_paper">
-    <p class="title"><%= truncate(paper.title, length: 90) %></p>
+    <a href="#" class="action">View &uarr;</a>
+    <p class="title"><%= truncate(paper.title, length: 75) %></p>
     <p class="meta"><a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a> / <%= paper.authors.split(',').first %> / <%= paper.created_at.strftime('%d %B %Y') %></p>
   </div>
   <% end %>

@@ -103,6 +103,25 @@
           color:       #192023;
           font-size:   15px;/* Approximation due to font substitution */
         }
+
+        .action {
+          box-sizing:       border-box;
+          display:          inline-block;
+          float: right;
+          border-radius:    3px;
+          border:           2px solid transparent;
+          background:       #54d1b8;
+          height:           40px;
+          font-family:      Roboto;
+          color:            #fff;
+          font-size:        17px;/* Approximation due to font substitution */
+          font-weight:      500;
+          text-align:       center;
+          text-decoration:  none;
+          white-space:      nowrap;
+          margin-left:      4px;
+          padding:          8px 20px;
+        }
       }
     }
 
