@@ -2,9 +2,11 @@
   <div id="page">
     <div class="banner">
       <iron-icon icon="icons:error" class="alert"></iron-icon>
- You've been assigned as a reviewer on a new paper. <a href="#">Begin review.</a>
+      <!-- TODO: figure out what logic we should use to show this -->
+      You've been assigned as a reviewer on a new paper. <a href="#">Begin review.</a>
     </div>
     <div class="papers">
+      <!-- TODO: extract this into a view helper -->
       <h2 class="headline">Hi <%= current_user.name %>. You have <%= link_to(pluralize(author_papers.size, 'paper'), "#submitted") %> submitted, <%= link_to(pluralize(reviewer_papers.size, 'paper'), "#reviewing") %> you're reviewing and <%= link_to(pluralize(editor_papers.size, 'paper'), "#editing") %> you're editing.</h2>
 
       <h2 class="category" name="submitted">Submitted</h2>
