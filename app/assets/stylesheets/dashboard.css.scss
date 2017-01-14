@@ -95,6 +95,10 @@
           font-size:   30px;/* Approximation due to font substitution */
           font-weight: 400;
           line-height: 30px;/* Approximation due to font substitution */
+          width:       800px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .meta {
