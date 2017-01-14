@@ -9,12 +9,9 @@
       <!-- TODO: extract this into a view helper -->
       <h2 class="headline">Hi <%= current_user.name %>. You have <%= link_to(pluralize(author_papers.size, 'paper'), "#submitted") %> submitted, <%= link_to(pluralize(reviewer_papers.size, 'paper'), "#reviewing") %> you're reviewing and <%= link_to(pluralize(editor_papers.size, 'paper'), "#editing") %> you're editing.</h2>
 
-      <h2 class="category" name="submitted">Submitted</h2>
-      <%= render partial: "dashboard_paper", locals: { papers: author_papers } %>
-      <h2 class="category" name="reviewing">Reviewing</h2>
-      <%= render partial: "dashboard_paper", locals: { papers: reviewer_papers } %>
-      <h2 class="category" name="editing">Editing</h2>
-      <%= render partial: "dashboard_paper", locals: { papers: editor_papers } %>
+      <%= render partial: "dashboard_section", locals: { papers: author_papers, section: "submitted" } if author_papers.any? %>
+      <%= render partial: "dashboard_section", locals: { papers: reviewer_papers, section: "reviewing" } if reviewer_papers.any? %>
+      <%= render partial: "dashboard_section", locals: { papers: editor_papers, section: "editing" } if editor_papers.any? %>
       <br />
     </div>
   </div>

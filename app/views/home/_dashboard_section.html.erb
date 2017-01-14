@@ -1,0 +1,9 @@
+<h2 class="category" name="<%= section %>"><%= section.titlecase %></h2>
+
+<% papers.each do |paper| %>
+<div class="dashboard_paper">
+  <a href="#" class="action">View &uarr;</a>
+  <p class="title"><%= paper.title %></p>
+  <p class="meta"><a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a> / <%= paper.authors.split(',').first %> / <%= paper.created_at.strftime('%d %B %Y') %></p>
+</div>
+<% end %>
