@@ -10,6 +10,9 @@ class HomeController < ApplicationController
     render :index
   end
 
+  def temp_about
+  end
+
   def temp_home
     papers = Paper.published
     render 'temp_home', locals: { papers: papers }

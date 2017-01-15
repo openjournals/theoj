@@ -64,8 +64,9 @@ Theoj::Application.routes.draw do
 
 
   # TODO: actually hook this up
-  get '/home',                    to: 'home#temp_home'
+  get '/about',                   to: 'home#temp_about'
   get '/dashboard',               to: 'home#temp_dashboard'
+  get '/home',                    to: 'home#temp_home'
 
   resources :papers, only: [], param: :identifier, identifier: /[^\/]+/ do
     member do
