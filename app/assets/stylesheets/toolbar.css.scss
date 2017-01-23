@@ -28,7 +28,7 @@
     cursor:      pointer;
   }
 
-  .title {
+  a.title, a.title:hover {
     flex:         1;
     font-family:  Neuton;
     color:        #ffffff;
@@ -37,6 +37,7 @@
     font-weight:  300;
     padding-left: 10px;
     padding-bottom: 5px;
+    text-decoration: none;
   }
 
   #search {
