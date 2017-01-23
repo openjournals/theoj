@@ -177,7 +177,8 @@
 
       onPostRepsonse: function (response) {
         this.fire('notification', 'Paper ' + this.paper_details.title + ' submitted');
-        this.fire('go', '/submitted');
+        window.location.href = '/dashboard';
+        // this.fire('go', '/');
       },
 
       onPostError: function (event) {
