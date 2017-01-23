@@ -12,7 +12,21 @@
             }
 
             paper-input {
-                width: 90%;
+                width: 50%;
+            }
+
+            paper-material {
+              box-shadow: none !important;
+            }
+
+            h1 {
+              font-family: Neuton;
+              color: #192023;
+              font-size: 45px !important;
+              font-weight: 400 !important;
+              line-height: 70px;
+              text-align: left;
+              padding: 20px 0 30px 0;
             }
 
         </style>
@@ -24,7 +38,7 @@
             <paper-material id="form" class="layout flex center-justified vertical center" elevation="1">
                 <iron-a11y-keys keys="enter" on-keys-pressed="submit"></iron-a11y-keys>
 
-                <paper-input label="e-mail address" value="{{email}}"></paper-input>
+                <paper-input label="Email address" value="{{email}}"></paper-input>
                 <paper-button raised="" on-tap="submit" role="button" disabled$="{{!valid}}">Update</paper-button>
 
             </paper-material>
