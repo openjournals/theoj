@@ -1,20 +1,14 @@
 <div id="dashboard">
   <div id="page">
     <%= render 'layouts/flashes' %>
-
-    <div class="banner">
-      <iron-icon icon="icons:error" class="alert"></iron-icon>
-      <!-- TODO: figure out what logic we should use to show this -->
-      You've been assigned as a reviewer on a new paper. <a href="#">Begin review.</a>
-    </div>
+    <%= render 'review_assignments_banner' %>
 
     <div class="papers">
       <!-- TODO: extract this into a view helper -->
-      <h2 class="headline">Hi <%= current_user.name %>. You have <%= link_to(pluralize(author_papers.size, 'paper'), "#submitted") %> submitted, <%= link_to(pluralize(reviewer_papers.size, 'paper'), "#reviewing") %> you're reviewing and <%= link_to(pluralize(editor_papers.size, 'paper'), "#editing") %> you're editing.</h2>
-
+      <h2 class="headline"><%= headine_for_user(current_user, reviewer_papers, editor_papers, author_papers) %></h2>
+      <%= render partial: "dashboard_section", locals: { papers: editor_papers, section: "editing" } if editor_papers.any? %>
       <%= render partial: "dashboard_section", locals: { papers: author_papers, section: "submitted" } if author_papers.any? %>
       <%= render partial: "dashboard_section", locals: { papers: reviewer_papers, section: "reviewing" } if reviewer_papers.any? %>
-      <%= render partial: "dashboard_section", locals: { papers: editor_papers, section: "editing" } if editor_papers.any? %>
       <br />
     </div>
   </div>
