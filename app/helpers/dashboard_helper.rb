@@ -2,9 +2,7 @@ module DashboardHelper
   # Are there any review assignments that the reviewer hasn't touched yet?
   # Returns a boolean
   def new_assignments_for(user)
-    new_reviews = user.assignments_as_reviewer.select { |assignment| assignment.annotations.empty? }
-
-    return new_reviews.any?
+    user.assignments_as_reviewer.any? { |assignment| assignment.annotations.empty? }
   end
 
   # View logic for deciding what message to show to a user on their dashboard
