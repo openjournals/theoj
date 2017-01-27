@@ -72,6 +72,7 @@ Theoj::Application.routes.draw do
     member do
       # Add custom review badge URL for now
       get 'badge',     action: 'badge'
+      get 'history',   action: 'history'
     end
   end
 

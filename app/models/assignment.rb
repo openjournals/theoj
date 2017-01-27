@@ -4,6 +4,8 @@ class Assignment < ActiveRecord::Base
   belongs_to :paper,       inverse_of: :assignments
   has_many   :annotations, inverse_of: :assignment
 
+  default_scope  { order(:created_at => :asc) }
+
   # set when the paper is being updated from an original
   attr_accessor :copied
 

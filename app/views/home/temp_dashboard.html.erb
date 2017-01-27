@@ -4,7 +4,6 @@
     <%= render 'review_assignments_banner' %>
 
     <div class="papers">
-      <!-- TODO: extract this into a view helper -->
       <h2 class="headline"><%= headine_for_user(current_user, reviewer_papers, editor_papers, author_papers) %></h2>
       <%= render partial: "dashboard_section", locals: { papers: editor_papers, section: "editing" } if editor_papers.any? %>
       <%= render partial: "dashboard_section", locals: { papers: author_papers, section: "submitted" } if author_papers.any? %>

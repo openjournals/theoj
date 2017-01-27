@@ -3,7 +3,24 @@
 <% papers.each do |paper| %>
 <div class="dashboard_paper">
   <a href="/review/<%= paper.typed_provider_id %>" class="action">View &uarr;</a>
+  <% if paper.editors.include?(current_user) %><a href="/papers/<%= paper.typed_provider_id %>/history" class="action history">History</a><% end %>
   <p class="title"><%= paper.title %></p>
-  <p class="meta"><a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a> / <%= paper.authors.split(',').first %> / <%= paper.created_at.strftime('%d %B %Y') %></p>
+  <p class="meta">
+    <a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a>
+    / <%= paper.authors.split(',').first %>
+    / <%= paper.created_at.strftime('%d %B %Y') %>
+    <% if paper.reviewer_assignments.any? %>
+      <% paper.reviewer_assignments.each_with_index do |assignment, index| %>
+        <% reviewer_count = index + 1 %>
+        <% if assignment.completed? %>
+          / <span class="completed">Reviewer <%= reviewer_count %> complete</span>
+        <% elsif !assignment.completed? && assignment.annotations.any? %>
+          / <span class="in-progress">Reviewer <%= reviewer_count %> started</span>
+        <% else %>
+          / <span class="not-complete">Reviewer <%= reviewer_count %> not started</span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </p>
 </div>
 <% end %>

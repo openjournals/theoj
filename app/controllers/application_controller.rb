@@ -36,6 +36,11 @@ class ApplicationController < ActionController::Base
     render_error :unauthorized unless current_user
   end
 
+  def require_paper_editor_or_admin
+    paper = Paper.for_identifier( params[:identifier] )
+    render_error :forbidden unless current_user && (paper.editors.include?(current_user) || current_user.admin?)
+  end
+
   #@mro, @todo - needs to be rewritten (should be editor of Paper)
   def require_editor
     render_error :forbidden unless current_user && current_user.editor?
