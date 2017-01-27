@@ -2,7 +2,7 @@
 
 <% papers.each do |paper| %>
 <div class="dashboard_paper">
-  <a href="/review/<%= paper.typed_provider_id %>" class="action">View &uarr;</a>
+  <%= link_to "View &uarr;".html_safe, paper_review_path(paper), class: "action" %>
   <%= link_to "History", history_paper_path(paper), class: "action history" if current_user.editor_of?(paper) %>
   <p class="title"><%= paper.title %></p>
   <p class="meta">
