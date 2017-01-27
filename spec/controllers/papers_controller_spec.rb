@@ -81,6 +81,7 @@ describe PapersController do
     it "WITH USER should allow the editor to view the paper history" do
       paper = create(:paper)
       user = authenticate
+      user.editor = true; user.save
 
       # Assign user as editor on a paper
       create(:assignment, :editor, paper: paper, user: user)
