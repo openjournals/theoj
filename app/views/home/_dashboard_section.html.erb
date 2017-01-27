@@ -3,7 +3,7 @@
 <% papers.each do |paper| %>
 <div class="dashboard_paper">
   <a href="/review/<%= paper.typed_provider_id %>" class="action">View &uarr;</a>
-  <% if paper.editors.include?(current_user) %><a href="/papers/<%= paper.typed_provider_id %>/history" class="action history">History</a><% end %>
+  <%= link_to "History", history_paper_path(paper), class: "action history" if current_user.editor_of?(paper) %>
   <p class="title"><%= paper.title %></p>
   <p class="meta">
     <a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a>
@@ -11,13 +11,13 @@
     / <%= paper.created_at.strftime('%d %B %Y') %>
     <% if paper.reviewer_assignments.any? %>
       <% paper.reviewer_assignments.each_with_index do |assignment, index| %>
-        <% reviewer_count = index + 1 %>
+        <% reviewer_index = index + 1 %>
         <% if assignment.completed? %>
-          / <span class="completed">Reviewer <%= reviewer_count %> complete</span>
-        <% elsif !assignment.completed? && assignment.annotations.any? %>
-          / <span class="in-progress">Reviewer <%= reviewer_count %> started</span>
+          / <span class="completed">Reviewer <%= reviewer_index %> complete</span>
+        <% elsif assignment.annotations.any? %>
+          / <span class="in-progress">Reviewer <%= reviewer_index %> started</span>
         <% else %>
-          / <span class="not-complete">Reviewer <%= reviewer_count %> not started</span>
+          / <span class="not-complete">Reviewer <%= reviewer_index %> not started</span>
         <% end %>
       <% end %>
     <% end %>

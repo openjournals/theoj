@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
 
   def require_paper_editor_or_admin
     paper = Paper.for_identifier( params[:identifier] )
-    render_error :forbidden unless current_user && (paper.editors.include?(current_user) || current_user.admin?)
+    render_error :forbidden unless current_user && (current_user.editor_of?(paper) || current_user.admin?)
   end
 
   #@mro, @todo - needs to be rewritten (should be editor of Paper)
