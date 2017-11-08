@@ -1,3 +1,4 @@
+require 'firebase'
 
 module Firebase
 
@@ -10,6 +11,5 @@ module Firebase
   def self.clean_key(key)
     key.to_s.gsub(INVALID_CHARS_REGEX) { |c| "~#{c.ord.to_s(16)}" }
   end
-
 
 end
