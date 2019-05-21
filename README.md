@@ -8,7 +8,7 @@ You can read more about our motivations for working on this [here](http://theoj.
 
 ## Getting it running
 
-Install Ruby (Currently at 2.3.0)
+Install Ruby (Currently at 2.4.6)
 
 Install `node` and `npm`
 

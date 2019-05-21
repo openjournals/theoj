@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-  - "2.3.0"
+  - "2.4.6"
 before_script:
   - mysql -e 'create database theoj_test;'
   - bundle install
