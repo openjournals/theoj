@@ -1,0 +1,17 @@
+<div id="dashboard">
+  <div id="page">
+    <%= render 'layouts/flashes' %>
+    <%= render 'review_assignments_banner' %>
+
+    <div class="papers">
+      <h2 class="headline"><%= headine_for_user(current_user, reviewer_papers, editor_papers, author_papers) %></h2>
+      <%= render partial: "dashboard_section", locals: { papers: editor_papers, section: "editing" } if editor_papers.any? %>
+      <%= render partial: "dashboard_section", locals: { papers: author_papers, section: "submitted" } if author_papers.any? %>
+      <%= render partial: "dashboard_section", locals: { papers: reviewer_papers, section: "reviewing" } if reviewer_papers.any? %>
+      <br />
+    </div>
+  </div>
+
+</div>
+
+<%= render 'layouts/footer' %>

@@ -1,15 +1,15 @@
 <div id="toolbar">
 
   <a class="drawer-toggle">&#9776;</a>
-  <div class="title">The Open Journal</div>
+  <a href="/home" class="title">The Open Journal</a>
 
-   <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
-   <iron-icon id="search-icon" icon="icons:search"></iron-icon>
+  <!-- TODO decide where search should fit in this layout -->
+   <!-- <input id="search" is="iron-input" placeholder="Search" on-keyup="onSearchKeyUp">
+   <iron-icon id="search-icon" icon="icons:search"></iron-icon> -->
 
   <%- if signed_in? %>
       <%= render 'layouts/toolbar_logged_in' %>
   <%- else %>
       <%= render 'layouts/toolbar_logged_out' %>
   <%- end %>
-
 </div>

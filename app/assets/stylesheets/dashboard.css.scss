@@ -1,6 +1,4 @@
 #dashboard {
-
-  height:            100%;
   width:             100%;
   background-image:  image-url('static/wallpaper.jpg');
   background-repeat: no-repeat;
@@ -28,7 +26,7 @@
     width:      100%;
     background: #efefef;
 
-    h2.recent {
+    h2.category {
       font-family: Neuton;
       color:       #192023;
       font-size:   45px;/* Approximation due to font substitution */
@@ -38,10 +36,215 @@
       padding:     20px 0 30px 0;
     }
 
+    h2.headline {
+      font-family: Neuton;
+      color:       #192023;
+      font-size:   45px;/* Approximation due to font substitution */
+      font-weight: 300;
+      line-height: 70px;/* Approximation due to font substitution */
+      text-align:  center;
+      padding:     50px 100px 30px 100px;
+
+      a {
+        text-decoration: underline;
+        color: #54d1b8;
+      }
+
+      &.left-align {
+        text-align: left;
+        padding: 50px 0px 10px 0px;
+      }
+    }
+
+    .authors {
+      font-family:      Roboto;
+      font-size:        18px;
+      font-weight:      400;
+    }
+
+    .timeline {
+      padding-top: 20px;
+
+      .event {
+        padding: 20px 30px;
+        background: #fff;
+        border-bottom: 1px solid #efefef;
+
+        .title {
+          font-family: Neuton;
+          color:       #192023;
+          margin-bottom: 0px;
+          font-size:   30px;/* Approximation due to font substitution */
+          font-weight: 400;
+          width:       800px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .meta {
+          font-style: italic;
+          font-family: Roboto;
+          color:       #192023;
+          font-size:   15px;/* Approximation due to font substitution */
+
+          .completed {
+            background: lightgreen;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+
+          .not-complete {
+            background: red;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+
+          .in-progress {
+            background: orange;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+        }
+
+        .action {
+          box-sizing:       border-box;
+          display:          inline-block;
+          float: right;
+          border-radius:    3px;
+          border:           2px solid transparent;
+          background:       #54d1b8;
+          height:           40px;
+          font-family:      Roboto;
+          color:            #fff;
+          font-size:        17px;/* Approximation due to font substitution */
+          font-weight:      400;
+          text-align:       center;
+          text-decoration:  none;
+          white-space:      nowrap;
+          margin-left:      4px;
+          padding:          8px 20px;
+          margin-top: 10px;
+
+          &.history {
+            background: #C0C0C0;
+
+            iron-icon {
+              margin: -5px 0px 0px 5px;
+            }
+          }
+        }
+      }
+    }
+
+    .flash {
+      font-family:      Roboto;
+      font-size:        22px;
+      font-weight:      400;
+      padding:          30px 100px;
+      border: unset !important;
+      border-radius: unset !important;
+    }
+
+    .banner {
+      background:       #54d1b8;
+      color:            #edf12c;
+      font-family:      Roboto;
+      font-size:        22px;
+      font-weight:      400;
+      padding:          30px 100px;
+
+      a {
+        color:          #edf12c;
+        text-decoration: underline;
+        font-weight:      700;
+      }
+
+      iron-icon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
     .papers {
       width:          1150px;
       margin:         0 auto;
       padding-bottom: 60px;
+
+      .sorry {
+        font-style: italic;
+        font-family: Roboto;
+        color:       #192023;
+        font-size:   15px;/* Approximation due to font substitution */
+        padding-left: 30px;
+      }
+
+      .dashboard_paper {
+        padding: 20px 30px;
+        background: #fff;
+        border-bottom: 1px solid #efefef;
+
+        .title {
+          font-family: Neuton;
+          color:       #192023;
+          margin-bottom: 0px;
+          font-size:   30px;/* Approximation due to font substitution */
+          font-weight: 400;
+          width:       800px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .meta {
+          font-style: italic;
+          font-family: Roboto;
+          color:       #192023;
+          font-size:   15px;/* Approximation due to font substitution */
+
+          .completed {
+            background: lightgreen;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+
+          .not-complete {
+            background: red;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+
+          .in-progress {
+            background: orange;
+            padding: 3px 5px;
+            border-radius:    2px;
+          }
+        }
+
+        .action {
+          box-sizing:       border-box;
+          display:          inline-block;
+          float: right;
+          border-radius:    3px;
+          border:           2px solid transparent;
+          background:       #54d1b8;
+          height:           40px;
+          font-family:      Roboto;
+          color:            #fff;
+          font-size:        17px;/* Approximation due to font substitution */
+          font-weight:      400;
+          text-align:       center;
+          text-decoration:  none;
+          white-space:      nowrap;
+          margin-left:      4px;
+          padding:          8px 20px;
+          margin-top: 10px;
+
+          &.history {
+            background: #C0C0C0;
+          }
+        }
+      }
     }
 
     .paper {
@@ -93,5 +296,4 @@
       }
     }
   }
-
 }

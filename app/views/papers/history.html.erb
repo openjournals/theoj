@@ -1,0 +1,45 @@
+<div id="dashboard">
+  <div id="page">
+    <%= render 'layouts/flashes' %>
+
+    <div class="papers">
+
+      <h2 class="headline left-align"><%= @paper.title %></h2>
+      <p class="authors"><%= @paper.authors %></p>
+
+      <div class="timeline">
+      <% @paper.all_versions.each do |paper_version| %>
+        <div class="event">
+          <a href="mailto:<%= paper_version.submittor.email %>" class="action history">Contact <iron-icon icon="icons:mail"></iron-icon></a>
+          <p class="title">Paper Submitted by <%= paper_version.submittor.name %></p>
+          <p class="meta"><a href="https://arxiv.org/abs/<%= paper_version.provider_id %>"><%= paper_version.typed_provider_id %></a> / <%= paper_version.created_at.strftime('%d %B %Y') %></p>
+        </div>
+
+        <% paper_version.assignments.each do |assignment| %>
+          <% unless assignment.role == "submittor" %>
+          <div class="event">
+            <a href="mailto:<%= assignment.user.email %>" class="action history">Contact <iron-icon icon="icons:mail"></iron-icon></a>
+            <p class="title"><%= assignment.user.name %> assigned as <em><%= assignment.role.capitalize %></em></p>
+            <p class="meta">
+              <%= assignment.created_at.strftime('%d %B %Y') %>
+              <% if assignment.role == "reviewer" %>
+                <% if assignment.completed? %>
+                  / <span class="completed">Review complete</span>
+                <% elsif assignment.annotations.any? %>
+                  / <span class="in-progress">Review started</span>
+                <% else %>
+                  / <span class="not-complete">Review not started</span>
+                <% end %>
+              <% end %>
+            </p>
+          </div>
+          <% end %>
+        <% end %>
+      <% end %>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<%= render 'layouts/footer' %>

@@ -36,9 +36,10 @@ class Api::V1::PapersController < Api::V1::ApplicationController
     authorize! :create, paper
 
     if paper.save
+      flash[:notice] = "Paper created"
       render json:paper, status: :created, location:paper_review_url(paper), serializer:PaperSerializer
     else
-      render json:aper.errors, status: :unprocessable_entity
+      render json:paper.errors, status: :unprocessable_entity
     end
   end
 

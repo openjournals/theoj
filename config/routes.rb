@@ -64,12 +64,15 @@ Theoj::Application.routes.draw do
 
 
   # TODO: actually hook this up
+  get '/about',                   to: 'home#temp_about'
+  get '/dashboard',               to: 'home#temp_dashboard'
   get '/home',                    to: 'home#temp_home'
 
   resources :papers, only: [], param: :identifier, identifier: /[^\/]+/ do
     member do
       # Add custom review badge URL for now
       get 'badge',     action: 'badge'
+      get 'history',   action: 'history'
     end
   end
 

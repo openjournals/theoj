@@ -1,0 +1,26 @@
+<h2 class="category" id="<%= section %>"><%= section.titlecase %></h2>
+
+<% papers.each do |paper| %>
+<div class="dashboard_paper">
+  <%= link_to "View &uarr;".html_safe, paper_review_path(paper), class: "action" %>
+  <%= link_to "History", history_paper_path(paper), class: "action history" if current_user.editor_of?(paper) %>
+  <p class="title"><%= paper.title %></p>
+  <p class="meta">
+    <a href="https://arxiv.org/abs/<%= paper.provider_id %>"><%= paper.typed_provider_id %></a>
+    / <%= paper.authors.split(',').first %>
+    / <%= paper.created_at.strftime('%d %B %Y') %>
+    <% if paper.reviewer_assignments.any? %>
+      <% paper.reviewer_assignments.each_with_index do |assignment, index| %>
+        <% reviewer_index = index + 1 %>
+        <% if assignment.completed? %>
+          / <span class="completed">Reviewer <%= reviewer_index %> complete</span>
+        <% elsif assignment.annotations.any? %>
+          / <span class="in-progress">Reviewer <%= reviewer_index %> started</span>
+        <% else %>
+          / <span class="not-complete">Reviewer <%= reviewer_index %> not started</span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </p>
+</div>
+<% end %>

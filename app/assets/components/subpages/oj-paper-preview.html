@@ -34,8 +34,8 @@
         font-family: Neuton;
         color: #192023;
         font-size: 32px; /* Approximation due to font substitution */
-        font-weight: 700;
-        line-height: 30px; /* Approximation due to font substitution */
+        font-weight: 400;
+        line-height: 35px; /* Approximation due to font substitution */
         text-align: left;
       }
 
@@ -177,7 +177,8 @@
 
       onPostRepsonse: function (response) {
         this.fire('notification', 'Paper ' + this.paper_details.title + ' submitted');
-        this.fire('go', '/submitted');
+        window.location.href = '/dashboard';
+        // this.fire('go', '/');
       },
 
       onPostError: function (event) {

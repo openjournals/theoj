@@ -45,7 +45,63 @@ describe PapersController do
       expect(response.content_type).to eq("application/json")
       expect(response.body).to be_blank
     end
+  end
 
+
+  describe "GET #history" do
+    render_views
+
+    it "WITH USER should stop a random editor from viewing a paper history" do
+      paper_as_editor = create(:paper)
+      paper = create(:paper)
+      user = authenticate
+
+      # Assign user as editor on a paper
+      create(:assignment, :editor, paper: paper_as_editor, user: user)
+
+      # User has no assignments on this paper so should not be able to view the history
+      get :history, identifier: paper.typed_provider_id
+
+      expect(response.status).to eq(403)
+    end
+
+    it "WITH USER should stop non-editor from viewing paper history" do
+      paper = create(:paper)
+      user = authenticate
+
+      # Assign user as reviewer on a paper
+      create(:assignment, :reviewer, paper: paper, user: user)
+
+      # User is not editor of paper so should not be able to see the full history
+      get :history, identifier: paper.typed_provider_id
+
+      expect(response.status).to eq(403)
+    end
+
+    it "WITH USER should allow the editor to view the paper history" do
+      paper = create(:paper)
+      user = authenticate
+      user.editor = true; user.save
+
+      # Assign user as editor on a paper
+      create(:assignment, :editor, paper: paper, user: user)
+
+      # User is the editor so should be able to see the paper history
+      get :history, identifier: paper.typed_provider_id, format:'html'
+
+      expect(response.status).to eq(200)
+    end
+
+    it "WITH USER should allow any admin to view the paper history" do
+      paper = create(:paper)
+      user = authenticate
+      user.admin = true; user.save
+
+      # User is an admin so should be able to see the paper history
+      get :history, identifier: paper.typed_provider_id, format:'html'
+
+      expect(response.status).to eq(200)
+    end
   end
 
 end

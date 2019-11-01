@@ -1,0 +1,5 @@
+<% if flash.present? %>
+<div class="flash">
+  <%= flash.map { |key, value| value }.join("\r\n") %>
+</div>
+<% end %>

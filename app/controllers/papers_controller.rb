@@ -1,6 +1,8 @@
 class PapersController < ApplicationController
   respond_to :json
 
+  before_filter :require_paper_editor_or_admin, only: [ :history ]
+
   def badge
     if stale?(paper)
 
@@ -10,6 +12,10 @@ class PapersController < ApplicationController
       end
 
     end
+  end
+
+  def history
+    @paper = paper
   end
 
   private
